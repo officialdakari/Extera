@@ -124,7 +124,7 @@ export function AuthLayout() {
   return (
     <Scroll variant="Background" visibility="Hover" size="300" hideTrack>
       <Box
-        className={classNames(css.AuthLayout, PatternsCss.BackgroundDotPattern)}
+        className={classNames(css.AuthLayout)}
         direction="Column"
         alignItems="Center"
         justifyContent="SpaceBetween"
@@ -133,8 +133,8 @@ export function AuthLayout() {
         <Box direction="Column" className={css.AuthCard}>
           <Header className={css.AuthHeader} size="600" variant="Surface">
             <Box grow="Yes" direction="Row" gap="300" alignItems="Center">
-              <img className={css.AuthLogo} src={CinnySVG} alt="Cinny Logo" />
-              <Text size="H3">Cinny</Text>
+              <img className={css.AuthLogo} src={CinnySVG} alt="Extera Logo" />
+              <Text size="H3">Extera</Text>
             </Box>
           </Header>
           <Box className={css.AuthCardContent} direction="Column">

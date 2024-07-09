@@ -4,37 +4,37 @@ import * as css from './UserAvatar.css';
 import colorMXID from '../../../util/colorMXID';
 
 type UserAvatarProps = {
-  userId: string;
-  src?: string;
-  alt?: string;
-  renderFallback: () => ReactNode;
+    userId: string;
+    src?: string;
+    alt?: string;
+    renderFallback: () => ReactNode;
 };
 export function UserAvatar({ userId, src, alt, renderFallback }: UserAvatarProps) {
-  const [error, setError] = useState(false);
+    const [error, setError] = useState(false);
 
-  const handleLoad: ReactEventHandler<HTMLImageElement> = (evt) => {
-    evt.currentTarget.setAttribute('data-image-loaded', 'true');
-  };
+    const handleLoad: ReactEventHandler<HTMLImageElement> = (evt) => {
+        evt.currentTarget.setAttribute('data-image-loaded', 'true');
+    };
 
-  if (!src || error) {
+    if (!src || error) {
+        return (
+            <AvatarFallback
+                style={{ backgroundColor: colorMXID(userId), color: color.Surface.Container }}
+                className={css.UserAvatar}
+            >
+                {renderFallback()}
+            </AvatarFallback>
+        );
+    }
+
     return (
-      <AvatarFallback
-        style={{ backgroundColor: colorMXID(userId), color: color.Surface.Container }}
-        className={css.UserAvatar}
-      >
-        {renderFallback()}
-      </AvatarFallback>
+        <AvatarImage
+            className={css.UserAvatar}
+            src={src}
+            alt={alt}
+            onError={() => setError(true)}
+            onLoad={handleLoad}
+            draggable={false}
+        />
     );
-  }
-
-  return (
-    <AvatarImage
-      className={css.UserAvatar}
-      src={src}
-      alt={alt}
-      onError={() => setError(true)}
-      onLoad={handleLoad}
-      draggable={false}
-    />
-  );
 }

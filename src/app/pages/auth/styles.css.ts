@@ -3,7 +3,8 @@ import { DefaultReset, color, config, toRem } from 'folds';
 
 export const AuthLayout = style({
   minHeight: '100%',
-  backgroundColor: color.Background.Container,
+  backgroundImage: 'url(https://officialdakari.ru/_matrix/media/r0/download/officialdakari.ru/EMvoppRrlGWBXRpYFbQySPtf)',
+  backgroundSize: 'cover',
   color: color.Background.OnContainer,
   padding: config.space.S400,
   paddingRight: config.space.S200,

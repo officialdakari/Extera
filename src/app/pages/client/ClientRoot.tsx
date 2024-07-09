@@ -15,73 +15,74 @@ import Dialogs from '../../organisms/pw/Dialogs';
 import ReusableContextMenu from '../../atoms/context-menu/ReusableContextMenu';
 import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
+import { RandomFact } from '../../../fact';
 
 function SystemEmojiFeature() {
-  const [twitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
+    const [twitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
 
-  if (twitterEmoji) {
-    document.documentElement.style.setProperty('--font-emoji', 'Twemoji');
-  } else {
-    document.documentElement.style.setProperty('--font-emoji', 'Twemoji_DISABLED');
-  }
+    if (twitterEmoji) {
+        document.documentElement.style.setProperty('--font-emoji', 'Twemoji');
+    } else {
+        document.documentElement.style.setProperty('--font-emoji', 'Twemoji_DISABLED');
+    }
 
-  return null;
+    return null;
 }
 
 function ClientRootLoading() {
-  return (
-    <SplashScreen>
-      <Box direction="Column" grow="Yes" alignItems="Center" justifyContent="Center" gap="400">
-        <Spinner variant="Secondary" size="600" />
-        <Text>Heating up</Text>
-      </Box>
-    </SplashScreen>
-  );
+    return (
+        <SplashScreen>
+            <Box direction="Column" grow="Yes" alignItems="Center" justifyContent="Center" gap="400">
+                <Spinner variant="Secondary" size="600" />
+                <RandomFact />
+            </Box>
+        </SplashScreen>
+    );
 }
 
 type ClientRootProps = {
-  children: ReactNode;
+    children: ReactNode;
 };
 export function ClientRoot({ children }: ClientRootProps) {
-  const [loading, setLoading] = useState(true);
-  const { baseUrl } = getSecret();
+    const [loading, setLoading] = useState(true);
+    const { baseUrl } = getSecret();
 
-  useEffect(() => {
-    const handleStart = () => {
-      initHotkeys();
-      initRoomListListener(initMatrix.roomList);
-      setLoading(false);
-    };
-    initMatrix.once('init_loading_finished', handleStart);
-    if (!initMatrix.matrixClient) initMatrix.init();
-    return () => {
-      initMatrix.removeListener('init_loading_finished', handleStart);
-    };
-  }, []);
+    useEffect(() => {
+        const handleStart = () => {
+            initHotkeys();
+            initRoomListListener(initMatrix.roomList);
+            setLoading(false);
+        };
+        initMatrix.once('init_loading_finished', handleStart);
+        if (!initMatrix.matrixClient) initMatrix.init();
+        return () => {
+            initMatrix.removeListener('init_loading_finished', handleStart);
+        };
+    }, []);
 
-  return (
-    <SpecVersions baseUrl={baseUrl!}>
-      {loading ? (
-        <ClientRootLoading />
-      ) : (
-        <MatrixClientProvider value={initMatrix.matrixClient!}>
-          <CapabilitiesAndMediaConfigLoader>
-            {(capabilities, mediaConfig) => (
-              <CapabilitiesProvider value={capabilities ?? {}}>
-                <MediaConfigProvider value={mediaConfig ?? {}}>
-                  {children}
+    return (
+        <SpecVersions baseUrl={baseUrl!}>
+            {loading ? (
+                <ClientRootLoading />
+            ) : (
+                <MatrixClientProvider value={initMatrix.matrixClient!}>
+                    <CapabilitiesAndMediaConfigLoader>
+                        {(capabilities, mediaConfig) => (
+                            <CapabilitiesProvider value={capabilities ?? {}}>
+                                <MediaConfigProvider value={mediaConfig ?? {}}>
+                                    {children}
 
-                  {/* TODO: remove these components after navigation refactor */}
-                  <Windows />
-                  <Dialogs />
-                  <ReusableContextMenu />
-                  <SystemEmojiFeature />
-                </MediaConfigProvider>
-              </CapabilitiesProvider>
+                                    {/* TODO: remove these components after navigation refactor */}
+                                    <Windows />
+                                    <Dialogs />
+                                    <ReusableContextMenu />
+                                    <SystemEmojiFeature />
+                                </MediaConfigProvider>
+                            </CapabilitiesProvider>
+                        )}
+                    </CapabilitiesAndMediaConfigLoader>
+                </MatrixClientProvider>
             )}
-          </CapabilitiesAndMediaConfigLoader>
-        </MatrixClientProvider>
-      )}
-    </SpecVersions>
-  );
+        </SpecVersions>
+    );
 }

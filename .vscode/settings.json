@@ -1,5 +1,23 @@
 {
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "typescript.tsdk": "node_modules/typescript/lib"
+"typescript.tsdk": "node_modules/typescript/lib",
+"[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+},
+"[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+},
+"[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+},
+"[javascriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+},
+"[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+},
+"[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+}
 }

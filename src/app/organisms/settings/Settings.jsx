@@ -6,8 +6,8 @@ import cons from '../../../client/state/cons';
 import settings from '../../../client/state/settings';
 import navigation from '../../../client/state/navigation';
 import {
-  toggleSystemTheme,
-  toggleNotifications, toggleNotificationSounds,
+    toggleSystemTheme,
+    toggleNotifications, toggleNotificationSounds,
 } from '../../../client/action/settings';
 import { usePermission } from '../../hooks/usePermission';
 
@@ -47,434 +47,564 @@ import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import { isMacOS } from '../../utils/user-agent';
 import { KeySymbol } from '../../utils/key-symbol';
+import { useMatrixClient } from '../../hooks/useMatrixClient';
+import { Input } from 'folds';
 
 function AppearanceSection() {
-  const [, updateState] = useState({});
+    const [, updateState] = useState({});
 
-  const [enterForNewline, setEnterForNewline] = useSetting(settingsAtom, 'enterForNewline');
-  const [messageLayout, setMessageLayout] = useSetting(settingsAtom, 'messageLayout');
-  const [messageSpacing, setMessageSpacing] = useSetting(settingsAtom, 'messageSpacing');
-  const [twitterEmoji, setTwitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
-  const [isMarkdown, setIsMarkdown] = useSetting(settingsAtom, 'isMarkdown');
-  const [hideMembershipEvents, setHideMembershipEvents] = useSetting(settingsAtom, 'hideMembershipEvents');
-  const [hideNickAvatarEvents, setHideNickAvatarEvents] = useSetting(settingsAtom, 'hideNickAvatarEvents');
-  const [mediaAutoLoad, setMediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
-  const [urlPreview, setUrlPreview] = useSetting(settingsAtom, 'urlPreview');
-  const [encUrlPreview, setEncUrlPreview] = useSetting(settingsAtom, 'encUrlPreview');
-  const [showHiddenEvents, setShowHiddenEvents] = useSetting(settingsAtom, 'showHiddenEvents');
-  const spacings = ['0', '100', '200', '300', '400', '500']
+    const [enterForNewline, setEnterForNewline] = useSetting(settingsAtom, 'enterForNewline');
+    const [messageLayout, setMessageLayout] = useSetting(settingsAtom, 'messageLayout');
+    const [messageSpacing, setMessageSpacing] = useSetting(settingsAtom, 'messageSpacing');
+    const [twitterEmoji, setTwitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
+    const [isMarkdown, setIsMarkdown] = useSetting(settingsAtom, 'isMarkdown');
+    const [hideMembershipEvents, setHideMembershipEvents] = useSetting(settingsAtom, 'hideMembershipEvents');
+    const [hideNickAvatarEvents, setHideNickAvatarEvents] = useSetting(settingsAtom, 'hideNickAvatarEvents');
+    const [mediaAutoLoad, setMediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
+    const [urlPreview, setUrlPreview] = useSetting(settingsAtom, 'urlPreview');
+    const [encUrlPreview, setEncUrlPreview] = useSetting(settingsAtom, 'encUrlPreview');
+    const [showHiddenEvents, setShowHiddenEvents] = useSetting(settingsAtom, 'showHiddenEvents');
+    const spacings = ['0', '100', '200', '300', '400', '500']
 
-  return (
-    <div className="settings-appearance">
-      <div className="settings-appearance__card">
-        <MenuHeader>Theme</MenuHeader>
-        <SettingTile
-          title="Follow system theme"
-          options={(
-            <Toggle
-              isActive={settings.useSystemTheme}
-              onToggle={() => { toggleSystemTheme(); updateState({}); }}
-            />
-          )}
-          content={<Text variant="b3">Use light or dark mode based on the system settings.</Text>}
-        />
-        <SettingTile
-          title="Theme"
-          content={(
-            <SegmentedControls
-              selected={settings.useSystemTheme ? -1 : settings.getThemeIndex()}
-              segments={[
-                { text: 'Light' },
-                { text: 'Silver' },
-                { text: 'Dark' },
-                { text: 'Butter' },
-              ]}
-              onSelect={(index) => {
-                if (settings.useSystemTheme) toggleSystemTheme();
-                settings.setTheme(index);
-                updateState({});
-              }}
-            />
-        )}
-        />
-        <SettingTile
-          title="Use Twitter Emoji"
-          options={(
-            <Toggle
-              isActive={twitterEmoji}
-              onToggle={() => setTwitterEmoji(!twitterEmoji)}
-            />
-          )}
-          content={<Text variant="b3">Use Twitter emoji instead of system emoji.</Text>}
-        />
-      </div>
-      <div className="settings-appearance__card">
-        <MenuHeader>Room messages</MenuHeader>
-        <SettingTile
-          title="Message Layout"
-          content={
-            <SegmentedControls
-            selected={messageLayout}
-            segments={[
-              { text: 'Modern' },
-              { text: 'Compact' },
-              { text: 'Bubble' },
-            ]}
-            onSelect={(index) => setMessageLayout(index)}
-          />
-          }
-        />
-        <SettingTile
-          title="Message Spacing"
-          content={
-            <SegmentedControls
-            selected={spacings.findIndex((s) => s === messageSpacing)}
-            segments={[
-              { text: 'No' },
-              { text: 'XXS' },
-              { text: 'XS' },
-              { text: 'S' },
-              { text: 'M' },
-              { text: 'L' },
-            ]}
-            onSelect={(index) => {
-              setMessageSpacing(spacings[index])
-            }}
-          />
-          }
-        />
-        <SettingTile
-          title="Use ENTER for Newline"
-          options={(
-            <Toggle
-              isActive={enterForNewline}
-              onToggle={() => setEnterForNewline(!enterForNewline) }
-            />
-          )}
-          content={<Text variant="b3">{`Use ${isMacOS() ? KeySymbol.Command : 'Ctrl'} + ENTER to send message and ENTER for newline.`}</Text>}
-        />
-        <SettingTile
-          title="Markdown formatting"
-          options={(
-            <Toggle
-              isActive={isMarkdown}
-              onToggle={() => setIsMarkdown(!isMarkdown) }
-            />
-          )}
-          content={<Text variant="b3">Format messages with markdown syntax before sending.</Text>}
-        />
-        <SettingTile
-          title="Hide membership events"
-          options={(
-            <Toggle
-              isActive={hideMembershipEvents}
-              onToggle={() => setHideMembershipEvents(!hideMembershipEvents)}
-            />
-          )}
-          content={<Text variant="b3">Hide membership change messages from room timeline. (Join, Leave, Invite, Kick and Ban)</Text>}
-        />
-        <SettingTile
-          title="Hide nick/avatar events"
-          options={(
-            <Toggle
-              isActive={hideNickAvatarEvents}
-              onToggle={() => setHideNickAvatarEvents(!hideNickAvatarEvents)}
-            />
-          )}
-          content={<Text variant="b3">Hide nick and avatar change messages from room timeline.</Text>}
-        />
-        <SettingTile
-          title="Disable media auto load"
-          options={(
-            <Toggle
-              isActive={!mediaAutoLoad}
-              onToggle={() => setMediaAutoLoad(!mediaAutoLoad)}
-            />
-          )}
-          content={<Text variant="b3">Prevent images and videos from auto loading to save bandwidth.</Text>}
-        />
-        <SettingTile
-          title="Url Preview"
-          options={(
-            <Toggle
-              isActive={urlPreview}
-              onToggle={() => setUrlPreview(!urlPreview)}
-            />
-          )}
-          content={<Text variant="b3">Show url preview for link in messages.</Text>}
-        />
-        <SettingTile
-          title="Url Preview in Encrypted Room"
-          options={(
-            <Toggle
-              isActive={encUrlPreview}
-              onToggle={() => setEncUrlPreview(!encUrlPreview)}
-            />
-          )}
-          content={<Text variant="b3">Show url preview for link in encrypted messages.</Text>}
-        />
-        <SettingTile
-          title="Show hidden events"
-          options={(
-            <Toggle
-              isActive={showHiddenEvents}
-              onToggle={() => setShowHiddenEvents(!showHiddenEvents)}
-            />
-          )}
-          content={<Text variant="b3">Show hidden state and message events.</Text>}
-        />
-      </div>
-    </div>
-  );
+    return (
+        <div className="settings-appearance">
+            <div className="settings-appearance__card">
+                <MenuHeader>Theme</MenuHeader>
+                <SettingTile
+                    title="Follow system theme"
+                    options={(
+                        <Toggle
+                            isActive={settings.useSystemTheme}
+                            onToggle={() => { toggleSystemTheme(); updateState({}); }}
+                        />
+                    )}
+                    content={<Text variant="b3">Use light or dark mode based on the system settings.</Text>}
+                />
+                <SettingTile
+                    title="Theme"
+                    content={(
+                        <SegmentedControls
+                            selected={settings.useSystemTheme ? -1 : settings.getThemeIndex()}
+                            segments={[
+                                { text: 'Light' },
+                                { text: 'Silver' },
+                                { text: 'Dark' },
+                                { text: 'Butter' },
+                            ]}
+                            onSelect={(index) => {
+                                if (settings.useSystemTheme) toggleSystemTheme();
+                                settings.setTheme(index);
+                                updateState({});
+                            }}
+                        />
+                    )}
+                />
+                <SettingTile
+                    title="Use Twitter Emoji"
+                    options={(
+                        <Toggle
+                            isActive={twitterEmoji}
+                            onToggle={() => setTwitterEmoji(!twitterEmoji)}
+                        />
+                    )}
+                    content={<Text variant="b3">Use Twitter emoji instead of system emoji.</Text>}
+                />
+            </div>
+            <div className="settings-appearance__card">
+                <MenuHeader>Room messages</MenuHeader>
+                <SettingTile
+                    title="Message Layout"
+                    content={
+                        <SegmentedControls
+                            selected={messageLayout}
+                            segments={[
+                                { text: 'Modern' },
+                                { text: 'Compact' },
+                                { text: 'Bubble' },
+                            ]}
+                            onSelect={(index) => setMessageLayout(index)}
+                        />
+                    }
+                />
+                <SettingTile
+                    title="Message Spacing"
+                    content={
+                        <SegmentedControls
+                            selected={spacings.findIndex((s) => s === messageSpacing)}
+                            segments={[
+                                { text: 'No' },
+                                { text: 'XXS' },
+                                { text: 'XS' },
+                                { text: 'S' },
+                                { text: 'M' },
+                                { text: 'L' },
+                            ]}
+                            onSelect={(index) => {
+                                setMessageSpacing(spacings[index])
+                            }}
+                        />
+                    }
+                />
+                <SettingTile
+                    title="Use ENTER for Newline"
+                    options={(
+                        <Toggle
+                            isActive={enterForNewline}
+                            onToggle={() => setEnterForNewline(!enterForNewline)}
+                        />
+                    )}
+                    content={<Text variant="b3">{`Use ${isMacOS() ? KeySymbol.Command : 'Ctrl'} + ENTER to send message and ENTER for newline.`}</Text>}
+                />
+                <SettingTile
+                    title="Markdown formatting"
+                    options={(
+                        <Toggle
+                            isActive={isMarkdown}
+                            onToggle={() => setIsMarkdown(!isMarkdown)}
+                        />
+                    )}
+                    content={<Text variant="b3">Format messages with markdown syntax before sending.</Text>}
+                />
+                <SettingTile
+                    title="Hide membership events"
+                    options={(
+                        <Toggle
+                            isActive={hideMembershipEvents}
+                            onToggle={() => setHideMembershipEvents(!hideMembershipEvents)}
+                        />
+                    )}
+                    content={<Text variant="b3">Hide membership change messages from room timeline. (Join, Leave, Invite, Kick and Ban)</Text>}
+                />
+                <SettingTile
+                    title="Hide nick/avatar events"
+                    options={(
+                        <Toggle
+                            isActive={hideNickAvatarEvents}
+                            onToggle={() => setHideNickAvatarEvents(!hideNickAvatarEvents)}
+                        />
+                    )}
+                    content={<Text variant="b3">Hide nick and avatar change messages from room timeline.</Text>}
+                />
+                <SettingTile
+                    title="Disable media auto load"
+                    options={(
+                        <Toggle
+                            isActive={!mediaAutoLoad}
+                            onToggle={() => setMediaAutoLoad(!mediaAutoLoad)}
+                        />
+                    )}
+                    content={<Text variant="b3">Prevent images and videos from auto loading to save bandwidth.</Text>}
+                />
+                <SettingTile
+                    title="Url Preview"
+                    options={(
+                        <Toggle
+                            isActive={urlPreview}
+                            onToggle={() => setUrlPreview(!urlPreview)}
+                        />
+                    )}
+                    content={<Text variant="b3">Show url preview for link in messages.</Text>}
+                />
+                <SettingTile
+                    title="Url Preview in Encrypted Room"
+                    options={(
+                        <Toggle
+                            isActive={encUrlPreview}
+                            onToggle={() => setEncUrlPreview(!encUrlPreview)}
+                        />
+                    )}
+                    content={<Text variant="b3">Show url preview for link in encrypted messages.</Text>}
+                />
+                <SettingTile
+                    title="Show hidden events"
+                    options={(
+                        <Toggle
+                            isActive={showHiddenEvents}
+                            onToggle={() => setShowHiddenEvents(!showHiddenEvents)}
+                        />
+                    )}
+                    content={<Text variant="b3">Show hidden state and message events.</Text>}
+                />
+            </div>
+        </div>
+    );
+}
+
+function ExteraSection() {
+    const mx = useMatrixClient();
+    const [hideTgAds, setHideTgAds] = useSetting(settingsAtom, 'extera_hideTgAds');
+    const [enableCaptions, setEnableCaptions] = useSetting(settingsAtom, 'extera_enableCaptions');
+    const [renameTgBot, setRenameTgBot] = useSetting(settingsAtom, 'extera_renameTgBot');
+    const [ghostMode, setGhostMode] = useSetting(settingsAtom, 'extera_ghostMode');
+    const [smoothScroll, setSmoothScroll] = useSetting(settingsAtom, 'extera_smoothScroll');
+    const [status, setStatus] = useSetting(settingsAtom, 'extera_status');
+    const [statusMsg, setStatusMsg] = useSetting(settingsAtom, 'extera_status_message');
+
+    const updateStatusMessage = (evt) => {
+        evt.preventDefault();
+        const { statusInput } = evt.target.elements;
+        const value = statusInput.value.trim();
+        if (value === '') return;
+        setStatusMsg(value);
+        mx.setPresence({
+            status_msg: statusMsg
+        });
+    };
+
+    return (
+        <div className="settings-extera">
+            <div className="settings-extera__card">
+                <MenuHeader>Extera Settings</MenuHeader>
+                <SettingTile
+                    title="Hide Telegram advertisements"
+                    options={(
+                        <Toggle
+                            isActive={hideTgAds}
+                            onToggle={() => setHideTgAds(!hideTgAds)}
+                        />
+                    )}
+                    content={<Text variant="b3">{`Hide advertisements in Telegram channels.`}</Text>}
+                />
+                <SettingTile
+                    title="Send captions in one message (WIP)"
+                    options={(
+                        <Toggle
+                            isActive={enableCaptions}
+                            onToggle={() => setEnableCaptions(!enableCaptions)}
+                        />
+                    )}
+                    content={<Text variant="b3">{`Send captions in files instead of a seperate message.`}</Text>}
+                />
+                <SettingTile
+                    title="Smooth scroll"
+                    options={(
+                        <Toggle
+                            isActive={smoothScroll}
+                            onToggle={() => setSmoothScroll(!smoothScroll)}
+                        />
+                    )}
+                    content={<Text variant="b3">{`Scroll smoothly when receiving a new message.`}</Text>}
+                />
+                <SettingTile
+                    title="Rename Telegram bridge bot in channels"
+                    options={(
+                        <Toggle
+                            isActive={renameTgBot}
+                            onToggle={() => setRenameTgBot(!renameTgBot)}
+                        />
+                    )}
+                    content={<Text variant="b3">{`Make Telegram bridge bot use room name and avatar instead of bot name.`}</Text>}
+                />
+            </div>
+            <div className="settings-extera__card">
+                <MenuHeader>Presence</MenuHeader>
+                <SettingTile
+                    title="Presence Status"
+                    content={(
+                        <SegmentedControls
+                            selected={status}
+                            segments={[
+                                { text: 'Online' },
+                                { text: 'Offline' },
+                                { text: 'AFK' }
+                            ]}
+                            onSelect={(index) => {
+                                const statuses = [
+                                    'online', 'offline', 'unavailable'
+                                ];
+                                mx.setSyncPresence(statuses[index]);
+                                mx.setPresence({
+                                    presence: statuses[index],
+                                    status_msg: index == 0 ? statusMsg : undefined
+                                }).then(() => {
+                                    console.log('Presence updated');
+                                }).catch(err => {
+                                    console.error('Could not update presence: ', err);
+                                });
+                                setStatus(index);
+                            }}
+                        />
+                    )}
+                />
+                <SettingTile
+                    title="Status message"
+                    content={(
+                        <>
+                            <Text variant="b3">Enter your status message.</Text>
+                            <form onSubmit={updateStatusMessage}>
+                                <Input name="statusInput" placeholder={statusMsg} />
+                                <Button variant="primary" type="submit">Set</Button>
+                            </form>
+                        </>
+                    )}
+                />
+                <SettingTile
+                    title="Ghost mode"
+                    options={(
+                        <Toggle
+                            isActive={ghostMode}
+                            onToggle={() => setGhostMode(!ghostMode)}
+                        />
+                    )}
+                    content={<Text variant="b3">{`Do not send read receipts and typing status.`}</Text>}
+                />
+            </div>
+        </div>
+    );
 }
 
 function NotificationsSection() {
-  const [permission, setPermission] = usePermission('notifications', window.Notification?.permission);
+    const [permission, setPermission] = usePermission('notifications', window.Notification?.permission);
 
-  const [, updateState] = useState({});
+    const [, updateState] = useState({});
 
-  const renderOptions = () => {
-    if (window.Notification === undefined) {
-      return <Text className="settings-notifications__not-supported">Not supported in this browser.</Text>;
-    }
+    const renderOptions = () => {
+        if (window.Notification === undefined) {
+            return <Text className="settings-notifications__not-supported">Not supported in this browser.</Text>;
+        }
 
-    if (permission === 'granted') {
-      return (
-        <Toggle
-          isActive={settings._showNotifications}
-          onToggle={() => {
-            toggleNotifications();
-            setPermission(window.Notification?.permission);
-            updateState({});
-          }}
-        />
-      );
-    }
+        if (permission === 'granted') {
+            return (
+                <Toggle
+                    isActive={settings._showNotifications}
+                    onToggle={() => {
+                        toggleNotifications();
+                        setPermission(window.Notification?.permission);
+                        updateState({});
+                    }}
+                />
+            );
+        }
+
+        return (
+            <Button
+                variant="primary"
+                onClick={() => window.Notification.requestPermission().then(setPermission)}
+            >
+                Request permission
+            </Button>
+        );
+    };
 
     return (
-      <Button
-        variant="primary"
-        onClick={() => window.Notification.requestPermission().then(setPermission)}
-      >
-        Request permission
-      </Button>
+        <>
+            <div className="settings-notifications">
+                <MenuHeader>Notification & Sound</MenuHeader>
+                <SettingTile
+                    title="Desktop notification"
+                    options={renderOptions()}
+                    content={<Text variant="b3">Show desktop notification when new messages arrive.</Text>}
+                />
+                <SettingTile
+                    title="Notification Sound"
+                    options={(
+                        <Toggle
+                            isActive={settings.isNotificationSounds}
+                            onToggle={() => { toggleNotificationSounds(); updateState({}); }}
+                        />
+                    )}
+                    content={<Text variant="b3">Play sound when new messages arrive.</Text>}
+                />
+            </div>
+            <GlobalNotification />
+            <KeywordNotification />
+            <IgnoreUserList />
+        </>
     );
-  };
-
-  return (
-    <>
-      <div className="settings-notifications">
-        <MenuHeader>Notification & Sound</MenuHeader>
-        <SettingTile
-          title="Desktop notification"
-          options={renderOptions()}
-          content={<Text variant="b3">Show desktop notification when new messages arrive.</Text>}
-        />
-        <SettingTile
-          title="Notification Sound"
-          options={(
-            <Toggle
-              isActive={settings.isNotificationSounds}
-              onToggle={() => { toggleNotificationSounds(); updateState({}); }}
-            />
-            )}
-          content={<Text variant="b3">Play sound when new messages arrive.</Text>}
-        />
-      </div>
-      <GlobalNotification />
-      <KeywordNotification />
-      <IgnoreUserList />
-    </>
-  );
 }
 
 function EmojiSection() {
-  return (
-    <>
-      <div className="settings-emoji__card"><ImagePackUser /></div>
-      <div className="settings-emoji__card"><ImagePackGlobal /></div>
-    </>
-  );
+    return (
+        <>
+            <div className="settings-emoji__card"><ImagePackUser /></div>
+            <div className="settings-emoji__card"><ImagePackGlobal /></div>
+        </>
+    );
 }
 
 function SecuritySection() {
-  return (
-    <div className="settings-security">
-      <div className="settings-security__card">
-        <MenuHeader>Cross signing and backup</MenuHeader>
-        <CrossSigning />
-        <KeyBackup />
-      </div>
-      <DeviceManage />
-      <div className="settings-security__card">
-        <MenuHeader>Export/Import encryption keys</MenuHeader>
-        <SettingTile
-          title="Export E2E room keys"
-          content={(
-            <>
-              <Text variant="b3">Export end-to-end encryption room keys to decrypt old messages in other session. In order to encrypt keys you need to set a password, which will be used while importing.</Text>
-              <ExportE2ERoomKeys />
-            </>
-          )}
-        />
-        <SettingTile
-          title="Import E2E room keys"
-          content={(
-            <>
-              <Text variant="b3">{'To decrypt older messages, Export E2EE room keys from Element (Settings > Security & Privacy > Encryption > Cryptography) and import them here. Imported keys are encrypted so you\'ll have to enter the password you set in order to decrypt it.'}</Text>
-              <ImportE2ERoomKeys />
-            </>
-          )}
-        />
-      </div>
-    </div>
-  );
+    return (
+        <div className="settings-security">
+            <div className="settings-security__card">
+                <MenuHeader>Cross signing and backup</MenuHeader>
+                <CrossSigning />
+                <KeyBackup />
+            </div>
+            <DeviceManage />
+            <div className="settings-security__card">
+                <MenuHeader>Export/Import encryption keys</MenuHeader>
+                <SettingTile
+                    title="Export E2E room keys"
+                    content={(
+                        <>
+                            <Text variant="b3">Export end-to-end encryption room keys to decrypt old messages in other session. In order to encrypt keys you need to set a password, which will be used while importing.</Text>
+                            <ExportE2ERoomKeys />
+                        </>
+                    )}
+                />
+                <SettingTile
+                    title="Import E2E room keys"
+                    content={(
+                        <>
+                            <Text variant="b3">{'To decrypt older messages, Export E2EE room keys from Element (Settings > Security & Privacy > Encryption > Cryptography) and import them here. Imported keys are encrypted so you\'ll have to enter the password you set in order to decrypt it.'}</Text>
+                            <ImportE2ERoomKeys />
+                        </>
+                    )}
+                />
+            </div>
+        </div>
+    );
 }
 
 function AboutSection() {
-  return (
-    <div className="settings-about">
-      <div className="settings-about__card">
-        <MenuHeader>Application</MenuHeader>
-        <div className="settings-about__branding">
-          <img width="60" height="60" src={CinnySVG} alt="Cinny logo" />
-          <div>
-            <Text variant="h2" weight="medium">
-              Cinny
-              <span className="text text-b3" style={{ margin: '0 var(--sp-extra-tight)' }}>{`v${cons.version}`}</span>
-            </Text>
-            <Text>Yet another matrix client</Text>
+    return (
+        <div className="settings-about">
+            <div className="settings-about__card">
+                <MenuHeader>Application</MenuHeader>
+                <div className="settings-about__branding">
+                    <img width="60" height="60" src={CinnySVG} alt="Extera logo" />
+                    <div>
+                        <Text variant="h2" weight="medium">
+                            Extera
+                            <span className="text text-b3" style={{ margin: '0 var(--sp-extra-tight)' }}>{`v${cons.version}`}</span>
+                        </Text>
+                        <Text>Fork of Cinny</Text>
 
-            <div className="settings-about__btns">
-              <Button onClick={() => window.open('https://github.com/ajbura/cinny')}>Source code</Button>
-              <Button onClick={() => window.open('https://cinny.in/#sponsor')}>Support</Button>
-              <Button onClick={() => initMatrix.clearCacheAndReload()} variant="danger">Clear cache & reload</Button>
+                        <div className="settings-about__btns">
+                            <Button onClick={() => window.open('https://git.cycloneteam.space/OfficialDakari/Extera')}>Source code</Button>
+                            <Button onClick={() => window.open('https://extera.officialdakari.ru/static/#sponsor')}>Support</Button>
+                            <Button onClick={() => initMatrix.clearCacheAndReload()} variant="danger">Clear cache & reload</Button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+            <div className="settings-about__card">
+                <MenuHeader>Credits</MenuHeader>
+                <div className="settings-about__credits">
+                    <ul>
+                        <li>
+                            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                            <Text>The <a href="https://github.com/matrix-org/matrix-js-sdk" rel="noreferrer noopener" target="_blank">matrix-js-sdk</a> is © <a href="https://matrix.org/foundation" rel="noreferrer noopener" target="_blank">The Matrix.org Foundation C.I.C</a> used under the terms of <a href="http://www.apache.org/licenses/LICENSE-2.0" rel="noreferrer noopener" target="_blank">Apache 2.0</a>.</Text>
+                        </li>
+                        <li>
+                            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                            <Text>The <a href="https://github.com/mozilla/twemoji-colr" target="_blank" rel="noreferrer noopener">twemoji-colr</a> font is © <a href="https://mozilla.org/" target="_blank" rel="noreferrer noopener">Mozilla Foundation</a> used under the terms of <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noreferrer noopener">Apache 2.0</a>.</Text>
+                        </li>
+                        <li>
+                            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                            <Text>The <a href="https://twemoji.twitter.com" target="_blank" rel="noreferrer noopener">Twemoji</a> emoji art is © <a href="https://twemoji.twitter.com" target="_blank" rel="noreferrer noopener">Twitter, Inc and other contributors</a> used under the terms of <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer noopener">CC-BY 4.0</a>.</Text>
+                        </li>
+                        <li>
+                            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                            <Text>The <a href="https://material.io/design/sound/sound-resources.html" target="_blank" rel="noreferrer noopener">Material sound resources</a> are © <a href="https://google.com" target="_blank" rel="noreferrer noopener">Google</a> used under the terms of <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer noopener">CC-BY 4.0</a>.</Text>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-      </div>
-      <div className="settings-about__card">
-        <MenuHeader>Credits</MenuHeader>
-        <div className="settings-about__credits">
-          <ul>
-            <li>
-              {/* eslint-disable-next-line react/jsx-one-expression-per-line */ }
-              <Text>The <a href="https://github.com/matrix-org/matrix-js-sdk" rel="noreferrer noopener" target="_blank">matrix-js-sdk</a> is © <a href="https://matrix.org/foundation" rel="noreferrer noopener" target="_blank">The Matrix.org Foundation C.I.C</a> used under the terms of <a href="http://www.apache.org/licenses/LICENSE-2.0" rel="noreferrer noopener" target="_blank">Apache 2.0</a>.</Text>
-            </li>
-            <li>
-              {/* eslint-disable-next-line react/jsx-one-expression-per-line */ }
-              <Text>The <a href="https://github.com/mozilla/twemoji-colr" target="_blank" rel="noreferrer noopener">twemoji-colr</a> font is © <a href="https://mozilla.org/" target="_blank" rel="noreferrer noopener">Mozilla Foundation</a> used under the terms of <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noreferrer noopener">Apache 2.0</a>.</Text>
-            </li>
-            <li>
-              {/* eslint-disable-next-line react/jsx-one-expression-per-line */ }
-              <Text>The <a href="https://twemoji.twitter.com" target="_blank" rel="noreferrer noopener">Twemoji</a> emoji art is © <a href="https://twemoji.twitter.com" target="_blank" rel="noreferrer noopener">Twitter, Inc and other contributors</a> used under the terms of <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer noopener">CC-BY 4.0</a>.</Text>
-            </li>
-            <li>
-              {/* eslint-disable-next-line react/jsx-one-expression-per-line */ }
-              <Text>The <a href="https://material.io/design/sound/sound-resources.html" target="_blank" rel="noreferrer noopener">Material sound resources</a> are © <a href="https://google.com" target="_blank" rel="noreferrer noopener">Google</a> used under the terms of <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer noopener">CC-BY 4.0</a>.</Text>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export const tabText = {
-  APPEARANCE: 'Appearance',
-  NOTIFICATIONS: 'Notifications',
-  EMOJI: 'Emoji',
-  SECURITY: 'Security',
-  ABOUT: 'About',
+    APPEARANCE: 'Appearance',
+    NOTIFICATIONS: 'Notifications',
+    EMOJI: 'Emoji',
+    SECURITY: 'Security',
+    EXTERA: 'Extera',
+    ABOUT: 'About',
 };
 const tabItems = [{
-  text: tabText.APPEARANCE,
-  iconSrc: SunIC,
-  disabled: false,
-  render: () => <AppearanceSection />,
+    text: tabText.APPEARANCE,
+    iconSrc: SunIC,
+    disabled: false,
+    render: () => <AppearanceSection />,
 }, {
-  text: tabText.NOTIFICATIONS,
-  iconSrc: BellIC,
-  disabled: false,
-  render: () => <NotificationsSection />,
+    text: tabText.NOTIFICATIONS,
+    iconSrc: BellIC,
+    disabled: false,
+    render: () => <NotificationsSection />,
 }, {
-  text: tabText.EMOJI,
-  iconSrc: EmojiIC,
-  disabled: false,
-  render: () => <EmojiSection />,
+    text: tabText.EMOJI,
+    iconSrc: EmojiIC,
+    disabled: false,
+    render: () => <EmojiSection />,
 }, {
-  text: tabText.SECURITY,
-  iconSrc: LockIC,
-  disabled: false,
-  render: () => <SecuritySection />,
+    text: tabText.SECURITY,
+    iconSrc: LockIC,
+    disabled: false,
+    render: () => <SecuritySection />,
 }, {
-  text: tabText.ABOUT,
-  iconSrc: InfoIC,
-  disabled: false,
-  render: () => <AboutSection />,
+    text: tabText.EXTERA,
+    disabled: false,
+    render: () => <ExteraSection />,
+}, {
+    text: tabText.ABOUT,
+    iconSrc: InfoIC,
+    disabled: false,
+    render: () => <AboutSection />,
 }];
 
 function useWindowToggle(setSelectedTab) {
-  const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    const openSettings = (tab) => {
-      const tabItem = tabItems.find((item) => item.text === tab);
-      if (tabItem) setSelectedTab(tabItem);
-      setIsOpen(true);
-    };
-    navigation.on(cons.events.navigation.SETTINGS_OPENED, openSettings);
-    return () => {
-      navigation.removeListener(cons.events.navigation.SETTINGS_OPENED, openSettings);
-    };
-  }, []);
+    useEffect(() => {
+        const openSettings = (tab) => {
+            const tabItem = tabItems.find((item) => item.text === tab);
+            if (tabItem) setSelectedTab(tabItem);
+            setIsOpen(true);
+        };
+        navigation.on(cons.events.navigation.SETTINGS_OPENED, openSettings);
+        return () => {
+            navigation.removeListener(cons.events.navigation.SETTINGS_OPENED, openSettings);
+        };
+    }, []);
 
-  const requestClose = () => setIsOpen(false);
+    const requestClose = () => setIsOpen(false);
 
-  return [isOpen, requestClose];
+    return [isOpen, requestClose];
 }
 
 function Settings() {
-  const [selectedTab, setSelectedTab] = useState(tabItems[0]);
-  const [isOpen, requestClose] = useWindowToggle(setSelectedTab);
+    const [selectedTab, setSelectedTab] = useState(tabItems[0]);
+    const [isOpen, requestClose] = useWindowToggle(setSelectedTab);
 
-  const handleTabChange = (tabItem) => setSelectedTab(tabItem);
-  const handleLogout = async () => {
-    if (await confirmDialog('Logout', 'Are you sure that you want to logout your session?', 'Logout', 'danger')) {
-      initMatrix.logout();
-    }
-  };
+    const handleTabChange = (tabItem) => setSelectedTab(tabItem);
+    const handleLogout = async () => {
+        if (await confirmDialog('Logout', 'Are you sure that you want to logout your session?', 'Logout', 'danger')) {
+            initMatrix.logout();
+        }
+    };
 
-  return (
-    <PopupWindow
-      isOpen={isOpen}
-      className="settings-window"
-      title={<Text variant="s1" weight="medium" primary>Settings</Text>}
-      contentOptions={(
-        <>
-          <Button variant="danger" iconSrc={PowerIC} onClick={handleLogout}>
-            Logout
-          </Button>
-          <IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />
-        </>
-      )}
-      onRequestClose={requestClose}
-    >
-      {isOpen && (
-        <div className="settings-window__content">
-          <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
-          <Tabs
-            items={tabItems}
-            defaultSelected={tabItems.findIndex((tab) => tab.text === selectedTab.text)}
-            onSelect={handleTabChange}
-          />
-          <div className="settings-window__cards-wrapper">
-            { selectedTab.render() }
-          </div>
-        </div>
-      )}
-    </PopupWindow>
-  );
+    return (
+        <PopupWindow
+            isOpen={isOpen}
+            className="settings-window"
+            title={<Text variant="s1" weight="medium" primary>Settings</Text>}
+            contentOptions={(
+                <>
+                    <Button variant="danger" iconSrc={PowerIC} onClick={handleLogout}>
+                        Logout
+                    </Button>
+                    <IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />
+                </>
+            )}
+            onRequestClose={requestClose}
+        >
+            {isOpen && (
+                <div className="settings-window__content">
+                    <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
+                    <Tabs
+                        items={tabItems}
+                        defaultSelected={tabItems.findIndex((tab) => tab.text === selectedTab.text)}
+                        onSelect={handleTabChange}
+                    />
+                    <div className="settings-window__cards-wrapper">
+                        {selectedTab.render()}
+                    </div>
+                </div>
+            )}
+        </PopupWindow>
+    );
 }
 
 export default Settings;

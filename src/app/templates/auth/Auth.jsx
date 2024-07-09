@@ -564,7 +564,7 @@ function Auth() {
               <Header>
                 <Avatar size="extra-small" imageSrc={CinnySvg} />
                 <TitleWrapper>
-                  <Text variant="h2" weight="medium">Cinny</Text>
+                  <Text variant="h2" weight="medium">Extera</Text>
                 </TitleWrapper>
               </Header>
               <div className="auth-card__content">
@@ -576,13 +576,13 @@ function Auth() {
 
         <div className="auth-footer">
           <Text variant="b2">
-            <a href="https://cinny.in" target="_blank" rel="noreferrer">About</a>
+            <a href="https://extera.officialdakari.ru/static/" target="_blank" rel="noreferrer">About</a>
           </Text>
           <Text variant="b2">
-            <a href="https://github.com/ajbura/cinny/releases" target="_blank" rel="noreferrer">{`v${cons.version}`}</a>
+            <a href="https://git.cycloneteam.space/OfficialDakari/Extera" target="_blank" rel="noreferrer">{`v${cons.version}`}</a>
           </Text>
           <Text variant="b2">
-            <a href="https://twitter.com/cinnyapp" target="_blank" rel="noreferrer">Twitter</a>
+            <a href="https://matrix.to/#/#basement:officialdakari.ru" target="_blank" rel="noreferrer">Matrix</a>
           </Text>
           <Text variant="b2">
             <a href="https://matrix.org" target="_blank" rel="noreferrer">Powered by Matrix</a>
