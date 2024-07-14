@@ -8,5 +8,8 @@ This is a fork of Cinny with some improvements and new features:
 - Support for captions (Only receiving, not sending)
 - Round avatars
 - Detailed RoomNavItem: Bigger avatar and view last message
+- Ghost mode (Disable read receipts and typing status)
+- Set presence status and status message
+- Render presence status and status message in DM and members drawer
 
 -# Based on Cinny
