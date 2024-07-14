@@ -1,5 +1,5 @@
 # Extera
-![Matrix](https://img.shields.io/matrix/extera%3Aofficialdakari.ru?server_fqdn=officialdakari.ru)
+[Discussion on Matrix](https://matrix.to/#/#extera:officialdakari.ru)
 
 This is a fork of Cinny with some improvements and new features:
 - New commands: /lenny /tableflip /unflip
