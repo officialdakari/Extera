@@ -417,7 +417,7 @@ function ProfileViewer() {
 
         return (
             <div className="profile-viewer">
-                {bannerUrl && <Banner url={bannerUrl} />}
+                {bannerUrl && <Banner noBorder={true} url={bannerUrl} />}
                 <div className="profile-viewer__user">
                     <Avatar style={avStyle} imageSrc={avatarUrl} text={username} bgColor={colorMXID(userId)} size="large" />
                     <div className="profile-viewer__user__info">

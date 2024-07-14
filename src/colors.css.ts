@@ -236,3 +236,56 @@ export const butterTheme = createTheme(color, {
     OnContainer: '#F2EED3',
   },
 });
+
+export const exteraDarkTheme = createTheme(color, {
+  ...darkThemeData,
+  Background: {
+    Container: '#23163c',
+    ContainerHover: '#392d43',
+    ContainerActive: '#332b46',
+    ContainerLine: '#353145',
+    OnContainer: '#e0e1ff',
+  },
+
+  Surface: {
+    Container: '#22203c',
+    ContainerHover: '#363045',
+    ContainerActive: '#332b46',
+    ContainerLine: '#353145',
+    OnContainer: '#e0e1ff',
+  },
+
+  SurfaceVariant: {
+    Container: '#2f2d53',
+    ContainerHover: '#423b54',
+    ContainerActive: '#413659',
+    ContainerLine: '#403b54',
+    OnContainer: '#f0f0ff',
+  },
+
+  Primary: {
+    Main: '#eee0ff',
+    MainHover: '#d5c8e5',
+    MainActive: '#ccbeda',
+    MainLine: '#c0b3cc',
+    OnMain: '#2b2037',
+    Container: '#432a50',
+    ContainerHover: '#463b54',
+    ContainerActive: '#4a4168',
+    ContainerLine: '#514677',
+    OnContainer: '#e0d4f2',
+  },
+
+  Secondary: {
+    Main: '#eee0ff',
+    MainHover: '#d5c8e5',
+    MainActive: '#ccbeda',
+    MainLine: '#c0b3cc',
+    OnMain: '#2b2037',
+    Container: '#432a50',
+    ContainerHover: '#463b54',
+    ContainerActive: '#4a4168',
+    ContainerLine: '#514677',
+    OnContainer: '#e0d4f2',
+  },
+});

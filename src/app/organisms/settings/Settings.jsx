@@ -96,6 +96,7 @@ function AppearanceSection() {
                                 { text: 'Silver' },
                                 { text: 'Dark' },
                                 { text: 'Butter' },
+                                { text: 'Extera Dark' },
                             ]}
                             onSelect={(index) => {
                                 if (settings.useSystemTheme) toggleSystemTheme();
