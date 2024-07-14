@@ -2,6 +2,8 @@
 import React, {
     Dispatch,
     MouseEventHandler,
+    MouseEvent,
+    TouchEvent,
     RefObject,
     SetStateAction,
     useCallback,
@@ -28,7 +30,7 @@ import classNames from 'classnames';
 import { ReactEditor } from 'slate-react';
 import { Editor } from 'slate';
 import to from 'await-to-js';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
     Badge,
     Box,
@@ -75,6 +77,7 @@ import { getReactCustomHtmlParser } from '../../plugins/react-custom-html-parser
 import {
     canEditEvent,
     decryptAllTimelineEvent,
+    getAllParents,
     getEditedEvent,
     getEventReactions,
     getLatestEditableEvt,
@@ -104,14 +107,20 @@ import { createMentionElement, isEmptyEditor, moveCursor } from '../../component
 import { roomIdToReplyDraftAtomFamily } from '../../state/room/roomInputDrafts';
 import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
 import { GetContentCallback, MessageEvent, StateEvent } from '../../../types/matrix/room';
-import initMatrix from '../../../client/initMatrix';
 import { useKeyDown } from '../../hooks/useKeyDown';
-import cons from '../../../client/state/cons';
 import { useDocumentFocusChange } from '../../hooks/useDocumentFocusChange';
 import { RenderMessageContent } from '../../components/RenderMessageContent';
 import { Image } from '../../components/media';
 import { ImageViewer } from '../../components/image-viewer';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
+import { roomToParentsAtom } from '../../state/room/roomToParents';
+import { useRoomUnread } from '../../state/hooks/unread';
+import { roomToUnreadAtom } from '../../state/room/roomToUnread';
+import initMatrix from '../../../client/initMatrix';
+import cons from '../../../client/state/cons';
+import { useSwipeLeft } from '../../hooks/useSwipeLeft';
+import { clamp } from '../../utils/common';
+import { sendExteraProfile } from '../../../client/action/room';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
     ({ position, className, ...props }, ref) => (
@@ -448,18 +457,21 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
     const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
     const [smoothScroll] = useSetting(settingsAtom, 'extera_ghostMode');
     const { navigateRoom, navigateSpace } = useRoomNavigate();
+    const roomToParents = useAtomValue(roomToParentsAtom);
+    const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
+
+    sendExteraProfile(room.roomId);
 
     const imagePackRooms: Room[] = useMemo(() => {
-        const allParentSpaces = [
-            room.roomId,
-            ...(initMatrix.roomList?.getAllParentSpaces(room.roomId) ?? []),
-        ];
+        const allParentSpaces = [room.roomId].concat(
+            Array.from(getAllParents(roomToParents, room.roomId))
+        );
         return allParentSpaces.reduce<Room[]>((list, rId) => {
             const r = mx.getRoom(rId);
             if (r) list.push(r);
             return list;
         }, []);
-    }, [mx, room]);
+    }, [mx, room, roomToParents]);
 
     const [unreadInfo, setUnreadInfo] = useState(() => getRoomUnreadInfo(room, true));
     const readUptoEventIdRef = useRef<string>();
@@ -619,6 +631,28 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
             },
             [mx, room, unreadInfo]
         )
+    );
+
+    useResizeObserver(
+        useMemo(() => {
+            let mounted = false;
+            return (entries) => {
+                if (!mounted) {
+                    // skip initial mounting call
+                    mounted = true;
+                    return;
+                }
+                if (!roomInputRef.current) return;
+                const editorBaseEntry = getResizeObserverEntry(roomInputRef.current, entries);
+                const scrollElement = getScrollElement();
+                if (!editorBaseEntry || !scrollElement) return;
+
+                if (atBottomRef.current) {
+                    scrollToBottom(scrollElement);
+                }
+            };
+        }, [getScrollElement, roomInputRef]),
+        useCallback(() => roomInputRef.current, [roomInputRef])
     );
 
     useLiveTimelineRefresh(
@@ -795,15 +829,10 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
 
     // Remove unreadInfo on mark as read
     useEffect(() => {
-        const handleFullRead = (rId: string) => {
-            if (rId !== room.roomId) return;
+        if (!unread) {
             setUnreadInfo(undefined);
-        };
-        initMatrix.notifications?.on(cons.events.notifications.FULL_READ, handleFullRead);
-        return () => {
-            initMatrix.notifications?.removeListener(cons.events.notifications.FULL_READ, handleFullRead);
-        };
-    }, [room]);
+        }
+    }, [unread]);
 
     // scroll out of view msg editor in view.
     useEffect(() => {
@@ -900,9 +929,8 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
         [mx, room, editor]
     );
 
-    const handleReplyClick: MouseEventHandler<HTMLButtonElement> = useCallback(
-        (evt) => {
-            const replyId = evt.currentTarget.getAttribute('data-event-id');
+    const handleReplyId = useCallback(
+        (replyId: string | null) => {
             if (!replyId) {
                 console.warn('Button should have "data-event-id" attribute!');
                 return;
@@ -961,11 +989,12 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
         [editor]
     );
 
+    const { isTouchingSide, sideMoved, sideMovedInit, swipingId, onTouchStart, onTouchMove, onTouchEnd } = useSwipeLeft(handleReplyId);
+
     const renderMatrixEvent = useMatrixEventRenderer<
         [string, MatrixEvent, number, EventTimelineSet, boolean]
     >(
         {
-            // TODO POLLS
             [MessageEvent.RoomMessage]: (mEventId, mEvent, item, timelineSet, collapse) => {
                 const reactionRelations = getEventReactions(timelineSet, mEventId);
                 const reactions = reactionRelations && reactionRelations.getSortedAnnotationsByKey();
@@ -1018,7 +1047,11 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                         relations={hasReactions ? reactionRelations : undefined}
                         onUserClick={handleUserClick}
                         onUsernameClick={handleUsernameClick}
-                        onReplyClick={handleReplyClick}
+                        onReplyClick={(evt: MouseEvent) => handleReplyId(evt.currentTarget.getAttribute('data-event-id'))}
+                        onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
+                        onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
+                        onTouchEnd={onTouchEnd}
+                        style={{ transform: `translateX(${isTouchingSide && mEvent.getId() == swipingId ? clamp(sideMoved - sideMovedInit, -window.innerWidth / 2, 0) : 0}px)` }}
                         onReactionToggle={handleReactionToggle}
                         onEditId={handleEdit}
                         reply={
@@ -1090,7 +1123,11 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                         relations={hasReactions ? reactionRelations : undefined}
                         onUserClick={handleUserClick}
                         onUsernameClick={handleUsernameClick}
-                        onReplyClick={handleReplyClick}
+                        onReplyClick={(evt: MouseEvent) => handleReplyId(evt.currentTarget.getAttribute('data-event-id'))}
+                        onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
+                        onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
+                        onTouchEnd={onTouchEnd}
+                        style={{ transform: `translateX(${isTouchingSide && mEvent.getId() == swipingId ? clamp(sideMoved - sideMovedInit, -window.innerWidth, 0) : 0}px)` }}
                         onReactionToggle={handleReactionToggle}
                         onEditId={handleEdit}
                         reply={
@@ -1199,7 +1236,11 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                         relations={hasReactions ? reactionRelations : undefined}
                         onUserClick={handleUserClick}
                         onUsernameClick={handleUsernameClick}
-                        onReplyClick={handleReplyClick}
+                        onReplyClick={(evt: MouseEvent) => handleReplyId(evt.currentTarget.getAttribute('data-event-id'))}
+                        onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
+                        onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
+                        onTouchEnd={onTouchEnd}
+                        style={{ transform: `translateX(${isTouchingSide && mEvent.getId() == swipingId ? clamp(sideMoved - sideMovedInit, -window.innerWidth, 0) : 0}px)` }}
                         onReactionToggle={handleReactionToggle}
                         reactions={
                             reactionRelations && (
@@ -1256,7 +1297,11 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                         relations={hasReactions ? reactionRelations : undefined}
                         onUserClick={handleUserClick}
                         onUsernameClick={handleUsernameClick}
-                        onReplyClick={handleReplyClick}
+                        onReplyClick={(evt: MouseEvent) => handleReplyId(evt.currentTarget.getAttribute('data-event-id'))}
+                        onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
+                        onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
+                        onTouchEnd={onTouchEnd}
+                        style={{ transform: `translateX(${isTouchingSide && mEvent.getId() == swipingId ? clamp(sideMoved - sideMovedInit, -window.innerWidth, 0) : 0}px)` }}
                         onReactionToggle={handleReactionToggle}
                         reactions={
                             reactionRelations && (

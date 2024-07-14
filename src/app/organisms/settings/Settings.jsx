@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './Settings.scss';
 
+// Holy shit this code will be worser than yandere simulator's :catstare:
+import '../profile-viewer/Banner.scss';
+
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import settings from '../../../client/state/settings';
@@ -48,7 +51,10 @@ import { settingsAtom } from '../../state/settings';
 import { isMacOS } from '../../utils/user-agent';
 import { KeySymbol } from '../../utils/key-symbol';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
-import { Input } from 'folds';
+import { Icons, Input } from 'folds';
+import Banner from '../profile-editor/Banner';
+import ImageUpload from '../../molecules/image-upload/ImageUpload';
+import colorMXID from '../../../util/colorMXID';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
@@ -315,7 +321,7 @@ function ExteraSection() {
                                 mx.setSyncPresence(statuses[index]);
                                 mx.setPresence({
                                     presence: statuses[index],
-                                    status_msg: index == 0 ? statusMsg : undefined
+                                    status_msg: index != 1 ? statusMsg : undefined
                                 }).then(() => {
                                     console.log('Presence updated');
                                 }).catch(err => {
@@ -568,10 +574,48 @@ function Settings() {
     const [selectedTab, setSelectedTab] = useState(tabItems[0]);
     const [isOpen, requestClose] = useWindowToggle(setSelectedTab);
 
+    const mx = useMatrixClient();
+
     const handleTabChange = (tabItem) => setSelectedTab(tabItem);
     const handleLogout = async () => {
         if (await confirmDialog('Logout', 'Are you sure that you want to logout your session?', 'Logout', 'danger')) {
             initMatrix.logout();
+        }
+    };
+
+    const [bannerSrc, setBannerSrc] = useState('');
+
+    useEffect(() => {
+        const exteraProfileEvent = mx.getAccountData('ru.officialdakari.extera_profile');
+        const exteraProfile = exteraProfileEvent ? exteraProfileEvent.getContent() : {};
+        console.log(exteraProfile);
+        if (typeof exteraProfile.banner_url === 'string') {
+            console.log(exteraProfile.banner_url);
+            setBannerSrc(exteraProfile.banner_url);
+        }
+    }, [mx]);
+
+    const handleBannerChange = async (src) => {
+        try {
+            await mx.setAccountData('ru.officialdakari.extera_profile', {
+                banner_url: src
+            });
+            setBannerSrc(src);
+        } catch (error) {
+            alert(error.message); // TODO Better error handling
+        }
+    };
+
+    const handleBannerRemove = async () => {
+        try {
+            if (await confirmDialog('Remove banner', 'Are you sure that you want to remove your banner?', 'Remove', 'primary')) {
+                await mx.setAccountData('ru.officialdakari.extera_profile', {
+                    banner_url: null
+                });
+                setBannerSrc(null);
+            }
+        } catch (error) {
+            alert(error.message); // TODO Better error handling
         }
     };
 
@@ -582,6 +626,9 @@ function Settings() {
             title={<Text variant="s1" weight="medium" primary>Settings</Text>}
             contentOptions={(
                 <>
+                    {bannerSrc && <Button variant='surface' iconSrc={CrossIC} onClick={handleBannerRemove}>
+                        Remove banner
+                    </Button>}
                     <Button variant="danger" iconSrc={PowerIC} onClick={handleLogout}>
                         Logout
                     </Button>
@@ -592,6 +639,11 @@ function Settings() {
         >
             {isOpen && (
                 <div className="settings-window__content">
+                    {
+                        bannerSrc ?
+                            <Banner noBorder={true} url={bannerSrc} onUpload={handleBannerChange} /> :
+                            <Banner noBorder={true} emptyBanner='black' onUpload={handleBannerChange} />
+                    }
                     <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
                     <Tabs
                         items={tabItems}

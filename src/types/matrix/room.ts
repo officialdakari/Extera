@@ -12,6 +12,7 @@ export type IMemberContent = {
     membership?: Membership;
     reason?: string;
     is_direct?: boolean;
+    'ru.officialdakari.extera_banner'?: string;
 };
 
 export enum StateEvent {

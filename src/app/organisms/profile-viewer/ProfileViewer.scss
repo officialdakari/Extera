@@ -8,7 +8,7 @@
   & .dialog__content-container {
     padding-top: var(--sp-normal);
     padding-bottom: 89px;
-    @include dir.side(padding, var(--sp-normal), var(--sp-extra-tight));
+    @include dir.side(padding, var(--sp-normal), var(--sp-normal));
   }
 }
 

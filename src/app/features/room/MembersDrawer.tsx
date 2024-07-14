@@ -255,28 +255,30 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
         openProfileViewer(userId, room.roomId);
     };
 
-    const [avStyles, setAvStyles] = useState<{ [userId: string]: React.CSSProperties }>({});
-    const [statusMsgs, setStatusMsgs] = useState<{ [userId: string]: string }>({});
+    const [avStyles, setAvStyles] = useState({});
+    const [statusMsgs, setStatusMsgs] = useState({});
 
     useEffect(() => {
-        const fetchMemberAvStyles = async () => {
+        const fetchMemberAvStylesAndStatus = async () => {
             const newAvStyles: { [key: string]: React.CSSProperties } = {};
             const newStatusMsgs: { [key: string]: string } = {};
+
             await Promise.all(members.map(async (member) => {
                 try {
                     const presence = await mx.getPresence(member.userId);
                     newAvStyles[member.userId] = styles[presence.presence];
                     newStatusMsgs[member.userId] = presence.status_msg ?? presence.presence;
                 } catch (error) {
-
+                    // handle error if needed
                 }
             }));
+
             setAvStyles(newAvStyles);
             setStatusMsgs(newStatusMsgs);
         };
 
-        fetchMemberAvStyles();
-    }, [members, mx]); // зависимость от members и mx    
+        fetchMemberAvStylesAndStatus();
+    }, [members, mx]);
 
     return (
         <Box className={css.MembersDrawer} shrink="No" direction="Column">

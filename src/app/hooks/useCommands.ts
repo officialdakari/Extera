@@ -42,7 +42,6 @@ export enum Command {
     UnFlip = 'unflip',
     StartDm = 'startdm',
     Join = 'join',
-    Leave = 'leave',
     Invite = 'invite',
     DisInvite = 'disinvite',
     Kick = 'kick',
@@ -130,19 +129,19 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
                     roomIds.map((id) => roomActions.join(id));
                 },
             },
-            [Command.Leave]: {
-                name: Command.Leave,
-                description: 'Leave current room.',
-                exe: async (payload) => {
-                    if (payload.trim() === '') {
-                        roomActions.leave(room.roomId);
-                        return;
-                    }
-                    const rawIds = payload.split(' ');
-                    const roomIds = rawIds.filter((id) => isRoomId(id));
-                    roomIds.map((id) => roomActions.leave(id));
-                },
-            },
+            // [Command.Leave]: {
+            //     name: Command.Leave,
+            //     description: 'Leave current room.',
+            //     exe: async (payload) => {
+            //         if (payload.trim() === '') {
+            //             roomActions.leave(room.roomId);
+            //             return;
+            //         }
+            //         const rawIds = payload.split(' ');
+            //         const roomIds = rawIds.filter((id) => isRoomId(id));
+            //         roomIds.map((id) => roomActions.leave(id));
+            //     },
+            // },
             [Command.Invite]: {
                 name: Command.Invite,
                 description: 'Invite user to room. Example: /invite userId1 userId2 [-r reason]',

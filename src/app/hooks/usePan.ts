@@ -1,124 +1,124 @@
 import { MouseEventHandler, TouchEventHandler, useEffect, useState } from 'react';
 
 export type Pan = {
-    translateX: number;
-    translateY: number;
+  translateX: number;
+  translateY: number;
 };
 
 export type TouchPos = {
-    touchX: number;
-    touchY: number;
-    initX: number;
-    initY: number;
+  touchX: number;
+  touchY: number;
+  initX: number;
+  initY: number;
 }
 
 const INITIAL_PAN = {
-    translateX: 0,
-    translateY: 0,
+  translateX: 0,
+  translateY: 0,
 };
 
 const INITIAL_TOUCH_POS = {
-    touchX: 0,
-    touchY: 0,
-    initX: 0,
-    initY: 0
+  touchX: 0,
+  touchY: 0,
+  initX: 0,
+  initY: 0
 };
 
 export const usePan = (active: boolean) => {
-    const [pan, setPan] = useState<Pan>(INITIAL_PAN);
-    const [cursor, setCursor] = useState<'grab' | 'grabbing' | 'initial'>(
-        active ? 'grab' : 'initial'
-    );
-    const [_touchPos, setTouchPos] = useState<TouchPos>(INITIAL_TOUCH_POS);
+  const [pan, setPan] = useState<Pan>(INITIAL_PAN);
+  const [cursor, setCursor] = useState<'grab' | 'grabbing' | 'initial'>(
+    active ? 'grab' : 'initial'
+  );
+  const [_touchPos, setTouchPos] = useState<TouchPos>(INITIAL_TOUCH_POS);
 
-    useEffect(() => {
-        setCursor(active ? 'grab' : 'initial');
-    }, [active]);
+  useEffect(() => {
+    setCursor(active ? 'grab' : 'initial');
+  }, [active]);
 
-    const handleMouseMove = (evt: MouseEvent) => {
-        evt.preventDefault();
-        evt.stopPropagation();
+  const handleMouseMove = (evt: MouseEvent) => {
+    evt.preventDefault();
+    evt.stopPropagation();
 
-        setPan((p) => {
-            const { translateX, translateY } = p;
-            const mX = translateX + evt.movementX;
-            const mY = translateY + evt.movementY;
+    setPan((p) => {
+      const { translateX, translateY } = p;
+      const mX = translateX + evt.movementX;
+      const mY = translateY + evt.movementY;
 
-            return { translateX: mX, translateY: mY };
-        });
-    };
+      return { translateX: mX, translateY: mY };
+    });
+  };
 
-    const handleMouseUp = (evt: MouseEvent) => {
-        evt.preventDefault();
-        setCursor('grab');
+  const handleMouseUp = (evt: MouseEvent) => {
+    evt.preventDefault();
+    setCursor('grab');
 
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-    };
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
 
-    const handleMouseDown: MouseEventHandler<HTMLElement> = (evt) => {
-        if (!active) return;
-        evt.preventDefault();
-        setCursor('grabbing');
+  const handleMouseDown: MouseEventHandler<HTMLElement> = (evt) => {
+    if (!active) return;
+    evt.preventDefault();
+    setCursor('grabbing');
 
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-    };
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
 
-    // Touch handlers for usePan. Intentionally not handling 2 touches (may do in the future). 
-    const handleTouchMove = (evt: TouchEvent) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        evt.stopImmediatePropagation();
+  // Touch handlers for usePan. Intentionally not handling 2 touches (may do in the future). 
+  const handleTouchMove = (evt: TouchEvent) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    evt.stopImmediatePropagation();
 
-        let x = evt.touches[0].clientX;
-        let y = evt.touches[0].clientY;
+    let x = evt.touches[0].clientX;
+    let y = evt.touches[0].clientY;
 
-        setTouchPos(pos => {
-            pos.touchX = x;
-            pos.touchY = y;
-            setPan({ translateX: pos.touchX - pos.initX, translateY: pos.touchY - pos.initY });
-            return pos;
-        });
-    }
+    setTouchPos(pos => {
+      pos.touchX = x;
+      pos.touchY = y;
+      setPan({ translateX: pos.touchX - pos.initX, translateY: pos.touchY - pos.initY });
+      return pos;
+    });
+  }
 
-    const handleTouchEnd = (evt: TouchEvent) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        evt.stopImmediatePropagation();
-        setCursor('grab');
+  const handleTouchEnd = (evt: TouchEvent) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    evt.stopImmediatePropagation();
+    setCursor('grab');
 
-        document.removeEventListener('touchmove', handleTouchMove);
-        document.removeEventListener('touchend', handleTouchEnd);
-    }
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('touchend', handleTouchEnd);
+  }
 
-    const handleTouchStart: TouchEventHandler<HTMLElement> = (evt) => {
-        if (!active || evt.touches.length != 1) return;
-        evt.preventDefault();
-        evt.stopPropagation();
-        setCursor('grabbing');
+  const handleTouchStart: TouchEventHandler<HTMLElement> = (evt) => {
+    if (!active || evt.touches.length != 1) return;
+    evt.preventDefault();
+    evt.stopPropagation();
+    setCursor('grabbing');
 
-        let x = evt.touches[0].clientX;
-        let y = evt.touches[0].clientY;
-        setTouchPos({
-            touchX: x,
-            touchY: y,
-            initX: x,
-            initY: y
-        });
+    let x = evt.touches[0].clientX;
+    let y = evt.touches[0].clientY;
+    setTouchPos({
+      touchX: x,
+      touchY: y,
+      initX: x,
+      initY: y
+    });
 
-        document.addEventListener('touchmove', handleTouchMove);
-        document.addEventListener('touchend', handleTouchEnd);
-    }
+    document.addEventListener('touchmove', handleTouchMove);
+    document.addEventListener('touchend', handleTouchEnd);
+  }
 
-    useEffect(() => {
-        if (!active) setPan(INITIAL_PAN);
-    }, [active]);
+  useEffect(() => {
+    if (!active) setPan(INITIAL_PAN);
+  }, [active]);
 
-    return {
-        pan,
-        cursor,
-        onMouseDown: handleMouseDown,
-        onTouchStart: handleTouchStart,
-    };
+  return {
+    pan,
+    cursor,
+    onMouseDown: handleMouseDown,
+    onTouchStart: handleTouchStart,
+  };
 };

@@ -101,3 +101,20 @@ export const clamp = (val: number, min: number, max: number) => {
     if (val >= max) return max;
     return val;
 }
+
+export const nameInitials = (str: string | undefined | null, len = 1): string => {
+    if (!str) return '�';
+    return [...str].slice(0, len).join('') || '�';
+};
+
+export const randomStr = (len = 12): string => {
+    let str = '';
+    const minCode = 'A'.charCodeAt(0);
+    const maxCode = 'Z'.charCodeAt(0);
+
+    for (let i = 0; i < len; i += 1) {
+        const code = Math.floor(Math.random() * (maxCode - minCode + 1) + minCode);
+        str += String.fromCharCode(code);
+    }
+    return str;
+};

@@ -788,6 +788,7 @@ export const Message = as<'div', MessageProps>(
             const target = evt.currentTarget.parentElement?.parentElement ?? evt.currentTarget;
             setEmojiBoardAnchor(target.getBoundingClientRect());
         };
+
         const handleAddReactions: MouseEventHandler<HTMLButtonElement> = () => {
             const rect = menuAnchor;
             closeMenu();
@@ -798,6 +799,7 @@ export const Message = as<'div', MessageProps>(
                 setEmojiBoardAnchor(rect);
             }, 100);
         };
+
         const handleEndPoll: MouseEventHandler<HTMLButtonElement> = () => {
             const roomId = mEvent.getRoomId();
             const eventId = mEvent.getId();

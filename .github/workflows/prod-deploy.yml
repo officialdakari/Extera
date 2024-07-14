@@ -52,7 +52,7 @@ jobs:
           gpg --export | xxd -p
           echo '${{ secrets.GNUPG_PASSPHRASE }}' | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --armor --detach-sign cinny-${{ steps.vars.outputs.tag }}.tar.gz
       - name: Upload tagged release
-        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87
+        uses: softprops/action-gh-release@a74c6b72af54cfa997e81df42d94703d6313a2d0
         with:
           files: |
             cinny-${{ steps.vars.outputs.tag }}.tar.gz
@@ -68,7 +68,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4.1.7
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3.0.0
+        uses: docker/setup-qemu-action@v3.1.0
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.3.0
       - name: Login to Docker Hub
@@ -90,7 +90,7 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/cinny
             ghcr.io/${{ github.repository }}
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6.0.0
+        uses: docker/build-push-action@v6.3.0
         with:
           context: .
           platforms: linux/amd64,linux/arm64

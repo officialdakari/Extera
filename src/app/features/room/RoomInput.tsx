@@ -1,6 +1,9 @@
 import React, {
     Dispatch,
     KeyboardEventHandler,
+    MouseEvent,
+    MouseEventHandler,
+    PointerEvent,
     RefObject,
     forwardRef,
     useCallback,
@@ -9,7 +12,7 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { isKeyHotkey } from 'is-hotkey';
 import { EventType, IContent, MsgType, Room } from 'matrix-js-sdk';
 import { ReactEditor } from 'slate-react';
@@ -57,7 +60,6 @@ import {
 } from '../../components/editor';
 import { EmojiBoard, EmojiBoardTab } from '../../components/emoji-board';
 import { UseStateProvider } from '../../components/UseStateProvider';
-import initMatrix from '../../../client/initMatrix';
 import { TUploadContent, encryptFile, getImageInfo, getMxIdLocalPart } from '../../utils/matrix';
 import { useTypingStatusUpdater } from '../../hooks/useTypingStatusUpdater';
 import { useFilePicker } from '../../hooks/useFilePicker';
@@ -96,6 +98,7 @@ import {
 } from './msgContent';
 import colorMXID from '../../../util/colorMXID';
 import {
+    getAllParents,
     getMemberDisplayName,
     parseReplyBody,
     parseReplyFormattedBody,
@@ -109,6 +112,7 @@ import { mobileOrTablet } from '../../utils/user-agent';
 import { useElementSizeObserver } from '../../hooks/useElementSizeObserver';
 import { ReplyLayout } from '../../components/message';
 import { markAsRead } from '../../../client/action/notifications';
+import { roomToParentsAtom } from '../../state/room/roomToParents';
 
 interface RoomInputProps {
     editor: Editor;
@@ -121,10 +125,11 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const mx = useMatrixClient();
         const [enterForNewline] = useSetting(settingsAtom, 'enterForNewline');
         const [isMarkdown] = useSetting(settingsAtom, 'isMarkdown');
-        const [enableCaptions] = useSetting(settingsAtom, 'extera_enableCaptions');
-        const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
         const commands = useCommands(mx, room);
         const emojiBtnRef = useRef<HTMLButtonElement>(null);
+        const roomToParents = useAtomValue(roomToParentsAtom);
+        const [enableCaptions] = useSetting(settingsAtom, 'extera_enableCaptions');
+        const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
         const [msgDraft, setMsgDraft] = useAtom(roomIdToMsgDraftAtomFamily(roomId));
         const [replyDraft, setReplyDraft] = useAtom(roomIdToReplyDraftAtomFamily(roomId));
@@ -136,14 +141,16 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         );
         const uploadBoardHandlers = useRef<UploadBoardImperativeHandlers>();
 
+        const editorRef = useRef(null);
+
         const imagePackRooms: Room[] = useMemo(() => {
-            const allParentSpaces = [roomId, ...(initMatrix.roomList?.getAllParentSpaces(roomId) ?? [])];
+            const allParentSpaces = [roomId].concat(Array.from(getAllParents(roomToParents, roomId)));
             return allParentSpaces.reduce<Room[]>((list, rId) => {
                 const r = mx.getRoom(rId);
                 if (r) list.push(r);
                 return list;
             }, []);
-        }, [mx, roomId]);
+        }, [mx, roomId, roomToParents]);
 
         const [toolbar, setToolbar] = useSetting(settingsAtom, 'editorToolbar');
         const [autocompleteQuery, setAutocompleteQuery] =
@@ -256,13 +263,15 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             }
         };
 
-        const submit = useCallback((evt?: any) => {
-            uploadBoardHandlers.current?.handleSend();
-
+        const dontHideKeyboard = useCallback((evt?: MouseEvent) => {
             if (evt) {
-                evt.stopPropagation();
                 evt.preventDefault();
+                evt.stopPropagation();
             }
+        }, []);
+
+        const submit = useCallback((evt?: MouseEvent) => {
+            uploadBoardHandlers.current?.handleSend();
 
             const commandName = getBeginCommand(editor);
 
@@ -355,7 +364,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             (evt) => {
                 if (isKeyHotkey('mod+enter', evt) || (!enterForNewline && isKeyHotkey('enter', evt))) {
                     evt.preventDefault();
-                    submit(null);
+                    submit(undefined);
                 }
                 if (isKeyHotkey('escape', evt)) {
                     evt.preventDefault();
@@ -517,6 +526,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                     style={{ padding: `${config.space.S200} ${config.space.S300} 0` }}
                                 >
                                     <IconButton
+                                        onMouseDown={dontHideKeyboard}
                                         onClick={() => setReplyDraft(undefined)}
                                         variant="SurfaceVariant"
                                         size="300"
@@ -550,6 +560,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                             variant="SurfaceVariant"
                             size="300"
                             radii="300"
+                            onMouseDown={dontHideKeyboard}
                         >
                             <Icon src={Icons.PlusCircle} />
                         </IconButton>
@@ -561,6 +572,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                 size="300"
                                 radii="300"
                                 onClick={() => setToolbar(!toolbar)}
+                                onMouseDown={dontHideKeyboard}
                             >
                                 <Icon src={toolbar ? Icons.AlphabetUnderline : Icons.Alphabet} />
                             </IconButton>
@@ -596,6 +608,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                             <IconButton
                                                 aria-pressed={emojiBoardTab === EmojiBoardTab.Sticker}
                                                 onClick={() => setEmojiBoardTab(EmojiBoardTab.Sticker)}
+                                                onMouseDown={dontHideKeyboard}
                                                 variant="SurfaceVariant"
                                                 size="300"
                                                 radii="300"
@@ -608,6 +621,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                         )}
                                         <IconButton
                                             ref={emojiBtnRef}
+                                            onMouseDown={dontHideKeyboard}
                                             aria-pressed={
                                                 hideStickerBtn ? !!emojiBoardTab : emojiBoardTab === EmojiBoardTab.Emoji
                                             }
@@ -626,10 +640,10 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                     </PopOut>
                                 )}
                             </UseStateProvider>
-                            <IconButton onClick={readReceipt} variant="SurfaceVariant" size="300" radii="300">
+                            <IconButton onMouseDown={dontHideKeyboard} onClick={readReceipt} variant="SurfaceVariant" size="300" radii="300">
                                 <Icon src={Icons.CheckTwice} />
                             </IconButton>
-                            <IconButton onClick={submit} variant="SurfaceVariant" size="300" radii="300">
+                            <IconButton onMouseDown={dontHideKeyboard} onClick={submit} variant="SurfaceVariant" size="300" radii="300">
                                 <Icon src={Icons.Send} />
                             </IconButton>
                         </>

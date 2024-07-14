@@ -5,7 +5,7 @@ import { LinePlaceholder } from './LinePlaceholder';
 import { MessageBase, ModernLayout } from '../layout';
 
 const contentMargin: CSSProperties = { marginTop: toRem(3) };
-const avatarBg: CSSProperties = { backgroundColor: color.SurfaceVariant.Container };
+const avatarBg: CSSProperties = { backgroundColor: color.SurfaceVariant.Container, borderRadius: '50%' };
 
 export const DefaultPlaceholder = as<'div'>(({ ...props }, ref) => (
   <MessageBase>
