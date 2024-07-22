@@ -6,108 +6,109 @@ import * as css from './Reaction.css';
 import { getHexcodeForEmoji, getShortcodeFor } from '../../plugins/emoji';
 import { getMemberDisplayName } from '../../utils/room';
 import { eventWithShortcode, getMxIdLocalPart } from '../../utils/matrix';
+import { getText } from '../../../lang';
 
 export const Reaction = as<
-  'button',
-  {
-    mx: MatrixClient;
-    count: number;
-    reaction: string;
-  }
+    'button',
+    {
+        mx: MatrixClient;
+        count: number;
+        reaction: string;
+    }
 >(({ className, mx, count, reaction, ...props }, ref) => (
-  <Box
-    as="button"
-    className={classNames(css.Reaction, className)}
-    alignItems="Center"
-    shrink="No"
-    gap="200"
-    {...props}
-    ref={ref}
-  >
-    <Text className={css.ReactionText} as="span" size="T400">
-      {reaction.startsWith('mxc://') ? (
-        <img
-          className={css.ReactionImg}
-          src={mx.mxcUrlToHttp(reaction) ?? reaction}
-          alt={reaction}
-        />
-      ) : (
-        <Text as="span" size="Inherit" truncate>
-          {reaction}
+    <Box
+        as="button"
+        className={classNames(css.Reaction, className)}
+        alignItems="Center"
+        shrink="No"
+        gap="200"
+        {...props}
+        ref={ref}
+    >
+        <Text className={css.ReactionText} as="span" size="T400">
+            {reaction.startsWith('mxc://') ? (
+                <img
+                    className={css.ReactionImg}
+                    src={mx.mxcUrlToHttp(reaction) ?? reaction}
+                    alt={reaction}
+                />
+            ) : (
+                <Text as="span" size="Inherit" truncate>
+                    {reaction}
+                </Text>
+            )}
         </Text>
-      )}
-    </Text>
-    <Text as="span" size="T300">
-      {count}
-    </Text>
-  </Box>
+        <Text as="span" size="T300">
+            {count}
+        </Text>
+    </Box>
 ));
 
 type ReactionTooltipMsgProps = {
-  room: Room;
-  reaction: string;
-  events: MatrixEvent[];
+    room: Room;
+    reaction: string;
+    events: MatrixEvent[];
 };
 
 export function ReactionTooltipMsg({ room, reaction, events }: ReactionTooltipMsgProps) {
-  const shortCodeEvt = events.find(eventWithShortcode);
-  const shortcode =
-    shortCodeEvt?.getContent().shortcode ??
-    getShortcodeFor(getHexcodeForEmoji(reaction)) ??
-    reaction;
-  const names = events.map(
-    (ev: MatrixEvent) =>
-      getMemberDisplayName(room, ev.getSender() ?? 'Unknown') ??
-      getMxIdLocalPart(ev.getSender() ?? 'Unknown') ??
-      'Unknown'
-  );
+    const shortCodeEvt = events.find(eventWithShortcode);
+    const shortcode =
+        shortCodeEvt?.getContent().shortcode ??
+        getShortcodeFor(getHexcodeForEmoji(reaction)) ??
+        reaction;
+    const names = events.map(
+        (ev: MatrixEvent) =>
+            getMemberDisplayName(room, ev.getSender() ?? getText('generic.unknown')) ??
+            getMxIdLocalPart(ev.getSender() ?? getText('generic.unknown')) ??
+            getText('generic.unknown')
+    );
 
-  return (
-    <>
-      {names.length === 1 && <b>{names[0]}</b>}
-      {names.length === 2 && (
+    return (
         <>
-          <b>{names[0]}</b>
-          <Text as="span" size="Inherit" priority="300">
-            {' and '}
-          </Text>
-          <b>{names[1]}</b>
+            {names.length === 1 && <b>{names[0]}</b>}
+            {names.length === 2 && (
+                <>
+                    <b>{names[0]}</b>
+                    <Text as="span" size="Inherit" priority="300">
+                        {getText('generic.and')}
+                    </Text>
+                    <b>{names[1]}</b>
+                </>
+            )}
+            {names.length === 3 && (
+                <>
+                    <b>{names[0]}</b>
+                    <Text as="span" size="Inherit" priority="300">
+                        {getText('generic.delimiter')}
+                    </Text>
+                    <b>{names[1]}</b>
+                    <Text as="span" size="Inherit" priority="300">
+                        {getText('generic.and')}
+                    </Text>
+                    <b>{names[2]}</b>
+                </>
+            )}
+            {names.length > 3 && (
+                <>
+                    <b>{names[0]}</b>
+                    <Text as="span" size="Inherit" priority="300">
+                        {getText('generic.delimiter')}
+                    </Text>
+                    <b>{names[1]}</b>
+                    <Text as="span" size="Inherit" priority="300">
+                        {getText('generic.delimiter')}
+                    </Text>
+                    <b>{names[2]}</b>
+                    <Text as="span" size="Inherit" priority="300">
+                        {getText('generic.and')}
+                    </Text>
+                    <b>{getText('generic.others', names.length - 3)}</b>
+                </>
+            )}
+            <Text as="span" size="Inherit" priority="300">
+                {getText('reaction.reacted_with')}
+            </Text>
+            :<b>{shortcode}</b>:
         </>
-      )}
-      {names.length === 3 && (
-        <>
-          <b>{names[0]}</b>
-          <Text as="span" size="Inherit" priority="300">
-            {', '}
-          </Text>
-          <b>{names[1]}</b>
-          <Text as="span" size="Inherit" priority="300">
-            {' and '}
-          </Text>
-          <b>{names[2]}</b>
-        </>
-      )}
-      {names.length > 3 && (
-        <>
-          <b>{names[0]}</b>
-          <Text as="span" size="Inherit" priority="300">
-            {', '}
-          </Text>
-          <b>{names[1]}</b>
-          <Text as="span" size="Inherit" priority="300">
-            {', '}
-          </Text>
-          <b>{names[2]}</b>
-          <Text as="span" size="Inherit" priority="300">
-            {' and '}
-          </Text>
-          <b>{names.length - 3} others</b>
-        </>
-      )}
-      <Text as="span" size="Inherit" priority="300">
-        {' reacted with '}
-      </Text>
-      :<b>{shortcode}</b>:
-    </>
-  );
+    );
 }

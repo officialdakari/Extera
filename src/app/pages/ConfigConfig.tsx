@@ -2,6 +2,7 @@ import { Box, Button, Dialog, Spinner, Text, color, config } from 'folds';
 import React from 'react';
 import { SplashScreen } from '../components/splash-screen';
 import { RandomFact } from '../../fact';
+import { getText } from '../../lang';
 
 export function ConfigConfigLoading() {
     return (
@@ -26,7 +27,7 @@ export function ConfigConfigError({ error, retry, ignore }: ConfigConfigErrorPro
                 <Dialog>
                     <Box style={{ padding: config.space.S400 }} direction="Column" gap="400">
                         <Box direction="Column" gap="100">
-                            <Text>Failed to load client configuration file.</Text>
+                            <Text>{getText('error.config_load')}</Text>
                             {typeof error === 'object' &&
                                 error &&
                                 'message' in error &&
@@ -38,12 +39,12 @@ export function ConfigConfigError({ error, retry, ignore }: ConfigConfigErrorPro
                         </Box>
                         <Button variant="Critical" onClick={retry}>
                             <Text as="span" size="B400">
-                                Retry
+                                {getText('btn.retry')}
                             </Text>
                         </Button>
                         <Button variant="Critical" onClick={ignore} fill="Soft">
                             <Text as="span" size="B400">
-                                Continue
+                                {getText('btn.continue')}
                             </Text>
                         </Button>
                     </Box>

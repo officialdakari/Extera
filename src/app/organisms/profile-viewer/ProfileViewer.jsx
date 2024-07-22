@@ -45,6 +45,8 @@ import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getDMRoomFor } from '../../utils/matrix';
 import { EventTimeline } from 'matrix-js-sdk';
 import Banner from './Banner';
+import { getText } from '../../../lang';
+import { useBackButton } from '../../hooks/useBackButton';
 
 function ModerationTools({ roomId, userId }) {
     const mx = initMatrix.matrixClient;
@@ -74,18 +76,20 @@ function ModerationTools({ roomId, userId }) {
         roomActions.ban(roomId, userId, banReason !== '' ? banReason : undefined);
     };
 
+    // TODO seperate dialog for entering reason
+
     return (
         <div className="moderation-tools">
             {canIKick && (
                 <form onSubmit={handleKick}>
-                    <Input label="Kick reason" name="kick-reason" />
-                    <Button type="submit">Kick</Button>
+                    <Input label={getText('label.profile_viewer.kick_reason')} name="kick-reason" />
+                    <Button type="submit">{getText('btn.profile_viewer.kick')}</Button>
                 </form>
             )}
             {canIBan && (
                 <form onSubmit={handleBan}>
-                    <Input label="Ban reason" name="ban-reason" />
-                    <Button type="submit">Ban</Button>
+                    <Input label={getText('label.profile_viewer.ban_reason')} name="ban-reason" />
+                    <Button type="submit">{getText('btn.profile_viewer.ban')}</Button>
                 </form>
             )}
         </div>
@@ -126,8 +130,8 @@ function SessionInfo({ userId }) {
         if (!isVisible) return null;
         return (
             <div className="session-info__chips">
-                {devices === null && <Text variant="b2">Loading sessions...</Text>}
-                {devices?.length === 0 && <Text variant="b2">No session found.</Text>}
+                {devices === null && <Text variant="b2">{getText('session_info.loading')}</Text>}
+                {devices?.length === 0 && <Text variant="b2">{getText('session_info.none')}</Text>}
                 {devices !== null &&
                     devices.map((device) => (
                         <Chip
@@ -146,10 +150,7 @@ function SessionInfo({ userId }) {
                 onClick={() => setIsVisible(!isVisible)}
                 iconSrc={isVisible ? ChevronBottomIC : ChevronRightIC}
             >
-                <Text variant="b2">{`View ${devices?.length > 0
-                    ? `${devices.length} ${devices.length == 1 ? 'session' : 'sessions'}`
-                    : 'sessions'
-                    }`}</Text>
+                <Text variant="b2">{getText('session_info.item', devices?.length ?? 0)}</Text>
             </MenuItem>
             {renderSessionChips()}
         </div>
@@ -254,18 +255,18 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
     return (
         <div className="profile-viewer__buttons">
             <Button variant="primary" onClick={openDM} disabled={isCreatingDM}>
-                {isCreatingDM ? 'Creating room...' : 'Message'}
+                {getText(isCreatingDM ? 'profile_footer.dm.creating' : 'btn.profile_footer.dm')}
             </Button>
             {isBanned && canIKick && (
                 <Button variant="positive" onClick={() => roomActions.unban(roomId, userId)}>
-                    Unban
+                    {getText('btn.profile_footer.unban')}
                 </Button>
             )}
             {(isInvited ? canIKick : room.canInvite(mx.getUserId())) && isInvitable && (
                 <Button onClick={toggleInvite} disabled={isInviting}>
                     {isInvited
-                        ? `${isInviting ? 'Disinviting...' : 'Disinvite'}`
-                        : `${isInviting ? 'Inviting...' : 'Invite'}`}
+                        ? `${getText(isInviting ? 'btn.profile_footer.disinviting' : 'btn.profile_footer.disinvite')}`
+                        : `${getText(isInviting ? 'btn.profile_footer.inviting' : 'btn.profile_footer.invite')}`}
                 </Button>
             )}
             <Button
@@ -274,8 +275,8 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
                 disabled={isIgnoring}
             >
                 {isUserIgnored
-                    ? `${isIgnoring ? 'Unignoring...' : 'Unignore'}`
-                    : `${isIgnoring ? 'Ignoring...' : 'Ignore'}`}
+                    ? `${getText(isIgnoring ? 'btn.profile_footer.unignoring' : 'btn.profile_footer.unignore')}`
+                    : `${getText(isIgnoring ? 'btn.profile_footer.ignoring' : 'btn.profile_footer.ignore')}`}
             </Button>
         </div>
     );
@@ -365,7 +366,7 @@ function ProfileViewer() {
 
         const roomState = room.getLiveTimeline().getState(EventTimeline.FORWARDS);
         const membership = roomState.getStateEvents('m.room.member', userId);
-        const membershipContent = membership.getContent();
+        const membershipContent = membership?.getContent() ?? {};
 
         var bannerUrl;
 
@@ -382,17 +383,17 @@ function ProfileViewer() {
         const handleChangePowerLevel = async (newPowerLevel) => {
             if (newPowerLevel === powerLevel) return;
             const SHARED_POWER_MSG =
-                'You will not be able to undo this change as you are promoting the user to have the same power level as yourself. Are you sure?';
+                getText('shared_pl_warning');
             const DEMOTING_MYSELF_MSG =
-                'You will not be able to undo this change as you are demoting yourself. Are you sure?';
+                getText('self_demote_warning');
 
             const isSharedPower = newPowerLevel === myPowerLevel;
             const isDemotingMyself = userId === mx.getUserId();
             if (isSharedPower || isDemotingMyself) {
                 const isConfirmed = await confirmDialog(
-                    'Change power level',
+                    getText('profile_viewer.change_power_level.title'),
                     isSharedPower ? SHARED_POWER_MSG : DEMOTING_MYSELF_MSG,
-                    'Change',
+                    getText('btn.profile_viewer.change_pl'),
                     'caution'
                 );
                 if (!isConfirmed) return;
@@ -427,12 +428,12 @@ function ProfileViewer() {
                         <Text variant="b2">{userId}</Text>
                     </div>
                     <div className="profile-viewer__user__role">
-                        <Text variant="b3">Role</Text>
+                        <Text variant="b3">{getText('profile_viewer.power_level')}</Text>
                         <Button
                             onClick={canChangeRole ? handlePowerSelector : null}
                             iconSrc={canChangeRole ? ChevronBottomIC : null}
                         >
-                            {`${getPowerLabel(powerLevel) || 'Member'} - ${powerLevel}`}
+                            {`${getPowerLabel(powerLevel) || getText('generic.pl_member')} - ${powerLevel}`}
                         </Button>
                     </div>
                 </div>
@@ -445,6 +446,8 @@ function ProfileViewer() {
             </div>
         );
     };
+
+    useBackButton(closeDialog);
 
     return (
         <Dialog

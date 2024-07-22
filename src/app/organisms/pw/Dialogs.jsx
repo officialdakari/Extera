@@ -8,6 +8,7 @@ import JoinAlias from '../join-alias/JoinAlias';
 import EmojiVerification from '../emoji-verification/EmojiVerification';
 
 import ReusableDialog from '../../molecules/dialog/ReusableDialog';
+import HiddenRooms from '../hidden-rooms/HiddenRooms';
 
 function Dialogs() {
   return (
@@ -17,6 +18,7 @@ function Dialogs() {
       <JoinAlias />
       <SpaceAddExisting />
       <Search />
+      <HiddenRooms />
       <EmojiVerification />
 
       <ReusableDialog />

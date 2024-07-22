@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Settings.scss';
 
 // Holy shit this code will be worser than yandere simulator's :catstare:
@@ -43,6 +43,8 @@ import BellIC from '../../../../public/res/ic/outlined/bell.svg';
 import InfoIC from '../../../../public/res/ic/outlined/info.svg';
 import PowerIC from '../../../../public/res/ic/outlined/power.svg';
 import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
+import EyeIC from '../../../../public/res/ic/outlined/eye.svg';
+import StarIC from '../../../../public/res/ic/outlined/star.svg';
 
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
@@ -56,8 +58,14 @@ import Banner from '../profile-editor/Banner';
 import ImageUpload from '../../molecules/image-upload/ImageUpload';
 import colorMXID from '../../../util/colorMXID';
 
+// THIS FUNCTION
+import { getText } from '../../../lang';
+import { useBackButton } from '../../hooks/useBackButton';
+
 function AppearanceSection() {
     const [, updateState] = useState({});
+
+    const mx = useMatrixClient();
 
     const [enterForNewline, setEnterForNewline] = useSetting(settingsAtom, 'enterForNewline');
     const [messageLayout, setMessageLayout] = useSetting(settingsAtom, 'messageLayout');
@@ -70,21 +78,62 @@ function AppearanceSection() {
     const [urlPreview, setUrlPreview] = useSetting(settingsAtom, 'urlPreview');
     const [encUrlPreview, setEncUrlPreview] = useSetting(settingsAtom, 'encUrlPreview');
     const [showHiddenEvents, setShowHiddenEvents] = useSetting(settingsAtom, 'showHiddenEvents');
-    const spacings = ['0', '100', '200', '300', '400', '500']
+    const [wallpaperURL, setWallpaperURL] = useSetting(settingsAtom, 'extera_wallpaper');
+    const spacings = ['0', '100', '200', '300', '400', '500'];
+
+    const wallpaperInputRef = useRef(null);
+
+    const handleDeleteWallpaper = async () => {
+        if (
+            await confirmDialog(
+                getText('settings.remove_wallpaper.title'),
+                getText('settings.remove_wallpaper.desc'),
+                getText('btn.remove_wallpaper'),
+                'danger'
+            )
+        ) {
+            setWallpaperURL(null);
+        }
+    };
+
+    const [uploadPromise, setUploadPromise] = useState(null);
+
+    async function uploadImage(e) {
+        const file = e.target.files.item(0);
+        if (file === null) return;
+        try {
+            const uPromise = mx.uploadContent(file);
+            setUploadPromise(uPromise);
+
+            const res = await uPromise;
+            if (typeof res?.content_uri === 'string') {
+                setWallpaperURL(res.content_uri);
+            };
+            setUploadPromise(null);
+        } catch {
+            setUploadPromise(null);
+        }
+        wallpaperInputRef.current.value = null;
+    }
+
+    const handleSetWallpaper = async () => {
+        if (uploadPromise !== null) return;
+        wallpaperInputRef.current?.click();
+    };
 
     return (
         <div className="settings-appearance">
             <div className="settings-appearance__card">
-                <MenuHeader>Theme</MenuHeader>
+                <MenuHeader>{getText('settings.theme.header')}</MenuHeader>
                 <SettingTile
-                    title="Follow system theme"
+                    title={getText('settings.system_theme.title')}
                     options={(
                         <Toggle
                             isActive={settings.useSystemTheme}
                             onToggle={() => { toggleSystemTheme(); updateState({}); }}
                         />
                     )}
-                    content={<Text variant="b3">Use light or dark mode based on the system settings.</Text>}
+                    content={<Text variant="b3">{getText('settings.system_theme.desc')}</Text>}
                 />
                 <SettingTile
                     title="Theme"
@@ -107,34 +156,51 @@ function AppearanceSection() {
                     )}
                 />
                 <SettingTile
-                    title="Use Twitter Emoji"
+                    title={getText('settings.twemoji.title')}
                     options={(
                         <Toggle
                             isActive={twitterEmoji}
                             onToggle={() => setTwitterEmoji(!twitterEmoji)}
                         />
                     )}
-                    content={<Text variant="b3">Use Twitter emoji instead of system emoji.</Text>}
+                    content={<Text variant="b3">{getText('settings.twemoji.desc')}</Text>}
+                />
+                <SettingTile
+                    title={getText('settings.wallpaper.title')}
+                    options={(
+                        <>
+                            <Button
+                                variant='primary'
+                                onClick={handleSetWallpaper}
+                            >{getText(wallpaperURL ? 'btn.settings.wallpaper.change' : 'btn.settings.wallpaper.add')}</Button>
+                            {wallpaperURL && <>&nbsp;<Button
+                                variant='danger'
+                                onClick={handleDeleteWallpaper}
+                            >{getText('btn.settings.wallpaper.delete')}</Button></>}
+                            <input accept='image/*' onChange={uploadImage} type='file' ref={wallpaperInputRef} style={{ display: 'none' }} />
+                        </>
+                    )}
+                    content={<Text variant="b3">{getText('settings.wallpaper.desc')}</Text>}
                 />
             </div>
             <div className="settings-appearance__card">
-                <MenuHeader>Room messages</MenuHeader>
+                <MenuHeader>{getText('settings.messages.header')}</MenuHeader>
                 <SettingTile
-                    title="Message Layout"
+                    title={getText('settings.msg_layout.title')}
                     content={
                         <SegmentedControls
                             selected={messageLayout}
                             segments={[
-                                { text: 'Modern' },
-                                { text: 'Compact' },
-                                { text: 'Bubble' },
+                                { text: getText('settings.msg_layout.modern') },
+                                { text: getText('settings.msg_layout.compact') },
+                                { text: getText('settings.msg_layout.bubble') },
                             ]}
                             onSelect={(index) => setMessageLayout(index)}
                         />
                     }
                 />
                 <SettingTile
-                    title="Message Spacing"
+                    title={getText('settings.msg_spacing.title')}
                     content={
                         <SegmentedControls
                             selected={spacings.findIndex((s) => s === messageSpacing)}
@@ -153,99 +219,95 @@ function AppearanceSection() {
                     }
                 />
                 <SettingTile
-                    title="Use ENTER for Newline"
+                    title={getText('settings.enter_newline.title')}
                     options={(
                         <Toggle
                             isActive={enterForNewline}
                             onToggle={() => setEnterForNewline(!enterForNewline)}
                         />
                     )}
-                    content={<Text variant="b3">{`Use ${isMacOS() ? KeySymbol.Command : 'Ctrl'} + ENTER to send message and ENTER for newline.`}</Text>}
+                    content={<Text variant="b3">{getText('settings.enter_newline.desc', isMacOS() ? KeySymbol.Command : 'Ctrl')}</Text>}
                 />
                 <SettingTile
-                    title="Markdown formatting"
+                    title={getText('settings.md_formatting.title')}
                     options={(
                         <Toggle
                             isActive={isMarkdown}
                             onToggle={() => setIsMarkdown(!isMarkdown)}
                         />
                     )}
-                    content={<Text variant="b3">Format messages with markdown syntax before sending.</Text>}
+                    content={<Text variant="b3">{getText('settings.md_formatting.desc')}</Text>}
                 />
                 <SettingTile
-                    title="Hide membership events"
+                    title={getText('settings.hide_membership.title')}
                     options={(
                         <Toggle
                             isActive={hideMembershipEvents}
                             onToggle={() => setHideMembershipEvents(!hideMembershipEvents)}
                         />
                     )}
-                    content={<Text variant="b3">Hide membership change messages from room timeline. (Join, Leave, Invite, Kick and Ban)</Text>}
+                    content={<Text variant="b3">{getText('settings.hide_membership.desc')}</Text>}
                 />
                 <SettingTile
-                    title="Hide nick/avatar events"
+                    title={getText('settings.hide_profile.title')}
                     options={(
                         <Toggle
                             isActive={hideNickAvatarEvents}
                             onToggle={() => setHideNickAvatarEvents(!hideNickAvatarEvents)}
                         />
                     )}
-                    content={<Text variant="b3">Hide nick and avatar change messages from room timeline.</Text>}
+                    content={<Text variant="b3">{getText('settings.hide_profile.desc')}</Text>}
                 />
                 <SettingTile
-                    title="Disable media auto load"
+                    title={getText('settings.no_media_autoload.title')}
                     options={(
                         <Toggle
                             isActive={!mediaAutoLoad}
                             onToggle={() => setMediaAutoLoad(!mediaAutoLoad)}
                         />
                     )}
-                    content={<Text variant="b3">Prevent images and videos from auto loading to save bandwidth.</Text>}
+                    content={<Text variant="b3">{getText('settings.no_media_autoload.desc')}</Text>}
                 />
                 <SettingTile
-                    title="Url Preview"
+                    title={getText('settings.url_preview.title')}
                     options={(
                         <Toggle
                             isActive={urlPreview}
                             onToggle={() => setUrlPreview(!urlPreview)}
                         />
                     )}
-                    content={<Text variant="b3">Show url preview for link in messages.</Text>}
+                    content={<Text variant="b3">{getText('settings.url_preview.desc')}</Text>}
                 />
                 <SettingTile
-                    title="Url Preview in Encrypted Room"
+                    title={getText('settings.url_preview_enc.title')}
                     options={(
                         <Toggle
                             isActive={encUrlPreview}
                             onToggle={() => setEncUrlPreview(!encUrlPreview)}
                         />
                     )}
-                    content={<Text variant="b3">Show url preview for link in encrypted messages.</Text>}
+                    content={<Text variant="b3">{getText('settings.url_preview_enc.desc')}</Text>}
                 />
                 <SettingTile
-                    title="Show hidden events"
+                    title={getText('settings.hidden_events.title')}
                     options={(
                         <Toggle
                             isActive={showHiddenEvents}
                             onToggle={() => setShowHiddenEvents(!showHiddenEvents)}
                         />
                     )}
-                    content={<Text variant="b3">Show hidden state and message events.</Text>}
+                    content={<Text variant="b3">{getText('settings.hidden_events.desc')}</Text>}
                 />
             </div>
         </div>
     );
 }
 
-function ExteraSection() {
+function PresenceSection() {
     const mx = useMatrixClient();
-    const [hideTgAds, setHideTgAds] = useSetting(settingsAtom, 'extera_hideTgAds');
-    const [enableCaptions, setEnableCaptions] = useSetting(settingsAtom, 'extera_enableCaptions');
-    const [renameTgBot, setRenameTgBot] = useSetting(settingsAtom, 'extera_renameTgBot');
-    const [ghostMode, setGhostMode] = useSetting(settingsAtom, 'extera_ghostMode');
-    const [smoothScroll, setSmoothScroll] = useSetting(settingsAtom, 'extera_smoothScroll');
     const [status, setStatus] = useSetting(settingsAtom, 'extera_status');
     const [statusMsg, setStatusMsg] = useSetting(settingsAtom, 'extera_status_message');
+    const [ghostMode, setGhostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
     const updateStatusMessage = (evt) => {
         evt.preventDefault();
@@ -258,102 +320,111 @@ function ExteraSection() {
         });
     };
 
+    return <div className="settings-presence settings-presence__card">
+        <MenuHeader>{getText('settings.status.title')}</MenuHeader>
+        <SettingTile
+            title="Presence Status"
+            content={(
+                <SegmentedControls
+                    selected={status}
+                    segments={[
+                        { text: getText('settings.status.online') },
+                        { text: getText('settings.status.offline') },
+                        { text: getText('settings.status.unavailable') }
+                    ]}
+                    onSelect={(index) => {
+                        const statuses = [
+                            'online', 'offline', 'unavailable'
+                        ];
+                        mx.setSyncPresence(statuses[index]);
+                        mx.setPresence({
+                            presence: statuses[index],
+                            status_msg: index != 1 ? statusMsg : undefined
+                        }).then(() => {
+                            console.log('Presence updated');
+                        }).catch(err => {
+                            console.error('Could not update presence: ', err);
+                        });
+                        setStatus(index);
+                    }}
+                />
+            )}
+        />
+        <SettingTile
+            title={getText('settings.ghost.title')}
+            options={(
+                <Toggle
+                    isActive={ghostMode}
+                    onToggle={() => setGhostMode(!ghostMode)}
+                />
+            )}
+            content={<Text variant="b3">{getText('settings.ghost.desc')}</Text>}
+        />
+        <SettingTile
+            title={getText('settings.status_message.title')}
+            content={(
+                <div className='settings-presence__status'>
+                    <Text variant="b3">{getText('settings.status_message.text')}</Text>
+                    <form onSubmit={updateStatusMessage}>
+                        <Input required name="statusInput" placeholder={statusMsg} />
+                        <Button variant="primary" type="submit">{getText('btn.status_message.set')}</Button>
+                    </form>
+                </div>
+            )}
+        />
+    </div>;
+}
+
+function ExteraSection() {
+    const mx = useMatrixClient();
+    const [hideTgAds, setHideTgAds] = useSetting(settingsAtom, 'extera_hideTgAds');
+    const [enableCaptions, setEnableCaptions] = useSetting(settingsAtom, 'extera_enableCaptions');
+    const [renameTgBot, setRenameTgBot] = useSetting(settingsAtom, 'extera_renameTgBot');
+    const [smoothScroll, setSmoothScroll] = useSetting(settingsAtom, 'extera_smoothScroll');
+
     return (
         <div className="settings-extera">
             <div className="settings-extera__card">
-                <MenuHeader>Extera Settings</MenuHeader>
+                <MenuHeader>{getText('settings.extera.header')}</MenuHeader>
                 <SettingTile
-                    title="Hide Telegram advertisements"
+                    title={getText('settings.hide_ads.title')}
                     options={(
                         <Toggle
                             isActive={hideTgAds}
                             onToggle={() => setHideTgAds(!hideTgAds)}
                         />
                     )}
-                    content={<Text variant="b3">{`Hide advertisements in Telegram channels.`}</Text>}
+                    content={<Text variant="b3">{getText('settings.hide_ads.desc')}</Text>}
                 />
                 <SettingTile
-                    title="Send captions in one message (WIP)"
+                    title={getText('settings.captions.title')}
                     options={(
                         <Toggle
                             isActive={enableCaptions}
                             onToggle={() => setEnableCaptions(!enableCaptions)}
                         />
                     )}
-                    content={<Text variant="b3">{`Send captions in files instead of a seperate message.`}</Text>}
+                    content={<Text variant="b3">{getText('settings.captions.desc')}</Text>}
                 />
                 <SettingTile
-                    title="Smooth scroll"
+                    title={getText('settings.smooth_scroll.title')}
                     options={(
                         <Toggle
                             isActive={smoothScroll}
                             onToggle={() => setSmoothScroll(!smoothScroll)}
                         />
                     )}
-                    content={<Text variant="b3">{`Scroll smoothly when receiving a new message.`}</Text>}
+                    content={<Text variant="b3">{getText('settings.smooth_scroll.desc')}</Text>}
                 />
                 <SettingTile
-                    title="Rename Telegram bridge bot in channels"
+                    title={getText('settings.rename_tg_bot.title')}
                     options={(
                         <Toggle
                             isActive={renameTgBot}
                             onToggle={() => setRenameTgBot(!renameTgBot)}
                         />
                     )}
-                    content={<Text variant="b3">{`Make Telegram bridge bot use room name and avatar instead of bot name.`}</Text>}
-                />
-            </div>
-            <div className="settings-extera__card">
-                <MenuHeader>Presence</MenuHeader>
-                <SettingTile
-                    title="Presence Status"
-                    content={(
-                        <SegmentedControls
-                            selected={status}
-                            segments={[
-                                { text: 'Online' },
-                                { text: 'Offline' },
-                                { text: 'AFK' }
-                            ]}
-                            onSelect={(index) => {
-                                const statuses = [
-                                    'online', 'offline', 'unavailable'
-                                ];
-                                mx.setSyncPresence(statuses[index]);
-                                mx.setPresence({
-                                    presence: statuses[index],
-                                    status_msg: index != 1 ? statusMsg : undefined
-                                }).then(() => {
-                                    console.log('Presence updated');
-                                }).catch(err => {
-                                    console.error('Could not update presence: ', err);
-                                });
-                                setStatus(index);
-                            }}
-                        />
-                    )}
-                />
-                <SettingTile
-                    title="Status message"
-                    content={(
-                        <>
-                            <Text variant="b3">Enter your status message.</Text>
-                            <form onSubmit={updateStatusMessage}>
-                                <Input name="statusInput" placeholder={statusMsg} />
-                                <Button variant="primary" type="submit">Set</Button>
-                            </form>
-                        </>
-                    )}
-                />
-                <SettingTile
-                    title="Ghost mode"
-                    options={(
-                        <Toggle
-                            isActive={ghostMode}
-                            onToggle={() => setGhostMode(!ghostMode)}
-                        />
-                    )}
-                    content={<Text variant="b3">{`Do not send read receipts and typing status.`}</Text>}
+                    content={<Text variant="b3">{getText('settings.rename_tg_bot.title')}</Text>}
                 />
             </div>
         </div>
@@ -367,7 +438,7 @@ function NotificationsSection() {
 
     const renderOptions = () => {
         if (window.Notification === undefined) {
-            return <Text className="settings-notifications__not-supported">Not supported in this browser.</Text>;
+            return <Text className="settings-notifications__not-supported">{getText('settings.notifications.unsupported')}</Text>;
         }
 
         if (permission === 'granted') {
@@ -388,7 +459,7 @@ function NotificationsSection() {
                 variant="primary"
                 onClick={() => window.Notification.requestPermission().then(setPermission)}
             >
-                Request permission
+                {getText('btn.notifications.request_permission')}
             </Button>
         );
     };
@@ -396,21 +467,21 @@ function NotificationsSection() {
     return (
         <>
             <div className="settings-notifications">
-                <MenuHeader>Notification & Sound</MenuHeader>
+                <MenuHeader>{getText('settings.notifications.header')}</MenuHeader>
                 <SettingTile
-                    title="Desktop notification"
+                    title={getText('settings.desktop_notifications.title')}
                     options={renderOptions()}
-                    content={<Text variant="b3">Show desktop notification when new messages arrive.</Text>}
+                    content={<Text variant="b3">{getText('settings.desktop_notifications.desc')}</Text>}
                 />
                 <SettingTile
-                    title="Notification Sound"
+                    title={getText('settings.notification_sound.title')}
                     options={(
                         <Toggle
                             isActive={settings.isNotificationSounds}
                             onToggle={() => { toggleNotificationSounds(); updateState({}); }}
                         />
                     )}
-                    content={<Text variant="b3">Play sound when new messages arrive.</Text>}
+                    content={<Text variant="b3">{getText('settings.notification_sound.desc')}</Text>}
                 />
             </div>
             <GlobalNotification />
@@ -433,27 +504,27 @@ function SecuritySection() {
     return (
         <div className="settings-security">
             <div className="settings-security__card">
-                <MenuHeader>Cross signing and backup</MenuHeader>
+                <MenuHeader>{getText('settings.cross_signing.header')}</MenuHeader>
                 <CrossSigning />
                 <KeyBackup />
             </div>
             <DeviceManage />
             <div className="settings-security__card">
-                <MenuHeader>Export/Import encryption keys</MenuHeader>
+                <MenuHeader>{getText('settings.encryption_keys.header')}</MenuHeader>
                 <SettingTile
-                    title="Export E2E room keys"
+                    title={getText('settings.export.title')}
                     content={(
                         <>
-                            <Text variant="b3">Export end-to-end encryption room keys to decrypt old messages in other session. In order to encrypt keys you need to set a password, which will be used while importing.</Text>
+                            <Text variant="b3">{getText('settings.export.desc')}</Text>
                             <ExportE2ERoomKeys />
                         </>
                     )}
                 />
                 <SettingTile
-                    title="Import E2E room keys"
+                    title={getText('settings.import.title')}
                     content={(
                         <>
-                            <Text variant="b3">{'To decrypt older messages, Export E2EE room keys from Element (Settings > Security & Privacy > Encryption > Cryptography) and import them here. Imported keys are encrypted so you\'ll have to enter the password you set in order to decrypt it.'}</Text>
+                            <Text variant="b3">{getText('settings.import.desc')}</Text>
                             <ImportE2ERoomKeys />
                         </>
                     )}
@@ -513,18 +584,24 @@ function AboutSection() {
 }
 
 export const tabText = {
-    APPEARANCE: 'Appearance',
-    NOTIFICATIONS: 'Notifications',
-    EMOJI: 'Emoji',
-    SECURITY: 'Security',
-    EXTERA: 'Extera',
-    ABOUT: 'About',
+    APPEARANCE: getText('tab.appearance'),
+    PRESENCE: getText('tab.presence'),
+    NOTIFICATIONS: getText('tab.notifications'),
+    EMOJI: getText('tab.emoji'),
+    SECURITY: getText('tab.security'),
+    EXTERA: getText('tab.extera'),
+    ABOUT: getText('tab.about'),
 };
 const tabItems = [{
     text: tabText.APPEARANCE,
     iconSrc: SunIC,
     disabled: false,
     render: () => <AppearanceSection />,
+}, {
+    text: tabText.PRESENCE,
+    iconSrc: EyeIC,
+    disabled: false,
+    render: () => <PresenceSection />,
 }, {
     text: tabText.NOTIFICATIONS,
     iconSrc: BellIC,
@@ -542,6 +619,7 @@ const tabItems = [{
     render: () => <SecuritySection />,
 }, {
     text: tabText.EXTERA,
+    iconSrc: StarIC,
     disabled: false,
     render: () => <ExteraSection />,
 }, {
@@ -579,7 +657,7 @@ function Settings() {
 
     const handleTabChange = (tabItem) => setSelectedTab(tabItem);
     const handleLogout = async () => {
-        if (await confirmDialog('Logout', 'Are you sure that you want to logout your session?', 'Logout', 'danger')) {
+        if (await confirmDialog(getText('logout.title'), getText('logout.confirm'), getText('btn.logout.confirm'), 'danger')) {
             initMatrix.logout();
         }
     };
@@ -609,7 +687,7 @@ function Settings() {
 
     const handleBannerRemove = async () => {
         try {
-            if (await confirmDialog('Remove banner', 'Are you sure that you want to remove your banner?', 'Remove', 'primary')) {
+            if (await confirmDialog(getText('remove_banner.title'), getText('remove_banner.desc'), getText('btn.remove_banner.confirm'), 'primary')) {
                 await mx.setAccountData('ru.officialdakari.extera_profile', {
                     banner_url: null
                 });
@@ -620,18 +698,20 @@ function Settings() {
         }
     };
 
+    useBackButton(requestClose);
+
     return (
         <PopupWindow
             isOpen={isOpen}
             className="settings-window"
-            title={<Text variant="s1" weight="medium" primary>Settings</Text>}
+            title={<Text variant="s1" weight="medium" primary>{getText('settings.title')}</Text>}
             contentOptions={(
                 <>
                     {bannerSrc && <Button variant='surface' iconSrc={CrossIC} onClick={handleBannerRemove}>
-                        Remove banner
+                        {getText('btn.remove_banner')}
                     </Button>}
                     <Button variant="danger" iconSrc={PowerIC} onClick={handleLogout}>
-                        Logout
+                        {getText('btn.logout_session')}
                     </Button>
                     <IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />
                 </>

@@ -2,14 +2,14 @@ export enum MarkType {
   Bold = 'bold',
   Italic = 'italic',
   Underline = 'underline',
-  StrikeThrough = 'strikeThrough',
-  Code = 'code',
+  StrikeThrough = 'strike',
+  Code = 'code-block',
   Spoiler = 'spoiler',
 }
 
 export enum BlockType {
   Paragraph = 'paragraph',
-  Heading = 'heading',
+  Heading = 'header',
   CodeLine = 'code-line',
   CodeBlock = 'code-block',
   QuoteLine = 'quote-line',

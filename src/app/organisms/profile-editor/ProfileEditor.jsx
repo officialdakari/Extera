@@ -14,7 +14,7 @@ import PencilIC from '../../../../public/res/ic/outlined/pencil.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 
 import './ProfileEditor.scss';
-import Banner from '../profile-viewer/Banner';
+import { getText } from '../../../lang';
 
 function ProfileEditor({ userId }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -43,9 +43,9 @@ function ProfileEditor({ userId }) {
     const handleAvatarUpload = async (url) => {
         if (url === null) {
             const isConfirmed = await confirmDialog(
-                'Remove avatar',
-                'Are you sure that you want to remove avatar?',
-                'Remove',
+                getText('profile_editor.remove_avatar.title'),
+                getText('profile_editor.remove_avatar.desc'),
+                getText('btn.profile_editor.remove_avatar'),
                 'caution'
             );
             if (isConfirmed) {
@@ -87,15 +87,15 @@ function ProfileEditor({ userId }) {
             }}
         >
             <Input
-                label={`Display name of ${mx.getUserId()}`}
+                label={getText('profile_editor.displayname')}
                 onChange={onDisplayNameInputChange}
                 value={mx.getUser(mx.getUserId()).displayName}
                 forwardRef={displayNameRef}
             />
             <Button variant="primary" type="submit" disabled={disabled}>
-                Save
+                {getText('btn.profile_editor.save_name')}
             </Button>
-            <Button onClick={cancelDisplayNameChanges}>Cancel</Button>
+            <Button onClick={cancelDisplayNameChanges}>{getText('btn.cancel')}</Button>
         </form>
     );
 

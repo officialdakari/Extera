@@ -15,6 +15,7 @@ import { nameInitials } from '../../utils/common';
 import { useRoomAvatar, useRoomName, useRoomTopic } from '../../hooks/useRoomMeta';
 import { mDirectAtom } from '../../state/mDirectList';
 import { sendExteraProfile } from '../../../client/action/room';
+import { getText, translate } from '../../../lang';
 
 export type RoomIntroProps = {
     room: Room;
@@ -63,13 +64,11 @@ export const RoomIntro = as<'div', RoomIntroProps>(({ room, ...props }, ref) => 
                         {name}
                     </Text>
                     <Text size="T400" priority="400">
-                        {typeof topic === 'string' ? topic : 'This is the beginning of conversation.'}
+                        {typeof topic === 'string' ? topic : getText('room_intro.1')}
                     </Text>
                     {creatorName && ts && (
                         <Text size="T200" priority="300">
-                            {'Created by '}
-                            <b>@{creatorName}</b>
-                            {` on ${timeDayMonthYear(ts)} ${timeHourMinute(ts)}`}
+                            {translate('room_intro.2', 'Created by ', <b>@{creatorName}</b>, `${timeDayMonthYear(ts)} ${timeHourMinute(ts)}`)}
                         </Text>
                     )}
                 </Box>
@@ -80,7 +79,7 @@ export const RoomIntro = as<'div', RoomIntroProps>(({ room, ...props }, ref) => 
                         size="300"
                         radii="300"
                     >
-                        <Text size="B300">Invite Member</Text>
+                        <Text size="B300">{getText('btn.invite')}</Text>
                     </Button>
                     {typeof prevRoomId === 'string' &&
                         (mx.getRoom(prevRoomId)?.getMyMembership() === Membership.Join ? (
@@ -91,7 +90,7 @@ export const RoomIntro = as<'div', RoomIntroProps>(({ room, ...props }, ref) => 
                                 fill="Soft"
                                 radii="300"
                             >
-                                <Text size="B300">Open Old Room</Text>
+                                <Text size="B300">{getText('btn.old_room.open')}</Text>
                             </Button>
                         ) : (
                             <Button
@@ -107,7 +106,7 @@ export const RoomIntro = as<'div', RoomIntroProps>(({ room, ...props }, ref) => 
                                     ) : undefined
                                 }
                             >
-                                <Text size="B300">Join Old Room</Text>
+                                <Text size="B300">{getText('btn.old_room.join')}</Text>
                             </Button>
                         ))}
                 </Box>

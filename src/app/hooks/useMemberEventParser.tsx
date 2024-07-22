@@ -1,9 +1,10 @@
 import React, { ReactNode } from 'react';
 import { IconSrc, Icons } from 'folds';
-import { MatrixEvent } from 'matrix-js-sdk';
+import { EventTimeline, MatrixEvent, Room } from 'matrix-js-sdk';
 import { IMemberContent, Membership } from '../../types/matrix/room';
 import { getMxIdLocalPart } from '../utils/matrix';
 import { isMembershipChanged } from '../utils/room';
+import { useMatrixClient } from './useMatrixClient';
 
 export type ParsedResult = {
     icon: IconSrc;
@@ -13,6 +14,21 @@ export type ParsedResult = {
 export type MemberEventParser = (mEvent: MatrixEvent) => ParsedResult;
 
 export const useMemberEventParser = (): MemberEventParser => {
+    const mx = useMatrixClient();
+    const getDisplayName = (mxId?: string, roomId?: string) => {
+        if (!mxId) return '[unknown]';
+        if (!roomId) return mxId;
+        const room = mx.getRoom(roomId);
+        if (!room) return mxId;
+        const timeline = room.getLiveTimeline();
+        const state = timeline.getState(EventTimeline.FORWARDS);
+        if (!state) return mxId;
+        const memberEvent = state.getStateEvents('m.room.member', mxId);
+        if (!memberEvent) return mxId;
+        const content = memberEvent.getContent();
+        return content.displayname || mxId;
+    };
+
     const parseMemberEvent: MemberEventParser = (mEvent) => {
         const content = mEvent.getContent<IMemberContent>();
         const prevContent = mEvent.getPrevContent() as IMemberContent;
@@ -25,8 +41,8 @@ export const useMemberEventParser = (): MemberEventParser => {
                 body: 'Broken membership event',
             };
 
-        const senderName = getMxIdLocalPart(senderId);
-        const userName = content.displayname || getMxIdLocalPart(userId);
+        const senderName = getDisplayName(senderId, mEvent.getRoomId());
+        const userName = content.displayname || getDisplayName(userId, mEvent.getRoomId()) || getMxIdLocalPart(userId);
 
         if (isMembershipChanged(mEvent)) {
             if (content.membership === Membership.Invite) {
@@ -208,7 +224,7 @@ export const useMemberEventParser = (): MemberEventParser => {
                 ),
             };
         }
-        
+
         if (content['ru.officialdakari.extera_banner'] !== prevContent['ru.officialdakari.extera_banner']) {
             return {
                 icon: Icons.User,

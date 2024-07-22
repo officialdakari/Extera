@@ -30,169 +30,176 @@ import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import PopupWindow from '../../molecules/popup-window/PopupWindow';
 import IconButton from '../../atoms/button/IconButton';
+import { getText, translate } from '../../../lang';
+import { useBackButton } from '../../hooks/useBackButton';
 
 const tabText = {
-  GENERAL: 'General',
-  MEMBERS: 'Members',
-  EMOJIS: 'Emojis',
-  PERMISSIONS: 'Permissions',
-  SECURITY: 'Security',
+    GENERAL: getText('room_settings.general'),
+    MEMBERS: getText('room_settings.members'),
+    EMOJIS: getText('room_settings.emojis'),
+    PERMISSIONS: getText('room_settings.permissions'),
+    SECURITY: getText('room_settings.security'),
 };
 
 const tabItems = [
-  {
-    iconSrc: SettingsIC,
-    text: tabText.GENERAL,
-    disabled: false,
-  },
-  {
-    iconSrc: UserIC,
-    text: tabText.MEMBERS,
-    disabled: false,
-  },
-  {
-    iconSrc: EmojiIC,
-    text: tabText.EMOJIS,
-    disabled: false,
-  },
-  {
-    iconSrc: ShieldUserIC,
-    text: tabText.PERMISSIONS,
-    disabled: false,
-  },
-  {
-    iconSrc: LockIC,
-    text: tabText.SECURITY,
-    disabled: false,
-  },
+    {
+        iconSrc: SettingsIC,
+        text: tabText.GENERAL,
+        disabled: false,
+    },
+    {
+        iconSrc: UserIC,
+        text: tabText.MEMBERS,
+        disabled: false,
+    },
+    {
+        iconSrc: EmojiIC,
+        text: tabText.EMOJIS,
+        disabled: false,
+    },
+    {
+        iconSrc: ShieldUserIC,
+        text: tabText.PERMISSIONS,
+        disabled: false,
+    },
+    {
+        iconSrc: LockIC,
+        text: tabText.SECURITY,
+        disabled: false,
+    },
 ];
 
 function GeneralSettings({ roomId }) {
-  const mx = initMatrix.matrixClient;
-  const room = mx.getRoom(roomId);
+    const mx = initMatrix.matrixClient;
+    const room = mx.getRoom(roomId);
 
-  return (
-    <>
-      <div className="room-settings__card">
-        <MenuHeader>Options</MenuHeader>
-        <MenuItem
-          variant="danger"
-          onClick={async () => {
-            const isConfirmed = await confirmDialog(
-              'Leave room',
-              `Are you sure that you want to leave "${room.name}" room?`,
-              'Leave',
-              'danger'
-            );
-            if (!isConfirmed) return;
-            mx.leave(roomId);
-          }}
-          iconSrc={LeaveArrowIC}
-        >
-          Leave
-        </MenuItem>
-      </div>
-      <div className="room-settings__card">
-        <MenuHeader>Notification (Changing this will only affect you)</MenuHeader>
-        <RoomNotification roomId={roomId} />
-      </div>
-      <div className="room-settings__card">
-        <MenuHeader>Room visibility (who can join)</MenuHeader>
-        <RoomVisibility roomId={roomId} />
-      </div>
-      <div className="room-settings__card">
-        <MenuHeader>Room addresses</MenuHeader>
-        <RoomAliases roomId={roomId} />
-      </div>
-    </>
-  );
+    return (
+        <>
+            <div className="room-settings__card">
+                <MenuHeader>Options</MenuHeader>
+                <MenuItem
+                    variant="danger"
+                    onClick={async () => {
+                        const isConfirmed = await confirmDialog(
+                            getText('leaveroom.title'),
+                            getText('leaveroom.text.2', room.name),
+                            getText('btn.leave'),
+                            'danger'
+                        );
+                        if (!isConfirmed) return;
+                        mx.leave(roomId);
+                    }}
+                    iconSrc={LeaveArrowIC}
+                >
+                    {getText('btn.leave')}
+                </MenuItem>
+            </div>
+            <div className="room-settings__card">
+                <MenuHeader>{getText('room_settings.menuheader.notification')}</MenuHeader>
+                <RoomNotification roomId={roomId} />
+            </div>
+            <div className="room-settings__card">
+                <MenuHeader>{getText('room_settings.menuheader.visibility')}</MenuHeader>
+                <RoomVisibility roomId={roomId} />
+            </div>
+            <div className="room-settings__card">
+                <MenuHeader>{getText('room_settings.menuheader.addresses')}</MenuHeader>
+                <RoomAliases roomId={roomId} />
+            </div>
+        </>
+    );
 }
 
 GeneralSettings.propTypes = {
-  roomId: PropTypes.string.isRequired,
+    roomId: PropTypes.string.isRequired,
 };
 
 function SecuritySettings({ roomId }) {
-  return (
-    <>
-      <div className="room-settings__card">
-        <MenuHeader>Encryption</MenuHeader>
-        <RoomEncryption roomId={roomId} />
-      </div>
-      <div className="room-settings__card">
-        <MenuHeader>Message history visibility</MenuHeader>
-        <RoomHistoryVisibility roomId={roomId} />
-      </div>
-    </>
-  );
+    return (
+        <>
+            <div className="room-settings__card">
+                <MenuHeader>{getText('room_settings.menuheader.encryption')}</MenuHeader>
+                <RoomEncryption roomId={roomId} />
+            </div>
+            <div className="room-settings__card">
+                <MenuHeader>{getText('room_settings.menuheader.history')}</MenuHeader>
+                <RoomHistoryVisibility roomId={roomId} />
+            </div>
+        </>
+    );
 }
 SecuritySettings.propTypes = {
-  roomId: PropTypes.string.isRequired,
+    roomId: PropTypes.string.isRequired,
 };
 
 function useWindowToggle(setSelectedTab) {
-  const [window, setWindow] = useState(null);
+    const [window, setWindow] = useState(null);
 
-  useEffect(() => {
-    const openRoomSettings = (roomId, tab) => {
-      setWindow({ roomId, tabText });
-      const tabItem = tabItems.find((item) => item.text === tab);
-      if (tabItem) setSelectedTab(tabItem);
-    };
-    navigation.on(cons.events.navigation.ROOM_SETTINGS_TOGGLED, openRoomSettings);
-    return () => {
-      navigation.removeListener(cons.events.navigation.ROOM_SETTINGS_TOGGLED, openRoomSettings);
-    };
-  }, [setSelectedTab]);
+    useEffect(() => {
+        const openRoomSettings = (roomId, tab) => {
+            setWindow({ roomId, tabText });
+            const tabItem = tabItems.find((item) => item.text === tab);
+            if (tabItem) setSelectedTab(tabItem);
+        };
+        navigation.on(cons.events.navigation.ROOM_SETTINGS_TOGGLED, openRoomSettings);
+        return () => {
+            navigation.removeListener(cons.events.navigation.ROOM_SETTINGS_TOGGLED, openRoomSettings);
+        };
+    }, [setSelectedTab]);
 
-  const requestClose = () => setWindow(null);
+    const requestClose = () => setWindow(null);
 
-  return [window, requestClose];
+    return [window, requestClose];
 }
 
 function RoomSettings() {
-  const [selectedTab, setSelectedTab] = useState(tabItems[0]);
-  const [window, requestClose] = useWindowToggle(setSelectedTab);
-  const isOpen = window !== null;
-  const roomId = window?.roomId;
-  const room = initMatrix.matrixClient.getRoom(roomId);
+    const [selectedTab, setSelectedTab] = useState(tabItems[0]);
+    const [window, requestClose] = useWindowToggle(setSelectedTab);
+    const isOpen = window !== null;
+    const roomId = window?.roomId;
+    const room = initMatrix.matrixClient.getRoom(roomId);
 
-  const handleTabChange = (tabItem) => {
-    setSelectedTab(tabItem);
-  };
+    const handleTabChange = (tabItem) => {
+        setSelectedTab(tabItem);
+    };
 
-  return (
-    <PopupWindow
-      isOpen={isOpen}
-      className="room-settings"
-      title={
-        <Text variant="s1" weight="medium" primary>
-          {isOpen && room.name}
-          <span style={{ color: 'var(--tc-surface-low)' }}> — room settings</span>
-        </Text>
-      }
-      contentOptions={<IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />}
-      onRequestClose={requestClose}
-    >
-      {isOpen && (
-        <div className="room-settings__content">
-          <RoomProfile roomId={roomId} />
-          <Tabs
-            items={tabItems}
-            defaultSelected={tabItems.findIndex((tab) => tab.text === selectedTab.text)}
-            onSelect={handleTabChange}
-          />
-          <div className="room-settings__cards-wrapper">
-            {selectedTab.text === tabText.GENERAL && <GeneralSettings roomId={roomId} />}
-            {selectedTab.text === tabText.MEMBERS && <RoomMembers roomId={roomId} />}
-            {selectedTab.text === tabText.EMOJIS && <RoomEmojis roomId={roomId} />}
-            {selectedTab.text === tabText.PERMISSIONS && <RoomPermissions roomId={roomId} />}
-            {selectedTab.text === tabText.SECURITY && <SecuritySettings roomId={roomId} />}
-          </div>
-        </div>
-      )}
-    </PopupWindow>
-  );
+    useBackButton(requestClose);
+
+    return (
+        <PopupWindow
+            isOpen={isOpen}
+            className="room-settings"
+            title={
+                <Text variant="s1" weight="medium" primary>
+                    {translate(
+                        'room_settings.header',
+                        isOpen && room?.name,
+                        <span style={{ color: 'var(--tc-surface-low)' }}>{getText('room_settings.header.1')}</span>
+                    )}
+                </Text>
+            }
+            contentOptions={<IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />}
+            onRequestClose={requestClose}
+        >
+            {isOpen && (
+                <div className="room-settings__content">
+                    <RoomProfile roomId={roomId} />
+                    <Tabs
+                        items={tabItems}
+                        defaultSelected={tabItems.findIndex((tab) => tab.text === selectedTab.text)}
+                        onSelect={handleTabChange}
+                    />
+                    <div className="room-settings__cards-wrapper">
+                        {selectedTab.text === tabText.GENERAL && <GeneralSettings roomId={roomId} />}
+                        {selectedTab.text === tabText.MEMBERS && <RoomMembers roomId={roomId} />}
+                        {selectedTab.text === tabText.EMOJIS && <RoomEmojis roomId={roomId} />}
+                        {selectedTab.text === tabText.PERMISSIONS && <RoomPermissions roomId={roomId} />}
+                        {selectedTab.text === tabText.SECURITY && <SecuritySettings roomId={roomId} />}
+                    </div>
+                </div>
+            )}
+        </PopupWindow>
+    );
 }
 
 export default RoomSettings;

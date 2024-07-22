@@ -47,6 +47,7 @@ import {
 import { useOrphanSpaces } from '../../state/hooks/roomList';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { AccountDataEvent } from '../../../types/matrix/accountData';
+import { getText } from '../../../lang';
 
 export function Lobby() {
   const navigate = useNavigate();
@@ -376,7 +377,7 @@ export function Lobby() {
                       radii="Pill"
                       outlined
                       size="300"
-                      aria-label="Scroll to Top"
+                      aria-label={getText('aria.scroll_to_top')}
                     >
                       <Icon src={Icons.ChevronTop} size="300" />
                     </IconButton>

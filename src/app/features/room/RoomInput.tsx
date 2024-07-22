@@ -14,9 +14,7 @@ import React, {
 } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { isKeyHotkey } from 'is-hotkey';
-import { EventType, IContent, MsgType, Room } from 'matrix-js-sdk';
-import { ReactEditor } from 'slate-react';
-import { Transforms, Editor } from 'slate';
+import { EventTimeline, EventType, IContent, MsgType, Room } from 'matrix-js-sdk';
 import {
     Box,
     Dialog,
@@ -37,26 +35,23 @@ import {
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import {
     CustomEditor,
-    Toolbar,
     toMatrixCustomHTML,
     toPlainText,
     AUTOCOMPLETE_PREFIXES,
     AutocompletePrefix,
     AutocompleteQuery,
     getAutocompleteQuery,
-    getPrevWorldRange,
     resetEditor,
     RoomMentionAutocomplete,
     UserMentionAutocomplete,
     EmoticonAutocomplete,
-    createEmoticonElement,
-    moveCursor,
     resetEditorHistory,
     customHtmlEqualsPlainText,
     trimCustomHtml,
     isEmptyEditor,
     getBeginCommand,
     trimCommand,
+    getMentions
 } from '../../components/editor';
 import { EmojiBoard, EmojiBoardTab } from '../../components/emoji-board';
 import { UseStateProvider } from '../../components/UseStateProvider';
@@ -113,15 +108,17 @@ import { useElementSizeObserver } from '../../hooks/useElementSizeObserver';
 import { ReplyLayout } from '../../components/message';
 import { markAsRead } from '../../../client/action/notifications';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
+import { getText } from '../../../lang';
+import { openHiddenRooms } from '../../../client/action/navigation';
 
 interface RoomInputProps {
-    editor: Editor;
     fileDropContainerRef: RefObject<HTMLElement>;
+    textAreaRef: RefObject<HTMLTextAreaElement>;
     roomId: string;
     room: Room;
 }
 export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
-    ({ editor, fileDropContainerRef, roomId, room }, ref) => {
+    ({ fileDropContainerRef, roomId, room, textAreaRef }, ref) => {
         const mx = useMatrixClient();
         const [enterForNewline] = useSetting(settingsAtom, 'enterForNewline');
         const [isMarkdown] = useSetting(settingsAtom, 'isMarkdown');
@@ -135,6 +132,9 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const [replyDraft, setReplyDraft] = useAtom(roomIdToReplyDraftAtomFamily(roomId));
         const [uploadBoard, setUploadBoard] = useState(true);
         const [selectedFiles, setSelectedFiles] = useAtom(roomIdToUploadItemsAtomFamily(roomId));
+        const [hideKeyword] = useSetting(settingsAtom, 'extera_chatHideKeyword');
+        const [showKeyword] = useSetting(settingsAtom, 'extera_chatShowKeyword');
+        const [showHiddenKeyword] = useSetting(settingsAtom, 'extera_hiddenChatsKeyword');
         const uploadFamilyObserverAtom = createUploadFamilyObserverAtom(
             roomUploadAtomFamily,
             selectedFiles.map((f) => f.file)
@@ -197,24 +197,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             useCallback((width) => setHideStickerBtn(width < 500), [])
         );
 
-        useEffect(() => {
-            Transforms.insertFragment(editor, msgDraft);
-        }, [editor, msgDraft]);
-
-        useEffect(() => {
-            if (!mobileOrTablet()) ReactEditor.focus(editor);
-            return () => {
-                if (!isEmptyEditor(editor)) {
-                    const parsedDraft = JSON.parse(JSON.stringify(editor.children));
-                    setMsgDraft(parsedDraft);
-                } else {
-                    setMsgDraft([]);
-                }
-                resetEditor(editor);
-                resetEditorHistory(editor);
-            };
-        }, [roomId, editor, setMsgDraft]);
-
         const handleRemoveUpload = useCallback(
             (upload: TUploadContent | TUploadContent[]) => {
                 const uploads = Array.isArray(upload) ? upload : [upload];
@@ -270,25 +252,33 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             }
         }, []);
 
+        const getDisplayName = (mxId: string) => {
+            const timeline = room.getLiveTimeline();
+            const state = timeline.getState(EventTimeline.FORWARDS);
+            if (!state) return mxId;
+            const memberEvent = state.getStateEvents('m.room.member', mxId);
+            if (!memberEvent) return mxId;
+            const content = memberEvent.getContent();
+            return content.displayname || mxId;
+        };
+
         const submit = useCallback((evt?: MouseEvent) => {
+            const ta = textAreaRef.current;
+            if (!ta) return;
             uploadBoardHandlers.current?.handleSend();
-
-            const commandName = getBeginCommand(editor);
-
-            let plainText = toPlainText(editor.children).trim();
+            const commandName = getBeginCommand(textAreaRef);
+            let plainText = toPlainText(ta.value, getDisplayName).trim();
             let customHtml = trimCustomHtml(
-                toMatrixCustomHTML(editor.children, {
-                    allowTextFormatting: true,
-                    allowBlockMarkdown: isMarkdown,
-                    allowInlineMarkdown: isMarkdown,
-                })
+                toMatrixCustomHTML(ta.value, getDisplayName)
             );
+            let { user_ids, room } = getMentions(ta.value);
             let msgType = MsgType.Text;
 
-            if (commandName) {
+            if (commandName && commands[commandName as Command]) {
                 plainText = trimCommand(commandName, plainText);
                 customHtml = trimCommand(commandName, customHtml);
             }
+
             if (commandName === Command.Me) {
                 msgType = MsgType.Emote;
             } else if (commandName === Command.Notice) {
@@ -305,13 +295,13 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             } else if (commandName === Command.UnFlip) {
                 plainText = `${UNFLIP} ${plainText}`;
                 customHtml = `${UNFLIP} ${customHtml}`;
-            } else if (commandName) {
+            } else if (commandName && commands[commandName as Command]) {
                 const commandContent = commands[commandName as Command];
                 if (commandContent) {
                     commandContent.exe(plainText);
                 }
-                resetEditor(editor);
-                resetEditorHistory(editor);
+
+                resetEditor(textAreaRef);
 
                 if (!ghostMode) sendTypingStatus(false);
                 return;
@@ -337,6 +327,10 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             const content: IContent = {
                 msgtype: msgType,
                 body,
+                'm.mentions': {
+                    user_ids,
+                    room
+                }
             };
             if (replyDraft || !customHtmlEqualsPlainText(formattedBody, body)) {
                 content.format = 'org.matrix.custom.html';
@@ -350,11 +344,11 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 };
             }
             mx.sendMessage(roomId, content);
-            resetEditor(editor);
-            resetEditorHistory(editor);
+
             setReplyDraft(undefined);
             sendTypingStatus(false);
-        }, [mx, roomId, editor, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands]);
+            resetEditor(textAreaRef);
+        }, [mx, roomId, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands]);
 
         const readReceipt = useCallback(() => {
             markAsRead(roomId);
@@ -382,27 +376,23 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 }
 
                 if (!ghostMode) {
-                    sendTypingStatus(!isEmptyEditor(editor));
+                    const editor = textAreaRef?.current;
+                    if (editor)
+                        sendTypingStatus(editor.value.length > 0);
                 }
 
-                const prevWordRange = getPrevWorldRange(editor);
-                const query = prevWordRange
-                    ? getAutocompleteQuery<AutocompletePrefix>(editor, prevWordRange, AUTOCOMPLETE_PREFIXES)
-                    : undefined;
+                const query = getAutocompleteQuery<AutocompletePrefix>(textAreaRef, AUTOCOMPLETE_PREFIXES);
+                console.log(query);
                 setAutocompleteQuery(query);
             },
-            [editor, sendTypingStatus]
+            [textAreaRef, sendTypingStatus]
         );
 
         const handleCloseAutocomplete = useCallback(() => {
             setAutocompleteQuery(undefined);
-            ReactEditor.focus(editor);
-        }, [editor]);
-
-        const handleEmoticonSelect = (key: string, shortcode: string) => {
-            editor.insertNode(createEmoticonElement(key, shortcode));
-            moveCursor(editor);
-        };
+            // ReactEditor.focus(editor);
+            textAreaRef.current?.focus();
+        }, [textAreaRef]);
 
         const handleStickerSelect = async (mxc: string, shortcode: string, label: string) => {
             const stickerUrl = mx.mxcUrlToHttp(mxc);
@@ -418,6 +408,31 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 url: mxc,
                 info,
             });
+        };
+
+        const handleEmoticonSelect = (unicode: string, shortcode: string) => {
+            const ta = textAreaRef.current;
+            if (!ta) return;
+            const index = ta.selectionStart;
+            const text = ta.value;
+            ta.value = `${text.slice(0, index)}${unicode}${text.slice(index)}`;
+
+            ta.focus();
+            ta.selectionEnd = index + 1;
+            ta.selectionStart = index + 1;
+        };
+
+        const handleCustomEmoticonSelect = (mxc: string, shortcode: string) => {
+            const ta = textAreaRef.current;
+            if (!ta) return;
+            const index = ta.selectionStart;
+            const text = ta.value;
+            const result = `{:${shortcode}:${mxc}:}`;
+            ta.value = `${text.slice(0, index)}${result}${text.slice(index)}`;
+
+            ta.focus();
+            ta.selectionEnd = index + result.length;
+            ta.selectionStart = index + result.length;
         };
 
         return (
@@ -471,9 +486,9 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                             >
                                 <Icon size="600" src={Icons.File} />
                                 <Text size="H4" align="Center">
-                                    {`Drop Files in "${room?.name || 'Room'}"`}
+                                    {getText('room_input.drop_files', room?.name || getText('room_input.drop_files.this_room'))}
                                 </Text>
-                                <Text align="Center">Drag and drop files here or click for selection dialog</Text>
+                                <Text align="Center">{getText('room_input.drop_files.2')}</Text>
                             </Box>
                         </Dialog>
                     </OverlayCenter>
@@ -481,7 +496,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 {autocompleteQuery?.prefix === AutocompletePrefix.RoomMention && (
                     <RoomMentionAutocomplete
                         roomId={roomId}
-                        editor={editor}
+                        textAreaRef={textAreaRef}
                         query={autocompleteQuery}
                         requestClose={handleCloseAutocomplete}
                     />
@@ -489,7 +504,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 {autocompleteQuery?.prefix === AutocompletePrefix.UserMention && (
                     <UserMentionAutocomplete
                         room={room}
-                        editor={editor}
+                        textAreaRef={textAreaRef}
                         query={autocompleteQuery}
                         requestClose={handleCloseAutocomplete}
                     />
@@ -497,7 +512,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 {autocompleteQuery?.prefix === AutocompletePrefix.Emoticon && (
                     <EmoticonAutocomplete
                         imagePackRooms={imagePackRooms}
-                        editor={editor}
+                        textAreaRef={textAreaRef}
                         query={autocompleteQuery}
                         requestClose={handleCloseAutocomplete}
                     />
@@ -505,15 +520,16 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 {autocompleteQuery?.prefix === AutocompletePrefix.Command && (
                     <CommandAutocomplete
                         room={room}
-                        editor={editor}
+                        textAreaRef={textAreaRef}
                         query={autocompleteQuery}
                         requestClose={handleCloseAutocomplete}
                     />
                 )}
                 <CustomEditor
                     editableName="RoomInput"
-                    editor={editor}
-                    placeholder="Send a message..."
+                    // editor={editor}
+                    textAreaRef={textAreaRef}
+                    placeholder={getText('placeholder.room_input')}
                     onKeyDown={handleKeyDown}
                     onKeyUp={handleKeyUp}
                     onPaste={handlePaste}
@@ -526,7 +542,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                     style={{ padding: `${config.space.S200} ${config.space.S300} 0` }}
                                 >
                                     <IconButton
-                                        onMouseDown={dontHideKeyboard}
+                                        // onMouseDown={dontHideKeyboard}
                                         onClick={() => setReplyDraft(undefined)}
                                         variant="SurfaceVariant"
                                         size="300"
@@ -560,22 +576,22 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                             variant="SurfaceVariant"
                             size="300"
                             radii="300"
-                            onMouseDown={dontHideKeyboard}
+                        // onMouseDown={dontHideKeyboard}
                         >
                             <Icon src={Icons.PlusCircle} />
                         </IconButton>
                     }
                     after={
                         <>
-                            <IconButton
+                            {/* <IconButton
                                 variant="SurfaceVariant"
                                 size="300"
                                 radii="300"
                                 onClick={() => setToolbar(!toolbar)}
-                                onMouseDown={dontHideKeyboard}
+                            // onMouseDown={dontHideKeyboard}
                             >
                                 <Icon src={toolbar ? Icons.AlphabetUnderline : Icons.Alphabet} />
-                            </IconButton>
+                            </IconButton> */}
                             <UseStateProvider initial={undefined}>
                                 {(emojiBoardTab: EmojiBoardTab | undefined, setEmojiBoardTab) => (
                                     <PopOut
@@ -595,11 +611,11 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                                 imagePackRooms={imagePackRooms}
                                                 returnFocusOnDeactivate={false}
                                                 onEmojiSelect={handleEmoticonSelect}
-                                                onCustomEmojiSelect={handleEmoticonSelect}
+                                                onCustomEmojiSelect={handleCustomEmoticonSelect}
                                                 onStickerSelect={handleStickerSelect}
                                                 requestClose={() => {
                                                     setEmojiBoardTab(undefined);
-                                                    if (!mobileOrTablet()) ReactEditor.focus(editor);
+                                                    if (!mobileOrTablet()) textAreaRef.current?.focus();
                                                 }}
                                             />
                                         }
@@ -621,7 +637,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                         )}
                                         <IconButton
                                             ref={emojiBtnRef}
-                                            onMouseDown={dontHideKeyboard}
+                                            // onMouseDown={dontHideKeyboard}
                                             aria-pressed={
                                                 hideStickerBtn ? !!emojiBoardTab : emojiBoardTab === EmojiBoardTab.Emoji
                                             }
@@ -648,14 +664,14 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                             </IconButton>
                         </>
                     }
-                    bottom={
-                        toolbar && (
-                            <div>
-                                <Line variant="SurfaceVariant" size="300" />
-                                <Toolbar />
-                            </div>
-                        )
-                    }
+                // bottom={
+                //     toolbar && (
+                //         <div>
+                //             <Line variant="SurfaceVariant" size="300" />
+                //             <Toolbar quill={quill} />
+                //         </div>
+                //     )
+                // }
                 />
             </div>
         );

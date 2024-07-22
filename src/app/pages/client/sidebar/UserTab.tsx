@@ -7,6 +7,7 @@ import { UserAvatar } from '../../../components/user-avatar';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getMxIdLocalPart } from '../../../utils/matrix';
 import { nameInitials } from '../../../utils/common';
+import { getText } from '../../../../lang';
 
 type UserProfile = {
   avatar_url?: string;
@@ -47,7 +48,7 @@ export function UserTab() {
 
   return (
     <SidebarItem>
-      <SidebarItemTooltip tooltip="User Settings">
+      <SidebarItemTooltip tooltip={getText('sidebar.tooltip.users')}>
         {(triggerRef) => (
           <SidebarAvatar as="button" ref={triggerRef} onClick={() => openSettings()}>
             <UserAvatar

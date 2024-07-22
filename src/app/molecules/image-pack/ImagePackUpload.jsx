@@ -10,6 +10,7 @@ import Button from '../../atoms/button/Button';
 import Input from '../../atoms/input/Input';
 import IconButton from '../../atoms/button/IconButton';
 import CirclePlusIC from '../../../../public/res/ic/outlined/circle-plus.svg';
+import { getText } from '../../../lang';
 
 function ImagePackUpload({ onUpload }) {
   const mx = initMatrix.matrixClient;
@@ -55,14 +56,14 @@ function ImagePackUpload({ onUpload }) {
         imgFile
           ? (
             <div className="image-pack-upload__file">
-              <IconButton onClick={handleRemove} src={CirclePlusIC} tooltip="Remove file" />
+              <IconButton onClick={handleRemove} src={CirclePlusIC} tooltip={getText('tooltip.remove_file')} />
               <Text>{imgFile.name}</Text>
             </div>
           )
-          : <Button onClick={() => inputRef.current.click()}>Import image</Button>
+          : <Button onClick={() => inputRef.current.click()}>{getText('btn.import_image')}</Button>
       }
       <Input forwardRef={shortcodeRef} name="shortcodeInput" placeholder="shortcode" required />
-      <Button disabled={progress} variant="primary" type="submit">{progress ? 'Uploading...' : 'Upload'}</Button>
+      <Button disabled={progress} variant="primary" type="submit">{getText(progress ? 'generic.uploading' : 'btn.upload')}</Button>
     </form>
   );
 }

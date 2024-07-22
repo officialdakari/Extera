@@ -15,6 +15,7 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getMxIdServer } from '../../../utils/matrix';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { useNavToActivePathAtom } from '../../../state/hooks/navToActivePath';
+import { getText } from '../../../../lang';
 
 export function ExploreTab() {
   const mx = useMatrixClient();
@@ -52,7 +53,7 @@ export function ExploreTab() {
 
   return (
     <SidebarItem active={exploreSelected}>
-      <SidebarItemTooltip tooltip="Explore Community">
+      <SidebarItemTooltip tooltip={getText('explore.title')}>
         {(triggerRef) => (
           <SidebarAvatar as="button" ref={triggerRef} outlined onClick={handleExploreClick}>
             <Icon src={Icons.Explore} filled={exploreSelected} />

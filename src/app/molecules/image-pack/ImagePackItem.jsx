@@ -49,9 +49,9 @@ function ImagePackItem({
         <Button onClick={onUsageChange ? handleUsageSelect : undefined}>
           {onUsageChange && <RawIcon src={ChevronBottomIC} size="extra-small" />}
           <Text variant="b2">
-            {usage === 'emoticon' && 'Emoji'}
-            {usage === 'sticker' && 'Sticker'}
-            {usage === 'both' && 'Both'}
+            {usage === 'emoticon' && getText('image.usage.emoji')}
+            {usage === 'sticker' && getText('image.usage.sticker')}
+            {usage === 'both' && getText('image.usage.both')}
           </Text>
         </Button>
       </div>

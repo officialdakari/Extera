@@ -40,6 +40,8 @@ import { useAtomValue } from 'jotai';
 import { mDirectAtom } from '../../state/mDirectList';
 import { allRoomsAtom } from '../../state/room-list/roomList';
 import { useDirects } from '../../state/hooks/roomList';
+import { usePresences } from '../../hooks/usePresences';
+import { getText } from '../../../lang';
 
 type RoomNavItemMenuProps = {
     room: Room;
@@ -85,8 +87,8 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
                         radii="300"
                         disabled={!unread}
                     >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                            Mark as Read
+                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
+                            {getText('room_header.mark_as_read')}
                         </Text>
                     </MenuItem>
                 </Box>
@@ -101,8 +103,8 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
                         radii="300"
                         disabled={!canInvite}
                     >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                            Invite
+                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
+                            {getText('room_header.invite')}
                         </Text>
                     </MenuItem>
                     <MenuItem
@@ -111,8 +113,8 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
                         after={<Icon size="100" src={Icons.Link} />}
                         radii="300"
                     >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                            Copy Link
+                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
+                            {getText('room_header.copy_link')}
                         </Text>
                     </MenuItem>
                     <MenuItem
@@ -121,8 +123,8 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
                         after={<Icon size="100" src={Icons.Setting} />}
                         radii="300"
                     >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                            Room Settings
+                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
+                            {getText('room_header.settings')}
                         </Text>
                     </MenuItem>
                 </Box>
@@ -140,8 +142,8 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
                                     radii="300"
                                     aria-pressed={promptLeave}
                                 >
-                                    <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                                        Leave Room
+                                    <Text style={{ flexGrow: 1 }} as="span" size="T300">
+                                        {getText('room_header.leave')}
                                     </Text>
                                 </MenuItem>
                                 {promptLeave && (
@@ -213,9 +215,9 @@ export function RoomNavItem({
         } else if (typeof content.msgtype === 'string') {
             lastMessage += content.msgtype;
         } else if (lastEvent.isRedacted()) {
-            lastMessage += `Message deleted`;
+            lastMessage += getText('msg_preview.redacted');
         } else {
-            lastMessage += "Can't preview this message";
+            lastMessage += getText('msg_preview.failed');
         }
     }
 
@@ -231,10 +233,12 @@ export function RoomNavItem({
     const mDirects = useAtomValue(mDirectAtom);
     const directs = useDirects(mx, allRoomsAtom, mDirects);
 
+    const getPresenceFn = usePresences();
+
     const updateAvStyle = useCallback(async () => {
         if (directs.includes(room.roomId)) {
             const user = room.getDMInviter() ?? room.guessDMUserId();
-            const presence = await mx.getPresence(user);
+            const presence = await getPresenceFn(user);
             setAvStyle(styles[presence.presence]);
         }
     }, [mx, directs, room]);

@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 import React, {
+    ChangeEvent,
     ClipboardEventHandler,
+    KeyboardEvent,
     KeyboardEventHandler,
     ReactNode,
     forwardRef,
@@ -8,56 +10,17 @@ import React, {
     useState,
 } from 'react';
 import { Box, Scroll, Text } from 'folds';
-import { Descendant, Editor, createEditor } from 'slate';
-import {
-    Slate,
-    Editable,
-    withReact,
-    RenderLeafProps,
-    RenderElementProps,
-    RenderPlaceholderProps,
-} from 'slate-react';
-import { withHistory } from 'slate-history';
-import { BlockType } from './types';
-import { RenderElement, RenderLeaf } from './Elements';
-import { CustomElement } from './slate';
+import ReactQuill, { Quill } from 'react-quill';
+
+import 'quill/dist/quill.core.css';
 import * as css from './Editor.css';
-import { toggleKeyboardShortcut } from './keyboard';
+import './Editor.scss';
+import TextareaAutosize from 'react-autosize-textarea';
+import { anyTagRegexp, deleteEndRegexp, deleteStartRegexp } from './output';
+// import * as MarkdownShortcuts from 'quill-markdown-shortcuts';
 
-const initialValue: CustomElement[] = [
-    {
-        type: BlockType.Paragraph,
-        children: [{ text: '' }],
-    },
-];
+// Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
 
-const withInline = (editor: Editor): Editor => {
-    const { isInline } = editor;
-
-    editor.isInline = (element) =>
-        [BlockType.Mention, BlockType.Emoticon, BlockType.Link, BlockType.Command].includes(
-            element.type
-        ) || isInline(element);
-
-    return editor;
-};
-
-const withVoid = (editor: Editor): Editor => {
-    const { isVoid } = editor;
-
-    editor.isVoid = (element) =>
-        [BlockType.Mention, BlockType.Emoticon, BlockType.Command].includes(element.type) ||
-        isVoid(element);
-
-    return editor;
-};
-
-export const useEditor = (): Editor => {
-    const [editor] = useState(() => withInline(withVoid(withReact(withHistory(createEditor())))));
-    return editor;
-};
-
-export type EditorChangeHandler = (value: Descendant[]) => void;
 type CustomEditorProps = {
     editableName?: string;
     top?: ReactNode;
@@ -65,102 +28,86 @@ type CustomEditorProps = {
     before?: ReactNode;
     after?: ReactNode;
     maxHeight?: string;
-    editor: Editor;
+    editor?: any;
     placeholder?: string;
     onKeyDown?: KeyboardEventHandler;
     onKeyUp?: KeyboardEventHandler;
-    onChange?: EditorChangeHandler;
+    onChange?: (value: string) => void;
     onPaste?: ClipboardEventHandler;
+    textAreaRef: React.RefObject<HTMLTextAreaElement>;
 };
+
 export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
-    (
-        {
-            editableName,
-            top,
-            bottom,
-            before,
-            after,
-            maxHeight = '50vh',
-            editor,
-            placeholder,
-            onKeyDown,
-            onKeyUp,
-            onChange,
-            onPaste
-        },
-        ref
-    ) => {
-        const renderElement = useCallback(
-            (props: RenderElementProps) => <RenderElement {...props} />,
-            []
-        );
-
-        const renderLeaf = useCallback((props: RenderLeafProps) => <RenderLeaf {...props} />, []);
-
-        const handleKeydown: KeyboardEventHandler = useCallback(
-            (evt) => {
-                onKeyDown?.(evt);
-                const shortcutToggled = toggleKeyboardShortcut(editor, evt);
-                if (shortcutToggled) evt.preventDefault();
-            },
-            [editor, onKeyDown]
-        );
-
-        const renderPlaceholder = useCallback(({ attributes, children }: RenderPlaceholderProps) => {
-            // drop style attribute as we use our custom placeholder css.
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { style, ...props } = attributes;
-            return (
-                <Text
-                    as="span"
-                    {...props}
-                    className={css.EditorPlaceholder}
-                    contentEditable={false}
-                    truncate
-                >
-                    {children}
-                </Text>
-            );
-        }, []);
-
+    ({
+        editableName,
+        top,
+        bottom,
+        before,
+        after,
+        maxHeight = '50vh',
+        placeholder,
+        onKeyDown,
+        onKeyUp,
+        onChange,
+        onPaste,
+        textAreaRef
+    }, ref) => {
+        const handleChange = (evt: ChangeEvent<HTMLTextAreaElement>) => {
+            const previousText = evt.target.dataset.previousText ?? '';
+            var newText = evt.target.value;
+            evt.target.dataset.previousText = newText;
+            const tagsBefore = Array.from(previousText.matchAll(anyTagRegexp));
+            const tagsAfter = Array.from(newText.matchAll(deleteEndRegexp));
+            const tagsAfter2 = Array.from(newText.matchAll(deleteStartRegexp));
+            const mutual = [
+                ...tagsAfter.filter(x => tagsBefore.find(y => y.index == x.index)).reverse(),
+                ...tagsAfter2.filter(x => tagsBefore.find(y => y.index == x.index || (y.index && (y.index - 1 == x.index)))).reverse()
+            ];
+            console.log(tagsBefore, tagsAfter, tagsAfter2);
+            console.log(mutual);
+            console.log(previousText, newText);
+            for (const m of mutual) {
+                if (m.index)
+                    newText = `${newText.slice(0, m.index)}${newText.slice(m.index + m[0].length)}`;
+            }
+            evt.target.value = newText;
+            evt.target.dataset.previousText = newText;
+        };
         return (
-            <div className={css.Editor} ref={ref}>
-                <Slate editor={editor}  initialValue={initialValue} onChange={onChange}>
-                    {top}
-                    <Box alignItems="Start">
-                        {before && (
-                            <Box className={css.EditorOptions} alignItems="Center" gap="100" shrink="No">
-                                {before}
-                            </Box>
-                        )}
-                        <Scroll
-                            className={css.EditorTextareaScroll}
-                            variant="SurfaceVariant"
+            <div ref={ref} className={css.Editor}>
+                {top}
+                <Box alignItems="Start">
+                    {before && (
+                        <Box className={css.EditorOptions} alignItems="Center" gap="100" shrink="No">
+                            {before}
+                        </Box>
+                    )}
+                    <Scroll
+                        className={css.EditorTextareaScroll}
+                        variant='SurfaceVariant'
+                        style={{ maxHeight }}
+                        size='300'
+                        visibility='Hover'
+                        hideTrack
+                    >
+                        <textarea
+                            className={css.EditorTextarea}
+                            ref={textAreaRef}
                             style={{ maxHeight }}
-                            size="300"
-                            visibility="Hover"
-                            hideTrack
-                        >
-                            <Editable
-                                data-editable-name={editableName}
-                                className={css.EditorTextarea}
-                                placeholder={placeholder}
-                                renderPlaceholder={renderPlaceholder}
-                                renderElement={renderElement}
-                                renderLeaf={renderLeaf}
-                                onKeyDown={handleKeydown}
-                                onKeyUp={onKeyUp}
-                                onPaste={onPaste}
-                            />
-                        </Scroll>
-                        {after && (
-                            <Box className={css.EditorOptions} alignItems="Center" gap="100" shrink="No">
-                                {after}
-                            </Box>
-                        )}
-                    </Box>
-                    {bottom}
-                </Slate>
+                            onKeyDown={onKeyDown}
+                            onKeyUp={onKeyUp}
+                            onPaste={onPaste}
+                            placeholder={placeholder}
+                            onChange={handleChange}
+                        />
+                    </Scroll>
+                    {after && (
+                        <Box className={css.EditorOptions} alignItems="Center" gap="100" shrink="No">
+                            {after}
+                        </Box>
+                    )}
+                </Box>
+                {bottom}
             </div>
         );
     }

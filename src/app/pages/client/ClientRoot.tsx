@@ -69,8 +69,6 @@ export function ClientRoot({ children }: ClientRootProps) {
                             <CapabilitiesProvider value={capabilities ?? {}}>
                                 <MediaConfigProvider value={mediaConfig ?? {}}>
                                     {children}
-
-                                    {/* TODO: remove these components after navigation refactor */}
                                     <Windows />
                                     <Dialogs />
                                     <ReusableContextMenu />

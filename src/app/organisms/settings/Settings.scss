@@ -3,39 +3,41 @@
 @use '../../partials/screen';
 
 .settings-window {
-  & .pw {
-    background-color: var(--bg-surface-low);
-  }
-  
-  .header .btn-danger {
-    margin: 0 var(--sp-tight);
-    box-shadow: none;
-  }
+    & .pw {
+        background-color: var(--bg-surface-low);
+    }
 
-  & .profile-editor {
-    padding: var(--sp-loose) var(--sp-extra-loose);
-  } 
+    .header .btn-danger {
+        margin: 0 var(--sp-tight);
+        box-shadow: none;
+    }
 
-  & .tabs__content {
-    padding: 0 var(--sp-normal);
-  }
+    & .profile-editor {
+        padding: var(--sp-loose) var(--sp-extra-loose);
+    }
 
-  &__cards-wrapper {
-    padding: 0 var(--sp-normal);
-    @include dir.side(padding, var(--sp-normal), var(--sp-extra-tight));
-  }
+    & .tabs__content {
+        padding: 0 var(--sp-normal);
+    }
+
+    &__cards-wrapper {
+        padding: 0 var(--sp-normal);
+        @include dir.side(padding, var(--sp-normal), var(--sp-extra-tight));
+    }
 }
+
 .settings-window__card {
-  margin: var(--sp-normal) 0;
-  background-color: var(--bg-surface);
-  border-radius: var(--bo-radius);
-  box-shadow: var(--bs-surface-border);
-  overflow: hidden;
+    margin: var(--sp-normal) 0;
+    background-color: var(--bg-surface);
+    border-radius: var(--bo-radius);
+    box-shadow: var(--bs-surface-border);
+    overflow: hidden;
 
-  & > .context-menu__header:first-child {
-    margin-top: 2px;
-  }
+    &>.context-menu__header:first-child {
+        margin-top: 2px;
+    }
 }
+
 .settings-appearance__card,
 .settings-notifications,
 .global-notification,
@@ -44,51 +46,67 @@
 .settings-security__card,
 .settings-security .device-manage,
 .settings-about__card,
-.settings-emoji__card {
-  @extend .settings-window__card;
+.settings-emoji__card,
+.settings-extera__card,
+.settings-presence__card {
+    @extend .settings-window__card;
 }
 
-.settings-window__cards-wrapper{
-  & .setting-tile {
-    margin: 0 var(--sp-normal);
-    margin-top: var(--sp-normal);
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--bg-surface-border);
-    &:last-child {
-      border-bottom: none;
+.settings-presence__status>form {
+    margin: var(--sp-extra-tight) 0 var(--sp-normal);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-tight);
+
+    div:has(input[name="statusInput"]) {
+        flex-grow: 1;
     }
-  }
+}
+
+.settings-window__cards-wrapper {
+    & .setting-tile {
+        margin: 0 var(--sp-normal);
+        margin-top: var(--sp-normal);
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--bg-surface-border);
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
 }
 
 .settings-notifications {
-  &__not-supported {
-    padding: 0 var(--sp-ultra-tight);
-  }
+    &__not-supported {
+        padding: 0 var(--sp-ultra-tight);
+    }
 }
 
 .settings-about {
-  &__branding {
-    padding: var(--sp-normal);
-    display: flex;
-    
-    & > div {
-      margin: 0 var(--sp-loose);
+    &__branding {
+        padding: var(--sp-normal);
+        display: flex;
+
+        &>div {
+            margin: 0 var(--sp-loose);
+        }
+
     }
-    
-  }
-  &__btns {
-    & button {
-      margin-top: var(--sp-tight);
-      @include dir.side(margin, 0, var(--sp-tight));
+
+    &__btns {
+        & button {
+            margin-top: var(--sp-tight);
+            @include dir.side(margin, 0, var(--sp-tight));
+        }
     }
-  }
-  
-  &__credits {
-    padding: 0 var(--sp-normal);
-    & ul {
-      color: var(--tc-surface-low);
-      padding: var(--sp-normal);
-      margin: var(--sp-extra-tight) 0;
+
+    &__credits {
+        padding: 0 var(--sp-normal);
+
+        & ul {
+            color: var(--tc-surface-low);
+            padding: var(--sp-normal);
+            margin: var(--sp-extra-tight) 0;
+        }
     }
-  }
 }

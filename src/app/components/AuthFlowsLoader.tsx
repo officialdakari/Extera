@@ -4,61 +4,62 @@ import { AsyncStatus, useAsyncCallback } from '../hooks/useAsyncCallback';
 import { useAutoDiscoveryInfo } from '../hooks/useAutoDiscoveryInfo';
 import { promiseFulfilledResult, promiseRejectedResult } from '../utils/common';
 import {
-  AuthFlows,
-  RegisterFlowStatus,
-  RegisterFlowsResponse,
-  parseRegisterErrResp,
+    AuthFlows,
+    RegisterFlowStatus,
+    RegisterFlowsResponse,
+    parseRegisterErrResp,
 } from '../hooks/useAuthFlows';
+import { getText } from '../../lang';
 
 type AuthFlowsLoaderProps = {
-  fallback?: () => ReactNode;
-  error?: (err: unknown) => ReactNode;
-  children: (authFlows: AuthFlows) => ReactNode;
+    fallback?: () => ReactNode;
+    error?: (err: unknown) => ReactNode;
+    children: (authFlows: AuthFlows) => ReactNode;
 };
 export function AuthFlowsLoader({ fallback, error, children }: AuthFlowsLoaderProps) {
-  const autoDiscoveryInfo = useAutoDiscoveryInfo();
-  const baseUrl = autoDiscoveryInfo['m.homeserver'].base_url;
+    const autoDiscoveryInfo = useAutoDiscoveryInfo();
+    const baseUrl = autoDiscoveryInfo['m.homeserver'].base_url;
 
-  const mx = useMemo(() => createClient({ baseUrl }), [baseUrl]);
+    const mx = useMemo(() => createClient({ baseUrl }), [baseUrl]);
 
-  const [state, load] = useAsyncCallback(
-    useCallback(async () => {
-      const result = await Promise.allSettled([mx.loginFlows(), mx.registerRequest({})]);
-      const loginFlows = promiseFulfilledResult(result[0]);
-      const registerResp = promiseRejectedResult(result[1]) as MatrixError | undefined;
-      let registerFlows: RegisterFlowsResponse = { status: RegisterFlowStatus.InvalidRequest };
+    const [state, load] = useAsyncCallback(
+        useCallback(async () => {
+            const result = await Promise.allSettled([mx.loginFlows(), mx.registerRequest({})]);
+            const loginFlows = promiseFulfilledResult(result[0]);
+            const registerResp = promiseRejectedResult(result[1]) as MatrixError | undefined;
+            let registerFlows: RegisterFlowsResponse = { status: RegisterFlowStatus.InvalidRequest };
 
-      if (typeof registerResp === 'object' && registerResp.httpStatus) {
-        registerFlows = parseRegisterErrResp(registerResp);
-      }
+            if (typeof registerResp === 'object' && registerResp.httpStatus) {
+                registerFlows = parseRegisterErrResp(registerResp);
+            }
 
-      if (!loginFlows) {
-        throw new Error('Missing auth flow!');
-      }
-      if ('errcode' in loginFlows) {
-        throw new Error('Failed to load auth flow!');
-      }
+            if (!loginFlows) {
+                throw new Error(getText('error.missing_auth_flow'));
+            }
+            if ('errcode' in loginFlows) {
+                throw new Error(getText('error.load_auth_flow'));
+            }
 
-      const authFlows: AuthFlows = {
-        loginFlows,
-        registerFlows,
-      };
+            const authFlows: AuthFlows = {
+                loginFlows,
+                registerFlows,
+            };
 
-      return authFlows;
-    }, [mx])
-  );
+            return authFlows;
+        }, [mx])
+    );
 
-  useEffect(() => {
-    load();
-  }, [load]);
+    useEffect(() => {
+        load();
+    }, [load]);
 
-  if (state.status === AsyncStatus.Idle || state.status === AsyncStatus.Loading) {
-    return fallback?.();
-  }
+    if (state.status === AsyncStatus.Idle || state.status === AsyncStatus.Loading) {
+        return fallback?.();
+    }
 
-  if (state.status === AsyncStatus.Error) {
-    return error?.(state.error);
-  }
+    if (state.status === AsyncStatus.Error) {
+        return error?.(state.error);
+    }
 
-  return children(state.data);
+    return children(state.data);
 }

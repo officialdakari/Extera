@@ -15,7 +15,7 @@ export const RoomViewTyping = style([
   {
     padding: `0 ${config.space.S500}`,
     width: '100%',
-    backgroundColor: color.Surface.Container,
+    backgroundColor: 'transparent',
     color: color.Surface.OnContainer,
     position: 'absolute',
     bottom: 0,

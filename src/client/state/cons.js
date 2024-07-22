@@ -1,5 +1,5 @@
 const cons = {
-    version: '3.2.0',
+    version: '1.1',
     secretKey: {
         ACCESS_TOKEN: 'cinny_access_token',
         DEVICE_ID: 'cinny_device_id',
@@ -45,7 +45,8 @@ const cons = {
             OPEN_REUSABLE_CONTEXT_MENU: 'OPEN_REUSABLE_CONTEXT_MENU',
             OPEN_REUSABLE_DIALOG: 'OPEN_REUSABLE_DIALOG',
             OPEN_EMOJI_VERIFICATION: 'OPEN_EMOJI_VERIFICATION',
-            OPEN_NAVIGATION: 'OPEN_NAVIGATION'
+            OPEN_NAVIGATION: 'OPEN_NAVIGATION',
+            OPEN_HIDDEN_ROOMS: 'OPEN_HIDDEN_ROOMS',
         },
         settings: {
             TOGGLE_SYSTEM_THEME: 'TOGGLE_SYSTEM_THEME',
@@ -70,6 +71,7 @@ const cons = {
             REUSABLE_CONTEXT_MENU_OPENED: 'REUSABLE_CONTEXT_MENU_OPENED',
             REUSABLE_DIALOG_OPENED: 'REUSABLE_DIALOG_OPENED',
             EMOJI_VERIFICATION_OPENED: 'EMOJI_VERIFICATION_OPENED',
+            HIDDEN_ROOMS_OPENED: 'HIDDEN_ROOMS_OPENED',
         },
         notifications: {
             NOTI_CHANGED: 'NOTI_CHANGED',

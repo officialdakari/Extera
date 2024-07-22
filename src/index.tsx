@@ -18,15 +18,15 @@ document.body.classList.add(configClass, varsClass);
 settings.applyTheme();
 
 const mountApp = () => {
-  const rootContainer = document.getElementById('root');
+    const rootContainer = document.getElementById('root');
 
-  if (rootContainer === null) {
-    console.error('Root container element not found!');
-    return;
-  }
+    if (rootContainer === null) {
+        console.error('Root container element not found!');
+        return;
+    }
 
-  const root = createRoot(rootContainer);
-  root.render(<App />);
+    const root = createRoot(rootContainer);
+    root.render(<App />);
 };
 
 mountApp();

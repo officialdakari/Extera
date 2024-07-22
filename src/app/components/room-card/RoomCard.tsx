@@ -33,6 +33,7 @@ import { useElementSizeObserver } from '../../hooks/useElementSizeObserver';
 import { getRoomAvatarUrl, getStateEvent } from '../../utils/room';
 import { useStateEventCallback } from '../../hooks/useStateEventCallback';
 import { sendExteraProfile } from '../../../client/action/room';
+import { getText } from '../../../lang';
 
 type GridColumnCount = '1' | '2' | '3';
 const getGridColumnCount = (gridWidth: number): GridColumnCount => {
@@ -119,7 +120,7 @@ function ErrorDialog({
                                     </Text>
                                 </Box>
                                 <Button size="400" variant="Secondary" fill="Soft" onClick={closeError}>
-                                    <Text size="B400">Cancel</Text>
+                                    <Text size="B400">{getText('btn.cancel')}</Text>
                                 </Button>
                             </Box>
                         </Dialog>
@@ -222,7 +223,7 @@ export const RoomCard = as<'div', RoomCardProps>(
                     </Avatar>
                     {(roomType === RoomType.Space || joinedRoom?.isSpaceRoom()) && (
                         <Badge variant="Secondary" fill="Soft" outlined>
-                            <Text size="L400">Space</Text>
+                            <Text size="L400">{getText('generic.space')}</Text>
                         </Badge>
                     )}
                 </Box>
@@ -249,7 +250,7 @@ export const RoomCard = as<'div', RoomCardProps>(
                 {typeof joinedMemberCount === 'number' && (
                     <Box gap="100">
                         <Icon size="50" src={Icons.User} />
-                        <Text size="T200">{`${millify(joinedMemberCount)} Members`}</Text>
+                        <Text size="T200">{getText('generic.member_count', millify(joinedMemberCount))}</Text>
                     </Box>
                 )}
                 {typeof joinedRoomId === 'string' && (
@@ -259,8 +260,8 @@ export const RoomCard = as<'div', RoomCardProps>(
                         fill="Soft"
                         size="300"
                     >
-                        <Text size="B300" truncate>
-                            View
+                        <Text size="B300">
+                            {getText('btn.view')}
                         </Text>
                     </Button>
                 )}
@@ -273,7 +274,7 @@ export const RoomCard = as<'div', RoomCardProps>(
                         before={joining && <Spinner size="50" variant="Secondary" fill="Soft" />}
                     >
                         <Text size="B300" truncate>
-                            {joining ? 'Joining' : 'Join'}
+                            {getText(joining ? 'room_card.joining' : 'btn.join')}
                         </Text>
                     </Button>
                 )}
@@ -286,13 +287,13 @@ export const RoomCard = as<'div', RoomCardProps>(
                             fill="Solid"
                             size="300"
                         >
-                            <Text size="B300" truncate>
-                                Retry
+                            <Text size="B300">
+                                {getText('btn.retry')}
                             </Text>
                         </Button>
                         <ErrorDialog
                             title="Join Error"
-                            message={joinState.error.message || 'Failed to join. Unknown Error.'}
+                            message={joinState.error.message || getText('error.join.unknown')}
                         >
                             {(openError) => (
                                 <Button
@@ -303,8 +304,8 @@ export const RoomCard = as<'div', RoomCardProps>(
                                     outlined
                                     size="300"
                                 >
-                                    <Text size="B300" truncate>
-                                        View Error
+                                    <Text size="B300">
+                                        {getText('btn.error_details')}
                                     </Text>
                                 </Button>
                             )}

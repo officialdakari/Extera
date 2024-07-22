@@ -18,187 +18,190 @@ import Dialog from '../../molecules/dialog/Dialog';
 import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
 import { useStore } from '../../hooks/useStore';
 import { accessSecretStorage } from '../settings/SecretStorageAccess';
+import { getText } from '../../../lang';
 
 function EmojiVerificationContent({ data, requestClose }) {
-  const [sas, setSas] = useState(null);
-  const [process, setProcess] = useState(false);
-  const { request, targetDevice } = data;
-  const mx = initMatrix.matrixClient;
-  const mountStore = useStore();
-  const beginStore = useStore();
+    const [sas, setSas] = useState(null);
+    const [process, setProcess] = useState(false);
+    const { request, targetDevice } = data;
+    const mx = initMatrix.matrixClient;
+    const mountStore = useStore();
+    const beginStore = useStore();
 
-  const beginVerification = async () => {
-    if (
-      isCrossVerified(mx.deviceId) &&
-      (mx.getCrossSigningId() === null ||
-        (await mx.crypto.crossSigningInfo.isStoredInKeyCache('self_signing')) === false)
-    ) {
-      if (!hasPrivateKey(getDefaultSSKey())) {
-        const keyData = await accessSecretStorage('Emoji verification');
-        if (!keyData) {
-          request.cancel();
-          return;
+    const beginVerification = async () => {
+        if (
+            isCrossVerified(mx.deviceId) &&
+            (mx.getCrossSigningId() === null ||
+                (await mx.crypto.crossSigningInfo.isStoredInKeyCache('self_signing')) === false)
+        ) {
+            if (!hasPrivateKey(getDefaultSSKey())) {
+                const keyData = await accessSecretStorage('Emoji verification');
+                if (!keyData) {
+                    request.cancel();
+                    return;
+                }
+            }
+            await mx.checkOwnCrossSigningTrust();
         }
-      }
-      await mx.checkOwnCrossSigningTrust();
-    }
-    setProcess(true);
-    await request.accept();
+        setProcess(true);
+        await request.accept();
 
-    const verifier = request.beginKeyVerification('m.sas.v1', targetDevice);
+        const verifier = request.beginKeyVerification('m.sas.v1', targetDevice);
 
-    const handleVerifier = (sasData) => {
-      verifier.off('show_sas', handleVerifier);
-      if (!mountStore.getItem()) return;
-      setSas(sasData);
-      setProcess(false);
-    };
-    verifier.on('show_sas', handleVerifier);
-    await verifier.verify();
-  };
-
-  const sasMismatch = () => {
-    sas.mismatch();
-    setProcess(true);
-  };
-
-  const sasConfirm = () => {
-    sas.confirm();
-    setProcess(true);
-  };
-
-  useEffect(() => {
-    mountStore.setItem(true);
-    const handleChange = () => {
-      if (request.done || request.cancelled) {
-        requestClose();
-        return;
-      }
-      if (targetDevice && !beginStore.getItem()) {
-        beginStore.setItem(true);
-        beginVerification();
-      }
+        const handleVerifier = (sasData) => {
+            verifier.off('show_sas', handleVerifier);
+            if (!mountStore.getItem()) return;
+            setSas(sasData);
+            setProcess(false);
+        };
+        verifier.on('show_sas', handleVerifier);
+        await verifier.verify();
     };
 
-    if (request === null) return undefined;
-    const req = request;
-    req.on('change', handleChange);
-    return () => {
-      req.off('change', handleChange);
-      if (req.cancelled === false && req.done === false) {
-        req.cancel();
-      }
+    const sasMismatch = () => {
+        sas.mismatch();
+        setProcess(true);
     };
-  }, [request]);
 
-  const renderWait = () => (
-    <>
-      <Spinner size="small" />
-      <Text>Waiting for response from other device...</Text>
-    </>
-  );
+    const sasConfirm = () => {
+        sas.confirm();
+        setProcess(true);
+    };
 
-  if (sas !== null) {
-    return (
-      <div className="emoji-verification__content">
-        <Text>Confirm the emoji below are displayed on both devices, in the same order:</Text>
-        <div className="emoji-verification__emojis">
-          {sas.sas.emoji.map((emoji, i) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <div className="emoji-verification__emoji-block" key={`${emoji[1]}-${i}`}>
-              <Text variant="h1">{emoji[0]}</Text>
-              <Text>{emoji[1]}</Text>
+    useEffect(() => {
+        mountStore.setItem(true);
+        const handleChange = () => {
+            if (request.done || request.cancelled) {
+                requestClose();
+                return;
+            }
+            if (targetDevice && !beginStore.getItem()) {
+                beginStore.setItem(true);
+                beginVerification();
+            }
+        };
+
+        if (request === null) return undefined;
+        const req = request;
+        req.on('change', handleChange);
+        return () => {
+            req.off('change', handleChange);
+            if (req.cancelled === false && req.done === false) {
+                req.cancel();
+            }
+        };
+    }, [request]);
+
+    const renderWait = () => (
+        <>
+            <Spinner size="small" />
+            <Text>{getText('emoji_verification.waiting')}</Text>
+        </>
+    );
+
+    if (sas !== null) {
+        return (
+            <div className="emoji-verification__content">
+                <Text>{getText('emoji_verification.tip')}</Text>
+                <div className="emoji-verification__emojis">
+                    {sas.sas.emoji.map((emoji, i) => (
+                        // eslint-disable-next-line react/no-array-index-key
+                        <div className="emoji-verification__emoji-block" key={`${emoji[1]}-${i}`}>
+                            <Text variant="h1">{emoji[0]}</Text>
+                            <Text>{emoji[1]}</Text>
+                        </div>
+                    ))}
+                </div>
+                <div className="emoji-verification__buttons">
+                    {process ? (
+                        renderWait()
+                    ) : (
+                        <>
+                            <Button variant="primary" onClick={sasConfirm}>
+                                {getText('btn.emoji_verification.they_match')}
+                            </Button>
+                            <Button variant="danger" onClick={sasMismatch}>
+                                {getText('btn.emoji_verification.no_match')}
+                            </Button>
+                        </>
+                    )}
+                </div>
             </div>
-          ))}
-        </div>
-        <div className="emoji-verification__buttons">
-          {process ? (
-            renderWait()
-          ) : (
-            <>
-              <Button variant="primary" onClick={sasConfirm}>
-                They match
-              </Button>
-              <Button onClick={sasMismatch}>No match</Button>
-            </>
-          )}
-        </div>
-      </div>
-    );
-  }
+        );
+    }
 
-  if (targetDevice) {
+    if (targetDevice) {
+        return (
+            <div className="emoji-verification__content">
+                <Text>{getText('emoji_verification.outgoing')}</Text>
+                <div className="emoji-verification__buttons">{renderWait()}</div>
+            </div>
+        );
+    }
+
     return (
-      <div className="emoji-verification__content">
-        <Text>Please accept the request from other device.</Text>
-        <div className="emoji-verification__buttons">{renderWait()}</div>
-      </div>
+        <div className="emoji-verification__content">
+            <Text>{getText('emoji_verification.ingoing')}</Text>
+            <div className="emoji-verification__buttons">
+                {process ? (
+                    renderWait()
+                ) : (
+                    <Button variant="primary" onClick={beginVerification}>
+                        {getText('btn.emoji_verification.accept')}
+                    </Button>
+                )}
+            </div>
+        </div>
     );
-  }
-
-  return (
-    <div className="emoji-verification__content">
-      <Text>Click accept to start the verification process.</Text>
-      <div className="emoji-verification__buttons">
-        {process ? (
-          renderWait()
-        ) : (
-          <Button variant="primary" onClick={beginVerification}>
-            Accept
-          </Button>
-        )}
-      </div>
-    </div>
-  );
 }
 EmojiVerificationContent.propTypes = {
-  data: PropTypes.shape({}).isRequired,
-  requestClose: PropTypes.func.isRequired,
+    data: PropTypes.shape({}).isRequired,
+    requestClose: PropTypes.func.isRequired,
 };
 
 function useVisibilityToggle() {
-  const [data, setData] = useState(null);
-  const mx = initMatrix.matrixClient;
+    const [data, setData] = useState(null);
+    const mx = initMatrix.matrixClient;
 
-  useEffect(() => {
-    const handleOpen = (request, targetDevice) => {
-      setData({ request, targetDevice });
-    };
-    navigation.on(cons.events.navigation.EMOJI_VERIFICATION_OPENED, handleOpen);
-    mx.on('crypto.verification.request', handleOpen);
-    return () => {
-      navigation.removeListener(cons.events.navigation.EMOJI_VERIFICATION_OPENED, handleOpen);
-      mx.removeListener('crypto.verification.request', handleOpen);
-    };
-  }, []);
+    useEffect(() => {
+        const handleOpen = (request, targetDevice) => {
+            setData({ request, targetDevice });
+        };
+        navigation.on(cons.events.navigation.EMOJI_VERIFICATION_OPENED, handleOpen);
+        mx.on('crypto.verification.request', handleOpen);
+        return () => {
+            navigation.removeListener(cons.events.navigation.EMOJI_VERIFICATION_OPENED, handleOpen);
+            mx.removeListener('crypto.verification.request', handleOpen);
+        };
+    }, []);
 
-  const requestClose = () => setData(null);
+    const requestClose = () => setData(null);
 
-  return [data, requestClose];
+    return [data, requestClose];
 }
 
 function EmojiVerification() {
-  const [data, requestClose] = useVisibilityToggle();
+    const [data, requestClose] = useVisibilityToggle();
 
-  return (
-    <Dialog
-      isOpen={data !== null}
-      className="emoji-verification"
-      title={
-        <Text variant="s1" weight="medium" primary>
-          Emoji verification
-        </Text>
-      }
-      contentOptions={<IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />}
-      onRequestClose={requestClose}
-    >
-      {data !== null ? (
-        <EmojiVerificationContent data={data} requestClose={requestClose} />
-      ) : (
-        <div />
-      )}
-    </Dialog>
-  );
+    return (
+        <Dialog
+            isOpen={data !== null}
+            className="emoji-verification"
+            title={
+                <Text variant="s1" weight="medium" primary>
+                    {getText('emoji_verification.title')}
+                </Text>
+            }
+            contentOptions={<IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />}
+            onRequestClose={requestClose}
+        >
+            {data !== null ? (
+                <EmojiVerificationContent data={data} requestClose={requestClose} />
+            ) : (
+                <div />
+            )}
+        </Dialog>
+    );
 }
 
 export default EmojiVerification;

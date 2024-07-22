@@ -32,6 +32,8 @@ import SpaceGlobeIC from '../../../../public/res/ic/outlined/space-globe.svg';
 import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
 import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
+import { getText } from '../../../lang';
+import { useBackButton } from '../../hooks/useBackButton';
 
 function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
     const [joinRule, setJoinRule] = useState(parentId ? 'restricted' : 'invite');
@@ -96,10 +98,10 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
             }
         } catch (e) {
             if (e.message === 'M_UNKNOWN: Invalid characters in room alias') {
-                setCreatingError('ERROR: Invalid characters in address');
+                setCreatingError(getText('error.create_room.invalid_characters'));
                 setIsValidAddress(false);
             } else if (e.message === 'M_ROOM_IN_USE: Room alias already taken') {
-                setCreatingError('ERROR: This address is already in use');
+                setCreatingError(getText('error.create_room.address_already_used'));
                 setIsValidAddress(false);
             } else setCreatingError(e.message);
             setIsCreatingRoom(false);
@@ -127,18 +129,22 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
     };
 
     const joinRules = ['invite', 'restricted', 'public'];
-    const joinRuleShortText = ['Private', 'Restricted', 'Public'];
+    const joinRuleShortText = [
+        'create_room.join_rule.short.private',
+        'create_room.join_rule.short.restricted',
+        'create_room.join_rule.short.public'
+    ].map(s => getText(getText));
     const joinRuleText = [
-        'Private (invite only)',
-        'Restricted (space member can join)',
-        'Public (anyone can join)',
-    ];
+        'create_room.join_rule.private',
+        'create_room.join_rule.restricted',
+        'create_room.join_rule.public'
+    ].map(s => getText(getText));
     const jrRoomIC = [HashLockIC, HashIC, HashGlobeIC];
     const jrSpaceIC = [SpaceLockIC, SpaceIC, SpaceGlobeIC];
     const handleJoinRule = (evt) => {
         openReusableContextMenu('bottom', getEventCords(evt, '.btn-surface'), (closeMenu) => (
             <>
-                <MenuHeader>Visibility (who can join)</MenuHeader>
+                <MenuHeader>{getText('create_room.join_rule')}</MenuHeader>
                 {joinRules.map((rule) => (
                     <MenuItem
                         key={rule}
@@ -163,20 +169,29 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
         <div className="create-room">
             <form className="create-room__form" onSubmit={handleSubmit}>
                 <SettingTile
-                    title="Visibility"
+                    title={getText('create_room.join_rule.title')}
                     options={
                         <Button onClick={handleJoinRule} iconSrc={ChevronBottomIC}>
                             {joinRuleShortText[joinRules.indexOf(joinRule)]}
                         </Button>
                     }
                     content={
-                        <Text variant="b3">{`Select who can join this ${isSpace ? 'space' : 'room'}.`}</Text>
+                        <Text variant="b3">
+                            {
+                                getText(
+                                    'create_room.join_rule.tip',
+                                    getText(
+                                        isSpace ? 'create_room.join_rule.tip.space' : 'create_room.join_rule.tip.room'
+                                    )
+                                )
+                            }
+                        </Text>
                     }
                 />
                 {joinRule === 'public' && (
                     <div>
                         <Text className="create-room__address__label" variant="b2">
-                            {isSpace ? 'Space address' : 'Room address'}
+                            {getText(isSpace ? 'create_room.address.space' : 'create_room.address.room')}
                         </Text>
                         <div className="create-room__address">
                             <Text variant="b1">#</Text>
@@ -194,51 +209,59 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                             <Text className="create-room__address__tip" variant="b3">
                                 <span
                                     style={{ color: 'var(--bg-danger)' }}
-                                >{`#${addressValue}:${userHs} is already in use`}</span>
+                                >{getText('error.create_room.address_in_use', `#${addressValue}:${userHs}`)}</span>
                             </Text>
                         )}
                     </div>
                 )}
                 {!isSpace && joinRule !== 'public' && (
                     <SettingTile
-                        title="Enable end-to-end encryption"
+                        title={getText('create_room.encrypt.title')}
                         options={<Toggle isActive={isEncrypted} onToggle={setIsEncrypted} />}
                         content={
                             <Text variant="b3">
-                                You can’t disable this later. Bridges & most bots won’t work yet.
+                                {getText('create_room.encrypt.desc')}
                             </Text>
                         }
                     />
                 )}
                 <SettingTile
-                    title="Select your role"
+                    title={getText('create_room.your_pl.title')}
                     options={
                         <SegmentControl
                             selected={roleIndex}
-                            segments={[{ text: 'Admin' }, { text: 'Founder' }, { text: 'Goku' }]}
+                            segments={
+                                [
+                                    'create_room.your_pl.admin',
+                                    'create_room.your_pl.founder',
+                                    'create_room.your_pl.goku'
+                                ].map(
+                                    s => ({ text: getText(s) })
+                                )
+                            }
                             onSelect={setRoleIndex}
                         />
                     }
                     content={
-                        <Text variant="b3">Admin - 100. Founder - 101. Goku - 9001.</Text>
+                        <Text variant="b3">{getText('create_room.your_pl.desc')}</Text>
                     }
                 />
-                <Input name="topic" minHeight={174} resizable label="Topic (optional)" />
+                <Input name="topic" minHeight={174} resizable label={getText('create_room.topic')} />
                 <div className="create-room__name-wrapper">
-                    <Input name="name" label={`${isSpace ? 'Space' : 'Room'} name`} required />
+                    <Input name="name" label={getText('create_room.name', getText(isSpace ? 'create_room.name.space' : 'create_room.name.space'))} required />
                     <Button
                         disabled={isValidAddress === false || isCreatingRoom}
                         iconSrc={isSpace ? SpacePlusIC : HashPlusIC}
                         type="submit"
                         variant="primary"
                     >
-                        Create
+                        {getText('btn.create_room')}
                     </Button>
                 </div>
                 {isCreatingRoom && (
                     <div className="create-room__loading">
                         <Spinner size="small" />
-                        <Text>{`Creating ${isSpace ? 'space' : 'room'}...`}</Text>
+                        <Text>{getText('create_room.creating')}</Text>
                     </div>
                 )}
                 {typeof creatingError === 'string' && (
@@ -285,6 +308,8 @@ function CreateRoom() {
     const { isSpace, parentId } = create ?? {};
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(parentId);
+
+    useBackButton(onRequestClose);
 
     return (
         <Dialog

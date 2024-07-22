@@ -4,6 +4,8 @@ import { getDMRoomFor, isRoomAlias, isRoomId, isUserId } from '../utils/matrix';
 import { hasDevices } from '../../util/matrixUtil';
 import * as roomActions from '../../client/action/room';
 import { useRoomNavigate } from './useRoomNavigate';
+import { openHiddenRooms } from '../../client/action/navigation';
+import { getText } from '../../lang';
 
 export const SHRUG = '¯\\_(ツ)_/¯';
 export const LENNY = '( ͡° ͜ʖ ͡°)';
@@ -53,6 +55,10 @@ export enum Command {
     MyRoomAvatar = 'localavatar',
     ConvertToDm = 'converttodm',
     ConvertToRoom = 'converttoroom',
+    Premium = 'premium',
+    Hide = 'hide',
+    UnHide = 'unhide',
+    HiddenList = 'hidden'
 }
 
 export type CommandContent = {
@@ -70,37 +76,37 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
         () => ({
             [Command.Me]: {
                 name: Command.Me,
-                description: 'Send action message',
+                description: getText('command.me.desc'),
                 exe: async () => undefined,
             },
             [Command.Notice]: {
                 name: Command.Notice,
-                description: 'Send notice message',
+                description: getText('command.notice.desc'),
                 exe: async () => undefined,
             },
             [Command.Shrug]: {
                 name: Command.Shrug,
-                description: 'Send ¯\\_(ツ)_/¯ as message',
+                description: getText('command.emote.desc', SHRUG),
                 exe: async () => undefined,
             },
             [Command.Lenny]: {
                 name: Command.Lenny,
-                description: `Send ${LENNY} as message`,
+                description: getText('command.emote.desc', LENNY),
                 exe: async () => undefined,
             },
             [Command.TableFlip]: {
                 name: Command.TableFlip,
-                description: `Send ${TABLEFLIP} as message`,
+                description: getText('command.emote.desc', TABLEFLIP),
                 exe: async () => undefined,
             },
             [Command.UnFlip]: {
                 name: Command.UnFlip,
-                description: `Send ${UNFLIP} as message`,
+                description: getText('command.emote.desc', UNFLIP),
                 exe: async () => undefined,
             },
             [Command.StartDm]: {
                 name: Command.StartDm,
-                description: 'Start direct message with user. Example: /startdm userId1',
+                description: getText('command.startdm.desc'),
                 exe: async (payload) => {
                     const rawIds = payload.split(' ');
                     const userIds = rawIds.filter((id) => isUserId(id) && id !== mx.getUserId());
@@ -120,7 +126,7 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
             },
             [Command.Join]: {
                 name: Command.Join,
-                description: 'Join room with address. Example: /join address1 address2',
+                description: getText('command.join.desc'),
                 exe: async (payload) => {
                     const rawIds = payload.split(' ');
                     const roomIds = rawIds.filter(
@@ -144,7 +150,7 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
             // },
             [Command.Invite]: {
                 name: Command.Invite,
-                description: 'Invite user to room. Example: /invite userId1 userId2 [-r reason]',
+                description: getText('command.invite.desc'),
                 exe: async (payload) => {
                     const { users, reason } = parseUsersAndReason(payload);
                     users.map((id) => roomActions.invite(room.roomId, id, reason));
@@ -152,7 +158,7 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
             },
             [Command.DisInvite]: {
                 name: Command.DisInvite,
-                description: 'Disinvite user to room. Example: /disinvite userId1 userId2 [-r reason]',
+                description: getText('command.disinvite.desc'),
                 exe: async (payload) => {
                     const { users, reason } = parseUsersAndReason(payload);
                     users.map((id) => roomActions.kick(room.roomId, id, reason));
@@ -160,7 +166,7 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
             },
             [Command.Kick]: {
                 name: Command.Kick,
-                description: 'Kick user from room. Example: /kick userId1 userId2 [-r reason]',
+                description: getText('command.kick.desc'),
                 exe: async (payload) => {
                     const { users, reason } = parseUsersAndReason(payload);
                     users.map((id) => roomActions.kick(room.roomId, id, reason));
@@ -168,7 +174,7 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
             },
             [Command.Ban]: {
                 name: Command.Ban,
-                description: 'Ban user from room. Example: /ban userId1 userId2 [-r reason]',
+                description: getText('command.ban.desc'),
                 exe: async (payload) => {
                     const { users, reason } = parseUsersAndReason(payload);
                     users.map((id) => roomActions.ban(room.roomId, id, reason));
@@ -176,7 +182,7 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
             },
             [Command.UnBan]: {
                 name: Command.UnBan,
-                description: 'Unban user from room. Example: /unban userId1 userId2',
+                description: getText('command.unban.desc'),
                 exe: async (payload) => {
                     const rawIds = payload.split(' ');
                     const users = rawIds.filter((id) => isUserId(id));
@@ -185,7 +191,7 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
             },
             [Command.Ignore]: {
                 name: Command.Ignore,
-                description: 'Ignore user. Example: /ignore userId1 userId2',
+                description: getText('command.ignore.desc'),
                 exe: async (payload) => {
                     const rawIds = payload.split(' ');
                     const userIds = rawIds.filter((id) => isUserId(id));
@@ -194,7 +200,7 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
             },
             [Command.UnIgnore]: {
                 name: Command.UnIgnore,
-                description: 'Unignore user. Example: /unignore userId1 userId2',
+                description: getText('command.unignore.desc'),
                 exe: async (payload) => {
                     const rawIds = payload.split(' ');
                     const userIds = rawIds.filter((id) => isUserId(id));
@@ -203,7 +209,7 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
             },
             [Command.MyRoomNick]: {
                 name: Command.MyRoomNick,
-                description: 'Change nick in current room.',
+                description: getText('command.localnick.desc'),
                 exe: async (payload) => {
                     const nick = payload.trim();
                     if (nick === '') return;
@@ -212,7 +218,7 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
             },
             [Command.MyRoomAvatar]: {
                 name: Command.MyRoomAvatar,
-                description: 'Change profile picture in current room. Example /localavatar mxc://xyzabc',
+                description: getText('command.localavatar.desc'),
                 exe: async (payload) => {
                     if (payload.match(/^mxc:\/\/\S+$/)) {
                         roomActions.setMyRoomAvatar(room.roomId, payload);
@@ -221,18 +227,56 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
             },
             [Command.ConvertToDm]: {
                 name: Command.ConvertToDm,
-                description: 'Convert room to direct message',
+                description: getText('command.converttodm.desc'),
                 exe: async () => {
                     roomActions.convertToDm(room.roomId);
                 },
             },
             [Command.ConvertToRoom]: {
                 name: Command.ConvertToRoom,
-                description: 'Convert direct message to room',
+                description: getText('command.converttoroom.desc'),
                 exe: async () => {
                     roomActions.convertToRoom(room.roomId);
                 },
             },
+            [Command.Premium]: {
+                name: Command.Premium,
+                description: getText('command.premium.desc'),
+                exe: async () => {
+                    window.open('https://youtu.be/dQw4w9WgXcQ', '_blank');
+                }
+            },
+            [Command.Hide]: {
+                name: Command.Hide,
+                description: getText('command.hide.desc'),
+                exe: async () => {
+                    const hideDataEvent = mx.getAccountData('ru.officialdakari.extera.hidden_chats');
+                    const hidden_chats = hideDataEvent ? hideDataEvent.getContent().hidden_chats : {};
+                    hidden_chats[room.roomId] = true;
+                    mx.setAccountData('ru.officialdakari.extera.hidden_chats', {
+                        hidden_chats
+                    });
+                }
+            },
+            [Command.UnHide]: {
+                name: Command.UnHide,
+                description: getText('command.unhide.desc'),
+                exe: async () => {
+                    const hideDataEvent = mx.getAccountData('ru.officialdakari.extera.hidden_chats');
+                    const hidden_chats = hideDataEvent ? hideDataEvent.getContent().hidden_chats : {};
+                    hidden_chats[room.roomId] = false;
+                    mx.setAccountData('ru.officialdakari.extera.hidden_chats', {
+                        hidden_chats
+                    });
+                }
+            },
+            [Command.HiddenList]: {
+                name: Command.HiddenList,
+                description: getText('command.hiddenlist.desc'),
+                exe: async () => {
+                    openHiddenRooms();
+                }
+            }
         }),
         [mx, room, navigateRoom]
     );

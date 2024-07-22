@@ -33,6 +33,10 @@ export interface Settings {
     extera_smoothScroll: boolean;
     extera_status: number;
     extera_status_message: string;
+    extera_wallpaper: string | null;
+    extera_chatHideKeyword: string;
+    extera_chatShowKeyword: string;
+    extera_hiddenChatsKeyword: string;
 }
 
 const defaultSettings: Settings = {
@@ -63,7 +67,11 @@ const defaultSettings: Settings = {
     extera_ghostMode: false,
     extera_smoothScroll: true,
     extera_status: 0,
-    extera_status_message: 'Hello! I am using Extera.'
+    extera_status_message: 'Hello! I am using Extera.',
+    extera_wallpaper: null,
+    extera_chatHideKeyword: 'bikin keliatan',
+    extera_chatShowKeyword: 'bikin kagak keliatan',
+    extera_hiddenChatsKeyword: 'tunjukin ke gue yang kagak keliatan'
 };
 
 export const getSettings = () => {

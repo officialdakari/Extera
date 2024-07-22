@@ -57,6 +57,8 @@ import { useRoomAvatar, useRoomName, useRoomTopic } from '../../hooks/useRoomMet
 import { mDirectAtom } from '../../state/mDirectList';
 import { useClientConfig } from '../../hooks/useClientConfig';
 import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
+import { usePresences } from '../../hooks/usePresences';
+import { getText } from '../../../lang';
 
 type RoomMenuProps = {
     room: Room;
@@ -102,8 +104,8 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                         radii="300"
                         disabled={!unread}
                     >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                            Mark as Read
+                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
+                            {getText('room_header.mark_as_read')}
                         </Text>
                     </MenuItem>
                 </Box>
@@ -118,8 +120,8 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                         radii="300"
                         disabled={!canInvite}
                     >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                            Invite
+                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
+                            {getText('room_header.invite')}
                         </Text>
                     </MenuItem>
                     <MenuItem
@@ -128,8 +130,8 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                         after={<Icon size="100" src={Icons.Link} />}
                         radii="300"
                     >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                            Copy Link
+                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
+                            {getText('room_header.copy_link')}
                         </Text>
                     </MenuItem>
                     <MenuItem
@@ -138,8 +140,8 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                         after={<Icon size="100" src={Icons.Setting} />}
                         radii="300"
                     >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                            Room Settings
+                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
+                            {getText('room_header.settings')}
                         </Text>
                     </MenuItem>
                 </Box>
@@ -158,7 +160,7 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                                     aria-pressed={promptLeave}
                                 >
                                     <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                                        Leave Room
+                                        {getText('room_header.leave')}
                                     </Text>
                                 </MenuItem>
                                 {promptLeave && (
@@ -187,7 +189,7 @@ export function RoomViewHeader() {
     const mDirects = useAtomValue(mDirectAtom);
 
     const encryptionEvent = useStateEvent(room, StateEvent.RoomEncryption);
-    const ecryptedRoom = !!encryptionEvent;
+    const encryptedRoom = !!encryptionEvent;
     const avatarMxc = useRoomAvatar(room, mDirects.has(room.roomId));
     const name = useRoomName(room);
     const topic = useRoomTopic(room);
@@ -219,12 +221,14 @@ export function RoomViewHeader() {
         toggleRoomSettings(room.roomId);
     };
 
+    const getPresenceFn = usePresences();
+
     useEffect(() => {
         const isDm = room.getDMInviter() || room.getJoinedMemberCount() == 2;
         if (isDm) {
             const userId = room.guessDMUserId();
-            mx.getPresence(userId).then((presence) => {
-                setStatusMessage(presence.status_msg ?? presence.presence);
+            getPresenceFn(userId).then((presence) => {
+                setStatusMessage(presence.presenceStatusMsg ?? presence.presence);
             });
         }
     }, [mx]);
@@ -286,13 +290,13 @@ export function RoomViewHeader() {
                     </Box>
                 </Box>
                 <Box shrink="No">
-                    {!ecryptedRoom && (
+                    {!encryptedRoom && (
                         <TooltipProvider
                             position="Bottom"
                             offset={4}
                             tooltip={
                                 <Tooltip>
-                                    <Text>Search</Text>
+                                    <Text>{getText('tooltip.search')}</Text>
                                 </Tooltip>
                             }
                         >
@@ -309,7 +313,7 @@ export function RoomViewHeader() {
                             offset={4}
                             tooltip={
                                 <Tooltip>
-                                    <Text>Members</Text>
+                                    <Text>{getText('tooltip.members')}</Text>
                                 </Tooltip>
                             }
                         >
@@ -326,7 +330,7 @@ export function RoomViewHeader() {
                         offset={4}
                         tooltip={
                             <Tooltip>
-                                <Text>More Options</Text>
+                                <Text>{getText('tooltip.more_options')}</Text>
                             </Tooltip>
                         }
                     >

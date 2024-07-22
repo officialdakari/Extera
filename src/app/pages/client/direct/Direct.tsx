@@ -44,6 +44,8 @@ import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page
 import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCategories';
 import { useRoomsUnread } from '../../../state/hooks/unread';
 import { markAsRead } from '../../../../client/action/notifications';
+import { getText } from '../../../../lang';
+import { isHidden } from '../../../state/hooks/roomList';
 
 type DirectMenuProps = {
     requestClose: () => void;
@@ -68,8 +70,8 @@ const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ requestClose }
                     radii="300"
                     aria-disabled={!unread}
                 >
-                    <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                        Mark as Read
+                    <Text style={{ flexGrow: 1 }} as="span" size="T300">
+                        {getText('chats.mark_as_read')}
                     </Text>
                 </MenuItem>
             </Box>
@@ -94,7 +96,7 @@ function DirectHeader() {
                 <Box alignItems="Center" grow="Yes" gap="300">
                     <Box grow="Yes">
                         <Text size="H4" truncate>
-                            Direct Messages
+                            {getText('direct_menu.title')}
                         </Text>
                     </Box>
                     <Box>
@@ -135,18 +137,18 @@ function DirectEmpty() {
                 icon={<Icon size="600" src={Icons.Mention} />}
                 title={
                     <Text size="H5" align="Center">
-                        No Direct Messages
+                        {getText('direct_menu.empty')}
                     </Text>
                 }
                 content={
                     <Text size="T300" align="Center">
-                        You do not have any direct messages yet.
+                        {getText('direct_menu.empty.2')}
                     </Text>
                 }
                 options={
                     <Button variant="Secondary" size="300" onClick={() => openInviteUser()}>
                         <Text size="B300" truncate>
-                            Direct Message
+                            {getText('direct_menu.empty.start_new')}
                         </Text>
                     </Button>
                 }
@@ -174,7 +176,7 @@ export function Direct() {
         if (closedCategories.has(DEFAULT_CATEGORY_ID)) {
             return items.filter((rId) => roomToUnread.has(rId) || rId === selectedRoomId);
         }
-        return items;
+        return items.filter((room) => !isHidden(mx, room));
     }, [mx, directs, closedCategories, roomToUnread, selectedRoomId]);
 
     const virtualizer = useVirtualizer({
@@ -206,7 +208,7 @@ export function Direct() {
                                             </Avatar>
                                             <Box as="span" grow="Yes">
                                                 <Text as="span" size="Inherit" truncate>
-                                                    Create Chat
+                                                    {getText('direct_menu.new')}
                                                 </Text>
                                             </Box>
                                         </Box>
@@ -221,7 +223,7 @@ export function Direct() {
                                     data-category-id={DEFAULT_CATEGORY_ID}
                                     onClick={handleCategoryClick}
                                 >
-                                    Chats
+                                    {getText('direct_menu.chats')}
                                 </RoomNavCategoryButton>
                             </NavCategoryHeader>
                             <div
@@ -230,29 +232,30 @@ export function Direct() {
                                     height: virtualizer.getTotalSize(),
                                 }}
                             >
-                                {virtualizer.getVirtualItems().map((vItem) => {
-                                    const roomId = sortedDirects[vItem.index];
-                                    const room = mx.getRoom(roomId);
-                                    if (!room) return null;
-                                    const selected = selectedRoomId === roomId;
+                                {virtualizer.getVirtualItems()
+                                    .map((vItem) => {
+                                        const roomId = sortedDirects[vItem.index];
+                                        const room = mx.getRoom(roomId);
+                                        if (!room) return null;
+                                        const selected = selectedRoomId === roomId;
 
-                                    return (
-                                        <VirtualTile
-                                            virtualItem={vItem}
-                                            key={vItem.index}
-                                            ref={virtualizer.measureElement}
-                                        >
-                                            <RoomNavItem
-                                                room={room}
-                                                selected={selected}
-                                                showAvatar
-                                                direct
-                                                linkPath={getDirectRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
-                                                muted={mutedRooms.includes(roomId)}
-                                            />
-                                        </VirtualTile>
-                                    );
-                                })}
+                                        return (
+                                            <VirtualTile
+                                                virtualItem={vItem}
+                                                key={vItem.index}
+                                                ref={virtualizer.measureElement}
+                                            >
+                                                <RoomNavItem
+                                                    room={room}
+                                                    selected={selected}
+                                                    showAvatar
+                                                    direct
+                                                    linkPath={getDirectRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
+                                                    muted={mutedRooms.includes(roomId)}
+                                                />
+                                            </VirtualTile>
+                                        );
+                                    })}
                             </div>
                         </NavCategory>
                     </Box>

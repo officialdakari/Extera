@@ -31,12 +31,13 @@ import {
 import * as css from './style.css';
 import { HTMLReactParserOptions } from 'html-react-parser';
 import { RenderBody } from '../RenderBody';
+import { getText } from '../../../../lang';
 
 const renderErrorButton = (retry: () => void, text: string) => (
     <TooltipProvider
         tooltip={
             <Tooltip variant="Critical">
-                <Text>Failed to load file!</Text>
+                <Text>{getText('msg.file.failed')}</Text>
             </Tooltip>
         }
         position="Top"
@@ -127,7 +128,7 @@ export function ReadTextFile({ body, mimeType, url, encInfo, renderViewer, forma
                 </Overlay>
             )}
             {textState.status === AsyncStatus.Error ? (
-                renderErrorButton(loadText, 'Open File')
+                renderErrorButton(loadText, getText('btn.open_file'))
             ) : (
                 <Button
                     variant="Secondary"
@@ -146,8 +147,8 @@ export function ReadTextFile({ body, mimeType, url, encInfo, renderViewer, forma
                         )
                     }
                 >
-                    <Text size="B400" truncate>
-                        Open File
+                    <Text size="B400">
+                        {getText('btn.open_file')}
                     </Text>
                 </Button>
             )}
@@ -210,7 +211,7 @@ export function ReadPdfFile({ body, mimeType, url, encInfo, renderViewer, format
                 </Overlay>
             )}
             {pdfState.status === AsyncStatus.Error ? (
-                renderErrorButton(loadPdf, 'Open PDF')
+                renderErrorButton(loadPdf, getText('btn.open_pdf'))
             ) : (
                 <Button
                     variant="Secondary"
@@ -227,8 +228,8 @@ export function ReadPdfFile({ body, mimeType, url, encInfo, renderViewer, format
                         )
                     }
                 >
-                    <Text size="B400" truncate>
-                        Open PDF
+                    <Text size="B400">
+                        {getText('btn.open_pdf')}
                     </Text>
                 </Button>
             )}
@@ -259,7 +260,7 @@ export function DownloadFile({ body, mimeType, url, info, encInfo, filename, for
     );
 
     return downloadState.status === AsyncStatus.Error ? (
-        renderErrorButton(download, `Retry Download (${bytesToSize(info.size ?? 0)})`)
+        renderErrorButton(download, getText('btn.retry_download', bytesToSize(info.size ?? 0)))
     ) : (
         <>
             <Button
@@ -281,7 +282,7 @@ export function DownloadFile({ body, mimeType, url, info, encInfo, filename, for
                     )
                 }
             >
-                <Text size="B400" truncate>{`Download ${bytesToSize(info.size ?? 0)}`}</Text>
+                <Text size="B400">{getText('btn.download_size', bytesToSize(info.size ?? 0))}</Text>
             </Button>
         </>
     );

@@ -13,88 +13,89 @@ import Input from '../../atoms/input/Input';
 import Spinner from '../../atoms/spinner/Spinner';
 
 import { useStore } from '../../hooks/useStore';
+import { getText } from '../../../lang';
 
 function ExportE2ERoomKeys() {
-  const isMountStore = useStore();
-  const [status, setStatus] = useState({
-    isOngoing: false,
-    msg: null,
-    type: cons.status.PRE_FLIGHT,
-  });
-  const passwordRef = useRef(null);
-  const confirmPasswordRef = useRef(null);
-
-  const exportE2ERoomKeys = async () => {
-    const password = passwordRef.current.value;
-    if (password !== confirmPasswordRef.current.value) {
-      setStatus({
+    const isMountStore = useStore();
+    const [status, setStatus] = useState({
         isOngoing: false,
-        msg: 'Password does not match.',
-        type: cons.status.ERROR,
-      });
-      return;
-    }
-    setStatus({
-      isOngoing: true,
-      msg: 'Getting keys...',
-      type: cons.status.IN_FLIGHT,
+        msg: null,
+        type: cons.status.PRE_FLIGHT,
     });
-    try {
-      const keys = await initMatrix.matrixClient.exportRoomKeys();
-      if (isMountStore.getItem()) {
-        setStatus({
-          isOngoing: true,
-          msg: 'Encrypting keys...',
-          type: cons.status.IN_FLIGHT,
-        });
-      }
-      const encKeys = await encryptMegolmKeyFile(JSON.stringify(keys), password);
-      const blob = new Blob([encKeys], {
-        type: 'text/plain;charset=us-ascii',
-      });
-      FileSaver.saveAs(blob, 'extera-keys.txt');
-      if (isMountStore.getItem()) {
-        setStatus({
-          isOngoing: false,
-          msg: 'Successfully exported all keys.',
-          type: cons.status.SUCCESS,
-        });
-      }
-    } catch (e) {
-      if (isMountStore.getItem()) {
-        setStatus({
-          isOngoing: false,
-          msg: e.friendlyText || 'Failed to export keys. Please try again.',
-          type: cons.status.ERROR,
-        });
-      }
-    }
-  };
+    const passwordRef = useRef(null);
+    const confirmPasswordRef = useRef(null);
 
-  useEffect(() => {
-    isMountStore.setItem(true);
-    return () => {
-      isMountStore.setItem(false);
+    const exportE2ERoomKeys = async () => {
+        const password = passwordRef.current.value;
+        if (password !== confirmPasswordRef.current.value) {
+            setStatus({
+                isOngoing: false,
+                msg: getText('error.passwords_didnt_match'),
+                type: cons.status.ERROR,
+            });
+            return;
+        }
+        setStatus({
+            isOngoing: true,
+            msg: getText('export_keys.getting'),
+            type: cons.status.IN_FLIGHT,
+        });
+        try {
+            const keys = await initMatrix.matrixClient.exportRoomKeys();
+            if (isMountStore.getItem()) {
+                setStatus({
+                    isOngoing: true,
+                    msg: getText('export_keys.encrypting'),
+                    type: cons.status.IN_FLIGHT,
+                });
+            }
+            const encKeys = await encryptMegolmKeyFile(JSON.stringify(keys), password);
+            const blob = new Blob([encKeys], {
+                type: 'text/plain;charset=us-ascii',
+            });
+            FileSaver.saveAs(blob, 'extera-keys.txt');
+            if (isMountStore.getItem()) {
+                setStatus({
+                    isOngoing: false,
+                    msg: getText('success.export_keys'),
+                    type: cons.status.SUCCESS,
+                });
+            }
+        } catch (e) {
+            if (isMountStore.getItem()) {
+                setStatus({
+                    isOngoing: false,
+                    msg: e.friendlyText || getText('error.export_keys'),
+                    type: cons.status.ERROR,
+                });
+            }
+        }
     };
-  }, []);
 
-  return (
-    <div className="export-e2e-room-keys">
-      <form className="export-e2e-room-keys__form" onSubmit={(e) => { e.preventDefault(); exportE2ERoomKeys(); }}>
-        <Input forwardRef={passwordRef} type="password" placeholder="Password" required />
-        <Input forwardRef={confirmPasswordRef} type="password" placeholder="Confirm password" required />
-        <Button disabled={status.isOngoing} variant="primary" type="submit">Export</Button>
-      </form>
-      { status.type === cons.status.IN_FLIGHT && (
-        <div className="import-e2e-room-keys__process">
-          <Spinner size="small" />
-          <Text variant="b2">{status.msg}</Text>
+    useEffect(() => {
+        isMountStore.setItem(true);
+        return () => {
+            isMountStore.setItem(false);
+        };
+    }, []);
+
+    return (
+        <div className="export-e2e-room-keys">
+            <form className="export-e2e-room-keys__form" onSubmit={(e) => { e.preventDefault(); exportE2ERoomKeys(); }}>
+                <Input forwardRef={passwordRef} type="password" placeholder={getText('placeholder.password')} required />
+                <Input forwardRef={confirmPasswordRef} type="password" placeholder={getText('placeholder.confirm_password')} required />
+                <Button disabled={status.isOngoing} variant="primary" type="submit">{getText('btn.export_keys')}</Button>
+            </form>
+            {status.type === cons.status.IN_FLIGHT && (
+                <div className="import-e2e-room-keys__process">
+                    <Spinner size="small" />
+                    <Text variant="b2">{status.msg}</Text>
+                </div>
+            )}
+            {status.type === cons.status.SUCCESS && <Text className="import-e2e-room-keys__success" variant="b2">{status.msg}</Text>}
+            {status.type === cons.status.ERROR && <Text className="import-e2e-room-keys__error" variant="b2">{status.msg}</Text>}
         </div>
-      )}
-      {status.type === cons.status.SUCCESS && <Text className="import-e2e-room-keys__success" variant="b2">{status.msg}</Text>}
-      {status.type === cons.status.ERROR && <Text className="import-e2e-room-keys__error" variant="b2">{status.msg}</Text>}
-    </div>
-  );
+    );
 }
 
 export default ExportE2ERoomKeys;

@@ -6,6 +6,7 @@ import IconButton from '../../atoms/button/IconButton';
 import { MenuHeader, MenuItem } from '../../atoms/context-menu/ContextMenu';
 
 import CheckIC from '../../../../public/res/ic/outlined/check.svg';
+import { getText } from '../../../lang';
 
 function PowerLevelSelector({
   value, max, onSelect,
@@ -32,10 +33,10 @@ function PowerLevelSelector({
         />
         <IconButton variant="primary" src={CheckIC} type="submit" />
       </form>
-      {max >= 0 && <MenuHeader>Presets</MenuHeader>}
-      {max >= 100 && <MenuItem variant={value === 100 ? 'positive' : 'surface'} onClick={() => onSelect(100)}>Admin - 100</MenuItem>}
-      {max >= 50 && <MenuItem variant={value === 50 ? 'positive' : 'surface'} onClick={() => onSelect(50)}>Mod - 50</MenuItem>}
-      {max >= 0 && <MenuItem variant={value === 0 ? 'positive' : 'surface'} onClick={() => onSelect(0)}>Member - 0</MenuItem>}
+      {max >= 0 && <MenuHeader>{getText('pl_selector.presets')}</MenuHeader>}
+      {max >= 100 && <MenuItem variant={value === 100 ? 'positive' : 'surface'} onClick={() => onSelect(100)}>{getText('power_level.admin')}</MenuItem>}
+      {max >= 50 && <MenuItem variant={value === 50 ? 'positive' : 'surface'} onClick={() => onSelect(50)}>{getText('power_level.mod')}</MenuItem>}
+      {max >= 0 && <MenuItem variant={value === 0 ? 'positive' : 'surface'} onClick={() => onSelect(0)}>{getText('power_level.member')}</MenuItem>}
     </div>
   );
 }

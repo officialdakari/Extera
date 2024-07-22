@@ -29,6 +29,7 @@ import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 import { RenderBody } from '../RenderBody';
 import HTMLReactParser, { HTMLReactParserOptions } from 'html-react-parser';
 import { getReactCustomHtmlParser } from '../../../plugins/react-custom-html-parser';
+import { getText } from '../../../../lang';
 
 type RenderViewerProps = {
     src: string;
@@ -155,7 +156,7 @@ export const ImageContent = as<'div', ImageContentProps>(
                             onClick={loadSrc}
                             before={<Icon size="Inherit" src={Icons.Photo} filled />}
                         >
-                            <Text size="B300">View</Text>
+                            <Text size="B300">{getText('btn.view')}</Text>
                         </Button>
                     </Box>
                 )}
@@ -183,7 +184,7 @@ export const ImageContent = as<'div', ImageContentProps>(
                         <TooltipProvider
                             tooltip={
                                 <Tooltip variant="Critical">
-                                    <Text>Failed to load image!</Text>
+                                    <Text>{getText('msg.image.failed')}</Text>
                                 </Tooltip>
                             }
                             position="Top"
@@ -200,7 +201,7 @@ export const ImageContent = as<'div', ImageContentProps>(
                                     onClick={handleRetry}
                                     before={<Icon size="Inherit" src={Icons.Warning} filled />}
                                 >
-                                    <Text size="B300">Retry</Text>
+                                    <Text size="B300">{getText('btn.retry')}</Text>
                                 </Button>
                             )}
                         </TooltipProvider>

@@ -71,6 +71,12 @@ export function openSearch(term) {
     });
 }
 
+export function openHiddenRooms() {
+    appDispatcher.dispatch({
+        type: cons.actions.navigation.OPEN_HIDDEN_ROOMS
+    });
+}
+
 export function openReusableContextMenu(placement, cords, render, afterClose) {
     appDispatcher.dispatch({
         type: cons.actions.navigation.OPEN_REUSABLE_CONTEXT_MENU,

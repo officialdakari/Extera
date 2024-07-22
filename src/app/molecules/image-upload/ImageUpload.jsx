@@ -10,6 +10,7 @@ import Spinner from '../../atoms/spinner/Spinner';
 import RawIcon from '../../atoms/system-icons/RawIcon';
 
 import PlusIC from '../../../../public/res/ic/outlined/plus.svg';
+import { getText } from '../../../lang';
 
 function ImageUpload({
     text, bgColor, imageSrc, onUpload, onRequestRemove,
@@ -59,7 +60,7 @@ function ImageUpload({
                 <div className={`img-upload__process ${uploadPromise === null ? ' img-upload__process--stopped' : ''}`}>
                     {uploadPromise === null && (
                         size === 'large'
-                            ? <Text variant="b3" weight="bold">Upload</Text>
+                            ? <Text variant="b3" weight="bold">{getText('img_upload.upload')}</Text>
                             : <RawIcon src={PlusIC} color="white" />
                     )}
                     {uploadPromise !== null && <Spinner size="small" />}
@@ -71,7 +72,7 @@ function ImageUpload({
                     type="button"
                     onClick={uploadPromise === null ? onRequestRemove : cancelUpload}
                 >
-                    <Text variant="b3">{uploadPromise ? 'Cancel' : 'Remove'}</Text>
+                    <Text variant="b3">{getText(uploadPromise ? 'img_upload.cancel' : 'img_upload.remove')}</Text>
                 </button>
             )}
             <input onChange={uploadImage} style={{ display: 'none' }} ref={uploadImageRef} type="file" accept="image/*" />

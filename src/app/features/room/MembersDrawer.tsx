@@ -56,6 +56,8 @@ import { millify } from '../../plugins/millify';
 import { ScrollTopContainer } from '../../components/scroll-top-container';
 import { UserAvatar } from '../../components/user-avatar';
 import { useRoomTypingMember } from '../../hooks/useRoomTypingMembers';
+import { usePresences } from '../../hooks/usePresences';
+import { getText } from '../../../lang';
 
 export const MembershipFilters = {
     filterJoined: (m: RoomMember) => m.membership === Membership.Join,
@@ -75,6 +77,7 @@ export type MembershipFilter = {
     name: string;
     filterFn: MembershipFilterFn;
     color: ContainerColor;
+    id: string;
 };
 
 // TODO: Define that shit globally, do not ^C ^V from RoomNavItem.tsx
@@ -88,27 +91,32 @@ const useMembershipFilterMenu = (): MembershipFilter[] =>
     useMemo(
         () => [
             {
-                name: 'Joined',
+                name: getText('members_drawer.joined'),
+                id: 'joined',
                 filterFn: MembershipFilters.filterJoined,
                 color: 'Background',
             },
             {
-                name: 'Invited',
+                name: getText('members_drawer.invited'),
+                id: 'invited',
                 filterFn: MembershipFilters.filterInvited,
                 color: 'Success',
             },
             {
-                name: 'Left',
+                name: getText('members_drawer.left'),
+                id: 'left',
                 filterFn: MembershipFilters.filterLeaved,
                 color: 'Secondary',
             },
             {
-                name: 'Kicked',
+                name: getText('members_drawer.kicked'),
+                id: 'kicked',
                 filterFn: MembershipFilters.filterKicked,
                 color: 'Warning',
             },
             {
-                name: 'Banned',
+                name: getText('members_drawer.banned'),
+                id: 'banned',
                 filterFn: MembershipFilters.filterBanned,
                 color: 'Critical',
             },
@@ -138,19 +146,19 @@ const useSortFilterMenu = (): SortFilter[] =>
     useMemo(
         () => [
             {
-                name: 'A to Z',
+                name: getText('sort.a_to_z'),
                 filterFn: SortFilters.filterAscending,
             },
             {
-                name: 'Z to A',
+                name: getText('sort.z_to_a'),
                 filterFn: SortFilters.filterDescending,
             },
             {
-                name: 'Newest',
+                name: getText('sort.newest'),
                 filterFn: SortFilters.filterNewestFirst,
             },
             {
-                name: 'Oldest',
+                name: getText('sort.oldest'),
                 filterFn: SortFilters.filterOldest,
             },
         ],
@@ -255,8 +263,10 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
         openProfileViewer(userId, room.roomId);
     };
 
-    const [avStyles, setAvStyles] = useState({});
-    const [statusMsgs, setStatusMsgs] = useState({});
+    const getPresenceFn = usePresences();
+
+    const [avStyles, setAvStyles]: [Record<string, any>, any] = useState({});
+    const [statusMsgs, setStatusMsgs]: [Record<string, string>, any] = useState({});
 
     useEffect(() => {
         const fetchMemberAvStylesAndStatus = async () => {
@@ -265,9 +275,9 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
 
             await Promise.all(members.map(async (member) => {
                 try {
-                    const presence = await mx.getPresence(member.userId);
+                    const presence = await getPresenceFn(member.userId);
                     newAvStyles[member.userId] = styles[presence.presence];
-                    newStatusMsgs[member.userId] = presence.status_msg ?? presence.presence;
+                    newStatusMsgs[member.userId] = presence.presenceStatusMsg ?? presence.presence;
                 } catch (error) {
                     // handle error if needed
                 }
@@ -285,8 +295,8 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
             <Header className={css.MembersDrawerHeader} variant="Background" size="600">
                 <Box grow="Yes" alignItems="Center" gap="200">
                     <Box grow="Yes" alignItems="Center" gap="200">
-                        <Text title={`${room.getJoinedMemberCount()} Members`} size="H5" truncate>
-                            {`${millify(room.getJoinedMemberCount())} Members`}
+                        <Text title={getText('generic.member_count', room.getJoinedMemberCount())} size="H5" truncate>
+                            {getText('generic.member_count', millify(room.getJoinedMemberCount()))}
                         </Text>
                     </Box>
                     <Box shrink="No" alignItems="Center">
@@ -296,7 +306,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                             offset={4}
                             tooltip={
                                 <Tooltip>
-                                    <Text>Close</Text>
+                                    <Text>{getText('tooltip.close')}</Text>
                                 </Tooltip>
                             }
                         >
@@ -436,7 +446,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                     ref={searchInputRef}
                                     onChange={handleSearchChange}
                                     style={{ paddingRight: config.space.S200 }}
-                                    placeholder="Type name..."
+                                    placeholder={getText('placeholder.search_name')}
                                     variant="Surface"
                                     size="400"
                                     radii="400"
@@ -457,8 +467,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                                 }}
                                                 after={<Icon size="50" src={Icons.Cross} />}
                                             >
-                                                <Text size="B300">{`${result.items.length || 'No'} ${result.items.length === 1 ? 'Result' : 'Results'
-                                                    }`}</Text>
+                                                <Text size="B300">{result.items.length ? getText('generic.result_count', result.items.length) : getText('generic.no_results.2')}</Text>
                                             </Chip>
                                         )
                                     }
@@ -473,7 +482,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                 radii="Pill"
                                 outlined
                                 size="300"
-                                aria-label="Scroll to Top"
+                                aria-label={getText('aria.scroll_to_top')}
                             >
                                 <Icon src={Icons.ChevronTop} size="300" />
                             </IconButton>
@@ -481,7 +490,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
 
                         {!fetchingMembers && !result && processMembers.length === 0 && (
                             <Text style={{ padding: config.space.S300 }} align="Center">
-                                {`No "${membershipFilter.name}" Members`}
+                                {getText(`members_drawer.no_members.${membershipFilter.id}`)}
                             </Text>
                         )}
 

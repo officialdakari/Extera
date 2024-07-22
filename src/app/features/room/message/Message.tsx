@@ -25,9 +25,11 @@ import {
 } from 'folds';
 import React, {
     FormEventHandler,
+    MouseEvent,
     MouseEventHandler,
     ReactNode,
     useCallback,
+    useMemo,
     useState,
 } from 'react';
 import FocusTrap from 'focus-trap-react';
@@ -39,8 +41,12 @@ import {
     AvatarBase,
     BubbleLayout,
     CompactLayout,
+    DefaultPlaceholder,
+    ImageContent,
+    MSticker,
     MessageBase,
     ModernLayout,
+    Reply,
     Time,
     Username,
 } from '../../../components/message';
@@ -51,7 +57,7 @@ import {
     getMemberAvatarMxc,
     getMemberDisplayName,
 } from '../../../utils/room';
-import { getCanonicalAliasOrRoomId, getMxIdLocalPart } from '../../../utils/matrix';
+import { getCanonicalAliasOrRoomId, getMxIdLocalPart, isRoomId, isUserId } from '../../../utils/matrix';
 import { MessageLayout, MessageSpacing, settingsAtom } from '../../../state/settings';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { useRecentEmoji } from '../../../hooks/useRecentEmoji';
@@ -75,6 +81,15 @@ import {
 import { copyToClipboard } from '../../../utils/dom';
 import { useClientConfig } from '../../../hooks/useClientConfig';
 import { useSetting } from '../../../state/hooks/settings';
+import { RenderMessageContent } from '../../../components/RenderMessageContent';
+import { GetContentCallback } from '../../../../types/matrix/room';
+import { HTMLReactParserOptions } from 'html-react-parser';
+import { openJoinAlias, openProfileViewer } from '../../../../client/action/navigation';
+import { getReactCustomHtmlParser } from '../../../plugins/react-custom-html-parser';
+import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
+import { ImageViewer } from '../../../components/image-viewer';
+import { Image } from '../../../components/media';
+import { getText } from '../../../../lang';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -171,7 +186,7 @@ export const MessageAllReactionItem = as<
                 aria-pressed={open}
             >
                 <Text className={css.MessageMenuItemText} as="span" size="T300" truncate>
-                    View Reactions
+                    {getText('msg_menu.view_reactions')}
                 </Text>
             </MenuItem>
         </>
@@ -220,7 +235,7 @@ export const MessageReadReceiptItem = as<
                 aria-pressed={open}
             >
                 <Text className={css.MessageMenuItemText} as="span" size="T300" truncate>
-                    Read Receipts
+                    {getText('msg_menu.read_receipts')}
                 </Text>
             </MenuItem>
         </>
@@ -245,7 +260,7 @@ export const MessageSourceCodeItem = as<
             }
             : evt.event;
 
-    const getText = (): string => {
+    const getEventText = (): string => {
         const evtId = mEvent.getId()!;
         const evtTimeline = room.getTimelineForEvent(evtId);
         const edits =
@@ -285,7 +300,7 @@ export const MessageSourceCodeItem = as<
                             <TextViewer
                                 name="Source Code"
                                 langName="json"
-                                text={getText()}
+                                text={getEventText()}
                                 requestClose={handleClose}
                             />
                         </Modal>
@@ -302,7 +317,176 @@ export const MessageSourceCodeItem = as<
                 aria-pressed={open}
             >
                 <Text className={css.MessageMenuItemText} as="span" size="T300" truncate>
-                    View Source
+                    {getText('msg_menu.view_source')}
+                </Text>
+            </MenuItem>
+        </>
+    );
+});
+
+export const MessageRecoverItem = as<
+    'button',
+    {
+        room: Room;
+        mEvent: MatrixEvent;
+        onClose?: () => void;
+    }
+>(({ room, mEvent, onClose, ...props }, ref) => {
+    const mx = useMatrixClient();
+    const { navigateRoom, navigateSpace } = useRoomNavigate();
+    const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
+    const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
+        () =>
+            getReactCustomHtmlParser(mx, room, {
+                handleSpoilerClick: (evt) => {
+                    const target = evt.currentTarget;
+                    if (target.getAttribute('aria-pressed') === 'true') {
+                        evt.stopPropagation();
+                        target.setAttribute('aria-pressed', 'false');
+                        target.style.cursor = 'initial';
+                    }
+                },
+                handleMentionClick: (evt) => {
+                    const target = evt.currentTarget;
+                    const mentionId = target.getAttribute('data-mention-id');
+                    if (typeof mentionId !== 'string') return;
+                    if (isUserId(mentionId)) {
+                        openProfileViewer(mentionId, room.roomId);
+                        return;
+                    }
+                    if (isRoomId(mentionId) && mx.getRoom(mentionId)) {
+                        if (mx.getRoom(mentionId)?.isSpaceRoom()) navigateSpace(mentionId);
+                        else navigateRoom(mentionId);
+                        return;
+                    }
+                    openJoinAlias(mentionId);
+                },
+            }),
+        [mx, room, navigateRoom, navigateSpace]
+    );
+
+    const [open, setOpen] = useState(false);
+    const [message, setMessage]: [any, any] = useState(
+        <DefaultPlaceholder />
+    );
+    const [messageLayout] = useSetting(settingsAtom, 'messageLayout');
+    const [messageSpacing] = useSetting(settingsAtom, 'messageSpacing');
+
+    const findReported = async () => {
+        const token = mx.getAccessToken();
+        const base = mx.baseUrl;
+        const response1 = await fetch(`${base}/_synapse/admin/v1/event_reports?dir=b&from=0&limit=10&order_by=received_ts`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        if (!response1.ok) return null;
+        const re1j = await response1.json();
+        console.log(re1j);
+        const { event_reports }: { event_reports: any[] } = re1j;
+        console.log(event_reports);
+        const report = event_reports.find(x => x.event_id == mEvent.getId());
+        console.log(report);
+        if (!report) return null;
+        const { id } = report;
+        const response2 = await fetch(`${base}/_synapse/admin/v1/event_reports/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        if (!response2.ok) return null;
+        const { event_json } = await response2.json();
+        return event_json;
+    };
+
+    const handleClick = async () => {
+        setOpen(true);
+        if (!(await mx.isSynapseAdministrator())) {
+            return setMessage(
+                getText('error.recover')
+            );
+        }
+        const roomId = room.roomId;
+        const eventId = mEvent.getId();
+        if (!roomId) return console.log('room id null');
+        if (!eventId) return console.log('no event id');
+        var json = await findReported();
+        if (!json) {
+            await mx.reportEvent(roomId, eventId, -100, 'Extera Redacted Event Recover');
+        }
+        json = await findReported();
+        if (!json) return;
+        const event = new MatrixEvent(json);
+        setMessage(
+            <Message
+                key={event.getId()}
+                data-message-id={eventId}
+                room={room}
+                mEvent={event}
+                edit={false}
+                canDelete={false}
+                canSendReaction={false}
+                collapse={false}
+                highlight={false}
+                messageSpacing={messageSpacing}
+                messageLayout={messageLayout}
+                onReactionToggle={(evt: any) => null}
+                onReplyClick={(evt: any) => null}
+                onUserClick={(evt: any) => null}
+                onUsernameClick={(evt: any) => null}
+            >
+                {event.getType() == 'm.room.message' && <RenderMessageContent
+                    displayName={event.sender?.rawDisplayName || event.sender?.userId || getText('generic.unknown')}
+                    msgType={event.getContent().msgtype ?? ''}
+                    ts={event.getTs()}
+                    edited={false}
+                    getContent={event.getContent.bind(event) as GetContentCallback}
+                    mediaAutoLoad={true}
+                    urlPreview={false}
+                    htmlReactParserOptions={htmlReactParserOptions}
+                />}
+                {event.getType() == 'm.sticker' && <MSticker
+                    content={event.getContent()}
+                    renderImageContent={(props) => (
+                        <ImageContent
+                            {...props}
+                            autoPlay={mediaAutoLoad}
+                            htmlReactParserOptions={htmlReactParserOptions}
+                            renderImage={(p) => <Image loading="lazy" />}
+                            renderViewer={(p) => <ImageViewer {...p} />}
+                        />
+                    )}
+                />}
+            </Message>
+        );
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setMessage(null);
+        onClose?.();
+    };
+
+    return (
+        <>
+            <Overlay open={open} backdrop={<OverlayBackdrop />}>
+                <OverlayCenter>
+                    <Modal variant="Surface" size="500">
+                        {message}
+                    </Modal>
+                </OverlayCenter>
+            </Overlay>
+            <MenuItem
+                size="300"
+                after={<Icon size="100" src={Icons.Eye} />}
+                radii="300"
+                onClick={handleClick}
+                {...props}
+                ref={ref}
+                aria-pressed={open}
+            >
+                <Text className={css.MessageMenuItemText} as="span" size="T300" truncate>
+                    {getText('msg_menu.recover')}
                 </Text>
             </MenuItem>
         </>
@@ -337,7 +521,7 @@ export const MessageCopyLinkItem = as<
         copyToClipboard(withOriginBaseUrl(getOriginBaseUrl(hashRouter), eventPath));
         onClose?.();
     };
-
+    console.warn('WARNING!!! TODO: fix MessageCopyLinkItem');
     return (
         <MenuItem
             size="300"
@@ -348,7 +532,7 @@ export const MessageCopyLinkItem = as<
             ref={ref}
         >
             <Text className={css.MessageMenuItemText} as="span" size="T300" truncate>
-                Copy Link
+                {getText('msg_menu.copy_link')}
             </Text>
         </MenuItem>
     );
@@ -414,7 +598,7 @@ export const MessageDeleteItem = as<
                                 size="500"
                             >
                                 <Box grow="Yes">
-                                    <Text size="H4">Delete Message</Text>
+                                    <Text size="H4">{getText('msg_redact.title')}</Text>
                                 </Box>
                                 <IconButton size="300" onClick={handleClose} radii="300">
                                     <Icon src={Icons.Cross} />
@@ -428,19 +612,19 @@ export const MessageDeleteItem = as<
                                 gap="400"
                             >
                                 <Text priority="400">
-                                    This action is irreversible! Are you sure that you want to delete this message?
+                                    {getText('msg_redact.subtitle')}
                                 </Text>
                                 <Box direction="Column" gap="100">
                                     <Text size="L400">
-                                        Reason{' '}
+                                        {getText('msg_redact.reason.1')}
                                         <Text as="span" size="T200">
-                                            (optional)
+                                            {getText('msg_redact.reason.2')}
                                         </Text>
                                     </Text>
                                     <Input name="reasonInput" variant="Background" />
                                     {deleteState.status === AsyncStatus.Error && (
                                         <Text style={{ color: color.Critical.Main }} size="T300">
-                                            Failed to delete message! Please try again.
+                                            {getText('error.redact_msg')}
                                         </Text>
                                     )}
                                 </Box>
@@ -455,7 +639,7 @@ export const MessageDeleteItem = as<
                                     aria-disabled={deleteState.status === AsyncStatus.Loading}
                                 >
                                     <Text size="B400">
-                                        {deleteState.status === AsyncStatus.Loading ? 'Deleting...' : 'Delete'}
+                                        {getText(deleteState.status === AsyncStatus.Loading ? 'msg_redact.processing' : 'btn.msg_redact')}
                                     </Text>
                                 </Button>
                             </Box>
@@ -475,7 +659,7 @@ export const MessageDeleteItem = as<
                 ref={ref}
             >
                 <Text className={css.MessageMenuItemText} as="span" size="T300" truncate>
-                    Delete
+                    {getText('msg_menu.redact')}
                 </Text>
             </Button>
         </>
@@ -543,7 +727,7 @@ export const MessageReportItem = as<
                                 size="500"
                             >
                                 <Box grow="Yes">
-                                    <Text size="H4">Report Message</Text>
+                                    <Text size="H4">{getText('msg_report.title')}</Text>
                                 </Box>
                                 <IconButton size="300" onClick={handleClose} radii="300">
                                     <Icon src={Icons.Cross} />
@@ -557,20 +741,19 @@ export const MessageReportItem = as<
                                 gap="400"
                             >
                                 <Text priority="400">
-                                    Report this message to server, which may then notify the appropriate people to
-                                    take action.
+                                    {getText('msg_report.subtitle')}
                                 </Text>
                                 <Box direction="Column" gap="100">
-                                    <Text size="L400">Reason</Text>
+                                    <Text size="L400">{getText('msg_report.reason')}</Text>
                                     <Input name="reasonInput" variant="Background" required />
                                     {reportState.status === AsyncStatus.Error && (
                                         <Text style={{ color: color.Critical.Main }} size="T300">
-                                            Failed to report message! Please try again.
+                                            {getText('error.msg_report')}
                                         </Text>
                                     )}
                                     {reportState.status === AsyncStatus.Success && (
                                         <Text style={{ color: color.Success.Main }} size="T300">
-                                            Message has been reported to server.
+                                            {getText('success.msg_report')}
                                         </Text>
                                     )}
                                 </Box>
@@ -588,7 +771,7 @@ export const MessageReportItem = as<
                                     }
                                 >
                                     <Text size="B400">
-                                        {reportState.status === AsyncStatus.Loading ? 'Reporting...' : 'Report'}
+                                        {getText(reportState.status === AsyncStatus.Loading ? 'msg_report.processing' : 'btn.msg_report')}
                                     </Text>
                                 </Button>
                             </Box>
@@ -607,8 +790,8 @@ export const MessageReportItem = as<
                 {...props}
                 ref={ref}
             >
-                <Text className={css.MessageMenuItemText} as="span" size="T300" truncate>
-                    Report
+                <Text className={css.MessageMenuItemText} as="span" size="T300">
+                    {getText('btn.msg_report')}
                 </Text>
             </Button>
         </>
@@ -671,6 +854,8 @@ export const Message = as<'div', MessageProps>(
         const [menuAnchor, setMenuAnchor] = useState<RectCords>();
         const [emojiBoardAnchor, setEmojiBoardAnchor] = useState<RectCords>();
 
+        const content = mEvent.getContent();
+
         var senderDisplayName =
             getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
         var senderAvatarMxc = getMemberAvatarMxc(room, senderId);
@@ -715,6 +900,46 @@ export const Message = as<'div', MessageProps>(
                     <Time ts={mEvent.getTs()} compact={messageLayout === 1} />
                 </Box>
             </Box>
+        );
+
+        const buttons: any[] | undefined = typeof content['ru.officialdakari.extera.buttons'] == 'object' &&
+            content['ru.officialdakari.extera.buttons'].filter &&
+            content['ru.officialdakari.extera.buttons'].filter(
+                (x: any) => typeof x.id == 'string' && typeof x.name == 'string'
+            );
+
+        const handleBtnClick = async (evt: MouseEvent<HTMLButtonElement>) => {
+            const b = evt.currentTarget;
+            b.disabled = true;
+            if (typeof b.dataset.id !== 'string') return;
+            await mx.sendEvent(room.roomId, 'ru.officialdakari.extera.button_click', {
+                "m.relates_to": {
+                    event_id: mEvent.getId(),
+                    rel_type: 'ru.officialdakari.extera.button_click'
+                },
+                button_id: b.dataset.id
+            });
+            b.disabled = false;
+        };
+
+        const footerJSX = !collapse && buttons && buttons.length > 0 && (
+            <div style={{ marginTop: '10px' }}>
+                {buttons.length > 16 ?
+                    (
+                        <Text>{getText('msg.too_many_buttons')}</Text>
+                    ) :
+                    (
+                        buttons.map((btn: any) =>
+                            <>
+                                <Button onClick={handleBtnClick} size='300' data-id={btn.id}>
+                                    {btn.name}
+                                </Button>
+                                &nbsp;
+                            </>
+                        )
+                    )
+                }
+            </div>
         );
 
         const avatarJSX = !collapse && messageLayout !== 1 && (
@@ -925,7 +1150,7 @@ export const Message = as<'div', MessageProps>(
                                                                 size="T300"
                                                                 truncate
                                                             >
-                                                                End Poll
+                                                                {getText('msg_menu.end_poll')}
                                                             </Text>
                                                         </MenuItem>
                                                     )}
@@ -942,7 +1167,7 @@ export const Message = as<'div', MessageProps>(
                                                                 size="T300"
                                                                 truncate
                                                             >
-                                                                Add Reaction
+                                                                {getText('msg_menu.add_reaction')}
                                                             </Text>
                                                         </MenuItem>
                                                     )}
@@ -969,7 +1194,7 @@ export const Message = as<'div', MessageProps>(
                                                             size="T300"
                                                             truncate
                                                         >
-                                                            Reply
+                                                            {getText('msg_menu.reply')}
                                                         </Text>
                                                     </MenuItem>
                                                     {canEditEvent(mx, mEvent) && onEditId && (
@@ -989,7 +1214,7 @@ export const Message = as<'div', MessageProps>(
                                                                 size="T300"
                                                                 truncate
                                                             >
-                                                                Edit Message
+                                                                {getText('msg_menu.edit')}
                                                             </Text>
                                                         </MenuItem>
                                                     )}
@@ -1000,6 +1225,9 @@ export const Message = as<'div', MessageProps>(
                                                     />
                                                     <MessageSourceCodeItem room={room} mEvent={mEvent} onClose={closeMenu} />
                                                     <MessageCopyLinkItem room={room} mEvent={mEvent} onClose={closeMenu} />
+                                                    {
+                                                        mEvent.isRedacted() && <MessageRecoverItem room={room} mEvent={mEvent} onClose={closeMenu} />
+                                                    }
                                                 </Box>
                                                 {((!mEvent.isRedacted() && canDelete) ||
                                                     mEvent.getSender() !== mx.getUserId()) && (
@@ -1044,18 +1272,21 @@ export const Message = as<'div', MessageProps>(
                 {messageLayout === 1 && (
                     <CompactLayout before={headerJSX} onContextMenu={handleContextMenu}>
                         {msgContentJSX}
+                        {footerJSX}
                     </CompactLayout>
                 )}
                 {messageLayout === 2 && (
                     <BubbleLayout before={avatarJSX} onContextMenu={handleContextMenu}>
                         {headerJSX}
                         {msgContentJSX}
+                        {footerJSX}
                     </BubbleLayout>
                 )}
                 {messageLayout !== 1 && messageLayout !== 2 && (
                     <ModernLayout before={avatarJSX} onContextMenu={handleContextMenu}>
                         {headerJSX}
                         {msgContentJSX}
+                        {footerJSX}
                     </ModernLayout>
                 )}
             </MessageBase>

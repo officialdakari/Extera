@@ -27,8 +27,6 @@ import {
 } from 'matrix-js-sdk';
 import { HTMLReactParserOptions } from 'html-react-parser';
 import classNames from 'classnames';
-import { ReactEditor } from 'slate-react';
-import { Editor } from 'slate';
 import to from 'await-to-js';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -103,7 +101,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 import { getResizeObserverEntry, useResizeObserver } from '../../hooks/useResizeObserver';
 import * as css from './RoomTimeline.css';
 import { inSameDay, minuteDifference, timeDayMonthYear, today, yesterday } from '../../utils/time';
-import { createMentionElement, isEmptyEditor, moveCursor } from '../../components/editor';
+import { isEmptyEditor } from '../../components/editor';
 import { roomIdToReplyDraftAtomFamily } from '../../state/room/roomInputDrafts';
 import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
 import { GetContentCallback, MessageEvent, StateEvent } from '../../../types/matrix/room';
@@ -121,6 +119,7 @@ import cons from '../../../client/state/cons';
 import { useSwipeLeft } from '../../hooks/useSwipeLeft';
 import { clamp } from '../../utils/common';
 import { sendExteraProfile } from '../../../client/action/room';
+import { getText, translate } from '../../../lang';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
     ({ position, className, ...props }, ref) => (
@@ -234,7 +233,7 @@ type RoomTimelineProps = {
     room: Room;
     eventId?: string;
     roomInputRef: RefObject<HTMLElement>;
-    editor: Editor;
+    textAreaRef: RefObject<HTMLTextAreaElement>;
 };
 
 const PAGINATION_LIMIT = 80;
@@ -434,7 +433,7 @@ const getRoomUnreadInfo = (room: Room, scrollTo = false) => {
     };
 };
 
-export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimelineProps) {
+export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomTimelineProps) {
     const mx = useMatrixClient();
     const encryptedRoom = mx.isRoomEncrypted(room.roomId);
     const [messageLayout] = useSetting(settingsAtom, 'messageLayout');
@@ -750,7 +749,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                     isKeyHotkey('arrowup', evt) &&
                     editableActiveElement() &&
                     document.activeElement?.getAttribute('data-editable-name') === 'RoomInput' &&
-                    isEmptyEditor(editor)
+                    (document.activeElement as HTMLTextAreaElement).value?.length < 1
                 ) {
                     const editableEvt = getLatestEditableEvt(room.getLiveTimeline(), (mEvt) =>
                         canEditEvent(mx, mEvt)
@@ -760,7 +759,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                     setEditId(editableEvtId);
                 }
             },
-            [mx, room, editor]
+            [mx, room, textAreaRef]
         )
     );
 
@@ -915,18 +914,14 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                 console.warn('Button should have "data-user-id" attribute!');
                 return;
             }
-            const name = getMemberDisplayName(room, userId) ?? getMxIdLocalPart(userId) ?? userId;
-            editor.insertNode(
-                createMentionElement(
-                    userId,
-                    name.startsWith('@') ? name : `@${name}`,
-                    userId === mx.getUserId()
-                )
-            );
-            ReactEditor.focus(editor);
-            moveCursor(editor);
+            const ta = textAreaRef.current;
+            if (!ta) {
+                console.warn('textAreaRef does not have object assigned');
+                return;
+            }
+            ta.value += ` {${userId}}`;
         },
-        [mx, room, editor]
+        [mx, room, textAreaRef]
     );
 
     const handleReplyId = useCallback(
@@ -948,10 +943,11 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                     body,
                     formattedBody,
                 });
-                setTimeout(() => ReactEditor.focus(editor), 100);
+                // TODO focus
+                textAreaRef.current?.focus();
             }
         },
-        [room, setReplyDraft, editor]
+        [room, setReplyDraft, textAreaRef]
     );
 
     const handleReactionToggle = useCallback(
@@ -984,9 +980,8 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                 return;
             }
             setEditId(undefined);
-            ReactEditor.focus(editor);
         },
-        [editor]
+        [textAreaRef]
     );
 
     const { isTouchingSide, sideMoved, sideMovedInit, swipingId, onTouchStart, onTouchMove, onTouchEnd } = useSwipeLeft(handleReplyId);
@@ -1366,7 +1361,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
             [StateEvent.RoomName]: (mEventId, mEvent, item) => {
                 const highlighted = focusItem?.index === item && focusItem.highlight;
                 const senderId = mEvent.getSender() ?? '';
-                const senderName = getMemberDisplayName(room, senderId) || getMxIdLocalPart(senderId);
+                const senderName = getMemberDisplayName(room, senderId) || senderId;
 
                 const timeJSX = <Time ts={mEvent.getTs()} compact={messageLayout === 1} />;
 
@@ -1388,8 +1383,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                             content={
                                 <Box grow="Yes" direction="Column">
                                     <Text size="T300" priority="300">
-                                        <b>{senderName}</b>
-                                        {' changed room name'}
+                                        {translate('event.room_name', <b>{senderName}</b>)}
                                     </Text>
                                 </Box>
                             }
@@ -1400,7 +1394,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
             [StateEvent.RoomTopic]: (mEventId, mEvent, item) => {
                 const highlighted = focusItem?.index === item && focusItem.highlight;
                 const senderId = mEvent.getSender() ?? '';
-                const senderName = getMemberDisplayName(room, senderId) || getMxIdLocalPart(senderId);
+                const senderName = getMemberDisplayName(room, senderId) || senderId;
 
                 const timeJSX = <Time ts={mEvent.getTs()} compact={messageLayout === 1} />;
 
@@ -1422,8 +1416,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                             content={
                                 <Box grow="Yes" direction="Column">
                                     <Text size="T300" priority="300">
-                                        <b>{senderName}</b>
-                                        {' changed room topic'}
+                                        {translate('event.room_topic', <b>{senderName}</b>)}
                                     </Text>
                                 </Box>
                             }
@@ -1434,7 +1427,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
             [StateEvent.RoomAvatar]: (mEventId, mEvent, item) => {
                 const highlighted = focusItem?.index === item && focusItem.highlight;
                 const senderId = mEvent.getSender() ?? '';
-                const senderName = getMemberDisplayName(room, senderId) || getMxIdLocalPart(senderId);
+                const senderName = getMemberDisplayName(room, senderId) || senderId;
 
                 const timeJSX = <Time ts={mEvent.getTs()} compact={messageLayout === 1} />;
 
@@ -1456,8 +1449,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                             content={
                                 <Box grow="Yes" direction="Column">
                                     <Text size="T300" priority="300">
-                                        <b>{senderName}</b>
-                                        {' changed room avatar'}
+                                        {getText('event.room_avatar', <b>{senderName}</b>)}
                                     </Text>
                                 </Box>
                             }
@@ -1492,10 +1484,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                         content={
                             <Box grow="Yes" direction="Column">
                                 <Text size="T300" priority="300">
-                                    <b>{senderName}</b>
-                                    {' sent '}
-                                    <code className={customHtmlCss.Code}>{mEvent.getType()}</code>
-                                    {' state event'}
+                                    {translate('timeline.unknown_state_event', <b>{senderName}</b>, <code className={customHtmlCss.Code}>{mEvent.getType()}</code>)}
                                 </Text>
                             </Box>
                         }
@@ -1533,10 +1522,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                         content={
                             <Box grow="Yes" direction="Column">
                                 <Text size="T300" priority="300">
-                                    <b>{senderName}</b>
-                                    {' sent '}
-                                    <code className={customHtmlCss.Code}>{mEvent.getType()}</code>
-                                    {' event'}
+                                    {translate('timeline.unknown_event', <b>{senderName}</b>, <code className={customHtmlCss.Code}>{mEvent.getType()}</code>)}
                                 </Text>
                             </Box>
                         }
@@ -1594,7 +1580,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                 <MessageBase space={messageSpacing}>
                     <TimelineDivider style={{ color: color.Success.Main }} variant="Inherit">
                         <Badge as="span" size="500" variant="Success" fill="Solid" radii="300">
-                            <Text size="L400">New Messages</Text>
+                            <Text size="L400">{getText('timeline.new_messages_divider')}</Text>
                         </Badge>
                     </TimelineDivider>
                 </MessageBase>
@@ -1607,8 +1593,8 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                         <Badge as="span" size="500" variant="Secondary" fill="None" radii="300">
                             <Text size="L400">
                                 {(() => {
-                                    if (today(mEvent.getTs())) return 'Today';
-                                    if (yesterday(mEvent.getTs())) return 'Yesterday';
+                                    if (today(mEvent.getTs())) return getText('timeline.today_divider');
+                                    if (yesterday(mEvent.getTs())) return getText('timeline.yesterday_divider');
                                     return timeDayMonthYear(mEvent.getTs());
                                 })()}
                             </Text>
@@ -1644,7 +1630,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                         before={<Icon size="50" src={Icons.MessageUnread} />}
                         onClick={handleJumpToUnread}
                     >
-                        <Text size="L400">Jump to Unread</Text>
+                        <Text size="L400">{getText('btn.timeline.jump_to_unread')}</Text>
                     </Chip>
 
                     <Chip
@@ -1654,7 +1640,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                         before={<Icon size="50" src={Icons.CheckTwice} />}
                         onClick={handleMarkAsRead}
                     >
-                        <Text size="L400">Mark as Read</Text>
+                        <Text size="L400">{getText('btn.timeline.mark_as_read')}</Text>
                     </Chip>
                 </TimelineFloat>
             )}
@@ -1721,7 +1707,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
                         before={<Icon size="50" src={Icons.ArrowBottom} />}
                         onClick={handleJumpToLatest}
                     >
-                        <Text size="L400">Jump to Latest</Text>
+                        <Text size="L400">{getText('btn.timeline.jump_to_latest')}</Text>
                     </Chip>
                 </TimelineFloat>
             )}

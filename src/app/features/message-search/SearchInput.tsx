@@ -1,5 +1,6 @@
 import React, { FormEventHandler, RefObject } from 'react';
 import { Box, Text, Input, Icon, Icons, Spinner, Chip, config } from 'folds';
+import { getText } from '../../../lang';
 
 type SearchProps = {
   active?: boolean;
@@ -24,14 +25,14 @@ export function SearchInput({ active, loading, searchInputRef, onSearch, onReset
   return (
     <Box as="form" direction="Column" gap="100" onSubmit={handleSearchSubmit}>
       <span data-spacing-node />
-      <Text size="L400">Search</Text>
+      <Text size="L400">{getText('search_input.header')}</Text>
       <Input
         ref={searchInputRef}
         style={{ paddingRight: config.space.S300 }}
         name="searchInput"
         size="500"
         variant="Background"
-        placeholder="Search for keyword"
+        placeholder={getText('placeholder.search_input')}
         autoComplete="off"
         before={
           active && loading ? (
@@ -52,11 +53,11 @@ export function SearchInput({ active, loading, searchInputRef, onSearch, onReset
               after={<Icon size="50" src={Icons.Cross} />}
               onClick={onReset}
             >
-              <Text size="B300">Clear</Text>
+              <Text size="B300">{getText('btn.search.clear')}</Text>
             </Chip>
           ) : (
             <Chip type="submit" variant="Primary" size="400" radii="Pill" outlined>
-              <Text size="B300">Enter</Text>
+              <Text size="B300">{getText('search_input.clear')}</Text>
             </Chip>
           )
         }
