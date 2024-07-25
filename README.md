@@ -11,5 +11,8 @@ This is a fork of Cinny with some improvements and new features:
 - Ghost mode (Disable read receipts and typing status)
 - Set presence status and status message
 - Render presence status and status message in DM and members drawer
+- Hidden chats
+- Multiple languages support (English and Russian only atm)
+- Chat backgrounds
 
 -# Based on Cinny
