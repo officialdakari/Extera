@@ -15,6 +15,7 @@ import ImagePackUsageSelector from './ImagePackUsageSelector';
 import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
 import PencilIC from '../../../../public/res/ic/outlined/pencil.svg';
 import BinIC from '../../../../public/res/ic/outlined/bin.svg';
+import { getText } from '../../../lang';
 
 function ImagePackItem({
   url, shortcode, usage, onUsageChange, onDelete, onRename,

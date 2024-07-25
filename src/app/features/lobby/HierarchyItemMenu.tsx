@@ -64,8 +64,8 @@ function SuggestMenuItem({
             before={toggleState.status === AsyncStatus.Loading && <Spinner size="100" />}
             disabled={toggleState.status === AsyncStatus.Loading}
         >
-            <Text as="span" size="T300" truncate>
-                {getText(content.suggested, 'btn.space_lobby.unsuggest', 'btn.space_lobby.suggest')}
+            <Text as="span" size="T300">
+                {getText(content.suggested ? 'btn.space_lobby.unsuggest' : 'btn.space_lobby.suggest')}
             </Text>
         </MenuItem>
     );

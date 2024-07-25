@@ -228,7 +228,7 @@ function DeviceManage() {
                             rounded
                             variant="primary"
                             iconSrc={InfoIC}
-                            title={"device_manage.verify.title"}
+                            title={getText('device_manage.verify.title')}
                         />
                     </div>
                 )}

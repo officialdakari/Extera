@@ -61,6 +61,7 @@ import colorMXID from '../../../util/colorMXID';
 // THIS FUNCTION
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
+import { disablePush, enablePush } from '../../../push';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
@@ -433,6 +434,7 @@ function ExteraSection() {
 
 function NotificationsSection() {
     const [permission, setPermission] = usePermission('notifications', window.Notification?.permission);
+    const [pushes, setPushes] = useSetting(settingsAtom, 'pushesEnabled');
 
     const [, updateState] = useState({});
 
@@ -464,6 +466,18 @@ function NotificationsSection() {
         );
     };
 
+    const togglePushes = () => {
+        if (!pushes) {
+            enablePush();
+            console.log('enabled push');
+            setPushes(true);
+        } else {
+            disablePush();
+            console.log('disabled push');
+            setPushes(false);
+        }
+    };
+
     return (
         <>
             <div className="settings-notifications">
@@ -482,6 +496,15 @@ function NotificationsSection() {
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.notification_sound.desc')}</Text>}
+                />
+                <SettingTile
+                    title='Push Notifications'
+                    options={(
+                        <Toggle
+                            isActive={pushes}
+                            onToggle={() => { togglePushes(); }}
+                        />
+                    )}
                 />
             </div>
             <GlobalNotification />

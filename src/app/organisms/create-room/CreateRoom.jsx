@@ -133,12 +133,12 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
         'create_room.join_rule.short.private',
         'create_room.join_rule.short.restricted',
         'create_room.join_rule.short.public'
-    ].map(s => getText(getText));
+    ].map(s => getText(s));
     const joinRuleText = [
         'create_room.join_rule.private',
         'create_room.join_rule.restricted',
         'create_room.join_rule.public'
-    ].map(s => getText(getText));
+    ].map(s => getText(s));
     const jrRoomIC = [HashLockIC, HashIC, HashGlobeIC];
     const jrSpaceIC = [SpaceLockIC, SpaceIC, SpaceGlobeIC];
     const handleJoinRule = (evt) => {
@@ -316,9 +316,9 @@ function CreateRoom() {
             isOpen={create !== null}
             title={
                 <Text variant="s1" weight="medium" primary>
-                    {parentId ? room.name : 'Home'}
+                    {parentId ? room.name : getText('home.title')}
                     <span style={{ color: 'var(--tc-surface-low)' }}>
-                        {` — create ${isSpace ? 'space' : 'room'}`}
+                        {getText('create.title', getText(isSpace ? 'create.title.space' : 'create.title.room'))}
                     </span>
                 </Text>
             }

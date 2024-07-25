@@ -450,6 +450,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
     const { canDoAction, canSendEvent, getPowerLevel } = usePowerLevelsAPI(powerLevels);
     const myPowerLevel = getPowerLevel(mx.getUserId() ?? '');
     const canRedact = canDoAction('redact', myPowerLevel);
+    const canPin = canSendEvent(StateEvent.RoomPinnedEvents, myPowerLevel);
     const canSendReaction = canSendEvent(MessageEvent.Reaction, myPowerLevel);
     const [editId, setEditId] = useState<string>();
     const [hideTgAds] = useSetting(settingsAtom, 'extera_hideTgAds');
@@ -1037,6 +1038,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         highlight={highlighted}
                         edit={editId === mEventId}
                         canDelete={canRedact || mEvent.getSender() === mx.getUserId()}
+                        canPin={canPin}
                         canSendReaction={canSendReaction}
                         imagePackRooms={imagePackRooms}
                         relations={hasReactions ? reactionRelations : undefined}
@@ -1113,6 +1115,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         highlight={highlighted}
                         edit={editId === mEventId}
                         canDelete={canRedact || mEvent.getSender() === mx.getUserId()}
+                        canPin={canPin}
                         canSendReaction={canSendReaction}
                         imagePackRooms={imagePackRooms}
                         relations={hasReactions ? reactionRelations : undefined}
@@ -1226,6 +1229,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         collapse={collapse}
                         highlight={highlighted}
                         canDelete={canRedact || mEvent.getSender() === mx.getUserId()}
+                        canPin={canPin}
                         canSendReaction={canSendReaction}
                         imagePackRooms={imagePackRooms}
                         relations={hasReactions ? reactionRelations : undefined}
@@ -1287,6 +1291,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         collapse={collapse}
                         highlight={highlighted}
                         canDelete={canRedact || mEvent.getSender() === mx.getUserId()}
+                        canPin={canPin}
                         canSendReaction={canSendReaction}
                         imagePackRooms={imagePackRooms}
                         relations={hasReactions ? reactionRelations : undefined}
@@ -1342,6 +1347,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         highlight={highlighted}
                         messageSpacing={messageSpacing}
                         canDelete={canRedact || mEvent.getSender() === mx.getUserId()}
+                        canPin={canPin}
                     >
                         <EventContent
                             messageLayout={messageLayout}

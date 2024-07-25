@@ -34,7 +34,7 @@ import React, {
 } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { useHover, useFocusWithin } from 'react-aria';
-import { MatrixEvent, Room } from 'matrix-js-sdk';
+import { EventTimeline, MatrixEvent, Room } from 'matrix-js-sdk';
 import { Relations } from 'matrix-js-sdk/lib/models/relations';
 import classNames from 'classnames';
 import {
@@ -324,6 +324,61 @@ export const MessageSourceCodeItem = as<
     );
 });
 
+export const MessagePinItem = as<
+    'button',
+    {
+        room: Room;
+        mEvent: MatrixEvent;
+        onClose?: () => void;
+    }
+>(({ room, mEvent, onClose, ...props }, ref) => {
+    const mx = useMatrixClient();
+    const timeline = room.getLiveTimeline();
+    const state = timeline.getState(EventTimeline.FORWARDS);
+    const eventId = mEvent.getId();
+    const pinnedEvents = state?.getStateEvents('m.room.pinned_events');
+    var isPinned = false;
+    var pinned: string[] = [];
+
+    if (pinnedEvents && pinnedEvents.length > 0 && typeof eventId === 'string') {
+        pinned = pinnedEvents[pinnedEvents.length - 1].getContent().pinned;
+        isPinned = pinned.includes(eventId);
+    }
+
+    const handlePin = async () => {
+        if (onClose) onClose();
+        if (!eventId) return;
+        pinned.push(eventId);
+        await mx.sendStateEvent(room.roomId, 'm.room.pinned_events', {
+            pinned
+        });
+    };
+
+    const handleUnpin = async () => {
+        if (onClose) onClose();
+        if (!eventId) return;
+        pinned = pinned.filter(x => x !== eventId);
+        await mx.sendStateEvent(room.roomId, 'm.room.pinned_events', {
+            pinned
+        });
+    };
+
+    return (
+        <MenuItem
+            size="300"
+            after={<Icon size="100" src={Icons.Pin} />}
+            radii="300"
+            {...props}
+            ref={ref}
+            onClick={isPinned ? handleUnpin : handlePin}
+        >
+            <Text className={css.MessageMenuItemText} as="span" size="T300">
+                {getText(isPinned ? 'msg_menu.unpin' : 'msg_menu.pin')}
+            </Text>
+        </MenuItem>
+    );
+});
+
 export const MessageRecoverItem = as<
     'button',
     {
@@ -471,9 +526,32 @@ export const MessageRecoverItem = as<
         <>
             <Overlay open={open} backdrop={<OverlayBackdrop />}>
                 <OverlayCenter>
-                    <Modal variant="Surface" size="500">
-                        {message}
-                    </Modal>
+                    <FocusTrap
+                        focusTrapOptions={{
+                            initialFocus: false,
+                            onDeactivate: handleClose,
+                            clickOutsideDeactivates: true
+                        }}
+                    >
+                        <Modal variant="Surface" size="500">
+                            <Header
+                                style={{
+                                    padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
+                                    borderBottomWidth: config.borderWidth.B300,
+                                }}
+                                variant="Surface"
+                                size="500"
+                            >
+                                <Box grow="Yes">
+                                    <Text size="H4">{getText('recovered.title')}</Text>
+                                </Box>
+                                <IconButton size="300" onClick={handleClose} radii="300">
+                                    <Icon src={Icons.Cross} />
+                                </IconButton>
+                            </Header>
+                            {message}
+                        </Modal>
+                    </FocusTrap>
                 </OverlayCenter>
             </Overlay>
             <MenuItem
@@ -805,6 +883,7 @@ export type MessageProps = {
     highlight: boolean;
     edit?: boolean;
     canDelete?: boolean;
+    canPin?: boolean;
     canSendReaction?: boolean;
     imagePackRooms?: Room[];
     relations?: Relations;
@@ -828,6 +907,7 @@ export const Message = as<'div', MessageProps>(
             highlight,
             edit,
             canDelete,
+            canPin,
             canSendReaction,
             imagePackRooms,
             relations,
@@ -1224,6 +1304,9 @@ export const Message = as<'div', MessageProps>(
                                                         onClose={closeMenu}
                                                     />
                                                     <MessageSourceCodeItem room={room} mEvent={mEvent} onClose={closeMenu} />
+                                                    {
+                                                        canPin && <MessagePinItem room={room} mEvent={mEvent} onClose={closeMenu} />
+                                                    }
                                                     <MessageCopyLinkItem room={room} mEvent={mEvent} onClose={closeMenu} />
                                                     {
                                                         mEvent.isRedacted() && <MessageRecoverItem room={room} mEvent={mEvent} onClose={closeMenu} />

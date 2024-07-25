@@ -32,7 +32,6 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
     const powerLevels = usePowerLevelsContext();
     const [wallpaperURL] = useSetting(settingsAtom, 'extera_wallpaper');
     const { getPowerLevel, canSendEvent } = usePowerLevelsAPI(powerLevels);
-    const hiddenRoomsRef = useRef(null);
     const myUserId = mx.getUserId();
     const canMessage = myUserId
         ? canSendEvent(EventType.RoomMessage, getPowerLevel(myUserId))
@@ -45,6 +44,13 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
             backgroundImage: `url(${mx.mxcUrlToHttp(wallpaperURL)})`,
             backgroundSize: 'cover'
         };
+    }
+
+    if (navigator.serviceWorker) {
+        navigator.serviceWorker.ready.then((registration) => {
+            if (registration.active)
+                registration.active.postMessage({ action: 'closeNotification', room_id: roomId });
+        });
     }
 
     return (

@@ -34,9 +34,7 @@ export interface Settings {
     extera_status: number;
     extera_status_message: string;
     extera_wallpaper: string | null;
-    extera_chatHideKeyword: string;
-    extera_chatShowKeyword: string;
-    extera_hiddenChatsKeyword: string;
+    pushesEnabled: boolean;
 }
 
 const defaultSettings: Settings = {
@@ -69,9 +67,7 @@ const defaultSettings: Settings = {
     extera_status: 0,
     extera_status_message: 'Hello! I am using Extera.',
     extera_wallpaper: null,
-    extera_chatHideKeyword: 'bikin keliatan',
-    extera_chatShowKeyword: 'bikin kagak keliatan',
-    extera_hiddenChatsKeyword: 'tunjukin ke gue yang kagak keliatan'
+    pushesEnabled: false
 };
 
 export const getSettings = () => {
