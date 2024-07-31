@@ -52,6 +52,9 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
         onPaste,
         textAreaRef
     }, ref) => {
+        const updateRows = (target: HTMLTextAreaElement) => {
+            target.rows = target.value.split('\n').length;
+        };
         const handleChange = (evt: ChangeEvent<HTMLTextAreaElement>) => {
             const previousText = evt.target.dataset.previousText ?? '';
             var newText = evt.target.value;
@@ -72,6 +75,9 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
             }
             evt.target.value = newText;
             evt.target.dataset.previousText = newText;
+            updateRows(evt.target);
+            if (onChange)
+                onChange(newText);
         };
         return (
             <div ref={ref} className={css.Editor}>
@@ -93,9 +99,10 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
                         <textarea
                             className={css.EditorTextarea}
                             ref={textAreaRef}
+                            rows={1}
                             style={{ maxHeight }}
-                            onKeyDown={onKeyDown}
-                            onKeyUp={onKeyUp}
+                            onKeyDown={(evt) => { updateRows(evt.currentTarget); if (onKeyDown) onKeyDown(evt); }}
+                            onKeyUp={(evt) => { updateRows(evt.currentTarget); if (onKeyUp) onKeyUp(evt); }}
                             onPaste={onPaste}
                             placeholder={placeholder}
                             onChange={handleChange}

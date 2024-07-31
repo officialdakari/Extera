@@ -146,7 +146,7 @@ function AppearanceSection() {
                                 { text: 'Silver' },
                                 { text: 'Dark' },
                                 { text: 'Butter' },
-                                { text: 'Extera Dark' },
+                                { text: 'Purple Dark' },
                             ]}
                             onSelect={(index) => {
                                 if (settings.useSystemTheme) toggleSystemTheme();
@@ -324,7 +324,7 @@ function PresenceSection() {
     return <div className="settings-presence settings-presence__card">
         <MenuHeader>{getText('settings.status.title')}</MenuHeader>
         <SettingTile
-            title="Presence Status"
+            title={getText('settings.presence.title')}
             content={(
                 <SegmentedControls
                     selected={status}
@@ -563,10 +563,10 @@ function AboutSection() {
             <div className="settings-about__card">
                 <MenuHeader>Application</MenuHeader>
                 <div className="settings-about__branding">
-                    <img width="60" height="60" src={CinnySVG} alt="Extera logo" />
+                    <img width="60" height="60" src={CinnySVG} alt="Client logo" />
                     <div>
                         <Text variant="h2" weight="medium">
-                            Extera
+                            {cons.name}
                             <span className="text text-b3" style={{ margin: '0 var(--sp-extra-tight)' }}>{`v${cons.version}`}</span>
                         </Text>
                         <Text>Fork of Cinny</Text>

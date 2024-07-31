@@ -1,3 +1,4 @@
+import { removeNotifications } from '../../app/utils/notifications';
 import initMatrix from '../initMatrix';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -5,6 +6,8 @@ export async function markAsRead(roomId) {
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(roomId);
     if (!room) return;
+
+    removeNotifications(roomId);
 
     const timeline = room.getLiveTimeline().getEvents();
     const readEventId = room.getEventReadUpTo(mx.getUserId());

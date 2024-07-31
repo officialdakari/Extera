@@ -44,6 +44,7 @@ import { ConfirmPasswordMatch } from '../../../components/ConfirmPasswordMatch';
 import { UIAFlowOverlay } from '../../../components/UIAFlowOverlay';
 import { RequestEmailTokenCallback, RequestEmailTokenResponse } from '../../../hooks/types';
 import { getText } from '../../../../lang';
+import cons from '../../../../client/state/cons';
 
 export const SUPPORTED_REGISTER_STAGES = [
     AuthType.RegistrationToken,
@@ -110,7 +111,7 @@ function RegisterUIAFlow({
                 auth: authDict,
                 password,
                 username,
-                initial_device_display_name: 'Extera Web',
+                initial_device_display_name: `${cons.name} Web`,
             });
         },
         [onRegister, formData]
@@ -251,7 +252,7 @@ export function PasswordRegisterForm({
             auth: {
                 session: authData.session,
             },
-            initial_device_display_name: 'Extera Web',
+            initial_device_display_name: `${cons.name} Web`,
         });
     };
 

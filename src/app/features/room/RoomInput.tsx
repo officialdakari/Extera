@@ -132,9 +132,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const [replyDraft, setReplyDraft] = useAtom(roomIdToReplyDraftAtomFamily(roomId));
         const [uploadBoard, setUploadBoard] = useState(true);
         const [selectedFiles, setSelectedFiles] = useAtom(roomIdToUploadItemsAtomFamily(roomId));
-        const [hideKeyword] = useSetting(settingsAtom, 'extera_chatHideKeyword');
-        const [showKeyword] = useSetting(settingsAtom, 'extera_chatShowKeyword');
-        const [showHiddenKeyword] = useSetting(settingsAtom, 'extera_hiddenChatsKeyword');
         const uploadFamilyObserverAtom = createUploadFamilyObserverAtom(
             roomUploadAtomFamily,
             selectedFiles.map((f) => f.file)
@@ -218,7 +215,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             handleRemoveUpload(uploads.map((upload) => upload.file));
         };
 
-        const handleSendUpload = async (uploads: UploadSuccess[]) => {
+        const sendFiles = async (uploads: UploadSuccess[]) => {
             const contentsPromises = uploads.map(async (upload) => {
                 const fileItem = selectedFiles.find((f) => f.file === upload.file);
                 if (!fileItem) throw new Error('Broken upload');
@@ -236,13 +233,14 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             });
             handleCancelUpload(uploads);
             const contents = fulfilledPromiseSettledResult(await Promise.allSettled(contentsPromises));
-            if (sending) {
+            return contents;
+        };
 
-            } else {
-                contents.forEach((content) => {
-                    mx.sendMessage(roomId, content);
-                });
-            }
+        const handleSendUpload = async (uploads: UploadSuccess[]) => {
+            const contents = await sendFiles(uploads);
+            contents.forEach((content) => {
+                mx.sendMessage(roomId, content);
+            });
         };
 
         const dontHideKeyboard = useCallback((evt?: MouseEvent) => {
@@ -262,7 +260,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             return content.displayname || mxId;
         };
 
-        const submit = useCallback((evt?: MouseEvent) => {
+        const submit = useCallback(async () => {
             const ta = textAreaRef.current;
             if (!ta) return;
             uploadBoardHandlers.current?.handleSend();
@@ -358,7 +356,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             (evt) => {
                 if (isKeyHotkey('mod+enter', evt) || (!enterForNewline && isKeyHotkey('enter', evt))) {
                     evt.preventDefault();
-                    submit(undefined);
+                    submit();
                 }
                 if (isKeyHotkey('escape', evt)) {
                     evt.preventDefault();

@@ -57,7 +57,6 @@ export type ImageContentProps = {
     autoPlay?: boolean;
     renderViewer: (props: RenderViewerProps) => ReactNode;
     renderImage: (props: RenderImageProps) => ReactNode;
-    htmlReactParserOptions: HTMLReactParserOptions;
 };
 export const ImageContent = as<'div', ImageContentProps>(
     (
@@ -74,7 +73,6 @@ export const ImageContent = as<'div', ImageContentProps>(
             autoPlay,
             renderViewer,
             renderImage,
-            htmlReactParserOptions,
             ...props
         },
         ref

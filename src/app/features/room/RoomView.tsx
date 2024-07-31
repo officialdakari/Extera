@@ -18,6 +18,7 @@ import { RoomViewHeader } from './RoomViewHeader';
 import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import HiddenRooms from '../../organisms/hidden-rooms/HiddenRooms';
+import { sendExteraProfile } from '../../../client/action/room';
 
 export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
     const roomInputRef = useRef(null);
@@ -46,12 +47,7 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
         };
     }
 
-    if (navigator.serviceWorker) {
-        navigator.serviceWorker.ready.then((registration) => {
-            if (registration.active)
-                registration.active.postMessage({ action: 'closeNotification', room_id: roomId });
-        });
-    }
+    sendExteraProfile(roomId);
 
     return (
         <Page ref={roomViewRef} style={style}>

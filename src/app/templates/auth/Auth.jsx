@@ -564,7 +564,7 @@ function Auth() {
                             <Header>
                                 <Avatar size="extra-small" imageSrc={CinnySvg} />
                                 <TitleWrapper>
-                                    <Text variant="h2" weight="medium">Extera</Text>
+                                    <Text variant="h2" weight="medium">{cons.name}</Text>
                                 </TitleWrapper>
                             </Header>
                             <div className="auth-card__content">

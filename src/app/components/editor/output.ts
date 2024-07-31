@@ -21,25 +21,6 @@ const ignoreHTMLParseInlineMD = (text: string): string =>
         (txt) => parseInlineMD(txt)
     ).join('');
 
-export const markdownToHTML = (
-    content: string
-): string => {
-    const converter = new Marked(
-        {
-            breaks: true
-        }
-    );
-    // doesnt support underline and extension system is buggy
-    const result = converter.parseInline(
-        content
-        .replaceAll(/__(.*?)__(?!_)/g, (m: string, g: string) => `<u>${g}</u>`)
-        .replaceAll(/\|\|(.*?)\|\|(?!\|)/g, (m: string, g: string) => `<span data-mx-spoiler>${g}</data>`), 
-        { async: false }
-    ) as string;
-    console.log(content, result);
-    return result;
-};
-
 export const emojiRegexp = /{:([a-zA-Z0-9\-_\.]+):(mxc:\/\/[a-z0-9\.\-]+\.[a-z]{2,}\/[a-zA-Z0-9_\-]+):}/g;
 export const userMentionRegexp = /{(@[a-zA-Z0-9\._=\-]+:[a-z0-9\.\-]+\.[a-z]{2,})}/gi;
 export const roomMentionRegexp = /{([^\|]+)\|([#!][A-Za-z0-9\._%#\+\-]+:[a-z0-9\.\-]+\.[a-z]{2,})}/gi;
@@ -51,8 +32,11 @@ export const toMatrixCustomHTML = (
     content: string,
     getDisplayName: any
 ): string => {
-    return markdownToHTML(content.replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;'))
+    return parseBlockMD(
+        content.replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;'),
+            parseInlineMD
+    )
         .replaceAll(emojiRegexp, (match: string, shortcode: string, mxc: string) => `<img data-mx-emoticon height="32" src="${mxc}" alt=":${shortcode}:" title=":${shortcode}:">`)
         .replaceAll(userMentionRegexp, (match: string, mxId: string) => `<a href="https://matrix.to/#/${mxId}">@${getDisplayName(mxId)}</a>`)
         .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => `<a href="https://matrix.to/#/${id}">#${name}</a>`);
@@ -67,7 +51,7 @@ export const toPlainText = (content: string, getDisplayName: any): string => {
 
 type Mentions = {
     user_ids: string[];
-    room: boolean;
+    room?: boolean;
 };
 
 export const getMentions = (content: string): Mentions => {
@@ -78,9 +62,10 @@ export const getMentions = (content: string): Mentions => {
             user_ids.push(match[1]);
         }
     }
-    const room = /\b@room\b/g.test(content);
+    // TODO Implement @room checking
+    //const room = /{@room}/g.test(content);
     return {
-        user_ids, room
+        user_ids //, room
     };
 };
 

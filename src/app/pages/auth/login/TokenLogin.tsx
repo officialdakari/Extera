@@ -16,6 +16,7 @@ import { useAutoDiscoveryInfo } from '../../../hooks/useAutoDiscoveryInfo';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { CustomLoginResponse, LoginError, login, useLoginComplete } from './loginUtil';
 import { getText } from '../../../../lang';
+import cons from '../../../../client/state/cons';
 
 function LoginTokenError({ message }: { message: string }) {
     return (
@@ -58,7 +59,7 @@ export function TokenLogin({ token }: TokenLoginProps) {
         startLogin(baseUrl, {
             type: 'm.login.token',
             token,
-            initial_device_display_name: 'Extera Web',
+            initial_device_display_name: `${cons.name} Web`,
         });
     }, [baseUrl, token, startLogin]);
 

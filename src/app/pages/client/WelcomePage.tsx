@@ -16,7 +16,7 @@ export function WelcomePage() {
             >
                 <PageHeroSection>
                     <PageHero
-                        icon={<img width="70" height="70" src={CinnySVG} alt="Extera Logo" />}
+                        icon={<img width="70" height="70" src={CinnySVG} alt="Client Logo" />}
                         title={getText('welcome')}
                         subTitle={
                             <span>

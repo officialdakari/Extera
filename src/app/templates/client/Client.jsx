@@ -123,7 +123,7 @@ function Client() {
 
                 <div className="loading__appname">
                     <Text variant="h2" weight="medium">
-                        Extera
+                        {cons.name}
                     </Text>
                 </div>
             </div>

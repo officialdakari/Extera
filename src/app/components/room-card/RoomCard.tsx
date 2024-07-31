@@ -32,7 +32,6 @@ import { useJoinedRoomId } from '../../hooks/useJoinedRoomId';
 import { useElementSizeObserver } from '../../hooks/useElementSizeObserver';
 import { getRoomAvatarUrl, getStateEvent } from '../../utils/room';
 import { useStateEventCallback } from '../../hooks/useStateEventCallback';
-import { sendExteraProfile } from '../../../client/action/room';
 import { getText } from '../../../lang';
 
 type GridColumnCount = '1' | '2' | '3';

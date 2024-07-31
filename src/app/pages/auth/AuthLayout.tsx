@@ -30,6 +30,7 @@ import { AuthFlowsLoader } from '../../components/AuthFlowsLoader';
 import { AuthFlowsProvider } from '../../hooks/useAuthFlows';
 import { AuthServerProvider } from '../../hooks/useAuthServer';
 import { getText } from '../../../lang';
+import cons from '../../../client/state/cons';
 
 const currentAuthPath = (pathname: string): string => {
     if (matchPath(LOGIN_PATH, pathname)) {
@@ -134,8 +135,8 @@ export function AuthLayout() {
                 <Box direction="Column" className={css.AuthCard}>
                     <Header className={css.AuthHeader} size="600" variant="Surface">
                         <Box grow="Yes" direction="Row" gap="300" alignItems="Center">
-                            <img className={css.AuthLogo} src={CinnySVG} alt="Extera Logo" />
-                            <Text size="H3">Extera</Text>
+                            <img className={css.AuthLogo} src={CinnySVG} alt="Client Logo" />
+                            <Text size="H3">{cons.name}</Text>
                         </Box>
                     </Header>
                     <Box className={css.AuthCardContent} direction="Column">

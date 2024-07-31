@@ -68,7 +68,7 @@ export const RoomIntro = as<'div', RoomIntroProps>(({ room, ...props }, ref) => 
                     </Text>
                     {creatorName && ts && (
                         <Text size="T200" priority="300">
-                            {translate('room_intro.2', 'Created by ', <b>@{creatorName}</b>, `${timeDayMonthYear(ts)} ${timeHourMinute(ts)}`)}
+                            {translate('room_intro.2', <b>@{creatorName}</b>, `${timeDayMonthYear(ts)} ${timeHourMinute(ts)}`)}
                         </Text>
                     )}
                 </Box>

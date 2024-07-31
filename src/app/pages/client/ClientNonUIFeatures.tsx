@@ -26,6 +26,10 @@ import { getMxIdLocalPart } from '../../utils/matrix';
 import { useSelectedRoom } from '../../hooks/router/useSelectedRoom';
 import { useInboxNotificationsSelected } from '../../hooks/router/useInbox';
 import { enablePush } from '../../../push';
+import { parse } from 'url';
+import { openJoinAlias, openProfileViewer } from '../../../client/action/navigation';
+import { useRoomNavigate } from '../../hooks/useRoomNavigate';
+import initMatrix from '../../../client/initMatrix';
 
 function FaviconUpdater() {
     const roomToUnread = useAtomValue(roomToUnreadAtom);
@@ -232,12 +236,57 @@ type ClientNonUIFeaturesProps = {
 
 export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
     const [pushes] = useSetting(settingsAtom, 'pushesEnabled');
+    const roomId = useSelectedRoom();
+    const mx = initMatrix.matrixClient;
+    const { navigateRoom } = useRoomNavigate();
+
+    useEffect(() => {
+        const clickHandler = async (ev: any) => {
+            if (ev.target.tagName.toLowerCase() === 'a' || ev.target.tagName.toLowerCase() === 'span') {
+                const href = ev.target.getAttribute('data-mention-href') ?? ev.target.getAttribute('href');
+                if (!href) return;
+                const url = parse(href as string);
+                console.log(url);
+                if (url.hostname === 'matrix.to' && typeof url.hash === 'string' && url.hash.length > 3) {
+                    ev.preventDefault();
+                    const [id, evId] = url.hash.slice(2).split('?')[0].split('/');
+                    console.log(id, evId);
+                    const type = id[0];
+                    console.log(type, id);
+                    if (type == '@') {
+                        openProfileViewer(id, roomId);
+                    } else if ((type == '!' || type == '#') && typeof evId === 'string') {
+                        var roomId;
+                        if (type == '!') {
+                            roomId = id;
+                        } else if (type == '#') {
+                            const a = await mx?.getRoomIdForAlias(id);
+                            if (typeof a?.room_id === 'string') roomId = a.room_id;
+                        }
+                        if (typeof roomId === 'string')
+                            navigateRoom(id, evId);
+                    } else if (type == '#') {
+                        openJoinAlias(id);
+                    }
+                }
+            }
+        };
+        addEventListener('click', clickHandler);
+        return () => {
+            removeEventListener('click', clickHandler);
+        };
+    }, []);
 
     return (
         <>
             <FaviconUpdater />
-            <InviteNotifications />
-            {!pushes && <MessageNotifications />}
+
+            {!pushes && (
+                <>
+                    <MessageNotifications />
+                    <InviteNotifications />
+                </>
+            )}
             {children}
         </>
     );

@@ -14,31 +14,31 @@ import { ScreenSizeProvider, useScreenSize } from '../hooks/useScreenSize';
 const queryClient = new QueryClient();
 
 function App() {
-  const screenSize = useScreenSize();
+    const screenSize = useScreenSize();
 
-  return (
-    <ScreenSizeProvider value={screenSize}>
-      <FeatureCheck>
-        <ClientConfigLoader
-          fallback={() => <ConfigConfigLoading />}
-          error={(err, retry, ignore) => (
-            <ConfigConfigError error={err} retry={retry} ignore={ignore} />
-          )}
-        >
-          {(clientConfig) => (
-            <ClientConfigProvider value={clientConfig}>
-              <QueryClientProvider client={queryClient}>
-                <JotaiProvider>
-                  <RouterProvider router={createRouter(clientConfig, screenSize)} />
-                </JotaiProvider>
-                <ReactQueryDevtools initialIsOpen={false} />
-              </QueryClientProvider>
-            </ClientConfigProvider>
-          )}
-        </ClientConfigLoader>
-      </FeatureCheck>
-    </ScreenSizeProvider>
-  );
+    return (
+        <ScreenSizeProvider value={screenSize}>
+            <FeatureCheck>
+                <ClientConfigLoader
+                    fallback={() => <ConfigConfigLoading />}
+                    error={(err, retry, ignore) => (
+                        <ConfigConfigError error={err} retry={retry} ignore={ignore} />
+                    )}
+                >
+                    {(clientConfig) => (
+                        <ClientConfigProvider value={clientConfig}>
+                            <QueryClientProvider client={queryClient}>
+                                <JotaiProvider>
+                                    <RouterProvider router={createRouter(clientConfig, screenSize)} />
+                                </JotaiProvider>
+                                <ReactQueryDevtools initialIsOpen={false} />
+                            </QueryClientProvider>
+                        </ClientConfigProvider>
+                    )}
+                </ClientConfigLoader>
+            </FeatureCheck>
+        </ScreenSizeProvider>
+    );
 }
 
 export default App;

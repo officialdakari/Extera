@@ -114,11 +114,9 @@ import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { useRoomUnread } from '../../state/hooks/unread';
 import { roomToUnreadAtom } from '../../state/room/roomToUnread';
-import initMatrix from '../../../client/initMatrix';
-import cons from '../../../client/state/cons';
 import { useSwipeLeft } from '../../hooks/useSwipeLeft';
 import { clamp } from '../../utils/common';
-import { sendExteraProfile } from '../../../client/action/room';
+import { parse } from 'url';
 import { getText, translate } from '../../../lang';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
@@ -459,8 +457,6 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
     const { navigateRoom, navigateSpace } = useRoomNavigate();
     const roomToParents = useAtomValue(roomToParentsAtom);
     const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
-
-    sendExteraProfile(room.roomId);
 
     const imagePackRooms: Room[] = useMemo(() => {
         const allParentSpaces = [room.roomId].concat(
@@ -1165,7 +1161,6 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                                                 <ImageContent
                                                     {...props}
                                                     autoPlay={mediaAutoLoad}
-                                                    htmlReactParserOptions={htmlReactParserOptions}
                                                     renderImage={(p) => <Image {...p} loading="lazy" />}
                                                     renderViewer={(p) => <ImageViewer {...p} />}
                                                 />
@@ -1263,7 +1258,6 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                                     <ImageContent
                                         {...props}
                                         autoPlay={mediaAutoLoad}
-                                        htmlReactParserOptions={htmlReactParserOptions}
                                         renderImage={(p) => <Image {...p} loading="lazy" />}
                                         renderViewer={(p) => <ImageViewer {...p} />}
                                     />
@@ -1347,7 +1341,6 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         highlight={highlighted}
                         messageSpacing={messageSpacing}
                         canDelete={canRedact || mEvent.getSender() === mx.getUserId()}
-                        canPin={canPin}
                     >
                         <EventContent
                             messageLayout={messageLayout}
@@ -1455,7 +1448,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                             content={
                                 <Box grow="Yes" direction="Column">
                                     <Text size="T300" priority="300">
-                                        {getText('event.room_avatar', <b>{senderName}</b>)}
+                                        {translate('event.room_avatar', <b>{senderName}</b>)}
                                     </Text>
                                 </Box>
                             }

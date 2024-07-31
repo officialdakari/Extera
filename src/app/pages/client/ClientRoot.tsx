@@ -1,5 +1,5 @@
 import { Box, Spinner, Text } from 'folds';
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useState } from 'react';
 import initMatrix from '../../../client/initMatrix';
 import { initHotkeys } from '../../../client/event/hotkeys';
 import { getSecret } from '../../../client/state/auth';
@@ -38,7 +38,7 @@ function ClientRootLoading() {
         </SplashScreen>
     );
 }
-
+ 
 type ClientRootProps = {
     children: ReactNode;
 };

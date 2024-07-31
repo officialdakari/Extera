@@ -18,8 +18,8 @@ function RoomTile({ avatarSrc, name, id, inviterName, memberCount, desc, options
                 <Text variant="s1">{name}</Text>
                 <Text variant="b3">
                     {inviterName !== null
-                        ? getText('room_tile.invited', inviterName, id, getText('room_tile.members', memberCount))
-                        : getText('room_tile.info', id, getText('room_tile.members', memberCount))}
+                        ? getText('room_tile.invited', inviterName, id, typeof memberCount === 'number' ? getText('room_tile.members', memberCount) : '')
+                        : getText('room_tile.info', id, typeof memberCount === 'number' ? getText('room_tile.members', memberCount) : '')}
                 </Text>
                 {desc !== null && typeof desc === 'string' ? (
                     <Text className="room-tile__content__desc" variant="b2">

@@ -580,26 +580,12 @@ export const MessageCopyLinkItem = as<
     }
 >(({ room, mEvent, onClose, ...props }, ref) => {
     const mx = useMatrixClient();
-    const { hashRouter } = useClientConfig();
-    const space = useSpaceOptionally();
-    const directSelected = useDirectSelected();
 
     const handleCopy = () => {
         const roomIdOrAlias = getCanonicalAliasOrRoomId(mx, room.roomId);
-        let eventPath = getHomeRoomPath(roomIdOrAlias, mEvent.getId());
-        if (space) {
-            eventPath = getSpaceRoomPath(
-                getCanonicalAliasOrRoomId(mx, space.roomId),
-                roomIdOrAlias,
-                mEvent.getId()
-            );
-        } else if (directSelected) {
-            eventPath = getDirectRoomPath(roomIdOrAlias, mEvent.getId());
-        }
-        copyToClipboard(withOriginBaseUrl(getOriginBaseUrl(hashRouter), eventPath));
+        copyToClipboard(`https://matrix.to/#/${roomIdOrAlias}/${mEvent.getId()}`);
         onClose?.();
     };
-    console.warn('WARNING!!! TODO: fix MessageCopyLinkItem');
     return (
         <MenuItem
             size="300"

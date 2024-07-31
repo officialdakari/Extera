@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import cons from '../../client/state/cons';
 
 const STORAGE_KEY = 'settings';
 export type MessageSpacing = '0' | '100' | '200' | '300' | '400' | '500';
@@ -65,7 +66,7 @@ const defaultSettings: Settings = {
     extera_ghostMode: false,
     extera_smoothScroll: true,
     extera_status: 0,
-    extera_status_message: 'Hello! I am using Extera.',
+    extera_status_message: `Hello! I am using ${cons.name}.`,
     extera_wallpaper: null,
     pushesEnabled: false
 };
