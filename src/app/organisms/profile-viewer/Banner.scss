@@ -1,0 +1,26 @@
+@use '../../partials/flex';
+@use '../../partials/dir';
+
+.profile-banner {
+    max-width: 100%;
+    // border-radius: 5px;
+}
+
+.banner-container__pv {
+    height: 150px;
+    overflow-y: hidden;
+    margin-bottom: 10px;
+    // border-radius: 5px;
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgb(182, 182, 182);
+}
+
+.banner-container-nb__pv {
+    height: 150px;
+    overflow-y: hidden;
+    margin-top: -20px;
+    margin-left: -20px;
+    margin-right: -20px;
+    margin-bottom: 10px;
+}
