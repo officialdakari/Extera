@@ -55,10 +55,6 @@ import { KeySymbol } from '../../utils/key-symbol';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { Icons, Input } from 'folds';
 import Banner from '../profile-editor/Banner';
-import ImageUpload from '../../molecules/image-upload/ImageUpload';
-import colorMXID from '../../../util/colorMXID';
-
-// THIS FUNCTION
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { disablePush, enablePush } from '../../../push';
@@ -80,6 +76,7 @@ function AppearanceSection() {
     const [encUrlPreview, setEncUrlPreview] = useSetting(settingsAtom, 'encUrlPreview');
     const [showHiddenEvents, setShowHiddenEvents] = useSetting(settingsAtom, 'showHiddenEvents');
     const [wallpaperURL, setWallpaperURL] = useSetting(settingsAtom, 'extera_wallpaper');
+    const [newDesignInput, setNewDesignInput] = useSetting(settingsAtom, 'newDesignInput');
     const spacings = ['0', '100', '200', '300', '400', '500'];
 
     const wallpaperInputRef = useRef(null);
@@ -228,6 +225,16 @@ function AppearanceSection() {
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.enter_newline.desc', isMacOS() ? KeySymbol.Command : 'Ctrl')}</Text>}
+                />
+                <SettingTile
+                    title={getText('settings.new_design_input.title')}
+                    options={(
+                        <Toggle
+                            isActive={newDesignInput}
+                            onToggle={() => setNewDesignInput(!newDesignInput)}
+                        />
+                    )}
+                    content={<Text variant="b3">{getText('settings.new_design_input.desc')}</Text>}
                 />
                 <SettingTile
                     title={getText('settings.md_formatting.title')}
@@ -425,7 +432,7 @@ function ExteraSection() {
                             onToggle={() => setRenameTgBot(!renameTgBot)}
                         />
                     )}
-                    content={<Text variant="b3">{getText('settings.rename_tg_bot.title')}</Text>}
+                    content={<Text variant="b3">{getText('settings.rename_tg_bot.desc')}</Text>}
                 />
             </div>
         </div>

@@ -35,6 +35,7 @@ type CustomEditorProps = {
     onChange?: (value: string) => void;
     onPaste?: ClipboardEventHandler;
     textAreaRef: React.RefObject<HTMLTextAreaElement>;
+    newDesign?: boolean;
 };
 
 export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
@@ -50,7 +51,8 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
         onKeyUp,
         onChange,
         onPaste,
-        textAreaRef
+        textAreaRef,
+        newDesign
     }, ref) => {
         const updateRows = (target: HTMLTextAreaElement) => {
             target.rows = target.value.split('\n').length;
@@ -80,7 +82,7 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
                 onChange(newText);
         };
         return (
-            <div ref={ref} className={css.Editor}>
+            <div ref={ref} className={newDesign ? css.EditorNew : css.Editor}>
                 {top}
                 <Box alignItems="Start">
                     {before && (

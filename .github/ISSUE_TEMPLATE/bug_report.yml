@@ -6,9 +6,9 @@ body:
     attributes:
       value: |
         ## First of all
-        1. Please search for [existing issues](https://github.com/ajbura/cinny/issues?q=is%3Aissue) about this problem first.
-        2. Make sure Cinny is up to date.
-        3. Make sure it's an issue with Cinny and not something else you are using.
+        1. Please search for [existing issues](https://github.com/OfficialDakari/Extera/issues?q=is%3Aissue) about this problem first.
+        2. Make sure Extera is up to date.
+        3. Make sure it's an issue with Extera and not something else you are using.
         4. Remember to be friendly.
 
   - type: textarea
@@ -40,11 +40,11 @@ body:
     id: info
     attributes:
       label: Platform and versions
-      description: "Provide OS, browser and Cinny version with your Homeserver."
+      description: "Provide OS, browser and Extera version with your Homeserver."
       placeholder: |
        1. OS: [e.g. Windows 10, MacOS]
        2. Browser: [e.g. chrome 99.5, firefox 97.2]
-       3. Cinny version: [e.g. 1.8.1 (app.cinny.in)]
+       3. Extera version: [e.g. 1.8.1 (extera.officialdakari.ru)]
        4. Matrix homeserver: [e.g. matrix.org]
       render: shell
     validations:

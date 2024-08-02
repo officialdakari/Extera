@@ -90,9 +90,9 @@ export const RoomViewTyping = as<'div', RoomViewTypingProps>(
                             </>
                         )}
                     </Text>
-                    <IconButton title="Drop Typing Status" size="300" radii="Pill" onClick={handleDropAll}>
+                    {/* <IconButton title="Drop Typing Status" size="300" radii="Pill" onClick={handleDropAll}>
                         <Icon size="50" src={Icons.Cross} />
-                    </IconButton>
+                    </IconButton> */}
                 </Box>
             </div>
         );

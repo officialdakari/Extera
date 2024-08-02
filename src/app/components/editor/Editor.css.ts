@@ -12,6 +12,15 @@ export const Editor = style([
     },
 ]);
 
+export const EditorNew = style([
+    DefaultReset,
+    {
+        backgroundColor: color.SurfaceVariant.Container,
+        color: color.SurfaceVariant.OnContainer,
+        overflow: 'hidden',
+    },
+]);
+
 export const EditorOptions = style([
     DefaultReset,
     {

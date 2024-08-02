@@ -794,7 +794,7 @@
 	"settings.captions.desc": "Отправлять подписи и файлы в одном сообщении.",
 	"settings.smooth_scroll.title": "Плавная прокрутка",
 	"settings.smooth_scroll.desc": "Использовать плавную прокрутку при получении сообщения.",
-	"settings.rename_tg_bot.title": "Переименовать мост Telegram в каналах.",
+	"settings.rename_tg_bot.title": "Переименовать мост Telegram в каналах",
 	"settings.rename_tg_bot.desc": "Использовать имя и аватарку комнаты для бота Telegram в каналах.",
 	"settings.notifications.unsupported": "Уведомления не поддерживаются в этом браузере.",
 	"btn.notifications.request_permission": "Запросить разрешение",
@@ -860,5 +860,7 @@
 	"msg_menu.unpin": "Открепить",
 	"recovered.title": "Восстановленное сообщение",
 	"search_input.clear": "Очистить",
-	"settings.presence.title": "Статус"
+	"settings.presence.title": "Статус",
+	"settings.new_design_input.title": "Новый дизайн ввода сообщения",
+	"settings.new_design_input.desc": "Использовать новый дизайн редактора сообщений."
 }

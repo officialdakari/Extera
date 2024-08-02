@@ -860,5 +860,7 @@
     "msg_menu.unpin": "Unpin",
     "recovered.title": "Recovered message",
     "search_input.clear": "Clear",
-    "settings.presence.title": "Presence status"
+    "settings.presence.title": "Presence status",
+    "settings.new_design_input.title": "New input design",
+    "settings.new_design_input.desc": "Apply new design for message composer."
 }

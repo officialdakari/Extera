@@ -25,13 +25,13 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
     const roomViewRef = useRef(null);
 
     const { roomId } = room;
-    //   const editor = useEditor();
 
     const mx = useMatrixClient();
 
     const tombstoneEvent = useStateEvent(room, StateEvent.RoomTombstone);
     const powerLevels = usePowerLevelsContext();
     const [wallpaperURL] = useSetting(settingsAtom, 'extera_wallpaper');
+    const [newDesignInput] = useSetting(settingsAtom, 'newDesignInput');
     const { getPowerLevel, canSendEvent } = usePowerLevelsAPI(powerLevels);
     const myUserId = mx.getUserId();
     const canMessage = myUserId
@@ -59,12 +59,12 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
                     eventId={eventId}
                     roomInputRef={roomInputRef}
                     textAreaRef={taRef}
-                //   editor={editor}
                 />
                 <RoomViewTyping room={room} />
             </Box>
             <Box shrink="No" direction="Column">
-                <div style={{ padding: `0 ${config.space.S400}` }}>
+                {newDesignInput && (<RoomViewFollowing room={room} />)}
+                <div style={!newDesignInput ? { padding: `0 ${config.space.S400}` } : {}}>
                     {tombstoneEvent ? (
                         <RoomTombstone
                             roomId={roomId}
@@ -77,25 +77,16 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
                                 <RoomInput
                                     textAreaRef={taRef}
                                     room={room}
-                                    //   editor={editor}
                                     roomId={roomId}
                                     fileDropContainerRef={roomViewRef}
+                                    newDesign={newDesignInput}
                                     ref={roomInputRef}
                                 />
                             )}
-                            {/* {!canMessage && (
-                                <RoomInputPlaceholder
-                                    style={{ padding: config.space.S200 }}
-                                    alignItems="Center"
-                                    justifyContent="Center"
-                                >
-                                    <Text align="Center">You do not have permission to post in this room</Text>
-                                </RoomInputPlaceholder>
-                            )} */}
                         </>
                     )}
                 </div>
-                <RoomViewFollowing room={room} />
+                {!newDesignInput && (<RoomViewFollowing room={room} />)}
             </Box>
         </Page>
     );

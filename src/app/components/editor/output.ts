@@ -27,6 +27,7 @@ export const roomMentionRegexp = /{([^\|]+)\|([#!][A-Za-z0-9\._%#\+\-]+:[a-z0-9\
 export const anyTagRegexp = /{(:([a-zA-Z0-9\-_\.]+):(mxc:\/\/[a-z0-9\.\-]+\.[a-z]{2,}\/[a-zA-Z0-9_\-]+):|(@[a-zA-Z0-9\._=\-]+:[a-z0-9\.\-]+\.[a-z]{2,})|([^\|]+)\|([#!][A-Za-z0-9\._%#\+\-]+:[a-z0-9\.\-]+\.[a-z]{2,}))}/gi;
 export const deleteEndRegexp = /{(:([a-zA-Z0-9\-_\.]+):(mxc:\/\/[a-z0-9\.\-]+\.[a-z]{2,}\/[a-zA-Z0-9_\-]+):|(@[a-zA-Z0-9\._=\-]+:[a-z0-9\.\-]+\.[a-z]{2,})|([^\|]+)\|([#!][A-Za-z0-9\._%#\+\-]+:[a-z0-9\.\-]+\.[a-z]{2,}))([^}]|$)/gi;
 export const deleteStartRegexp = /(^|[^{])(:([a-zA-Z0-9\-_\.]+):(mxc:\/\/[a-z0-9\.\-]+\.[a-z]{2,}\/[a-zA-Z0-9_\-]+):|(@[a-zA-Z0-9\._=\-]+:[a-z0-9\.\-]+\.[a-z]{2,})|([^\|]+)\|([#!][A-Za-z0-9\._%#\+\-]+:[a-z0-9\.\-]+\.[a-z]{2,}))}/gi;
+export const everyoneMentionRegexp = /{@room}/g;
 
 export const toMatrixCustomHTML = (
     content: string,
@@ -39,14 +40,16 @@ export const toMatrixCustomHTML = (
     )
         .replaceAll(emojiRegexp, (match: string, shortcode: string, mxc: string) => `<img data-mx-emoticon height="32" src="${mxc}" alt=":${shortcode}:" title=":${shortcode}:">`)
         .replaceAll(userMentionRegexp, (match: string, mxId: string) => `<a href="https://matrix.to/#/${mxId}">@${getDisplayName(mxId)}</a>`)
-        .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => `<a href="https://matrix.to/#/${id}">#${name}</a>`);
+        .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => `<a href="https://matrix.to/#/${id}">#${name}</a>`)
+        .replaceAll(everyoneMentionRegexp, '@room');
 };
 
 export const toPlainText = (content: string, getDisplayName: any): string => {
     // и этот кал будет лежать на гитхабе
     return content.replaceAll(emojiRegexp, (match: string, shortcode: string, mxc: string) => `:${shortcode}:`)
-        .replaceAll(userMentionRegexp, (match: string, mxId: string) => `@${getDisplayName(mxId)}`)
-        .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => `#${name}`);
+        .replaceAll(userMentionRegexp, (match: string, mxId: string) => `${getDisplayName(mxId)}`)
+        .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => `#${name}`)
+        .replaceAll(everyoneMentionRegexp, '@room');
 };
 
 type Mentions = {
@@ -63,9 +66,9 @@ export const getMentions = (content: string): Mentions => {
         }
     }
     // TODO Implement @room checking
-    //const room = /{@room}/g.test(content);
+    const room = /{@room}/g.test(content);
     return {
-        user_ids //, room
+        user_ids, room
     };
 };
 

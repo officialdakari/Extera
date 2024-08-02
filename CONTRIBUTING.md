@@ -1,4 +1,4 @@
-# Contributing to Cinny
+# Contributing to Extera
 
 First off, thanks for taking the time to contribute! ❤️
 
@@ -6,14 +6,14 @@ All types of contributions are encouraged and valued. Please make sure to read t
 
 > And if you like the project, but just don't have time to contribute, that's fine. There are other easy ways to support the project and show your appreciation, which we would also be very happy about:
 > - Star the project
-> - Tweet about it (tag @cinnyapp)
+> - Tweet about it
 > - Refer this project in your project's readme
 > - Mention the project at local meetups and tell your friends/colleagues
-> - [Donate to us](https://cinny.in/#sponsor)
+> - [Donate to us](https://officialdakari.ru/sponsor/)
 
 ## Bug reports
 
-Bug reports and feature suggestions must use descriptive and concise titles and be submitted to [GitHub Issues](https://github.com/ajbura/cinny/issues). Please use the search function to make sure that you are not submitting duplicates, and that a similar report or request has not already been resolved or rejected.
+Bug reports and feature suggestions must use descriptive and concise titles and be submitted to [GitHub Issues](https://github.com/OfficialDakari/Extera/issues). Please use the search function to make sure that you are not submitting duplicates, and that a similar report or request has not already been resolved or rejected.
 
 ## Pull requests
 
@@ -36,7 +36,7 @@ It is not always possible to phrase every change in such a manner, but it is des
 
 Also, we use [ESLint](https://eslint.org/) for clean and stylistically consistent code syntax, so make sure your pull request follow it.
 
-**For any query or design discussion, join our [Matrix room](https://matrix.to/#/#cinny:matrix.org).**
+**For any query or design discussion, join our [Matrix room](https://matrix.to/#/#extera:officialdakari.ru).**
 
 ## Helpful links
 - [BEM methodology](http://getbem.com/introduction/)

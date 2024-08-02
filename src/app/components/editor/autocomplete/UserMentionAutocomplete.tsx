@@ -99,7 +99,7 @@ export function UserMentionAutocomplete({
         const ta = textAreaRef.current;
         if (!ta) return;
 
-        const result: string = `{${uId}}`;
+        const result: string = `{${uId == roomAliasOrId ? '@room' : uId}}`;
 
         var v = ta.value;
         v = `${v.slice(0, query.range.index)}${result}${v.slice(query.range.index + query.range.length)}`;
@@ -115,10 +115,6 @@ export function UserMentionAutocomplete({
 
     useKeyDown(window, (evt: KeyboardEvent) => {
         onTabPress(evt, () => {
-            if (query.text === 'room') {
-                handleAutocomplete(roomAliasOrId, '@room');
-                return;
-            }
             if (autoCompleteMembers.length === 0) {
                 const userId = userIdFromQueryText(mx, query.text);
                 handleAutocomplete(userId, userId);

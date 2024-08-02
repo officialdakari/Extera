@@ -252,11 +252,13 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                     const [id, evId] = url.hash.slice(2).split('?')[0].split('/');
                     console.log(id, evId);
                     const type = id[0];
-                    console.log(type, id);
+                    console.log(`type: ${type} id ${id}`);
                     if (type == '@') {
+                        console.log('opening profile');
+                        console.log('Room id', roomId);
                         openProfileViewer(id, roomId);
                     } else if ((type == '!' || type == '#') && typeof evId === 'string') {
-                        var roomId;
+                        let roomId;
                         if (type == '!') {
                             roomId = id;
                         } else if (type == '#') {

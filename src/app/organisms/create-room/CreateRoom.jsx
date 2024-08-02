@@ -248,7 +248,7 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                 />
                 <Input name="topic" minHeight={174} resizable label={getText('create_room.topic')} />
                 <div className="create-room__name-wrapper">
-                    <Input name="name" label={getText('create_room.name', getText(isSpace ? 'create_room.name.space' : 'create_room.name.space'))} required />
+                    <Input name="name" label={getText('create_room.name', getText(isSpace ? 'create_room.name.space' : 'create_room.name.room'))} required />
                     <Button
                         disabled={isValidAddress === false || isCreatingRoom}
                         iconSrc={isSpace ? SpacePlusIC : HashPlusIC}

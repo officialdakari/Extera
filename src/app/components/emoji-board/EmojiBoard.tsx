@@ -13,6 +13,7 @@ import React, {
 import {
     Badge,
     Box,
+    Button,
     Chip,
     Icon,
     IconButton,
@@ -50,6 +51,9 @@ import { useThrottle } from '../../hooks/useThrottle';
 import { addRecentEmoji } from '../../plugins/recent-emoji';
 import { mobileOrTablet } from '../../utils/user-agent';
 import { getText } from '../../../lang';
+import { useSetting } from '../../state/hooks/settings';
+import { settingsAtom } from '../../state/settings';
+import { openJoinAlias } from '../../../client/action/navigation';
 
 const RECENT_GROUP_ID = 'recent_group';
 const SEARCH_GROUP_ID = 'search_group';
@@ -655,6 +659,9 @@ export function EmojiBoard({
     const emojiPreviewRef = useRef<HTMLDivElement>(null);
     const emojiPreviewTextRef = useRef<HTMLParagraphElement>(null);
 
+    // Remove #emoji:officialdakari.ru advertisement
+    const [hideAdvert, setHideAdvert] = useSetting(settingsAtom, 'hideEmojiAdvert');
+
     const searchList = useMemo(() => {
         let list: Array<ExtendedPackImage | IEmoji> = [];
         list = list.concat(imagePacks.flatMap((pack) => pack.getImagesFor(usage)));
@@ -667,6 +674,15 @@ export function EmojiBoard({
         getSearchListItemStr,
         SEARCH_OPTIONS
     );
+
+    const handleGetFreeEmojis = () => {
+        requestClose();
+        openJoinAlias('#emoji:officialdakari.ru');
+    };
+
+    const handleDismissFreeEmojis = () => {
+        setHideAdvert(true);
+    };
 
     const handleOnChange: ChangeEventHandler<HTMLInputElement> = useDebounce(
         useCallback(
@@ -842,30 +858,44 @@ export function EmojiBoard({
                     </Sidebar>
                 }
                 footer={
-                    emojiTab ? (
-                        <Footer>
-                            <Box
-                                display="InlineFlex"
-                                ref={emojiPreviewRef}
-                                className={css.EmojiPreview}
-                                alignItems="Center"
-                                justifyContent="Center"
-                            >
-                                😃
-                            </Box>
-                            <Text ref={emojiPreviewTextRef} size="H5" truncate>
-                                :smiley:
-                            </Text>
-                        </Footer>
-                    ) : (
-                        imagePacks.length > 0 && (
+                    <>
+                        {emojiTab ? (
                             <Footer>
+                                <Box
+                                    display="InlineFlex"
+                                    ref={emojiPreviewRef}
+                                    className={css.EmojiPreview}
+                                    alignItems="Center"
+                                    justifyContent="Center"
+                                >
+                                    😃
+                                </Box>
                                 <Text ref={emojiPreviewTextRef} size="H5" truncate>
                                     :smiley:
                                 </Text>
                             </Footer>
-                        )
-                    )
+                        ) : (
+                            imagePacks.length > 0 && (
+                                <Footer>
+                                    <Text ref={emojiPreviewTextRef} size="H5" truncate>
+                                        :smiley:
+                                    </Text>
+                                </Footer>
+                            )
+                        )}
+                        {!hideAdvert && (
+                            <Box shrink="No" className={css.Footer} display='InlineFlex' justifyContent='SpaceBetween' gap="300" alignItems="Center">
+                                <Text size="H5">
+                                    Free cool emojis
+                                </Text>
+                                <div>
+                                    <Button size='300' variant='Success' onClick={handleGetFreeEmojis}>Get</Button>
+                                    &nbsp;
+                                    <Button size='300' variant='Secondary' onClick={handleDismissFreeEmojis}>Dismiss</Button>
+                                </div>
+                            </Box>
+                        )}
+                    </>
                 }
             >
                 <Content>

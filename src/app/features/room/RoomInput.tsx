@@ -110,15 +110,17 @@ import { markAsRead } from '../../../client/action/notifications';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { getText } from '../../../lang';
 import { openHiddenRooms } from '../../../client/action/navigation';
+import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 
 interface RoomInputProps {
     fileDropContainerRef: RefObject<HTMLElement>;
     textAreaRef: RefObject<HTMLTextAreaElement>;
     roomId: string;
     room: Room;
+    newDesign?: boolean;
 }
 export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
-    ({ fileDropContainerRef, roomId, room, textAreaRef }, ref) => {
+    ({ fileDropContainerRef, roomId, room, textAreaRef, newDesign }, ref) => {
         const mx = useMatrixClient();
         const [enterForNewline] = useSetting(settingsAtom, 'enterForNewline');
         const [isMarkdown] = useSetting(settingsAtom, 'isMarkdown');
@@ -181,18 +183,9 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const pickFile = useFilePicker(handleFiles, true);
         const handlePaste = useFilePasteHandler(handleFiles);
         const dropZoneVisible = useFileDropZone(fileDropContainerRef, handleFiles);
-        const [hideStickerBtn, setHideStickerBtn] = useState(document.body.clientWidth < 500);
+        const [showStickerButton, setShowStickerButton] = useState(true);
         const [sending, setSending] = useState(false);
-        //const filesState = useState([]);
-
-        //const files: IContent[] = filesState[0];
-        // eslint-disable-next-line no-use-before-define
-        //const setFiles: Dispatch<React.SetStateAction<IContent[]>> = filesState[1];
-
-        useElementSizeObserver(
-            useCallback(() => document.body, []),
-            useCallback((width) => setHideStickerBtn(width < 500), [])
-        );
+        const [screenSize] = useScreenSize();
 
         const handleRemoveUpload = useCallback(
             (upload: TUploadContent | TUploadContent[]) => {
@@ -354,6 +347,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
         const handleKeyDown: KeyboardEventHandler = useCallback(
             (evt) => {
+                setShowStickerButton(isEmptyEditor(textAreaRef));
                 if (isKeyHotkey('mod+enter', evt) || (!enterForNewline && isKeyHotkey('enter', evt))) {
                     evt.preventDefault();
                     submit();
@@ -368,6 +362,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
         const handleKeyUp: KeyboardEventHandler = useCallback(
             (evt) => {
+                setShowStickerButton(isEmptyEditor(textAreaRef));
                 if (isKeyHotkey('escape', evt)) {
                     evt.preventDefault();
                     return;
@@ -525,6 +520,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 )}
                 <CustomEditor
                     editableName="RoomInput"
+                    newDesign={newDesign}
                     // editor={editor}
                     textAreaRef={textAreaRef}
                     placeholder={getText('placeholder.room_input')}
@@ -539,17 +535,9 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                     gap="300"
                                     style={{ padding: `${config.space.S200} ${config.space.S300} 0` }}
                                 >
-                                    <IconButton
-                                        // onMouseDown={dontHideKeyboard}
-                                        onClick={() => setReplyDraft(undefined)}
-                                        variant="SurfaceVariant"
-                                        size="300"
-                                        radii="300"
-                                    >
-                                        <Icon src={Icons.Cross} size="50" />
-                                    </IconButton>
                                     <ReplyLayout
                                         userColor={colorMXID(replyDraft.userId)}
+                                        style={{ width: '100%' }}
                                         username={
                                             <Text size="T300" truncate>
                                                 <b>
@@ -564,102 +552,88 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                             {trimReplyFromBody(replyDraft.body)}
                                         </Text>
                                     </ReplyLayout>
+                                    <IconButton
+                                        onMouseDown={dontHideKeyboard}
+                                        onClick={() => setReplyDraft(undefined)}
+                                        variant="SurfaceVariant"
+                                        size="300"
+                                        radii="300"
+                                    >
+                                        <Icon src={Icons.Cross} size="50" />
+                                    </IconButton>
                                 </Box>
                             </div>
                         )
                     }
                     before={
-                        <IconButton
-                            onClick={() => pickFile('*')}
-                            variant="SurfaceVariant"
-                            size="300"
-                            radii="300"
-                        // onMouseDown={dontHideKeyboard}
-                        >
-                            <Icon src={Icons.PlusCircle} />
-                        </IconButton>
-                    }
-                    after={
-                        <>
-                            {/* <IconButton
-                                variant="SurfaceVariant"
-                                size="300"
-                                radii="300"
-                                onClick={() => setToolbar(!toolbar)}
-                            // onMouseDown={dontHideKeyboard}
-                            >
-                                <Icon src={toolbar ? Icons.AlphabetUnderline : Icons.Alphabet} />
-                            </IconButton> */}
-                            <UseStateProvider initial={undefined}>
-                                {(emojiBoardTab: EmojiBoardTab | undefined, setEmojiBoardTab) => (
-                                    <PopOut
-                                        offset={16}
-                                        alignOffset={-44}
-                                        position="Top"
-                                        align="End"
-                                        anchor={
-                                            emojiBoardTab === undefined
-                                                ? undefined
-                                                : emojiBtnRef.current?.getBoundingClientRect() ?? undefined
-                                        }
-                                        content={
-                                            <EmojiBoard
-                                                tab={emojiBoardTab}
-                                                onTabChange={setEmojiBoardTab}
-                                                imagePackRooms={imagePackRooms}
-                                                returnFocusOnDeactivate={false}
-                                                onEmojiSelect={handleEmoticonSelect}
-                                                onCustomEmojiSelect={handleCustomEmoticonSelect}
-                                                onStickerSelect={handleStickerSelect}
-                                                requestClose={() => {
-                                                    setEmojiBoardTab(undefined);
-                                                    if (!mobileOrTablet()) textAreaRef.current?.focus();
-                                                }}
-                                            />
-                                        }
-                                    >
-                                        {!hideStickerBtn && (
-                                            <IconButton
-                                                aria-pressed={emojiBoardTab === EmojiBoardTab.Sticker}
-                                                onClick={() => setEmojiBoardTab(EmojiBoardTab.Sticker)}
-                                                onMouseDown={dontHideKeyboard}
-                                                variant="SurfaceVariant"
-                                                size="300"
-                                                radii="300"
-                                            >
-                                                <Icon
-                                                    src={Icons.Sticker}
-                                                    filled={emojiBoardTab === EmojiBoardTab.Sticker}
-                                                />
-                                            </IconButton>
-                                        )}
+                        <UseStateProvider initial={undefined}>
+                            {(emojiBoardTab: EmojiBoardTab | undefined, setEmojiBoardTab) => (
+                                <PopOut
+                                    offset={16}
+                                    alignOffset={-44}
+                                    position="Top"
+                                    align="End"
+                                    anchor={
+                                        emojiBoardTab === undefined
+                                            ? undefined
+                                            : emojiBtnRef.current?.getBoundingClientRect() ?? undefined
+                                    }
+                                    content={
+                                        <EmojiBoard
+                                            tab={emojiBoardTab}
+                                            onTabChange={setEmojiBoardTab}
+                                            imagePackRooms={imagePackRooms}
+                                            returnFocusOnDeactivate={false}
+                                            onEmojiSelect={handleEmoticonSelect}
+                                            onCustomEmojiSelect={handleCustomEmoticonSelect}
+                                            onStickerSelect={handleStickerSelect}
+                                            requestClose={() => {
+                                                setEmojiBoardTab(undefined);
+                                                if (!mobileOrTablet()) textAreaRef.current?.focus();
+                                            }}
+                                        />
+                                    }
+                                >
+                                    {(
                                         <IconButton
-                                            ref={emojiBtnRef}
-                                            // onMouseDown={dontHideKeyboard}
                                             aria-pressed={
-                                                hideStickerBtn ? !!emojiBoardTab : emojiBoardTab === EmojiBoardTab.Emoji
+                                                !!emojiBoardTab
                                             }
-                                            onClick={() => setEmojiBoardTab(EmojiBoardTab.Emoji)}
+                                            onClick={() => setEmojiBoardTab(showStickerButton ? EmojiBoardTab.Sticker : EmojiBoardTab.Emoji)}
+                                            //onMouseDown={dontHideKeyboard}
                                             variant="SurfaceVariant"
                                             size="300"
                                             radii="300"
+                                            ref={emojiBtnRef}
                                         >
                                             <Icon
-                                                src={Icons.Smile}
-                                                filled={
-                                                    hideStickerBtn ? !!emojiBoardTab : emojiBoardTab === EmojiBoardTab.Emoji
-                                                }
+                                                src={showStickerButton ? Icons.Sticker : Icons.Smile}
+                                                filled={!!emojiBoardTab}
                                             />
                                         </IconButton>
-                                    </PopOut>
-                                )}
-                            </UseStateProvider>
+                                    )}
+                                </PopOut>
+                            )}
+                        </UseStateProvider>
+                    }
+                    after={
+                        <>
                             <IconButton onMouseDown={dontHideKeyboard} onClick={readReceipt} variant="SurfaceVariant" size="300" radii="300">
                                 <Icon src={Icons.CheckTwice} />
                             </IconButton>
-                            <IconButton onMouseDown={dontHideKeyboard} onClick={submit} variant="SurfaceVariant" size="300" radii="300">
-                                <Icon src={Icons.Send} />
+                            <IconButton
+                                onClick={() => pickFile('*')}
+                                variant="SurfaceVariant"
+                                size="300"
+                                radii="300"
+                            >
+                                <Icon src={Icons.PlusCircle} />
                             </IconButton>
+                            {screenSize !== ScreenSize.Mobile && (
+                                <IconButton onMouseDown={dontHideKeyboard} onClick={submit} variant="SurfaceVariant" size="300" radii="300">
+                                    <Icon src={Icons.Send} />
+                                </IconButton>
+                            )}
                         </>
                     }
                 // bottom={

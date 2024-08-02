@@ -9,5 +9,5 @@
 * [x] Setting to set Presence Status (Online/offline/unavailable)
 * [x] Setting to set status message
 * [x] Ghost mode (stop sending read receipts and typing status)
-* [ ] Fix keyboard hiding when removing inline element in message editor (underlying library issue)
-* [ ] Mobile improvements (Add support for back button everywhere, like hide ImageViewer with back button)
+* [x] Fix keyboard hiding when removing inline element in message editor (underlying library issue)
+* [x] Mobile improvements (Add support for back button everywhere, like hide ImageViewer with back button)

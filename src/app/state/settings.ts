@@ -36,6 +36,8 @@ export interface Settings {
     extera_status_message: string;
     extera_wallpaper: string | null;
     pushesEnabled: boolean;
+    newDesignInput: boolean;
+    hideEmojiAdvert: boolean;
 }
 
 const defaultSettings: Settings = {
@@ -68,7 +70,9 @@ const defaultSettings: Settings = {
     extera_status: 0,
     extera_status_message: `Hello! I am using ${cons.name}.`,
     extera_wallpaper: null,
-    pushesEnabled: false
+    pushesEnabled: false,
+    newDesignInput: false,
+    hideEmojiAdvert: false
 };
 
 export const getSettings = () => {
