@@ -566,69 +566,69 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                         )
                     }
                     before={
-                        <UseStateProvider initial={undefined}>
-                            {(emojiBoardTab: EmojiBoardTab | undefined, setEmojiBoardTab) => (
-                                <PopOut
-                                    offset={16}
-                                    alignOffset={-44}
-                                    position="Top"
-                                    align="End"
-                                    anchor={
-                                        emojiBoardTab === undefined
-                                            ? undefined
-                                            : emojiBtnRef.current?.getBoundingClientRect() ?? undefined
-                                    }
-                                    content={
-                                        <EmojiBoard
-                                            tab={emojiBoardTab}
-                                            onTabChange={setEmojiBoardTab}
-                                            imagePackRooms={imagePackRooms}
-                                            returnFocusOnDeactivate={false}
-                                            onEmojiSelect={handleEmoticonSelect}
-                                            onCustomEmojiSelect={handleCustomEmoticonSelect}
-                                            onStickerSelect={handleStickerSelect}
-                                            requestClose={() => {
-                                                setEmojiBoardTab(undefined);
-                                                if (!mobileOrTablet()) textAreaRef.current?.focus();
-                                            }}
-                                        />
-                                    }
-                                >
-                                    {(
-                                        <IconButton
-                                            aria-pressed={
-                                                !!emojiBoardTab
-                                            }
-                                            onClick={() => setEmojiBoardTab(showStickerButton ? EmojiBoardTab.Sticker : EmojiBoardTab.Emoji)}
-                                            //onMouseDown={dontHideKeyboard}
-                                            variant="SurfaceVariant"
-                                            size="300"
-                                            radii="300"
-                                            ref={emojiBtnRef}
-                                        >
-                                            <Icon
-                                                src={showStickerButton ? Icons.Sticker : Icons.Smile}
-                                                filled={!!emojiBoardTab}
-                                            />
-                                        </IconButton>
-                                    )}
-                                </PopOut>
-                            )}
-                        </UseStateProvider>
+                        <IconButton
+                            onClick={() => pickFile('*')}
+                            variant="SurfaceVariant"
+                            size="300"
+                            radii="300"
+                        >
+                            <Icon src={Icons.PlusCircle} />
+                        </IconButton>
                     }
                     after={
                         <>
                             <IconButton onMouseDown={dontHideKeyboard} onClick={readReceipt} variant="SurfaceVariant" size="300" radii="300">
                                 <Icon src={Icons.CheckTwice} />
                             </IconButton>
-                            <IconButton
-                                onClick={() => pickFile('*')}
-                                variant="SurfaceVariant"
-                                size="300"
-                                radii="300"
-                            >
-                                <Icon src={Icons.PlusCircle} />
-                            </IconButton>
+                            <UseStateProvider initial={undefined}>
+                                {(emojiBoardTab: EmojiBoardTab | undefined, setEmojiBoardTab) => (
+                                    <PopOut
+                                        offset={16}
+                                        alignOffset={-44}
+                                        position="Top"
+                                        align="End"
+                                        anchor={
+                                            emojiBoardTab === undefined
+                                                ? undefined
+                                                : emojiBtnRef.current?.getBoundingClientRect() ?? undefined
+                                        }
+                                        content={
+                                            <EmojiBoard
+                                                tab={emojiBoardTab}
+                                                onTabChange={setEmojiBoardTab}
+                                                imagePackRooms={imagePackRooms}
+                                                returnFocusOnDeactivate={false}
+                                                onEmojiSelect={handleEmoticonSelect}
+                                                onCustomEmojiSelect={handleCustomEmoticonSelect}
+                                                onStickerSelect={handleStickerSelect}
+                                                requestClose={() => {
+                                                    setEmojiBoardTab(undefined);
+                                                    if (!mobileOrTablet()) textAreaRef.current?.focus();
+                                                }}
+                                            />
+                                        }
+                                    >
+                                        {(
+                                            <IconButton
+                                                aria-pressed={
+                                                    !!emojiBoardTab
+                                                }
+                                                onClick={() => setEmojiBoardTab(showStickerButton ? EmojiBoardTab.Sticker : EmojiBoardTab.Emoji)}
+                                                //onMouseDown={dontHideKeyboard}
+                                                variant="SurfaceVariant"
+                                                size="300"
+                                                radii="300"
+                                                ref={emojiBtnRef}
+                                            >
+                                                <Icon
+                                                    src={showStickerButton ? Icons.Sticker : Icons.Smile}
+                                                    filled={!!emojiBoardTab}
+                                                />
+                                            </IconButton>
+                                        )}
+                                    </PopOut>
+                                )}
+                            </UseStateProvider>
                             {screenSize !== ScreenSize.Mobile && (
                                 <IconButton onMouseDown={dontHideKeyboard} onClick={submit} variant="SurfaceVariant" size="300" radii="300">
                                     <Icon src={Icons.Send} />
@@ -636,14 +636,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                             )}
                         </>
                     }
-                // bottom={
-                //     toolbar && (
-                //         <div>
-                //             <Line variant="SurfaceVariant" size="300" />
-                //             <Toolbar quill={quill} />
-                //         </div>
-                //     )
-                // }
                 />
             </div>
         );
