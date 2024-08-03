@@ -293,6 +293,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 }
 
                 resetEditor(textAreaRef);
+                setShowStickerButton(false);
 
                 if (!ghostMode) sendTypingStatus(false);
                 return;
@@ -339,6 +340,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             setReplyDraft(undefined);
             sendTypingStatus(false);
             resetEditor(textAreaRef);
+            setShowStickerButton(false);
         }, [mx, roomId, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands]);
 
         const readReceipt = useCallback(() => {

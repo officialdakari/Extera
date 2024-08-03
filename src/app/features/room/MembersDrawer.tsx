@@ -269,19 +269,20 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
     const [statusMsgs, setStatusMsgs]: [Record<string, string>, any] = useState({});
 
     useEffect(() => {
-        const fetchMemberAvStylesAndStatus = async () => {
+        const fetchMemberAvStylesAndStatus = () => {
             const newAvStyles: { [key: string]: React.CSSProperties } = {};
             const newStatusMsgs: { [key: string]: string } = {};
 
-            await Promise.all(members.map(async (member) => {
+            members.map((member) => {
                 try {
-                    const presence = await getPresenceFn(member.userId);
-                    newAvStyles[member.userId] = styles[presence.presence];
+                    const presence = getPresenceFn(member.userId);
+                    if (!presence) return;
+                    newAvStyles[member.userId] = Object.keys(styles).includes(presence.presence) ? styles[presence.presence] : styles.offline;
                     newStatusMsgs[member.userId] = presence.presenceStatusMsg ?? presence.presence;
                 } catch (error) {
                     // handle error if needed
                 }
-            }));
+            });
 
             setAvStyles(newAvStyles);
             setStatusMsgs(newStatusMsgs);

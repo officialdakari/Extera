@@ -409,9 +409,8 @@ export function RoomViewHeader() {
         const isDm = room.getDMInviter() || room.getJoinedMemberCount() == 2;
         if (isDm) {
             const userId = room.guessDMUserId();
-            getPresenceFn(userId).then((presence) => {
-                setStatusMessage(presence.presenceStatusMsg ?? presence.presence);
-            });
+            const presence = getPresenceFn(userId);
+            setStatusMessage(presence.presenceStatusMsg ?? presence.presence);
         }
     }, [mx]);
 

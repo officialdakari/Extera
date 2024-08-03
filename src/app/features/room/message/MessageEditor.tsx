@@ -65,7 +65,6 @@ export const MessageEditor = as<'div', MessageEditorProps>(
         const [enterForNewline] = useSetting(settingsAtom, 'enterForNewline');
         const [globalToolbar] = useSetting(settingsAtom, 'editorToolbar');
         const [isMarkdown] = useSetting(settingsAtom, 'isMarkdown');
-        const [toolbar, setToolbar] = useState(globalToolbar);
 
         const [autocompleteQuery, setAutocompleteQuery] =
             useState<AutocompleteQuery<AutocompletePrefix>>();

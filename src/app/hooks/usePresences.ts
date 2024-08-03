@@ -5,7 +5,7 @@ import { ClientEvent, EventType, MatrixEvent, MatrixEventEvent, User, UserEvent 
 type PresenceData = {
     lastActiveAgo: number;
     lastPresenceTs?: number;
-    presence: 'online' | 'offline' | 'unavailable' | string;
+    presence: 'online' | 'offline' | 'unavailable';
     presenceStatusMsg?: string;
 };
 
@@ -13,15 +13,16 @@ export const usePresences = () => {
     const mx = useMatrixClient();
     const [presences, setPresences] = useState<Record<string, PresenceData>>({});
 
-    const getPresence = useCallback(async (userId: string) => {
+    const getPresence = useCallback((userId: string) => {
         if (presences[userId]) {
             return presences[userId];
         }
-        const presence = await mx.getPresence(userId);
+        const user = mx.getUser(userId);
+        if (!user) return null;
         return {
-            lastActiveAgo: presence.last_active_ago,
-            presence: presence.presence,
-            presenceStatusMsg: presence.status_msg
+            lastActiveAgo: user.lastActiveAgo,
+            presence: user.presence,
+            presenceStatusMsg: user.presenceStatusMsg
         };
     }, [mx, presences]);
 

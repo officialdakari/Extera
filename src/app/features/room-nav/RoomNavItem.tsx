@@ -238,8 +238,9 @@ export function RoomNavItem({
     const updateAvStyle = useCallback(async () => {
         if (directs.includes(room.roomId)) {
             const user = room.getDMInviter() ?? room.guessDMUserId();
-            const presence = await getPresenceFn(user);
-            setAvStyle(styles[presence.presence]);
+            const presence = getPresenceFn(user);
+            if (presence)
+                setAvStyle(styles[presence.presence]);
         }
     }, [mx, directs, room]);
 
