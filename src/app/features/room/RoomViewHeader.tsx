@@ -410,7 +410,8 @@ export function RoomViewHeader() {
         if (isDm) {
             const userId = room.guessDMUserId();
             const presence = getPresenceFn(userId);
-            setStatusMessage(presence.presenceStatusMsg ?? presence.presence);
+            if (presence)
+                setStatusMessage(presence.presenceStatusMsg ?? presence.presence ?? 'offline');
         }
     }, [mx]);
 
