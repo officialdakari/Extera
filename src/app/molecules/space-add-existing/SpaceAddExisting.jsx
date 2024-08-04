@@ -66,7 +66,7 @@ function SpaceAddExistingContent({ roomId, spaces: onlySpaces }) {
     };
 
     const handleAdd = async () => {
-        setProcess(getText('space_add_existing', selected.length));
+        setProcess(getText('space_add_existing.adding', selected.length));
 
         const promises = selected.map((rId) => {
             const room = mx.getRoom(rId);
