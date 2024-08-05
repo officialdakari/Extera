@@ -51,6 +51,7 @@ class InitMatrix extends EventEmitter {
             verificationMethods: [
                 'm.sas.v1',
             ],
+            fallbackICEServerAllowed: true
         });
 
         await this.matrixClient.initCrypto();

@@ -193,7 +193,6 @@ export function RenderMessageContent({
                         autoPlay={mediaAutoLoad}
                         renderImage={(p) => <Image {...p} loading="lazy" />}
                         renderViewer={(p) => <ImageViewer {...p} />}
-                        htmlReactParserOptions={htmlReactParserOptions}
                     />
                 )}
                 outlined={outlineAttachment}

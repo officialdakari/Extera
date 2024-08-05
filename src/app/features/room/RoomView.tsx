@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Box, Text, config } from 'folds';
-import { EventType, Room } from 'matrix-js-sdk';
+import { CallEvent, EventType, MatrixCall, Room } from 'matrix-js-sdk';
 
 import { useStateEvent } from '../../hooks/useStateEvent';
 import { StateEvent } from '../../../types/matrix/room';
@@ -19,6 +19,9 @@ import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import HiddenRooms from '../../organisms/hidden-rooms/HiddenRooms';
 import { sendExteraProfile } from '../../../client/action/room';
+import { RoomCall } from './RoomCall';
+import { useAtomValue } from 'jotai';
+import { mDirectAtom } from '../../state/mDirectList';
 
 export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
     const roomInputRef = useRef(null);
@@ -34,6 +37,7 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
     const [newDesignInput] = useSetting(settingsAtom, 'newDesignInput');
     const { getPowerLevel, canSendEvent } = usePowerLevelsAPI(powerLevels);
     const myUserId = mx.getUserId();
+    const mDirects = useAtomValue(mDirectAtom);
     const canMessage = myUserId
         ? canSendEvent(EventType.RoomMessage, getPowerLevel(myUserId))
         : false;
@@ -47,11 +51,39 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
         };
     }
 
+    const [showCallWindow, setShowCallWindow] = useState(false);
+    const [call, setCall] = useState<MatrixCall | undefined>(undefined);
+
+    const handleCall = async () => {
+        const newCall = mx.createCall(room.roomId);
+        if (!newCall) return alert('Calls are not supported in your browser!');
+        setCall(newCall);
+
+        if (!newCall) return;
+        
+        setShowCallWindow(true);
+
+        await newCall.placeVoiceCall();
+
+        newCall.on(CallEvent.Hangup, () => {
+            setCall(undefined);
+            setShowCallWindow(false);
+        });
+    };
+
+    const onHangup = () => {
+        setCall(undefined);
+        setShowCallWindow(false);
+    };
+
     sendExteraProfile(roomId);
 
     return (
         <Page ref={roomViewRef} style={style}>
-            <RoomViewHeader />
+            <RoomViewHeader handleCall={handleCall} />
+            {mDirects.has(room.roomId) && showCallWindow && call && (
+                <RoomCall room={room} call={call} onHangup={onHangup} />
+            )}
             <Box grow="Yes" direction="Column">
                 <RoomTimeline
                     key={roomId}

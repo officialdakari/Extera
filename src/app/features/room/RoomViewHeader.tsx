@@ -27,7 +27,7 @@ import {
     Button,
 } from 'folds';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { EventTimeline, JoinRule, MatrixEvent, Room } from 'matrix-js-sdk';
+import { EventTimeline, JoinRule, MatrixCall, MatrixEvent, Room } from 'matrix-js-sdk';
 import { useAtomValue } from 'jotai';
 
 import { useStateEvent } from '../../hooks/useStateEvent';
@@ -193,7 +193,13 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
     }
 );
 
-export function RoomViewHeader() {
+type RoomViewHeaderProps = {
+    handleCall: any;
+};
+
+export function RoomViewHeader({
+    handleCall
+}: RoomViewHeaderProps) {
     const navigate = useNavigate();
     const mx = useMatrixClient();
     const screenSize = useScreenSizeContext();
@@ -241,6 +247,7 @@ export function RoomViewHeader() {
     const [messageSpacing] = useSetting(settingsAtom, 'messageSpacing');
     const { navigateRoom, navigateSpace } = useRoomNavigate();
     const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
+    
     const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
         () =>
             getReactCustomHtmlParser(mx, room, {
@@ -300,6 +307,7 @@ export function RoomViewHeader() {
         pinned = pinned.reverse();
         setPinnedPages(Math.ceil(pinned.length / 10));
         const index = (pageNo - 1) * 10;
+        // todo optimize this
         setPinned([
             <DefaultPlaceholder />,
             <DefaultPlaceholder />,
@@ -628,6 +636,11 @@ export function RoomViewHeader() {
                                 </IconButton>
                             )}
                         </TooltipProvider>
+                    )}
+                    {mDirects.has(room.roomId) && (
+                        <IconButton onClick={handleCall}>
+                            <Icon size="400" src={Icons.Phone} />
+                        </IconButton>
                     )}
                     <TooltipProvider
                         position="Bottom"
