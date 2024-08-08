@@ -5,6 +5,7 @@ import { parseBlockMD, parseInlineMD } from '../../plugins/markdown';
 import { findAndReplace } from '../../utils/findAndReplace';
 import { Delta, Op } from 'quill/core';
 import { Marked } from 'marked';
+import { v4 } from 'uuid';
 
 export type OutputOptions = {
     allowTextFormatting?: boolean;
@@ -33,15 +34,32 @@ export const toMatrixCustomHTML = (
     content: string,
     getDisplayName: any
 ): string => {
-    return parseBlockMD(
+    const table = {};
+    var str = parseBlockMD(
         content.replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;'),
-            parseInlineMD
-    )
-        .replaceAll(emojiRegexp, (match: string, shortcode: string, mxc: string) => `<img data-mx-emoticon height="32" src="${mxc}" alt=":${shortcode}:" title=":${shortcode}:">`)
-        .replaceAll(userMentionRegexp, (match: string, mxId: string) => `<a href="https://matrix.to/#/${mxId}">@${getDisplayName(mxId)}</a>`)
-        .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => `<a href="https://matrix.to/#/${id}">#${name}</a>`)
-        .replaceAll(everyoneMentionRegexp, '@room');
+            .replaceAll('>', '&gt;')
+        .replaceAll(emojiRegexp, (match: string, shortcode: string, mxc: string) => {
+            const id = `{[${v4()}]}`;
+            table[id] = `<img data-mx-emoticon height="32" src="${mxc}" alt=":${shortcode}:" title=":${shortcode}:">`;
+            return id;
+        })
+        .replaceAll(userMentionRegexp, (match: string, mxId: string) => {
+            const id = `{[${v4()}]}`;
+            table[id] = `<a href="https://matrix.to/#/${mxId}">@${getDisplayName(mxId)}</a>`;
+            return id;
+        })
+        .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => {
+            const oid = `{[${v4()}]}`;
+            table[oid] = `<a href="https://matrix.to/#/${id}">#${name}</a>`;
+            return oid;
+        })
+        .replaceAll(everyoneMentionRegexp, '@room'),
+        parseInlineMD
+    );
+    for (const key in table) {
+        str = str.replaceAll(key, table[key]);
+    }
+    return str;
 };
 
 export const toPlainText = (content: string, getDisplayName: any): string => {
