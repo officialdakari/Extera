@@ -506,7 +506,6 @@ export const MessageRecoverItem = as<
                         <ImageContent
                             {...props}
                             autoPlay={mediaAutoLoad}
-                            htmlReactParserOptions={htmlReactParserOptions}
                             renderImage={(p) => <Image loading="lazy" />}
                             renderViewer={(p) => <ImageViewer {...p} />}
                         />

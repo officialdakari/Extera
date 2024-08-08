@@ -862,5 +862,6 @@
     "search_input.clear": "Clear",
     "settings.presence.title": "Presence status",
     "settings.new_design_input.title": "New input design",
-    "settings.new_design_input.desc": "Apply new design for message composer."
+    "settings.new_design_input.desc": "Apply new design for message composer.",
+    "title.incoming_call": "Incoming call from {0}"
 }

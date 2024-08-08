@@ -7,6 +7,7 @@ import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfil
 import inject from '@rollup/plugin-inject';
 import topLevelAwait from 'vite-plugin-top-level-await';
 import buildConfig from './build.config';
+import { readFileSync } from 'fs';
 
 const copyFiles = {
     targets: [
@@ -43,8 +44,12 @@ export default defineConfig({
     publicDir: false,
     base: buildConfig.base,
     server: {
-        port: 8080,
-        host: true,
+        port: 8443,
+        host: '0.0.0.0',
+        https: {
+            cert: readFileSync('../sslthings/extera.local.crt'),
+            key: readFileSync('../sslthings/extera.local.key')
+        },
         proxy: {
             "^\\/.*?\\/olm\\.wasm$": {
                 target: 'http://localhost:8080',
