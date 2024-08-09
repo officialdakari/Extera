@@ -3,7 +3,7 @@ import { color, config, DefaultReset } from "folds";
 
 export const RoomCallBox = style({
     width: 'auto',
-    minHeight: '200px',
+    //minHeight: '200px',
     margin: '10px',
     //backgroundColor: color.SurfaceVariant.Container,
     color: color.SurfaceVariant.OnContainer,
@@ -37,7 +37,7 @@ export const UserAvatarContainer = style([
 
 export const CallControlsContainer = style({
     justifyContent: 'center',
-    width: 'fit-content',
+    //width: 'fit-content',
     alignSelf: 'center',
     gap: '10px'
 });

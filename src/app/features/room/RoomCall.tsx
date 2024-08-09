@@ -63,6 +63,8 @@ export function RoomCall({ room, call, onHangup, invitation }: RoomCallProps) {
     const [recipientShowVideo, setRecipientShowVideo] = useState(false);
     const recipientVideoRef = useRef<HTMLVideoElement>(null);
 
+    const ringtoneRef = useRef<HTMLAudioElement>(null);
+
     const [isMuted, setMuted] = useState(false);
 
     const handleHang = useCallback(() => {
@@ -148,6 +150,10 @@ export function RoomCall({ room, call, onHangup, invitation }: RoomCallProps) {
         updateStyle();
     });
 
+    setTimeout(() => {
+        if (ringtoneRef.current) ringtoneRef.current.play();
+    }, 1000);
+
     return (
         <Box className={css.RoomCallBox} shrink='No' direction='Column'>
             <audio ref={audioRef} autoPlay playsInline style={{ display: 'none' }} />
@@ -200,8 +206,25 @@ export function RoomCall({ room, call, onHangup, invitation }: RoomCallProps) {
                     </Box>
                 </>
             )}
+            {
+                [CallState.Ringing, CallState.InviteSent, CallState.Connecting].includes(call.state) &&
+                (
+                    <audio
+                        src='https://officialdakari.ru/_matrix/media/r0/download/officialdakari.ru/rAiqpTddZoUUhcBVjPQORWJb'
+                        autoPlay
+                        loop
+                        playsInline
+                    />
+                )
+            }
             {call.state === CallState.Ringing && (
                 <>
+                    <audio
+                        src='https://officialdakari.ru/_matrix/media/r0/download/officialdakari.ru/IthXmyIlDaVKfCIYfMTxNdIG'
+                        autoPlay={true}
+                        loop={true}
+                        ref={ringtoneRef}
+                    />
                     <div className={css.UsersDiv}>
                         <Text priority='400' size='H3'>{translate(
                             'title.incoming_call',
