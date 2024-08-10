@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Icon, Icons, Scroll } from 'folds';
+import { Scroll } from 'folds';
 
 import {
     Sidebar,
@@ -13,6 +13,8 @@ import {
 import { DirectTab, HomeTab, SpaceTabs, InboxTab, ExploreTab, UserTab } from './sidebar';
 import { openCreateRoom, openSearch } from '../../../client/action/navigation';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiMagnify, mdiPlus } from '@mdi/js';
 
 export function SidebarNav() {
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -39,7 +41,7 @@ export function SidebarNav() {
                                             outlined
                                             onClick={() => openCreateRoom(true)}
                                         >
-                                            <Icon src={Icons.Plus} />
+                                            <Icon size={1} path={mdiPlus} />
                                         </SidebarAvatar>
                                     )}
                                 </SidebarItemTooltip>
@@ -60,7 +62,7 @@ export function SidebarNav() {
                                             outlined
                                             onClick={() => openSearch()}
                                         >
-                                            <Icon src={Icons.Search} />
+                                            <Icon size={1} path={mdiMagnify} />
                                         </SidebarAvatar>
                                     )}
                                 </SidebarItemTooltip>

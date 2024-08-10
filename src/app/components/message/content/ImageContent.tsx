@@ -3,8 +3,6 @@ import {
     Badge,
     Box,
     Button,
-    Icon,
-    Icons,
     Modal,
     Overlay,
     OverlayBackdrop,
@@ -30,6 +28,8 @@ import { RenderBody } from '../RenderBody';
 import HTMLReactParser, { HTMLReactParserOptions } from 'html-react-parser';
 import { getReactCustomHtmlParser } from '../../../plugins/react-custom-html-parser';
 import { getText } from '../../../../lang';
+import { mdiAlert, mdiImage } from '@mdi/js';
+import Icon from '@mdi/react';
 
 type RenderViewerProps = {
     src: string;
@@ -152,7 +152,7 @@ export const ImageContent = as<'div', ImageContentProps>(
                             radii="300"
                             size="300"
                             onClick={loadSrc}
-                            before={<Icon size="Inherit" src={Icons.Photo} filled />}
+                            before={<Icon size={1} path={mdiImage} />}
                         >
                             <Text size="B300">{getText('btn.view')}</Text>
                         </Button>
@@ -197,7 +197,7 @@ export const ImageContent = as<'div', ImageContentProps>(
                                     outlined
                                     radii="300"
                                     onClick={handleRetry}
-                                    before={<Icon size="Inherit" src={Icons.Warning} filled />}
+                                    before={<Icon size={1} path={mdiAlert} />}
                                 >
                                     <Text size="B300">{getText('btn.retry')}</Text>
                                 </Button>

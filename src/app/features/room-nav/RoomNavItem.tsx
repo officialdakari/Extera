@@ -3,9 +3,7 @@ import { Room } from 'matrix-js-sdk';
 import {
     Avatar,
     Box,
-    Icon,
     IconButton,
-    Icons,
     Text,
     Menu,
     MenuItem,
@@ -42,6 +40,8 @@ import { allRoomsAtom } from '../../state/room-list/roomList';
 import { useDirects } from '../../state/hooks/roomList';
 import { usePresences } from '../../hooks/usePresences';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiAccountPlus, mdiArrowLeft, mdiBellCancel, mdiCheckAll, mdiCog, mdiDotsVertical, mdiLinkVariant } from '@mdi/js';
 
 type RoomNavItemMenuProps = {
     room: Room;
@@ -83,7 +83,7 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
                     <MenuItem
                         onClick={handleMarkAsRead}
                         size="300"
-                        after={<Icon size="100" src={Icons.CheckTwice} />}
+                        after={<Icon size={1} path={mdiCheckAll} />}
                         radii="300"
                         disabled={!unread}
                     >
@@ -99,7 +99,7 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
                         variant="Primary"
                         fill="None"
                         size="300"
-                        after={<Icon size="100" src={Icons.UserPlus} />}
+                        after={<Icon size={1} path={mdiAccountPlus} />}
                         radii="300"
                         disabled={!canInvite}
                     >
@@ -110,7 +110,7 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
                     <MenuItem
                         onClick={handleCopyLink}
                         size="300"
-                        after={<Icon size="100" src={Icons.Link} />}
+                        after={<Icon size={1} path={mdiLinkVariant} />}
                         radii="300"
                     >
                         <Text style={{ flexGrow: 1 }} as="span" size="T300">
@@ -120,7 +120,7 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
                     <MenuItem
                         onClick={handleRoomSettings}
                         size="300"
-                        after={<Icon size="100" src={Icons.Setting} />}
+                        after={<Icon size={1} path={mdiCog} />}
                         radii="300"
                     >
                         <Text style={{ flexGrow: 1 }} as="span" size="T300">
@@ -138,7 +138,7 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
                                     variant="Critical"
                                     fill="None"
                                     size="300"
-                                    after={<Icon size="100" src={Icons.ArrowGoLeft} />}
+                                    after={<Icon size={1} path={mdiArrowLeft} />}
                                     radii="300"
                                     aria-pressed={promptLeave}
                                 >
@@ -303,7 +303,7 @@ export function RoomNavItem({
                                 <UnreadBadge highlight={unread.highlight > 0} count={unread.total} />
                             </UnreadBadgeCenter>
                         )}
-                        {muted && !optionsVisible && <Icon size="50" src={Icons.BellMute} />}
+                        {muted && !optionsVisible && <Icon size={1} path={mdiBellCancel} />}
                     </Box>
                 </NavItemContent>
             </NavLink>
@@ -342,7 +342,7 @@ export function RoomNavItem({
                             size="300"
                             radii="300"
                         >
-                            <Icon size="50" src={Icons.VerticalDots} />
+                            <Icon size={1} path={mdiDotsVertical} />
                         </IconButton>
                     </PopOut>
                 </NavItemOptions>

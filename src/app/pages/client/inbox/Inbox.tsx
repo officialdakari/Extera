@@ -1,8 +1,9 @@
 import React from 'react';
-import { Avatar, Box, Icon, Icons, Text } from 'folds';
+import { Avatar, Box, Text } from 'folds';
 import { useAtomValue } from 'jotai';
 import { NavCategory, NavItem, NavItemContent, NavLink } from '../../../components/nav';
 import { getInboxInvitesPath, getInboxNotificationsPath } from '../../pathUtils';
+import { Icon as MDIcon } from '@mdi/react';
 import {
     useInboxInvitesSelected,
     useInboxNotificationsSelected,
@@ -12,6 +13,7 @@ import { allInvitesAtom } from '../../../state/room-list/inviteList';
 import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMapper';
 import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page';
 import { getText } from '../../../../lang';
+import { mdiEmail, mdiEmailOutline, mdiMail, mdiMailboxOutline, mdiMessageAlert, mdiMessageAlertOutline } from '@mdi/js';
 
 function InvitesNavItem() {
     const invitesSelected = useInboxInvitesSelected();
@@ -29,7 +31,7 @@ function InvitesNavItem() {
                 <NavItemContent>
                     <Box as="span" grow="Yes" alignItems="Center" gap="200">
                         <Avatar size="200" radii="400">
-                            <Icon src={Icons.Mail} size="100" filled={invitesSelected} />
+                            <MDIcon size={1} path={invitesSelected ? mdiEmail : mdiEmailOutline} />
                         </Avatar>
                         <Box as="span" grow="Yes">
                             <Text as="span" size="Inherit" truncate>
@@ -68,7 +70,7 @@ export function Inbox() {
                                 <NavItemContent>
                                     <Box as="span" grow="Yes" alignItems="Center" gap="200">
                                         <Avatar size="200" radii="400">
-                                            <Icon src={Icons.MessageUnread} size="100" filled={notificationsSelected} />
+                                            <MDIcon size={1} path={notificationsSelected ? mdiMessageAlert : mdiMessageAlertOutline} />
                                         </Avatar>
                                         <Box as="span" grow="Yes">
                                             <Text as="span" size="Inherit" truncate>

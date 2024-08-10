@@ -4,14 +4,14 @@
         "officialdakari.ru",
         "usesarchbtw.lol",
         "private.coffee",
-        "catgirl.cloud",
-        "secroot.xyz"
+        "matrix.im"
     ],
     "allowCustomHomeservers": true,
     "featuredCommunities": {
         "openAsDefault": false,
         "spaces": [],
         "rooms": [
+            "#extera:officialdakari.ru",
             "#basement:officialdakari.ru"
         ],
         "servers": [

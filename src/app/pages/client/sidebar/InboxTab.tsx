@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon, Icons } from 'folds';
+import { Icon as MDIcon } from '@mdi/react';
 import { useAtomValue } from 'jotai';
 import {
     SidebarAvatar,
@@ -20,6 +21,7 @@ import { UnreadBadge } from '../../../components/unread-badge';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { useNavToActivePathAtom } from '../../../state/hooks/navToActivePath';
 import { getText } from '../../../../lang';
+import { mdiInbox, mdiInboxOutline } from '@mdi/js';
 
 export function InboxTab() {
     const screenSize = useScreenSizeContext();
@@ -49,7 +51,7 @@ export function InboxTab() {
             <SidebarItemTooltip tooltip={getText('inbox.title')}>
                 {(triggerRef) => (
                     <SidebarAvatar as="button" ref={triggerRef} outlined onClick={handleInboxClick}>
-                        <Icon src={Icons.Inbox} filled={inboxSelected} />
+                        <MDIcon path={inboxSelected ? mdiInbox : mdiInboxOutline} size={1} />
                     </SidebarAvatar>
                 )}
             </SidebarItemTooltip>

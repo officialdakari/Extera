@@ -3,8 +3,6 @@ import {
     Avatar,
     Box,
     Button,
-    Icon,
-    Icons,
     Overlay,
     OverlayBackdrop,
     OverlayCenter,
@@ -15,6 +13,7 @@ import {
     config,
 } from 'folds';
 import { useAtomValue } from 'jotai';
+import { Icon as MDIcon } from '@mdi/react';
 import FocusTrap from 'focus-trap-react';
 import { MatrixError, Room } from 'matrix-js-sdk';
 import { Page, PageContent, PageContentCenter, PageHeader } from '../../../components/page';
@@ -40,6 +39,7 @@ import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
 import { useRoomTopic } from '../../../hooks/useRoomMeta';
 import { getText, translate } from '../../../../lang';
+import { mdiMail } from '@mdi/js';
 
 const COMPACT_CARD_WIDTH = 548;
 
@@ -227,7 +227,7 @@ export function Invites() {
         <Page>
             <PageHeader>
                 <Box grow="Yes" justifyContent="Center" alignItems="Center" gap="200">
-                    <Icon size="400" src={Icons.Mail} />
+                    <MDIcon size={1} path={mdiMail} />
                     <Text size="H3">
                         {getText('inbox.invites.title')}
                     </Text>

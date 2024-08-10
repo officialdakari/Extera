@@ -5,15 +5,14 @@ import {
     Box,
     Chip,
     Header,
-    Icon,
     IconButton,
-    Icons,
     Scroll,
     Text,
     config,
     toRem,
 } from 'folds';
 import { useSearchParams } from 'react-router-dom';
+import { Icon as MDIcon } from '@mdi/react';
 import {
     INotification,
     INotificationsResponse,
@@ -71,6 +70,7 @@ import { VirtualTile } from '../../../components/virtualizer';
 import { UserAvatar } from '../../../components/user-avatar';
 import { EncryptedContent } from '../../../features/room/message';
 import { getText, translate } from '../../../../lang';
+import { mdiAccount, mdiCheck, mdiCheckAll, mdiChevronUp, mdiMessage } from '@mdi/js';
 
 type RoomNotificationsGroup = {
     roomId: string;
@@ -382,7 +382,7 @@ function RoomNotificationsGroupComp({
                             variant="Primary"
                             radii="Pill"
                             onClick={handleMarkAsRead}
-                            before={<Icon size="100" src={Icons.CheckTwice} />}
+                            before={<MDIcon size={0.6} path={mdiCheckAll} />}
                         >
                             <Text size="T200">{getText('notifications.mark_as_read')}</Text>
                         </Chip>
@@ -421,7 +421,7 @@ function RoomNotificationsGroupComp({
                                                         : undefined
                                                 }
                                                 alt={displayName}
-                                                renderFallback={() => <Icon size="200" src={Icons.User} filled />}
+                                                renderFallback={() => <MDIcon size={1} path={mdiAccount} />}
                                             />
                                         </Avatar>
                                     </AvatarBase>
@@ -550,7 +550,7 @@ export function Notifications() {
         <Page>
             <PageHeader>
                 <Box grow="Yes" justifyContent="Center" alignItems="Center" gap="200">
-                    <Icon size="400" src={Icons.Message} />
+                    <MDIcon size={1} path={mdiMessage} />
                     <Text size="H3">
                         {getText('notifications.title')}
                     </Text>
@@ -570,7 +570,7 @@ export function Notifications() {
                                             onClick={() => setOnlyHighlighted(false)}
                                             variant={!onlyHighlight ? 'Success' : 'Surface'}
                                             aria-pressed={!onlyHighlight}
-                                            before={!onlyHighlight && <Icon size="100" src={Icons.Check} />}
+                                            before={!onlyHighlight && <MDIcon size={0.7} path={mdiCheck} />}
                                             outlined
                                         >
                                             <Text size="T200">{getText('notifications.filter.all')}</Text>
@@ -579,7 +579,7 @@ export function Notifications() {
                                             onClick={() => setOnlyHighlighted(true)}
                                             variant={onlyHighlight ? 'Success' : 'Surface'}
                                             aria-pressed={onlyHighlight}
-                                            before={onlyHighlight && <Icon size="100" src={Icons.Check} />}
+                                            before={onlyHighlight && <MDIcon size={0.7} path={mdiCheck} />}
                                             outlined
                                         >
                                             <Text size="T200">{getText('notifications.filter.highlighted')}</Text>
@@ -599,7 +599,7 @@ export function Notifications() {
                                         size="300"
                                         aria-label={getText('scroll_to_top')}
                                     >
-                                        <Icon src={Icons.ChevronTop} size="300" />
+                                        <MDIcon size={1} path={mdiChevronUp} />
                                     </IconButton>
                                 </ScrollTopContainer>
                                 <div

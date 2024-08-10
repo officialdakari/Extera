@@ -8,9 +8,7 @@ import React, {
 } from 'react';
 import {
     Header,
-    Icon,
     IconButton,
-    Icons,
     Input,
     Menu,
     MenuItem,
@@ -23,6 +21,8 @@ import FocusTrap from 'focus-trap-react';
 
 import { useDebounce } from '../../hooks/useDebounce';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiChevronDown } from '@mdi/js';
 
 export function ServerPicker({
     server,
@@ -134,7 +134,7 @@ export function ServerPicker({
                             aria-pressed={!!serverMenuAnchor}
                             radii="300"
                         >
-                            <Icon src={Icons.ChevronBottom} />
+                            <Icon size={1} path={mdiChevronDown} />
                         </IconButton>
                     </PopOut>
                 )

@@ -1,9 +1,11 @@
 import React, { useRef } from 'react';
-import { Box, Icon, Icons, Text, Scroll } from 'folds';
+import { Box, Text, Scroll } from 'folds';
+import { Icon as MDIcon } from '@mdi/react';
 import { Page, PageContent, PageContentCenter, PageHeader } from '../../../components/page';
 import { MessageSearch } from '../../../features/message-search';
 import { useHomeRooms } from './useHomeRooms';
 import { getText } from '../../../../lang';
+import { mdiMagnify } from '@mdi/js';
 
 export function HomeSearch() {
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -13,7 +15,7 @@ export function HomeSearch() {
         <Page>
             <PageHeader>
                 <Box grow="Yes" justifyContent="Center" alignItems="Center" gap="200">
-                    <Icon size="400" src={Icons.Search} />
+                    <MDIcon size={1} path={mdiMagnify} />
                     <Text size="H3">
                         {getText('msg_search.title')}
                     </Text>

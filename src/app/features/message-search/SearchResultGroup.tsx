@@ -2,7 +2,7 @@
 import React, { MouseEventHandler, useMemo } from 'react';
 import { IEventWithRoomId, JoinRule, RelationType, Room } from 'matrix-js-sdk';
 import { HTMLReactParserOptions } from 'html-react-parser';
-import { Avatar, Box, Chip, Header, Icon, Icons, Text, config } from 'folds';
+import { Avatar, Box, Chip, Header, Text, config } from 'folds';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import {
     getReactCustomHtmlParser,
@@ -34,6 +34,8 @@ import { SequenceCard } from '../../components/sequence-card';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { UserAvatar } from '../../components/user-avatar';
 import { getText, translate } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiAccount } from '@mdi/js';
 
 type SearchResultGroupProps = {
     room: Room;
@@ -215,7 +217,7 @@ export function SearchResultGroup({
                                                         : undefined
                                                 }
                                                 alt={displayName}
-                                                renderFallback={() => <Icon size="200" src={Icons.User} filled />}
+                                                renderFallback={() => <Icon size={1} path={mdiAccount} />}
                                             />
                                         </Avatar>
                                     </AvatarBase>

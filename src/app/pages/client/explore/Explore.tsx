@@ -7,9 +7,7 @@ import {
     Button,
     Dialog,
     Header,
-    Icon,
     IconButton,
-    Icons,
     Input,
     Overlay,
     OverlayBackdrop,
@@ -37,6 +35,8 @@ import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMapper';
 import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page';
 import { getText } from '../../../../lang';
+import Icon from '@mdi/react';
+import { mdiClose, mdiPlus, mdiServerNetwork, mdiServerNetworkOutline, mdiStar, mdiStarOutline } from '@mdi/js';
 
 export function AddServer() {
     const mx = useMatrixClient();
@@ -96,7 +96,7 @@ export function AddServer() {
                                     <Text size="H4">{getText('explore.add_server')}</Text>
                                 </Box>
                                 <IconButton size="300" onClick={() => setDialog(false)} radii="300">
-                                    <Icon src={Icons.Cross} />
+                                    <Icon size={1} path={mdiClose} />
                                 </IconButton>
                             </Header>
                             <Box
@@ -143,7 +143,7 @@ export function AddServer() {
                 variant="Secondary"
                 fill="Soft"
                 size="300"
-                before={<Icon size="100" src={Icons.Plus} />}
+                before={<Icon size={1} path={mdiPlus} />}
                 onClick={() => setDialog(true)}
             >
                 <Text size="B300" truncate>
@@ -186,7 +186,7 @@ export function Explore() {
                                 <NavItemContent>
                                     <Box as="span" grow="Yes" alignItems="Center" gap="200">
                                         <Avatar size="200" radii="400">
-                                            <Icon src={Icons.Bulb} size="100" filled={featuredSelected} />
+                                            <Icon size={1} path={featuredSelected ? mdiStar : mdiStarOutline} />
                                         </Avatar>
                                         <Box as="span" grow="Yes">
                                             <Text as="span" size="Inherit" truncate>
@@ -208,9 +208,8 @@ export function Explore() {
                                         <Box as="span" grow="Yes" alignItems="Center" gap="200">
                                             <Avatar size="200" radii="400">
                                                 <Icon
-                                                    src={Icons.Category}
-                                                    size="100"
-                                                    filled={selectedServer === userServer}
+                                                    path={selectedServer === userServer ? mdiServerNetwork : mdiServerNetworkOutline}
+                                                    size={1}
                                                 />
                                             </Avatar>
                                             <Box as="span" grow="Yes">
@@ -243,9 +242,8 @@ export function Explore() {
                                             <Box as="span" grow="Yes" alignItems="Center" gap="200">
                                                 <Avatar size="200" radii="400">
                                                     <Icon
-                                                        src={Icons.Category}
-                                                        size="100"
-                                                        filled={server === selectedServer}
+                                                        path={mdiServerNetworkOutline}
+                                                        size={1}
                                                     />
                                                 </Avatar>
                                                 <Box as="span" grow="Yes">

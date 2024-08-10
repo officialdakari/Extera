@@ -8,8 +8,6 @@ import {
     OverlayCenter,
     OverlayBackdrop,
     IconButton,
-    Icon,
-    Icons,
     Tooltip,
     TooltipProvider,
     Menu,
@@ -27,7 +25,7 @@ import {
     Button,
 } from 'folds';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { EventTimeline, JoinRule, MatrixCall, MatrixEvent, Room } from 'matrix-js-sdk';
+import { EventTimeline, JoinRule, MatrixEvent, Room } from 'matrix-js-sdk';
 import { useAtomValue } from 'jotai';
 
 import { useStateEvent } from '../../hooks/useStateEvent';
@@ -73,6 +71,8 @@ import { getReactCustomHtmlParser } from '../../plugins/react-custom-html-parser
 import { HTMLReactParserOptions } from 'html-react-parser';
 import { Message } from './message';
 import { Image } from '../../components/media';
+import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiChevronLeft, mdiChevronRight, mdiClose, mdiCog, mdiDotsVertical, mdiLinkVariant, mdiMagnify, mdiPhone, mdiPin } from '@mdi/js';
+import Icon from '@mdi/react';
 
 type RoomMenuProps = {
     room: Room;
@@ -114,7 +114,7 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                     <MenuItem
                         onClick={handleMarkAsRead}
                         size="300"
-                        after={<Icon size="100" src={Icons.CheckTwice} />}
+                        after={<Icon size={1} path={mdiCheckAll} />}
                         radii="300"
                         disabled={!unread}
                     >
@@ -130,7 +130,7 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                         variant="Primary"
                         fill="None"
                         size="300"
-                        after={<Icon size="100" src={Icons.UserPlus} />}
+                        after={<Icon size={1} path={mdiAccountPlus} />}
                         radii="300"
                         disabled={!canInvite}
                     >
@@ -141,7 +141,7 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                     <MenuItem
                         onClick={handleCopyLink}
                         size="300"
-                        after={<Icon size="100" src={Icons.Link} />}
+                        after={<Icon size={1} path={mdiLinkVariant} />}
                         radii="300"
                     >
                         <Text style={{ flexGrow: 1 }} as="span" size="T300">
@@ -151,7 +151,7 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                     <MenuItem
                         onClick={handleRoomSettings}
                         size="300"
-                        after={<Icon size="100" src={Icons.Setting} />}
+                        after={<Icon size={1} path={mdiCog} />}
                         radii="300"
                     >
                         <Text style={{ flexGrow: 1 }} as="span" size="T300">
@@ -169,7 +169,7 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                                     variant="Critical"
                                     fill="None"
                                     size="300"
-                                    after={<Icon size="100" src={Icons.ArrowGoLeft} />}
+                                    after={<Icon size={1} path={mdiArrowLeft} />}
                                     radii="300"
                                     aria-pressed={promptLeave}
                                 >
@@ -247,7 +247,7 @@ export function RoomViewHeader({
     const [messageSpacing] = useSetting(settingsAtom, 'messageSpacing');
     const { navigateRoom, navigateSpace } = useRoomNavigate();
     const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
-    
+
     const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
         () =>
             getReactCustomHtmlParser(mx, room, {
@@ -446,7 +446,7 @@ export function RoomViewHeader({
                                     <Text size="H4">{getText('pinned.title')}</Text>
                                 </Box>
                                 <IconButton size="300" onClick={handlePinnedClose} radii="300">
-                                    <Icon src={Icons.Cross} />
+                                    <Icon size={1} path={mdiClose} />
                                 </IconButton>
                             </Header>
                             <Box tabIndex={-1} direction='Column' style={{ height: 'inherit' }}>
@@ -461,7 +461,7 @@ export function RoomViewHeader({
                                 <Chip
                                     variant="Secondary"
                                     radii="300"
-                                    before={<Icon size="50" src={Icons.ChevronLeft} />}
+                                    before={<Icon size={1} path={mdiChevronLeft} />}
                                     onClick={handlePrevPage}
                                     aria-disabled={pageNo <= 1 || loadingPinList}
                                 >
@@ -522,7 +522,7 @@ export function RoomViewHeader({
                                 <Chip
                                     variant="Primary"
                                     radii="300"
-                                    after={<Icon size="50" src={Icons.ChevronRight} />}
+                                    after={<Icon size={1} path={mdiChevronRight} />}
                                     onClick={handleNextPage}
                                     aria-disabled={pageNo >= pinnedPages || loadingPinList}
                                 >
@@ -600,7 +600,7 @@ export function RoomViewHeader({
                         >
                             {(triggerRef) => (
                                 <IconButton ref={triggerRef} onClick={handleSearchClick}>
-                                    <Icon size="400" src={Icons.Search} />
+                                    <Icon size={1} path={mdiMagnify} />
                                 </IconButton>
                             )}
                         </TooltipProvider>
@@ -616,7 +616,7 @@ export function RoomViewHeader({
                     >
                         {(triggerRef) => (
                             <IconButton ref={triggerRef} onClick={handlePinnedClick}>
-                                <Icon size="400" src={Icons.Pin} />
+                               <Icon size={1} path={mdiPin} />
                             </IconButton>
                         )}
                     </TooltipProvider>
@@ -632,14 +632,14 @@ export function RoomViewHeader({
                         >
                             {(triggerRef) => (
                                 <IconButton ref={triggerRef} onClick={() => setPeopleDrawer((drawer) => !drawer)}>
-                                    <Icon size="400" src={Icons.User} />
+                                    <Icon size={1} path={mdiAccount} />
                                 </IconButton>
                             )}
                         </TooltipProvider>
                     )}
                     {mDirects.has(room.roomId) && (
                         <IconButton onClick={handleCall}>
-                            <Icon size="400" src={Icons.Phone} />
+                            <Icon size={1} path={mdiPhone} />
                         </IconButton>
                     )}
                     <TooltipProvider
@@ -654,7 +654,7 @@ export function RoomViewHeader({
                     >
                         {(triggerRef) => (
                             <IconButton onClick={handleOpenMenu} ref={triggerRef} aria-pressed={!!menuAnchor}>
-                                <Icon size="400" src={Icons.VerticalDots} filled={!!menuAnchor} />
+                                <Icon size={1} path={mdiDotsVertical} />
                             </IconButton>
                         )}
                     </TooltipProvider>

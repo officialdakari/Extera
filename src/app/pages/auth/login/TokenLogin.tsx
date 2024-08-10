@@ -1,7 +1,5 @@
 import {
     Box,
-    Icon,
-    Icons,
     Overlay,
     OverlayBackdrop,
     OverlayCenter,
@@ -17,6 +15,8 @@ import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { CustomLoginResponse, LoginError, login, useLoginComplete } from './loginUtil';
 import { getText } from '../../../../lang';
 import cons from '../../../../client/state/cons';
+import Icon from '@mdi/react';
+import { mdiAlert } from '@mdi/js';
 
 function LoginTokenError({ message }: { message: string }) {
     return (
@@ -31,7 +31,7 @@ function LoginTokenError({ message }: { message: string }) {
             alignItems="Start"
             gap="300"
         >
-            <Icon size="300" filled src={Icons.Warning} />
+            <Icon size={1} path={mdiAlert} />
             <Box direction="Column" gap="100">
                 <Text size="L400">Token Login</Text>
                 <Text size="T300">

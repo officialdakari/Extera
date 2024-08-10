@@ -1,7 +1,9 @@
 import React from 'react';
-import { as, Chip, Icon, Icons, Text } from 'folds';
+import { as, Chip, Text } from 'folds';
 import classNames from 'classnames';
 import * as css from './styles.css';
+import Icon from '@mdi/react';
+import { mdiChevronDown, mdiChevronRight } from '@mdi/js';
 
 export const RoomNavCategoryButton = as<'button', { closed?: boolean }>(
   ({ className, closed, children, ...props }, ref) => (
@@ -12,8 +14,8 @@ export const RoomNavCategoryButton = as<'button', { closed?: boolean }>(
       before={
         <Icon
           className={css.CategoryButtonIcon}
-          size="50"
-          src={closed ? Icons.ChevronRight : Icons.ChevronBottom}
+          size={1}
+          path={closed ? mdiChevronRight : mdiChevronDown}
         />
       }
       {...props}

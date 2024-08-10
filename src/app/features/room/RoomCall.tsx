@@ -1,6 +1,6 @@
 import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 
-import { Avatar, Box, Icon, IconButton, Icons, Text } from "folds";
+import { Avatar, Box, IconButton, Text } from "folds";
 import { CallEvent, Room, User } from "matrix-js-sdk";
 
 import * as css from './RoomCall.css';
@@ -10,8 +10,8 @@ import { AvatarBase } from '../../components/message';
 import { CallErrorCode, CallState, MatrixCall } from 'matrix-js-sdk/lib/webrtc/call';
 import { CallFeed } from 'matrix-js-sdk/lib/webrtc/callFeed';
 import { SDPStreamMetadataPurpose } from 'matrix-js-sdk/lib/webrtc/callEventTypes';
-import { Icon as MDIIcon } from '@mdi/react';
-import { mdiMicrophone, mdiMicrophoneOff, mdiPhone, mdiPhoneHangup } from '@mdi/js';
+import Icon, { Icon as MDIcon } from '@mdi/react';
+import { mdiAccount, mdiCamera, mdiCameraOff, mdiMicrophone, mdiMicrophoneOff, mdiPhone, mdiPhoneHangup, mdiVideo, mdiVideoOff } from '@mdi/js';
 import { translate } from '../../../lang';
 
 // TODO refactor
@@ -42,9 +42,10 @@ type RoomCallProps = {
     call: MatrixCall;
     onHangup: () => void;
     invitation?: boolean;
+    video?: boolean;
 };
 
-export function RoomCall({ room, call, onHangup, invitation }: RoomCallProps) {
+export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallProps) {
     const mx = useMatrixClient();
     const mxId = mx.getUserId();
     if (typeof mxId !== 'string') return null;
@@ -63,9 +64,13 @@ export function RoomCall({ room, call, onHangup, invitation }: RoomCallProps) {
     const [recipientShowVideo, setRecipientShowVideo] = useState(false);
     const recipientVideoRef = useRef<HTMLVideoElement>(null);
 
+    const [localShowVideo, setLocalShowVideo] = useState(false);
+    const localVideoRef = useRef<HTMLVideoElement>(null);
+
     const ringtoneRef = useRef<HTMLAudioElement>(null);
 
     const [isMuted, setMuted] = useState(false);
+    const [isVideoMuted, setVideoMuted] = useState(false);
 
     const handleHang = useCallback(() => {
         console.debug(`hanging up`, call);
@@ -89,6 +94,18 @@ export function RoomCall({ room, call, onHangup, invitation }: RoomCallProps) {
         setMuted(newState);
     }, []);
 
+    const handleVideoMute = useCallback(async () => {
+        if (!call) {
+            console.debug('No call, dont handling mute');
+            return;
+        }
+
+        const newState = !call.isLocalVideoMuted();
+
+        call.setLocalVideoMuted(newState);
+        setVideoMuted(newState);
+    }, []);
+
     const handleReject = useCallback(async () => {
         if (!call) return;
 
@@ -105,26 +122,50 @@ export function RoomCall({ room, call, onHangup, invitation }: RoomCallProps) {
         if (!call) return;
 
         await call.answer(true, false);
+        if (video) {
+            call.setLocalVideoMuted(true);
+        }
+    }, []);
+
+    const handleVideoAccept = useCallback(async () => {
+        if (!call) return;
+
+        await call.answer(true, true);
     }, []);
 
     console.debug(`Rerendering RoomCall`);
 
     call.on(CallEvent.FeedsChanged, (feeds: CallFeed[]) => {
         feeds.forEach(feed => {
-            if (!feed.isLocal()) {
-                const remoteStream = feed.stream;
+            const remoteStream = feed.stream;
+            if (feed.isLocal()) {
+                if (!feed.isVideoMuted()) {
+                    setLocalShowVideo(true);
+                    setTimeout(() => {
+                        if (localVideoRef.current) {
+                            localVideoRef.current.srcObject = remoteStream;
+                            localVideoRef.current.play().catch(console.error);
+                        }
+                    }, 1000);
+                }
+            } else {
                 console.debug(`REMOTE FEED!!!`, feed);
                 if (feed.hasAudioTrack) {
                     if (audioRef.current) {
                         audioRef.current.srcObject = remoteStream;
                         audioRef.current.play().catch(console.error);
                     }
-                } else {
-                    if (recipientVideoRef.current) {
-                        recipientVideoRef.current.srcObject = remoteStream;
-                        recipientVideoRef.current.play().catch(console.error);
-                        setRecipientShowVideo(true);
-                    }
+                }
+                if (!feed.isVideoMuted()) {
+                    setRecipientShowVideo(true);
+                    setTimeout(() => {
+                        if (recipientVideoRef.current) {
+                            recipientVideoRef.current.srcObject = remoteStream;
+                            recipientVideoRef.current.play().catch(console.error);
+                        } else {
+                            console.error(`NO RECIPIENT VIDEO REF!!!!!!! CRITICAL ERROR`);
+                        }
+                    }, 1000);
                 }
             }
         });
@@ -162,23 +203,24 @@ export function RoomCall({ room, call, onHangup, invitation }: RoomCallProps) {
                     <Box grow='Yes' direction='Row'>
                         <div className={css.UsersDiv}>
                             <div className={css.UserAvatarBox}>
-                                <AvatarBase className={css.UserAvatar}>
-                                    <Avatar
-                                        style={userStyle}
-                                    >
-                                        <UserAvatar
-                                            userId={user.userId}
-                                            alt={user.displayName ?? user.userId}
-                                            src={typeof user.avatarUrl === 'string' ? mx.mxcUrlToHttp(user.avatarUrl, 96, 96, 'scale', true) ?? undefined : undefined}
-                                            renderFallback={() => <Icon size="200" src={Icons.User} filled />}
-                                        />
-                                    </Avatar>
-                                </AvatarBase>
+                                <video controls={false} autoPlay className={css.VideoFeed} style={{ display: localShowVideo ? 'block' : 'none' }} ref={localVideoRef} />
+                                {!localShowVideo && (
+                                    <AvatarBase className={css.UserAvatar}>
+                                        <Avatar
+                                            style={userStyle}
+                                        >
+                                            <UserAvatar
+                                                userId={user.userId}
+                                                alt={user.displayName ?? user.userId}
+                                                src={typeof user.avatarUrl === 'string' ? mx.mxcUrlToHttp(user.avatarUrl, 96, 96, 'scale', true) ?? undefined : undefined}
+                                                renderFallback={() => <Icon size={1} path={mdiAccount} />}
+                                            />
+                                        </Avatar>
+                                    </AvatarBase>
+                                )}
                             </div>
                             <div className={css.UserAvatarBox}>
-                                {recipientShowVideo && (
-                                    <video controls={false} autoPlay ref={recipientVideoRef} />
-                                )}
+                                <video controls={false} autoPlay className={css.VideoFeed} style={{ display: recipientShowVideo ? 'block' : 'none' }} ref={recipientVideoRef} />
                                 {!recipientShowVideo && (
                                     <AvatarBase className={css.UserAvatar}>
                                         <Avatar
@@ -188,7 +230,7 @@ export function RoomCall({ room, call, onHangup, invitation }: RoomCallProps) {
                                                 userId={recipient.userId}
                                                 alt={recipient.displayName ?? recipient.userId}
                                                 src={typeof recipient.avatarUrl === 'string' ? mx.mxcUrlToHttp(recipient.avatarUrl, 96, 96, 'scale', true) ?? undefined : undefined}
-                                                renderFallback={() => <Icon size="200" src={Icons.User} filled />}
+                                                renderFallback={() => <Icon size={1} path={mdiAccount} />}
                                             />
                                         </Avatar>
                                     </AvatarBase>
@@ -197,17 +239,20 @@ export function RoomCall({ room, call, onHangup, invitation }: RoomCallProps) {
                         </div>
                     </Box>
                     <Box className={css.CallControlsContainer} grow='No' direction='Row'>
+                        <IconButton variant='SurfaceVariant' onClick={handleVideoMute} aria-pressed={isVideoMuted}>
+                            <MDIcon path={isVideoMuted ? mdiVideoOff : mdiVideo} size={1} />
+                        </IconButton>
                         <IconButton variant='SurfaceVariant' onClick={handleMute} aria-pressed={isMuted}>
-                            <MDIIcon path={isMuted ? mdiMicrophoneOff : mdiMicrophone} size={1} />
+                            <MDIcon path={isMuted ? mdiMicrophoneOff : mdiMicrophone} size={1} />
                         </IconButton>
                         <IconButton variant='Critical' onClick={handleHang}>
-                            <MDIIcon path={mdiPhoneHangup} size={1} />
+                            <MDIcon path={mdiPhoneHangup} size={1} />
                         </IconButton>
                     </Box>
                 </>
             )}
             {
-                [CallState.Ringing, CallState.InviteSent, CallState.Connecting].includes(call.state) &&
+                [CallState.InviteSent, CallState.Connecting].includes(call.state) &&
                 (
                     <audio
                         src='https://officialdakari.ru/_matrix/media/r0/download/officialdakari.ru/rAiqpTddZoUUhcBVjPQORWJb'
@@ -227,18 +272,30 @@ export function RoomCall({ room, call, onHangup, invitation }: RoomCallProps) {
                     />
                     <div className={css.UsersDiv}>
                         <Text priority='400' size='H3'>{translate(
-                            'title.incoming_call',
+                            video ? 'title.incoming_video_call' : 'title.incoming_call',
                             <b>
                                 {recipient.displayName ?? recipient.userId}
                             </b>
                         )}</Text>
                     </div>
+                    {video && (
+                        <div>
+                            <Text style={{ color: 'red' }}>
+                                <b>ATTENTION!</b> Due to a bug, recipient <i>will see your video feed</i> for less than a second, and then it will be <i>frozen picture</i> (Not blank screen, but a frozen picture!)
+                            </Text>
+                        </div>
+                    )}
                     <Box className={css.CallControlsContainer} grow='No' direction='Row'>
+                        {video && (
+                            <IconButton variant='Success' onClick={handleVideoAccept}>
+                                <MDIcon path={mdiVideo} size={1} />
+                            </IconButton>
+                        )}
                         <IconButton variant='Success' onClick={handleAccept}>
-                            <MDIIcon path={mdiPhone} size={1} />
+                            <MDIcon path={mdiPhone} size={1} />
                         </IconButton>
                         <IconButton variant='Critical' onClick={handleReject}>
-                            <MDIIcon path={mdiPhoneHangup} size={1} />
+                            <MDIcon path={mdiPhoneHangup} size={1} />
                         </IconButton>
                     </Box>
                 </>

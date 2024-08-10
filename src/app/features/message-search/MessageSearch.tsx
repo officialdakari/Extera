@@ -1,5 +1,5 @@
 import React, { RefObject, useEffect, useMemo, useRef } from 'react';
-import { Text, Box, Icon, Icons, config, Spinner, IconButton, Line, toRem } from 'folds';
+import { Text, Box, config, Spinner, IconButton, Line, toRem } from 'folds';
 import { useAtomValue } from 'jotai';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -24,6 +24,8 @@ import { SearchInput } from './SearchInput';
 import { SearchFilters } from './SearchFilters';
 import { VirtualTile } from '../../components/virtualizer';
 import { getText, translate } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiAlertCircleOutline, mdiChevronUp, mdiMessageOutline } from '@mdi/js';
 
 const useSearchPathSearchParams = (searchParams: URLSearchParams): _SearchPathSearchParams =>
     useMemo(
@@ -196,7 +198,7 @@ export function MessageSearch({
                     size="300"
                     aria-label={getText('aria.scroll_to_top')}
                 >
-                    <Icon src={Icons.ChevronTop} size="300" />
+                    <Icon size={0.8} path={mdiChevronUp} />
                 </IconButton>
             </ScrollTopContainer>
             <Box ref={scrollTopAnchorRef} direction="Column" gap="300">
@@ -235,7 +237,7 @@ export function MessageSearch({
                 >
                     <PageHeroSection>
                         <PageHero
-                            icon={<Icon size="600" src={Icons.Message} />}
+                            icon={<Icon size={0.8} path={mdiMessageOutline} />}
                             title={getText('msg_search.title.2')}
                             subTitle={getText('msg_search.subtitle.2')}
                         />
@@ -250,7 +252,7 @@ export function MessageSearch({
                     alignItems="Center"
                     gap="200"
                 >
-                    <Icon size="200" src={Icons.Info} />
+                    <Icon size={0.8} path={mdiAlertCircleOutline} />
                     <Text>
                         {translate('generic.no_results', <b>{`"${msgSearchParams.term}"`}</b>)}
                     </Text>

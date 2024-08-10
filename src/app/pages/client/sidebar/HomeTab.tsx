@@ -1,6 +1,6 @@
 import React, { MouseEventHandler, forwardRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Icon, Icons, Menu, MenuItem, PopOut, RectCords, Text, config, toRem } from 'folds';
+import { Box, Menu, MenuItem, PopOut, RectCords, Text, config, toRem } from 'folds';
 import { useAtomValue } from 'jotai';
 import FocusTrap from 'focus-trap-react';
 import { useOrphanRooms } from '../../../state/hooks/roomList';
@@ -8,6 +8,7 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { mDirectAtom } from '../../../state/mDirectList';
 import { roomToParentsAtom } from '../../../state/room/roomToParents';
 import { allRoomsAtom } from '../../../state/room-list/roomList';
+import Icon, { Icon as MDIcon } from '@mdi/react';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import { getHomePath, joinPathComponent } from '../../pathUtils';
 import { useRoomsUnread } from '../../../state/hooks/unread';
@@ -24,6 +25,7 @@ import { useNavToActivePathAtom } from '../../../state/hooks/navToActivePath';
 import { useHomeRooms } from '../home/useHomeRooms';
 import { markAsRead } from '../../../../client/action/notifications';
 import { getText } from '../../../../lang';
+import { mdiCheckAll, mdiHome, mdiHomeOutline } from '@mdi/js';
 
 type HomeMenuProps = {
     requestClose: () => void;
@@ -44,7 +46,7 @@ const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ requestClose }, re
                 <MenuItem
                     onClick={handleMarkAsRead}
                     size="300"
-                    after={<Icon size="100" src={Icons.CheckTwice} />}
+                    after={<Icon size={1} path={mdiCheckAll} />}
                     radii="300"
                     aria-disabled={!unread}
                 >
@@ -100,7 +102,7 @@ export function HomeTab() {
                         onClick={handleHomeClick}
                         onContextMenu={handleContextMenu}
                     >
-                        <Icon src={Icons.Home} filled={homeSelected} />
+                        <MDIcon size={1} path={homeSelected ? mdiHome : mdiHomeOutline} />
                     </SidebarAvatar>
                 )}
             </SidebarItemTooltip>

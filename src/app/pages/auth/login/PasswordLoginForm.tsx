@@ -3,9 +3,7 @@ import {
     Box,
     Button,
     Header,
-    Icon,
     IconButton,
-    Icons,
     Input,
     Menu,
     Overlay,
@@ -38,6 +36,8 @@ import { FieldError } from '../FiledError';
 import { getResetPasswordPath } from '../../pathUtils';
 import { getText } from '../../../../lang';
 import cons from '../../../../client/state/cons';
+import Icon from '@mdi/react';
+import { mdiAlertCircleOutline } from '@mdi/js';
 
 function UsernameHint({ server }: { server: string }) {
     const [anchor, setAnchor] = useState<RectCords>();
@@ -100,7 +100,7 @@ function UsernameHint({ server }: { server: string }) {
                 radii="300"
                 aria-pressed={!!anchor}
             >
-                <Icon style={{ opacity: config.opacity.P300 }} size="100" src={Icons.Info} />
+                <Icon style={{ opacity: config.opacity.P300 }} size={1} path={mdiAlertCircleOutline} />
             </IconButton>
         </PopOut>
     );

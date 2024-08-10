@@ -4,8 +4,6 @@ import {
     Badge,
     Box,
     Chip,
-    Icon,
-    Icons,
     Line,
     Overlay,
     OverlayBackdrop,
@@ -40,6 +38,8 @@ import { ErrorCode } from '../../cs-errorcode';
 import { getDirectRoomAvatarUrl, getRoomAvatarUrl } from '../../utils/room';
 import { ItemDraggableTarget, useDraggableItem } from './DnD';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiAlert, mdiArrowRight, mdiPlus } from '@mdi/js';
 
 type RoomJoinButtonProps = {
     roomId: string;
@@ -70,15 +70,14 @@ function RoomJoinButton({ roomId, via }: RoomJoinButtonProps) {
                     }
                 >
                     {(triggerRef) => (
-                        <Icon
-                            ref={triggerRef}
-                            style={{ color: color.Critical.Main, cursor: 'pointer' }}
-                            src={Icons.Warning}
-                            size="400"
-                            filled
-                            tabIndex={0}
-                            aria-label={joinState.error.data?.error || joinState.error.message}
-                        />
+                        <span ref={triggerRef}>
+                            <Icon
+                                style={{ color: color.Critical.Main, cursor: 'pointer' }}
+                                path={mdiAlert}
+                                size={1}
+                                aria-label={joinState.error.data?.error || joinState.error.message}
+                            />
+                        </span>
                     )}
                 </TooltipProvider>
             )}
@@ -88,7 +87,7 @@ function RoomJoinButton({ roomId, via }: RoomJoinButtonProps) {
                 size="400"
                 radii="Pill"
                 before={
-                    canJoin ? <Icon src={Icons.Plus} size="50" /> : <Spinner variant="Secondary" size="100" />
+                    canJoin ? <Icon size={0.8} path={mdiPlus} /> : <Spinner variant="Secondary" size="100" />
                 }
                 onClick={join}
                 disabled={!canJoin}
@@ -381,7 +380,7 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
                                                     radii="Pill"
                                                     aria-label="Open Room"
                                                 >
-                                                    <Icon size="50" src={Icons.ArrowRight} />
+                                                    <Icon size={0.8} path={mdiArrowRight} />
                                                 </Chip>
                                             </Box>
                                         ) : (

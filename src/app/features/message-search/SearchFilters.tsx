@@ -10,8 +10,6 @@ import {
     Box,
     Chip,
     Text,
-    Icon,
-    Icons,
     Line,
     config,
     PopOut,
@@ -25,7 +23,7 @@ import {
     Badge,
     RectCords,
 } from 'folds';
-import { SearchOrderBy } from 'matrix-js-sdk';
+import { JoinRule, SearchOrderBy } from 'matrix-js-sdk';
 import FocusTrap from 'focus-trap-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
@@ -39,6 +37,8 @@ import {
 import { DebounceOptions, useDebounce } from '../../hooks/useDebounce';
 import { VirtualTile } from '../../components/virtualizer';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiCheck, mdiClose, mdiMessageLockOutline, mdiMessageOutline, mdiPlusCircleOutline, mdiSort } from '@mdi/js';
 
 type OrderButtonProps = {
     order?: string;
@@ -101,7 +101,7 @@ function OrderButton({ order, onChange }: OrderButtonProps) {
             <Chip
                 variant="SurfaceVariant"
                 radii="Pill"
-                after={<Icon size="50" src={Icons.Sort} />}
+                after={<Icon size={0.8} path={mdiSort} />}
                 onClick={handleOpenMenu}
             >
                 {<Text size="T200">{getText(rankOrder ? 'sort.relevance' : 'sort.recent')}</Text>}
@@ -271,9 +271,11 @@ function SelectRoomButton({ roomList, selectedRooms, onChange }: SelectRoomButto
                                                         aria-pressed={selected}
                                                         before={
                                                             <Icon
-                                                                size="50"
-                                                                src={
-                                                                    joinRuleToIconSrc(Icons, room.getJoinRule(), false) ?? Icons.Hash
+                                                                size={0.8}
+                                                                path={
+                                                                    room.getJoinRule() !== JoinRule.Public ?
+                                                                        mdiMessageLockOutline :
+                                                                        mdiMessageOutline
                                                                 }
                                                             />
                                                         }
@@ -317,7 +319,7 @@ function SelectRoomButton({ roomList, selectedRooms, onChange }: SelectRoomButto
                 onClick={handleOpenMenu}
                 variant="SurfaceVariant"
                 radii="Pill"
-                before={<Icon size="100" src={Icons.PlusCircle} />}
+                before={<Icon size={0.8} path={mdiPlusCircleOutline} />}
             >
                 <Text size="T200">{getText('search_filters.select_rooms')}</Text>
             </Chip>
@@ -356,7 +358,7 @@ export function SearchFilters({
                 <Chip
                     variant={!global ? 'Success' : 'Surface'}
                     aria-pressed={!global}
-                    before={!global && <Icon size="100" src={Icons.Check} />}
+                    before={!global && <Icon size={0.8} path={mdiCheck} />}
                     outlined
                     onClick={() => onGlobalChange()}
                 >
@@ -366,7 +368,7 @@ export function SearchFilters({
                     <Chip
                         variant={global ? 'Success' : 'Surface'}
                         aria-pressed={global}
-                        before={global && <Icon size="100" src={Icons.Check} />}
+                        before={global && <Icon size={0.8} path={mdiCheck} />}
                         outlined
                         onClick={() => onGlobalChange(true)}
                     >
@@ -391,11 +393,15 @@ export function SearchFilters({
                             radii="Pill"
                             before={
                                 <Icon
-                                    size="50"
-                                    src={joinRuleToIconSrc(Icons, room.getJoinRule(), false) ?? Icons.Hash}
+                                    size={0.8}
+                                    path={
+                                        room.getJoinRule() !== JoinRule.Public ?
+                                                                        mdiMessageLockOutline :
+                                                                        mdiMessageOutline
+                                    }
                                 />
                             }
-                            after={<Icon size="50" src={Icons.Cross} />}
+                            after={<Icon size={0.8} path={mdiClose} />}
                         >
                             <Text size="T200">{room.name}</Text>
                         </Chip>

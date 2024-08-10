@@ -57,7 +57,7 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
     const [callWindow, setCallWindow] = useRoomCall();
 
     const handleCall = async () => {
-        if (callWindow) return;
+        if (callWindow) return console.error('A call is already going on');
         const newCall = mx.createCall(room.roomId);
         if (!newCall) return alert('Calls are not supported in your browser!');
         setMxCall(newCall);
@@ -93,6 +93,8 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
                     if (i > 10) return clearInterval(interval);
                     i++;
 
+                    console.debug('Invited to a call!!!', content.offer);
+
                     const call = mx.callEventHandler?.calls.get(content.call_id);
 
                     if (!call) return console.debug('No call found', content.call_id, mx.callEventHandler?.calls);
@@ -105,9 +107,11 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
                         return;
                     }
 
+                    console.debug(`Call offer!!!`, content.offer);
+
                     setMxCall(call);
                     setCallWindow(
-                        <RoomCall room={room} call={call} onHangup={onHangup} invitation={true} />
+                        <RoomCall room={room} call={call} onHangup={onHangup} invitation={true} video={content.offer.sdp.includes('video')} />
                     );
                 }, 1000);
             }

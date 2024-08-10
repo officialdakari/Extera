@@ -1,5 +1,5 @@
 import React, { useEffect, KeyboardEvent as ReactKeyboardEvent } from 'react';
-import { Avatar, Icon, Icons, MenuItem, Text } from 'folds';
+import { Avatar, MenuItem, Text } from 'folds';
 import { MatrixClient, Room, RoomMember } from 'matrix-js-sdk';
 
 import { AutocompleteQuery } from './autocompleteQuery';
@@ -16,6 +16,8 @@ import { useKeyDown } from '../../../hooks/useKeyDown';
 import { getMxIdLocalPart, getMxIdServer, validMxId } from '../../../utils/matrix';
 import { getMemberDisplayName, getMemberSearchStr } from '../../../utils/room';
 import { UserAvatar } from '../../user-avatar';
+import { mdiAccount } from '@mdi/js';
+import Icon from '@mdi/react';
 
 type MentionAutoCompleteHandler = (userId: string, name: string) => void;
 
@@ -46,7 +48,7 @@ function UnknownMentionItem({
                 <Avatar size="200">
                     <UserAvatar
                         userId={userId}
-                        renderFallback={() => <Icon size="50" src={Icons.User} filled />}
+                        renderFallback={() => <Icon size={0.7} path={mdiAccount} />}
                     />
                 </Avatar>
             }
@@ -170,7 +172,7 @@ export function UserMentionAutocomplete({
                                         userId={roomMember.userId}
                                         src={avatarUrl ?? undefined}
                                         alt={getName(roomMember)}
-                                        renderFallback={() => <Icon size="50" src={Icons.User} filled />}
+                                        renderFallback={() => <Icon size={0.7} path={mdiAccount} />}
                                     />
                                 </Avatar>
                             }

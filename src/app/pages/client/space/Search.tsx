@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Box, Icon, Icons, Text, Scroll } from 'folds';
+import { Box, Text, Scroll } from 'folds';
 import { useAtomValue } from 'jotai';
 import { Page, PageContent, PageContentCenter, PageHeader } from '../../../components/page';
 import { MessageSearch } from '../../../features/message-search';
@@ -10,6 +10,8 @@ import { mDirectAtom } from '../../../state/mDirectList';
 import { roomToParentsAtom } from '../../../state/room/roomToParents';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getText } from '../../../../lang';
+import { Icon as MDIcon } from '@mdi/react';
+import { mdiMagnify } from '@mdi/js';
 
 export function SpaceSearch() {
     const mx = useMatrixClient();
@@ -28,7 +30,7 @@ export function SpaceSearch() {
         <Page>
             <PageHeader>
                 <Box grow="Yes" justifyContent="Center" alignItems="Center" gap="200">
-                    <Icon size="400" src={Icons.Search} />
+                    <MDIcon size={1} path={mdiMagnify} />
                     <Text size="H3" truncate>
                         {getText('home.search_messages')}
                     </Text>

@@ -4,8 +4,6 @@ import {
     Avatar,
     Text,
     Chip,
-    Icon,
-    Icons,
     as,
     Badge,
     toRem,
@@ -35,6 +33,8 @@ import { ErrorCode } from '../../cs-errorcode';
 import { useDraggableItem } from './DnD';
 import { openCreateRoom, openSpaceAddExisting } from '../../../client/action/navigation';
 import { getText } from '../../../lang';
+import { mdiChevronDown, mdiChevronRight, mdiPlus } from '@mdi/js';
+import Icon from '@mdi/react';
 
 function SpaceProfileLoading() {
     return (
@@ -145,7 +145,7 @@ function UnknownSpaceProfile({
                 </Avatar>
             }
             after={
-                canJoin ? <Icon src={Icons.Plus} size="50" /> : <Spinner variant="Secondary" size="200" />
+                canJoin ? <Icon size={0.8} path={mdiPlus} /> : <Spinner variant="Secondary" size="200" />
             }
         >
             <Box alignItems="Center" gap="200">
@@ -208,7 +208,7 @@ function SpaceProfile({
                     />
                 </Avatar>
             }
-            after={<Icon src={closed ? Icons.ChevronRight : Icons.ChevronBottom} size="50" />}
+            after={<Icon size={0.8} path={closed ? mdiChevronRight : mdiChevronDown} />}
         >
             <Box alignItems="Center" gap="200">
                 <Text size="H4" truncate>
@@ -237,7 +237,7 @@ function RootSpaceProfile({ closed, categoryId, handleClose }: RootSpaceProfileP
             className={css.HeaderChip}
             variant="Surface"
             size="500"
-            after={<Icon src={closed ? Icons.ChevronRight : Icons.ChevronBottom} size="50" />}
+            after={<Icon size={0.8} path={closed ? mdiChevronRight : mdiChevronDown} />}
         >
             <Box alignItems="Center" gap="200">
                 <Text size="H4" truncate>
@@ -300,7 +300,7 @@ function AddRoomButton({ item }: { item: HierarchyItem }) {
             <Chip
                 variant="Primary"
                 radii="Pill"
-                before={<Icon src={Icons.Plus} size="50" />}
+                before={<Icon size={0.8} path={mdiPlus} />}
                 onClick={handleAddRoom}
                 aria-pressed={!!cords}
             >
@@ -361,7 +361,7 @@ function AddSpaceButton({ item }: { item: HierarchyItem }) {
             <Chip
                 variant="SurfaceVariant"
                 radii="Pill"
-                before={<Icon src={Icons.Plus} size="50" />}
+                before={<Icon size={0.8} path={mdiPlus} />}
                 onClick={handleAddSpace}
                 aria-pressed={!!cords}
             >

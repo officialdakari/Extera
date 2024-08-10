@@ -62,5 +62,6 @@ export const UserAvatar = style({
 
 export const VideoFeed = style({
     maxWidth: '400px',
-    maxHeight: '400px'
+    maxHeight: '400px',
+    borderRadius: config.radii.R300
 });

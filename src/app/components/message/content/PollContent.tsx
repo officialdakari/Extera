@@ -1,4 +1,4 @@
-import { Box, Icon, Icons, MenuItem, Text, as, color, config } from 'folds';
+import { Box, MenuItem, Text, as, color, config } from 'folds';
 import React, { useState, useEffect, useCallback } from 'react';
 import * as css from './style.css';
 import ProgressBar from '../../progressbar';

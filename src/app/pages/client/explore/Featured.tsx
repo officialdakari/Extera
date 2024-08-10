@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Icon, Icons, Scroll, Text } from 'folds';
+import { Box, Scroll, Text } from 'folds';
 import { useAtomValue } from 'jotai';
 import { useClientConfig } from '../../../hooks/useClientConfig';
 import { RoomCard, RoomCardGrid } from '../../../components/room-card';
@@ -16,6 +16,8 @@ import { RoomTopicViewer } from '../../../components/room-topic-viewer';
 import * as css from './style.css';
 import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
 import { getText } from '../../../../lang';
+import Icon from '@mdi/react';
+import { mdiAlertCircleOutline, mdiStar, mdiStarCircleOutline } from '@mdi/js';
 
 export function FeaturedRooms() {
     const { featuredCommunities } = useClientConfig();
@@ -32,7 +34,7 @@ export function FeaturedRooms() {
                             <Box direction="Column" gap="200">
                                 <PageHeroSection>
                                     <PageHero
-                                        icon={<Icon size="600" src={Icons.Bulb} />}
+                                        icon={<Icon size={1} path={mdiStar} />}
                                         title={getText('explore.featured.title')}
                                         subTitle={getText('explore.featured.subtitle')}
                                     />
@@ -105,7 +107,7 @@ export function FeaturedRooms() {
                                                 alignItems="Center"
                                                 gap="200"
                                             >
-                                                <Icon size="400" src={Icons.Info} />
+                                                <Icon size={1} path={mdiAlertCircleOutline} />
                                                 <Text size="T300" align="Center">
                                                     {getText('explore.no_featured')}
                                                 </Text>

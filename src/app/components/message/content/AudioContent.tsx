@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/media-has-caption */
 import React, { ReactNode, useCallback, useRef, useState } from 'react';
-import { Badge, Chip, Icon, IconButton, Icons, ProgressBar, Spinner, Text, toRem } from 'folds';
+import { Badge, Chip, IconButton, ProgressBar, Spinner, Text, toRem } from 'folds';
 import { EncryptedAttachmentInfo } from 'browser-encrypt-attachment';
 import { Range } from 'react-range';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
@@ -17,6 +17,8 @@ import {
 } from '../../../hooks/media';
 import { useThrottle } from '../../../hooks/useThrottle';
 import { secondsToMinutesAndSeconds } from '../../../utils/common';
+import Icon from '@mdi/react';
+import { mdiPause, mdiPlayOutline, mdiVolumeHigh, mdiVolumeMute } from '@mdi/js';
 
 const PLAY_TIME_THROTTLE_OPS = {
   wait: 500,
@@ -130,7 +132,7 @@ export function AudioContent({
             srcState.status === AsyncStatus.Loading || loading ? (
               <Spinner variant="Secondary" size="50" />
             ) : (
-              <Icon src={playing ? Icons.Pause : Icons.Play} size="50" filled={playing} />
+              <Icon size={0.8} path={playing ? mdiPause : mdiPlayOutline} />
             )
           }
         >
@@ -151,7 +153,7 @@ export function AudioContent({
           onClick={() => setMute(!mute)}
           aria-pressed={mute}
         >
-          <Icon src={mute ? Icons.VolumeMute : Icons.VolumeHigh} size="50" />
+          <Icon size={0.8} path={mute ? mdiVolumeMute : mdiVolumeHigh} />
         </IconButton>
         <Range
           step={0.1}

@@ -1,9 +1,11 @@
 import React from 'react';
-import { Box, Button, Icon, Icons, Text, config, toRem } from 'folds';
+import { Box, Button, Text, config, toRem } from 'folds';
 import { Page, PageHero, PageHeroSection } from '../../components/page';
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 import cons from '../../../client/state/cons';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiCodeBraces, mdiHeart } from '@mdi/js';
 
 export function WelcomePage() {
     return (
@@ -38,7 +40,7 @@ export function WelcomePage() {
                                     href="https://github.com/OfficialDakari/Extera"
                                     target="_blank"
                                     rel="noreferrer noopener"
-                                    before={<Icon size="200" src={Icons.Code} />}
+                                    before={<Icon size={1} path={mdiCodeBraces} />}
                                 >
                                     <Text as="span" size="B400">
                                         {getText('btn.source_code')}
@@ -50,7 +52,7 @@ export function WelcomePage() {
                                     target="_blank"
                                     rel="noreferrer noopener"
                                     fill="Soft"
-                                    before={<Icon size="200" src={Icons.Heart} />}
+                                    before={<Icon size={1} path={mdiHeart} />}
                                 >
                                     <Text as="span" size="B400">
                                         {getText('btn.sponsor')}

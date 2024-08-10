@@ -2,8 +2,6 @@ import React, { ReactNode, useCallback, useState } from 'react';
 import {
     Box,
     Button,
-    Icon,
-    Icons,
     Modal,
     Overlay,
     OverlayBackdrop,
@@ -32,6 +30,8 @@ import * as css from './style.css';
 import { HTMLReactParserOptions } from 'html-react-parser';
 import { RenderBody } from '../RenderBody';
 import { getText } from '../../../../lang';
+import Icon from '@mdi/react';
+import { mdiAlert, mdiArrowDownBold, mdiArrowRight } from '@mdi/js';
 
 const renderErrorButton = (retry: () => void, text: string) => (
     <TooltipProvider
@@ -52,7 +52,7 @@ const renderErrorButton = (retry: () => void, text: string) => (
                 outlined
                 radii="300"
                 onClick={retry}
-                before={<Icon size="100" src={Icons.Warning} filled />}
+                before={<Icon size={1} path={mdiAlert} />}
             >
                 <Text size="B400" truncate>
                     {text}
@@ -143,7 +143,7 @@ export function ReadTextFile({ body, mimeType, url, encInfo, renderViewer, forma
                         textState.status === AsyncStatus.Loading ? (
                             <Spinner fill="Solid" size="100" variant="Secondary" />
                         ) : (
-                            <Icon size="100" src={Icons.ArrowRight} filled />
+                            <Icon size={1} path={mdiArrowRight} />
                         )
                     }
                 >
@@ -224,7 +224,7 @@ export function ReadPdfFile({ body, mimeType, url, encInfo, renderViewer, format
                         pdfState.status === AsyncStatus.Loading ? (
                             <Spinner fill="Solid" size="100" variant="Secondary" />
                         ) : (
-                            <Icon size="100" src={Icons.ArrowRight} filled />
+                            <Icon size={1} path={mdiArrowRight} />
                         )
                     }
                 >
@@ -278,7 +278,7 @@ export function DownloadFile({ body, mimeType, url, info, encInfo, filename, for
                     downloadState.status === AsyncStatus.Loading ? (
                         <Spinner fill="Soft" size="100" variant="Secondary" />
                     ) : (
-                        <Icon size="100" src={Icons.Download} filled />
+                        <Icon size={1} path={mdiArrowDownBold} />
                     )
                 }
             >

@@ -14,9 +14,7 @@ import {
     Chip,
     ContainerColor,
     Header,
-    Icon,
     IconButton,
-    Icons,
     Input,
     Menu,
     MenuItem,
@@ -58,6 +56,8 @@ import { UserAvatar } from '../../components/user-avatar';
 import { useRoomTypingMember } from '../../hooks/useRoomTypingMembers';
 import { usePresences } from '../../hooks/usePresences';
 import { getText } from '../../../lang';
+import { mdiAccount, mdiChevronUp, mdiClose, mdiFilterOutline, mdiMagnify, mdiSort } from '@mdi/js';
+import Icon from '@mdi/react';
 
 export const MembershipFilters = {
     filterJoined: (m: RoomMember) => m.membership === Membership.Join,
@@ -317,7 +317,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                     variant="Background"
                                     onClick={() => setPeopleDrawer(false)}
                                 >
-                                    <Icon src={Icons.Cross} />
+                                    <Icon size={1} path={mdiClose} />
                                 </IconButton>
                             )}
                         </TooltipProvider>
@@ -380,7 +380,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                                 variant={membershipFilter.color}
                                                 size="400"
                                                 radii="300"
-                                                before={<Icon src={Icons.Filter} size="50" />}
+                                                before={<Icon size={1} path={mdiFilterOutline} />}
                                             >
                                                 <Text size="T200">{membershipFilter.name}</Text>
                                             </Chip>
@@ -434,7 +434,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                                 variant="Background"
                                                 size="400"
                                                 radii="300"
-                                                after={<Icon src={Icons.Sort} size="50" />}
+                                                after={<Icon size={1} path={mdiSort} />}
                                             >
                                                 <Text size="T200">{sortFilter.name}</Text>
                                             </Chip>
@@ -451,7 +451,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                     variant="Surface"
                                     size="400"
                                     radii="400"
-                                    before={<Icon size="50" src={Icons.Search} />}
+                                    before={<Icon size={1} path={mdiMagnify} />}
                                     after={
                                         result && (
                                             <Chip
@@ -466,7 +466,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                                     }
                                                     resetSearch();
                                                 }}
-                                                after={<Icon size="50" src={Icons.Cross} />}
+                                                after={<Icon size={1} path={mdiClose} />}
                                             >
                                                 <Text size="B300">{result.items.length ? getText('generic.result_count', result.items.length) : getText('generic.no_results.2')}</Text>
                                             </Chip>
@@ -485,7 +485,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                 size="300"
                                 aria-label={getText('aria.scroll_to_top')}
                             >
-                                <Icon src={Icons.ChevronTop} size="300" />
+                                <Icon size={1} path={mdiChevronUp} />
                             </IconButton>
                         </ScrollTopContainer>
 
@@ -552,7 +552,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                                         userId={member.userId}
                                                         src={avatarUrl ?? undefined}
                                                         alt={name}
-                                                        renderFallback={() => <Icon size="50" src={Icons.User} filled />}
+                                                        renderFallback={() => <Icon size={1} path={mdiAccount} />}
                                                     />
                                                 </Avatar>
                                             }

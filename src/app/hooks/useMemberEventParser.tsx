@@ -1,13 +1,15 @@
 import React, { ReactNode } from 'react';
-import { IconSrc, Icons } from 'folds';
 import { EventTimeline, MatrixEvent, Room } from 'matrix-js-sdk';
 import { IMemberContent, Membership } from '../../types/matrix/room';
 import { getMxIdLocalPart } from '../utils/matrix';
 import { isMembershipChanged } from '../utils/room';
 import { useMatrixClient } from './useMatrixClient';
+import { mdiAccount, mdiAccountLock, mdiAccountLockOpen, mdiAccountPlus, mdiAccountRemove, mdiArrowRight, mdiAt } from '@mdi/js';
+
+/// TODO: TRANSLATE THIS!
 
 export type ParsedResult = {
-    icon: IconSrc;
+    icon: string;
     body: ReactNode;
 };
 
@@ -37,7 +39,7 @@ export const useMemberEventParser = (): MemberEventParser => {
 
         if (!senderId || !userId)
             return {
-                icon: Icons.User,
+                icon: mdiAccount,
                 body: 'Broken membership event',
             };
 
@@ -48,7 +50,7 @@ export const useMemberEventParser = (): MemberEventParser => {
             if (content.membership === Membership.Invite) {
                 if (prevContent.membership === Membership.Knock) {
                     return {
-                        icon: Icons.ArrowGoRightPlus,
+                        icon: mdiAccountPlus,
                         body: (
                             <>
                                 <b>{senderName}</b>
@@ -62,7 +64,7 @@ export const useMemberEventParser = (): MemberEventParser => {
                 }
 
                 return {
-                    icon: Icons.ArrowGoRightPlus,
+                    icon: mdiAccountPlus,
                     body: (
                         <>
                             <b>{senderName}</b>
@@ -75,7 +77,7 @@ export const useMemberEventParser = (): MemberEventParser => {
 
             if (content.membership === Membership.Knock) {
                 return {
-                    icon: Icons.ArrowGoRightPlus,
+                    icon: mdiAccountPlus,
                     body: (
                         <>
                             <b>{userName}</b>
@@ -88,7 +90,7 @@ export const useMemberEventParser = (): MemberEventParser => {
 
             if (content.membership === Membership.Join) {
                 return {
-                    icon: Icons.ArrowGoRight,
+                    icon: mdiAccountPlus,
                     body: (
                         <>
                             <b>{userName}</b>
@@ -101,7 +103,7 @@ export const useMemberEventParser = (): MemberEventParser => {
             if (content.membership === Membership.Leave) {
                 if (prevContent.membership === Membership.Invite) {
                     return {
-                        icon: Icons.ArrowGoRightCross,
+                        icon: mdiAccountRemove,
                         body:
                             senderId === userId ? (
                                 <>
@@ -123,7 +125,7 @@ export const useMemberEventParser = (): MemberEventParser => {
 
                 if (prevContent.membership === Membership.Knock) {
                     return {
-                        icon: Icons.ArrowGoRightCross,
+                        icon: mdiAccountRemove,
                         body:
                             senderId === userId ? (
                                 <>
@@ -145,7 +147,7 @@ export const useMemberEventParser = (): MemberEventParser => {
 
                 if (prevContent.membership === Membership.Ban) {
                     return {
-                        icon: Icons.ArrowGoLeft,
+                        icon: mdiAccountLockOpen,
                         body: (
                             <>
                                 <b>{senderName}</b>
@@ -157,7 +159,7 @@ export const useMemberEventParser = (): MemberEventParser => {
                 }
 
                 return {
-                    icon: Icons.ArrowGoLeft,
+                    icon: mdiAccountRemove,
                     body:
                         senderId === userId ? (
                             <>
@@ -177,7 +179,7 @@ export const useMemberEventParser = (): MemberEventParser => {
 
             if (content.membership === Membership.Ban) {
                 return {
-                    icon: Icons.ArrowGoLeft,
+                    icon: mdiAccountLock,
                     body: (
                         <>
                             <b>{senderName}</b>
@@ -193,7 +195,7 @@ export const useMemberEventParser = (): MemberEventParser => {
             const prevUserName = prevContent.displayname || userId;
 
             return {
-                icon: Icons.Mention,
+                icon: mdiAt,
                 body: content.displayname ? (
                     <>
                         <b>{prevUserName}</b>
@@ -210,7 +212,7 @@ export const useMemberEventParser = (): MemberEventParser => {
         }
         if (content.avatar_url !== prevContent.avatar_url) {
             return {
-                icon: Icons.User,
+                icon: mdiAccount,
                 body: content.displayname ? (
                     <>
                         <b>{userName}</b>
@@ -227,7 +229,7 @@ export const useMemberEventParser = (): MemberEventParser => {
 
         if (content['ru.officialdakari.extera_banner'] !== prevContent['ru.officialdakari.extera_banner']) {
             return {
-                icon: Icons.User,
+                icon: mdiAccount,
                 body: content['ru.officialdakari.extera_banner'] ? (
                     <>
                         <b>{userName}</b>
@@ -243,7 +245,7 @@ export const useMemberEventParser = (): MemberEventParser => {
         }
 
         return {
-            icon: Icons.User,
+            icon: mdiAccount,
             body: 'Broken membership event',
         };
     };

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import {
     Box,
-    Icon,
-    Icons,
     Modal,
     Overlay,
     OverlayBackdrop,
@@ -23,6 +21,8 @@ import { useRoomLatestRenderedEvent } from '../../hooks/useRoomLatestRenderedEve
 import { useRoomEventReaders } from '../../hooks/useRoomEventReaders';
 import { EventReaders } from '../../components/event-readers';
 import { getText, translate } from '../../../lang';
+import { mdiCheckAll } from '@mdi/js';
+import Icon from '@mdi/react';
 
 export type RoomViewFollowingProps = {
     room: Room;
@@ -72,7 +72,7 @@ export const RoomViewFollowing = as<'div', RoomViewFollowingProps>(
                 >
                     {names.length > 0 && (
                         <>
-                            <Icon style={{ opacity: config.opacity.P300 }} size="100" src={Icons.CheckTwice} />
+                            <Icon style={{ opacity: config.opacity.P300 }} size={0.7} path={mdiCheckAll} />
                             <Text size="T300" truncate>
                                 {names.length === 1 && (
                                     <>

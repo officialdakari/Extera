@@ -18,9 +18,7 @@ import { EventTimeline, EventType, IContent, MsgType, Room } from 'matrix-js-sdk
 import {
     Box,
     Dialog,
-    Icon,
     IconButton,
-    Icons,
     Line,
     Overlay,
     OverlayBackdrop,
@@ -111,6 +109,8 @@ import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { getText } from '../../../lang';
 import { openHiddenRooms } from '../../../client/action/navigation';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
+import Icon from '@mdi/react';
+import { mdiCheckAll, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiFile, mdiPlusCircle, mdiPlusCircleOutline, mdiSend, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
 
 interface RoomInputProps {
     fileDropContainerRef: RefObject<HTMLElement>;
@@ -479,7 +479,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                 gap="500"
                                 style={{ padding: toRem(60) }}
                             >
-                                <Icon size="600" src={Icons.File} />
+                                <Icon size={1} path={mdiFile} />
                                 <Text size="H4" align="Center">
                                     {getText('room_input.drop_files', room?.name || getText('room_input.drop_files.this_room'))}
                                 </Text>
@@ -561,7 +561,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                         size="300"
                                         radii="300"
                                     >
-                                        <Icon src={Icons.Cross} size="50" />
+                                        <Icon size={1} path={mdiClose} />
                                     </IconButton>
                                 </Box>
                             </div>
@@ -574,13 +574,13 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                             size="300"
                             radii="300"
                         >
-                            <Icon src={Icons.PlusCircle} />
+                            <Icon size={1} path={mdiPlusCircleOutline} />
                         </IconButton>
                     }
                     after={
                         <>
                             <IconButton onMouseDown={dontHideKeyboard} onClick={readReceipt} variant="SurfaceVariant" size="300" radii="300">
-                                <Icon src={Icons.CheckTwice} />
+                                <Icon size={1} path={mdiCheckAll} />
                             </IconButton>
                             <UseStateProvider initial={undefined}>
                                 {(emojiBoardTab: EmojiBoardTab | undefined, setEmojiBoardTab) => (
@@ -623,8 +623,8 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                                 ref={emojiBtnRef}
                                             >
                                                 <Icon
-                                                    src={showStickerButton ? Icons.Sticker : Icons.Smile}
-                                                    filled={!!emojiBoardTab}
+                                                    size={1}
+                                                    path={showStickerButton ? (!!emojiBoardTab ? mdiSticker : mdiStickerOutline) : (!!emojiBoardTab ? mdiEmoticon : mdiEmoticonOutline)}
                                                 />
                                             </IconButton>
                                         )}
@@ -633,7 +633,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                             </UseStateProvider>
                             {screenSize !== ScreenSize.Mobile && (
                                 <IconButton onMouseDown={dontHideKeyboard} onClick={submit} variant="SurfaceVariant" size="300" radii="300">
-                                    <Icon src={Icons.Send} />
+                                    <Icon size={1} path={mdiSendOutline} />
                                 </IconButton>
                             )}
                         </>

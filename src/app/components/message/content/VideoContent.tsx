@@ -3,8 +3,6 @@ import {
     Badge,
     Box,
     Button,
-    Icon,
-    Icons,
     Spinner,
     Text,
     Tooltip,
@@ -26,6 +24,8 @@ import { getFileSrcUrl } from './util';
 import { bytesToSize } from '../../../../util/common';
 import { millisecondsToMinutesAndSeconds } from '../../../utils/common';
 import { getText } from '../../../../lang';
+import Icon from '@mdi/react';
+import { mdiAlert, mdiPlay } from '@mdi/js';
 
 type RenderVideoProps = {
     title: string;
@@ -115,7 +115,7 @@ export const VideoContent = as<'div', VideoContentProps>(
                             radii="300"
                             size="300"
                             onClick={loadSrc}
-                            before={<Icon size="Inherit" src={Icons.Play} filled />}
+                            before={<Icon size={1} path={mdiPlay} />}
                         >
                             <Text size="B300">{getText('btn.watch')}</Text>
                         </Button>
@@ -159,7 +159,7 @@ export const VideoContent = as<'div', VideoContentProps>(
                                     outlined
                                     radii="300"
                                     onClick={handleRetry}
-                                    before={<Icon size="Inherit" src={Icons.Warning} filled />}
+                                    before={<Icon size={1} path={mdiAlert} />}
                                 >
                                     <Text size="B300">{getText('btn.retry')}</Text>
                                 </Button>

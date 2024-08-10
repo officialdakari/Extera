@@ -34,8 +34,6 @@ import {
     Box,
     Chip,
     ContainerColor,
-    Icon,
-    Icons,
     Line,
     Scroll,
     Text,
@@ -118,6 +116,8 @@ import { useSwipeLeft } from '../../hooks/useSwipeLeft';
 import { clamp } from '../../utils/common';
 import { parse } from 'url';
 import { getText, translate } from '../../../lang';
+import { mdiCheckAll, mdiChevronDown, mdiCodeBraces, mdiCodeBracesBox, mdiImageEdit, mdiMessageAlert, mdiPencilBox } from '@mdi/js';
+import Icon from '@mdi/react';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
     ({ position, className, ...props }, ref) => (
@@ -1378,7 +1378,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         <EventContent
                             messageLayout={messageLayout}
                             time={timeJSX}
-                            iconSrc={Icons.Hash}
+                            iconSrc={mdiPencilBox}
                             content={
                                 <Box grow="Yes" direction="Column">
                                     <Text size="T300" priority="300">
@@ -1411,7 +1411,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         <EventContent
                             messageLayout={messageLayout}
                             time={timeJSX}
-                            iconSrc={Icons.Hash}
+                            iconSrc={mdiPencilBox}
                             content={
                                 <Box grow="Yes" direction="Column">
                                     <Text size="T300" priority="300">
@@ -1444,7 +1444,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         <EventContent
                             messageLayout={messageLayout}
                             time={timeJSX}
-                            iconSrc={Icons.Hash}
+                            iconSrc={mdiImageEdit}
                             content={
                                 <Box grow="Yes" direction="Column">
                                     <Text size="T300" priority="300">
@@ -1479,7 +1479,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                     <EventContent
                         messageLayout={messageLayout}
                         time={timeJSX}
-                        iconSrc={Icons.Code}
+                        iconSrc={mdiCodeBracesBox}
                         content={
                             <Box grow="Yes" direction="Column">
                                 <Text size="T300" priority="300">
@@ -1517,7 +1517,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                     <EventContent
                         messageLayout={messageLayout}
                         time={timeJSX}
-                        iconSrc={Icons.Code}
+                        iconSrc={mdiCodeBracesBox}
                         content={
                             <Box grow="Yes" direction="Column">
                                 <Text size="T300" priority="300">
@@ -1626,7 +1626,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         variant="Primary"
                         radii="Pill"
                         outlined
-                        before={<Icon size="50" src={Icons.MessageUnread} />}
+                        before={<Icon size={0.7} path={mdiMessageAlert} />}
                         onClick={handleJumpToUnread}
                     >
                         <Text size="L400">{getText('btn.timeline.jump_to_unread')}</Text>
@@ -1636,7 +1636,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         variant="SurfaceVariant"
                         radii="Pill"
                         outlined
-                        before={<Icon size="50" src={Icons.CheckTwice} />}
+                        before={<Icon size={0.7} path={mdiCheckAll} />}
                         onClick={handleMarkAsRead}
                     >
                         <Text size="L400">{getText('btn.timeline.mark_as_read')}</Text>
@@ -1703,7 +1703,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         variant="SurfaceVariant"
                         radii="Pill"
                         outlined
-                        before={<Icon size="50" src={Icons.ArrowBottom} />}
+                        before={<Icon size={0.7} path={mdiChevronDown} />}
                         onClick={handleJumpToLatest}
                     >
                         <Text size="L400">{getText('btn.timeline.jump_to_latest')}</Text>

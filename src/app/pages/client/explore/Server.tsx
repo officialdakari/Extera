@@ -8,12 +8,11 @@ import React, {
     useRef,
     useState,
 } from 'react';
+import { Icon as MDIcon } from '@mdi/react';
 import {
     Box,
     Button,
     Chip,
-    Icon,
-    Icons,
     Input,
     Line,
     Menu,
@@ -42,6 +41,7 @@ import { allRoomsAtom } from '../../../state/room-list/roomList';
 import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
 import { getMxIdServer } from '../../../utils/matrix';
 import { getText } from '../../../../lang';
+import { mdiAlertCircleOutline, mdiArrowLeft, mdiCheck, mdiChevronDown, mdiClose, mdiMagnify, mdiServer, mdiServerNetwork, mdiShape } from '@mdi/js';
 
 const useServerSearchParams = (searchParams: URLSearchParams): ExploreServerPathSearchParams =>
     useMemo(
@@ -115,7 +115,7 @@ function Search({ active, loading, searchInputRef, onSearch, onReset }: SearchPr
                     active && loading ? (
                         <Spinner variant="Secondary" size="200" />
                     ) : (
-                        <Icon size="200" src={Icons.Search} />
+                        <MDIcon size={1} path={mdiMagnify} />
                     )
                 }
                 after={
@@ -126,7 +126,7 @@ function Search({ active, loading, searchInputRef, onSearch, onReset }: SearchPr
                             size="400"
                             radii="Pill"
                             outlined
-                            after={<Icon size="50" src={Icons.Cross} />}
+                            after={<MDIcon size={0.7} path={mdiClose} />}
                             onClick={onReset}
                         >
                             <Text size="B300">{getText('btn.clear_search')}</Text>
@@ -233,7 +233,7 @@ function ThirdPartyProtocolsSelector({
                 radii="Pill"
                 size="400"
                 variant={instanceId ? 'Success' : 'SurfaceVariant'}
-                after={<Icon size="100" src={Icons.ChevronBottom} />}
+                after={<MDIcon size={1} path={mdiChevronDown} />}
             >
                 <Text size="T200" truncate>
                     {selectedInstance?.desc ?? DEFAULT_INSTANCE_NAME}
@@ -327,7 +327,7 @@ function LimitButton({ limit, onLimitChange }: LimitButtonProps) {
                 radii="Pill"
                 size="400"
                 variant="SurfaceVariant"
-                after={<Icon size="100" src={Icons.ChevronBottom} />}
+                after={<MDIcon size={1} path={mdiChevronDown} />}
             >
                 <Text size="T200" truncate>{getText('count.page_limit', limit)}</Text>
             </Chip>
@@ -472,7 +472,7 @@ export function PublicRooms() {
                                 size="500"
                                 variant="Surface"
                                 radii="Pill"
-                                before={<Icon size="100" src={Icons.ArrowLeft} />}
+                                before={<MDIcon size={1} path={mdiArrowLeft} />}
                                 onClick={handleSearchClear}
                             >
                                 <Text size="T300">{server}</Text>
@@ -480,7 +480,7 @@ export function PublicRooms() {
                         </Box>
 
                         <Box grow="No" justifyContent="Center" alignItems="Center" gap="200">
-                            <Icon size="400" src={Icons.Search} />
+                            <MDIcon size={1} path={mdiMagnify} />
                             <Text size="H3" truncate>
                                 {getText('explore.server.search')}
                             </Text>
@@ -489,7 +489,7 @@ export function PublicRooms() {
                     </>
                 ) : (
                     <Box grow="Yes" justifyContent="Center" alignItems="Center" gap="200">
-                        <Icon size="400" src={Icons.Category} />
+                        <MDIcon size={1} path={mdiServerNetwork} />
                         <Text size="H3" truncate>
                             {server}
                         </Text>
@@ -526,7 +526,7 @@ export function PublicRooms() {
                                                     aria-pressed={filter.value === serverSearchParams.type}
                                                     before={
                                                         filter.value === serverSearchParams.type && (
-                                                            <Icon size="100" src={Icons.Check} />
+                                                            <MDIcon size={1} path={mdiCheck} />
                                                         )
                                                     }
                                                     outlined
@@ -629,7 +629,7 @@ export function PublicRooms() {
                                                 alignItems="Center"
                                                 gap="200"
                                             >
-                                                <Icon size="400" src={Icons.Info} />
+                                                <MDIcon size={1} path={mdiAlertCircleOutline} />
                                                 <Text size="T300" align="Center">
                                                     {getText('explore.server.no_communities')}
                                                 </Text>

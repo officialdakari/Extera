@@ -4,9 +4,7 @@ import {
     Avatar,
     Box,
     Button,
-    Icon,
     IconButton,
-    Icons,
     Menu,
     MenuItem,
     PopOut,
@@ -15,6 +13,7 @@ import {
     config,
     toRem,
 } from 'folds';
+import { Icon as MDIcon } from '@mdi/react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useAtom, useAtomValue } from 'jotai';
 import FocusTrap from 'focus-trap-react';
@@ -49,6 +48,7 @@ import { markAsRead } from '../../../../client/action/notifications';
 import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCategories';
 import { getText } from '../../../../lang';
 import { isHidden } from '../../../state/hooks/roomList';
+import { mdiCheckAll, mdiDotsVertical, mdiLinkVariant, mdiMagnify, mdiPlus, mdiPlusCircle, mdiPlusCircleOutline, mdiPound } from '@mdi/js';
 
 type HomeMenuProps = {
     requestClose: () => void;
@@ -69,7 +69,7 @@ const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ requestClose }, re
                 <MenuItem
                     onClick={handleMarkAsRead}
                     size="300"
-                    after={<Icon size="100" src={Icons.CheckTwice} />}
+                    after={<MDIcon size={1} path={mdiCheckAll} />}
                     radii="300"
                     aria-disabled={!unread}
                 >
@@ -104,7 +104,7 @@ function HomeHeader() {
                     </Box>
                     <Box>
                         <IconButton aria-pressed={!!menuAnchor} variant="Background" onClick={handleOpenMenu}>
-                            <Icon src={Icons.VerticalDots} size="200" />
+                            <MDIcon size={1} path={mdiDotsVertical} />
                         </IconButton>
                     </Box>
                 </Box>
@@ -139,7 +139,7 @@ function HomeEmpty() {
     return (
         <NavEmptyCenter>
             <NavEmptyLayout
-                icon={<Icon size="600" src={Icons.Hash} />}
+                icon={<MDIcon size={1} path={mdiPound} />}
                 title={
                     <Text size="H5" align="Center">
                         {getText('home.empty')}
@@ -226,7 +226,7 @@ export function Home() {
                                     <NavItemContent>
                                         <Box as="span" grow="Yes" alignItems="Center" gap="200">
                                             <Avatar size="200" radii="400">
-                                                <Icon src={Icons.Plus} size="100" />
+                                                <MDIcon size={1} path={mdiPlusCircleOutline} />
                                             </Avatar>
                                             <Box as="span" grow="Yes">
                                                 <Text as="span" size="Inherit">
@@ -242,7 +242,7 @@ export function Home() {
                                     <NavItemContent>
                                         <Box as="span" grow="Yes" alignItems="Center" gap="200">
                                             <Avatar size="200" radii="400">
-                                                <Icon src={Icons.Link} size="100" />
+                                                <MDIcon size={1} path={mdiLinkVariant} />
                                             </Avatar>
                                             <Box as="span" grow="Yes">
                                                 <Text as="span" size="Inherit">
@@ -258,7 +258,7 @@ export function Home() {
                                     <NavItemContent>
                                         <Box as="span" grow="Yes" alignItems="Center" gap="200">
                                             <Avatar size="200" radii="400">
-                                                <Icon src={Icons.Search} size="100" filled={searchSelected} />
+                                                <MDIcon size={1} path={mdiMagnify} />
                                             </Avatar>
                                             <Box as="span" grow="Yes">
                                                 <Text as="span" size="Inherit">

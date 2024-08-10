@@ -1,11 +1,12 @@
-import { Box, Icon, IconSrc } from 'folds';
+import { Box } from 'folds';
 import React, { ReactNode } from 'react';
 import { CompactLayout, ModernLayout } from '..';
+import Icon from '@mdi/react';
 
 export type EventContentProps = {
   messageLayout: number;
   time: ReactNode;
-  iconSrc: IconSrc;
+  iconSrc: string;
   content: ReactNode;
 };
 export function EventContent({ messageLayout, time, iconSrc, content }: EventContentProps) {
@@ -17,7 +18,7 @@ export function EventContent({ messageLayout, time, iconSrc, content }: EventCon
         alignItems="Center"
         justifyContent="Center"
       >
-        <Icon style={{ opacity: 0.6 }} size="50" src={iconSrc} />
+        <Icon style={{ opacity: 0.6 }} size={0.8} path={iconSrc} />
       </Box>
     </Box>
   );

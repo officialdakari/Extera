@@ -4,9 +4,7 @@ import {
     Avatar,
     Box,
     Button,
-    Icon,
     IconButton,
-    Icons,
     Menu,
     MenuItem,
     PopOut,
@@ -46,6 +44,8 @@ import { useRoomsUnread } from '../../../state/hooks/unread';
 import { markAsRead } from '../../../../client/action/notifications';
 import { getText } from '../../../../lang';
 import { isHidden } from '../../../state/hooks/roomList';
+import Icon from '@mdi/react';
+import { mdiAt, mdiCheckAll, mdiDotsVertical, mdiPlusCircleOutline } from '@mdi/js';
 
 type DirectMenuProps = {
     requestClose: () => void;
@@ -66,7 +66,7 @@ const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ requestClose }
                 <MenuItem
                     onClick={handleMarkAsRead}
                     size="300"
-                    after={<Icon size="100" src={Icons.CheckTwice} />}
+                    after={<Icon size={1} path={mdiCheckAll} />}
                     radii="300"
                     aria-disabled={!unread}
                 >
@@ -101,7 +101,7 @@ function DirectHeader() {
                     </Box>
                     <Box>
                         <IconButton aria-pressed={!!menuAnchor} variant="Background" onClick={handleOpenMenu}>
-                            <Icon src={Icons.VerticalDots} size="200" />
+                            <Icon size={1} path={mdiDotsVertical} />
                         </IconButton>
                     </Box>
                 </Box>
@@ -134,7 +134,7 @@ function DirectEmpty() {
     return (
         <NavEmptyCenter>
             <NavEmptyLayout
-                icon={<Icon size="600" src={Icons.Mention} />}
+                icon={<Icon size={1} path={mdiAt} />}
                 title={
                     <Text size="H5" align="Center">
                         {getText('direct_menu.empty')}
@@ -204,7 +204,7 @@ export function Direct() {
                                     <NavItemContent>
                                         <Box as="span" grow="Yes" alignItems="Center" gap="200">
                                             <Avatar size="200" radii="400">
-                                                <Icon src={Icons.Plus} size="100" />
+                                                <Icon size={1} path={mdiPlusCircleOutline} />
                                             </Avatar>
                                             <Box as="span" grow="Yes">
                                                 <Text as="span" size="Inherit" truncate>

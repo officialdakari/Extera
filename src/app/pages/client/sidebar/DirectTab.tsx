@@ -1,6 +1,7 @@
 import React, { MouseEventHandler, forwardRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Icon, Icons, Menu, MenuItem, PopOut, RectCords, Text, config, toRem } from 'folds';
+import { Box, Menu, MenuItem, PopOut, RectCords, Text, config, toRem } from 'folds';
+import { Icon as MDIcon } from '@mdi/react';
 import FocusTrap from 'focus-trap-react';
 import { useAtomValue } from 'jotai';
 import { useDirects } from '../../../state/hooks/roomList';
@@ -23,6 +24,7 @@ import { useNavToActivePathAtom } from '../../../state/hooks/navToActivePath';
 import { useDirectRooms } from '../direct/useDirectRooms';
 import { markAsRead } from '../../../../client/action/notifications';
 import { getText } from '../../../../lang';
+import { mdiAccount, mdiAccountOutline, mdiCheckAll } from '@mdi/js';
 
 type DirectMenuProps = {
     requestClose: () => void;
@@ -43,7 +45,7 @@ const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ requestClose }
                 <MenuItem
                     onClick={handleMarkAsRead}
                     size="300"
-                    after={<Icon size="100" src={Icons.CheckTwice} />}
+                    after={<MDIcon path={mdiCheckAll} size={1} />}
                     radii="300"
                     aria-disabled={!unread}
                 >
@@ -98,7 +100,7 @@ export function DirectTab() {
                         onClick={handleDirectClick}
                         onContextMenu={handleContextMenu}
                     >
-                        <Icon src={Icons.User} filled={directSelected} />
+                        <MDIcon size={1} path={directSelected ? mdiAccount : mdiAccountOutline} />
                     </SidebarAvatar>
                 )}
             </SidebarItemTooltip>

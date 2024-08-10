@@ -863,5 +863,6 @@
     "settings.presence.title": "Статус",
     "settings.new_design_input.title": "Новый дизайн ввода сообщения",
     "settings.new_design_input.desc": "Использовать новый дизайн редактора сообщений.",
-    "title.incoming_call": "Входящий звонок от {0}"
+    "title.incoming_call": "Входящий звонок от {0}",
+    "title.incoming_video_call": "Входящий видеозвонок от {0}"
 }

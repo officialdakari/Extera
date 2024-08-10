@@ -4,9 +4,7 @@ import {
     Avatar,
     Box,
     Header,
-    Icon,
     IconButton,
-    Icons,
     Line,
     MenuItem,
     Scroll,
@@ -26,6 +24,8 @@ import { Reaction } from '../../../components/message';
 import { getHexcodeForEmoji, getShortcodeFor } from '../../../plugins/emoji';
 import { UserAvatar } from '../../../components/user-avatar';
 import { getText } from '../../../../lang';
+import Icon from '@mdi/react';
+import { mdiAccount, mdiClose } from '@mdi/js';
 
 export type ReactionViewerProps = {
     room: Room;
@@ -95,7 +95,7 @@ export const ReactionViewer = as<'div', ReactionViewerProps>(
                             <Text size="H3">{getText('reaction_viewer.reacted_with', selectedShortcode)}</Text>
                         </Box>
                         <IconButton size="300" onClick={requestClose}>
-                            <Icon src={Icons.Cross} />
+                            <Icon size={1} path={mdiClose} />
                         </IconButton>
                     </Header>
 
@@ -132,7 +132,7 @@ export const ReactionViewer = as<'div', ReactionViewerProps>(
                                                         userId={senderId}
                                                         src={avatarUrl ?? undefined}
                                                         alt={name}
-                                                        renderFallback={() => <Icon size="50" src={Icons.User} filled />}
+                                                        renderFallback={() => <Icon size={1} path={mdiAccount} />}
                                                     />
                                                 </Avatar>
                                             }

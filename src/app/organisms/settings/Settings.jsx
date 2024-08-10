@@ -53,7 +53,7 @@ import { settingsAtom } from '../../state/settings';
 import { isMacOS } from '../../utils/user-agent';
 import { KeySymbol } from '../../utils/key-symbol';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
-import { Icons, Input } from 'folds';
+import { Input } from 'folds';
 import Banner from '../profile-editor/Banner';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';

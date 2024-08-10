@@ -10,9 +10,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import {
     Avatar,
     Box,
-    Icon,
     IconButton,
-    Icons,
     Line,
     Menu,
     MenuItem,
@@ -22,6 +20,7 @@ import {
     config,
     toRem,
 } from 'folds';
+import { Icon as MDIcon } from '@mdi/react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { IJoinRuleEventContent, JoinRule, Room } from 'matrix-js-sdk';
 import FocusTrap from 'focus-trap-react';
@@ -74,6 +73,7 @@ import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCatego
 import { useStateEvent } from '../../../hooks/useStateEvent';
 import { StateEvent } from '../../../../types/matrix/room';
 import { getText } from '../../../../lang';
+import { mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiCog, mdiDotsVertical, mdiFlag, mdiFlagOutline, mdiLink, mdiLock, mdiMagnify } from '@mdi/js';
 
 type SpaceMenuProps = {
     room: Room;
@@ -121,7 +121,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
                 <MenuItem
                     onClick={handleMarkAsRead}
                     size="300"
-                    after={<Icon size="100" src={Icons.CheckTwice} />}
+                    after={<MDIcon size={1} path={mdiCheckAll} />}
                     radii="300"
                     disabled={!unread}
                 >
@@ -137,7 +137,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
                     variant="Primary"
                     fill="None"
                     size="300"
-                    after={<Icon size="100" src={Icons.UserPlus} />}
+                    after={<MDIcon size={1} path={mdiAccountPlus} />}
                     radii="300"
                     disabled={!canInvite}
                 >
@@ -148,7 +148,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
                 <MenuItem
                     onClick={handleCopyLink}
                     size="300"
-                    after={<Icon size="100" src={Icons.Link} />}
+                    after={<MDIcon size={1} path={mdiLink} />}
                     radii="300"
                 >
                     <Text style={{ flexGrow: 1 }} as="span" size="T300">
@@ -158,7 +158,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
                 <MenuItem
                     onClick={handleRoomSettings}
                     size="300"
-                    after={<Icon size="100" src={Icons.Setting} />}
+                    after={<MDIcon size={1} path={mdiCog} />}
                     radii="300"
                 >
                     <Text style={{ flexGrow: 1 }} as="span" size="T300">
@@ -176,7 +176,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
                                 variant="Critical"
                                 fill="None"
                                 size="300"
-                                after={<Icon size="100" src={Icons.ArrowGoLeft} />}
+                                after={<MDIcon size={1} path={mdiArrowLeft} />}
                                 radii="300"
                                 aria-pressed={promptLeave}
                             >
@@ -222,14 +222,14 @@ function SpaceHeader() {
             <PageNavHeader>
                 <Box alignItems="Center" grow="Yes" gap="300">
                     <Box grow="Yes" alignItems="Center" gap="100">
+                        {joinRules?.join_rule !== JoinRule.Public && <MDIcon size={0.7} path={mdiLock} />}
                         <Text size="H4" truncate>
                             {spaceName}
                         </Text>
-                        {joinRules?.join_rule !== JoinRule.Public && <Icon src={Icons.Lock} size="50" />}
                     </Box>
                     <Box>
                         <IconButton aria-pressed={!!menuAnchor} variant="Background" onClick={handleOpenMenu}>
-                            <Icon src={Icons.VerticalDots} size="200" />
+                            <MDIcon size={1} path={mdiDotsVertical} />
                         </IconButton>
                     </Box>
                 </Box>
@@ -334,7 +334,7 @@ export function Space() {
                                 <NavItemContent>
                                     <Box as="span" grow="Yes" alignItems="Center" gap="200">
                                         <Avatar size="200" radii="400">
-                                            <Icon src={Icons.Flag} size="100" filled={lobbySelected} />
+                                            <MDIcon size={1} path={lobbySelected ? mdiFlag : mdiFlagOutline} />
                                         </Avatar>
                                         <Box as="span" grow="Yes">
                                             <Text as="span" size="Inherit" truncate>
@@ -350,7 +350,7 @@ export function Space() {
                                 <NavItemContent>
                                     <Box as="span" grow="Yes" alignItems="Center" gap="200">
                                         <Avatar size="200" radii="400">
-                                            <Icon src={Icons.Search} size="100" filled={searchSelected} />
+                                            <MDIcon size={1} path={mdiMagnify} />
                                         </Avatar>
                                         <Box as="span" grow="Yes">
                                             <Text as="span" size="Inherit" truncate>

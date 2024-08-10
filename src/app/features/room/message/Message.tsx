@@ -4,9 +4,7 @@ import {
     Button,
     Dialog,
     Header,
-    Icon,
     IconButton,
-    Icons,
     Input,
     Line,
     Menu,
@@ -90,6 +88,8 @@ import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
 import { ImageViewer } from '../../../components/image-viewer';
 import { Image } from '../../../components/media';
 import { getText } from '../../../../lang';
+import Icon from '@mdi/react';
+import { mdiAccount, mdiAlertCircleOutline, mdiCheck, mdiCheckAll, mdiClose, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiPencil, mdiPin, mdiPinOff, mdiReply, mdiRestore } from '@mdi/js';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -178,7 +178,7 @@ export const MessageAllReactionItem = as<
             </Overlay>
             <MenuItem
                 size="300"
-                after={<Icon size="100" src={Icons.Smile} />}
+                after={<Icon size={1} path={mdiEmoticon} />}
                 radii="300"
                 onClick={() => setOpen(true)}
                 {...props}
@@ -227,7 +227,7 @@ export const MessageReadReceiptItem = as<
             </Overlay>
             <MenuItem
                 size="300"
-                after={<Icon size="100" src={Icons.CheckTwice} />}
+                after={<Icon size={1} path={mdiCheckAll} />}
                 radii="300"
                 onClick={() => setOpen(true)}
                 {...props}
@@ -309,7 +309,7 @@ export const MessageSourceCodeItem = as<
             </Overlay>
             <MenuItem
                 size="300"
-                after={<Icon size="100" src={Icons.BlockCode} />}
+                after={<Icon size={1} path={mdiCodeBraces} />}
                 radii="300"
                 onClick={() => setOpen(true)}
                 {...props}
@@ -366,7 +366,7 @@ export const MessagePinItem = as<
     return (
         <MenuItem
             size="300"
-            after={<Icon size="100" src={Icons.Pin} />}
+            after={<Icon size={1} path={isPinned ? mdiPin : mdiPinOff} />}
             radii="300"
             {...props}
             ref={ref}
@@ -545,7 +545,7 @@ export const MessageRecoverItem = as<
                                     <Text size="H4">{getText('recovered.title')}</Text>
                                 </Box>
                                 <IconButton size="300" onClick={handleClose} radii="300">
-                                    <Icon src={Icons.Cross} />
+                                    <Icon size={1} path={mdiClose} />
                                 </IconButton>
                             </Header>
                             {message}
@@ -555,7 +555,7 @@ export const MessageRecoverItem = as<
             </Overlay>
             <MenuItem
                 size="300"
-                after={<Icon size="100" src={Icons.Eye} />}
+                after={<Icon size={1} path={mdiRestore} />}
                 radii="300"
                 onClick={handleClick}
                 {...props}
@@ -588,7 +588,7 @@ export const MessageCopyLinkItem = as<
     return (
         <MenuItem
             size="300"
-            after={<Icon size="100" src={Icons.Link} />}
+            after={<Icon size={1} path={mdiLinkVariant} />}
             radii="300"
             onClick={handleCopy}
             {...props}
@@ -664,7 +664,7 @@ export const MessageDeleteItem = as<
                                     <Text size="H4">{getText('msg_redact.title')}</Text>
                                 </Box>
                                 <IconButton size="300" onClick={handleClose} radii="300">
-                                    <Icon src={Icons.Cross} />
+                                    <Icon size={1} path={mdiClose} />
                                 </IconButton>
                             </Header>
                             <Box
@@ -684,7 +684,7 @@ export const MessageDeleteItem = as<
                                             {getText('msg_redact.reason.2')}
                                         </Text>
                                     </Text>
-                                    <Input name="reasonInput" variant="Background" />
+                                    <Input name="reasonInput" variant="Background" autoComplete='off' />
                                     {deleteState.status === AsyncStatus.Error && (
                                         <Text style={{ color: color.Critical.Main }} size="T300">
                                             {getText('error.redact_msg')}
@@ -714,7 +714,7 @@ export const MessageDeleteItem = as<
                 variant="Critical"
                 fill="None"
                 size="300"
-                after={<Icon size="100" src={Icons.Delete} />}
+                after={<Icon size={1} path={mdiDelete} />}
                 radii="300"
                 onClick={() => setOpen(true)}
                 aria-pressed={open}
@@ -793,7 +793,7 @@ export const MessageReportItem = as<
                                     <Text size="H4">{getText('msg_report.title')}</Text>
                                 </Box>
                                 <IconButton size="300" onClick={handleClose} radii="300">
-                                    <Icon src={Icons.Cross} />
+                                    <Icon size={1} path={mdiClose} />
                                 </IconButton>
                             </Header>
                             <Box
@@ -846,7 +846,7 @@ export const MessageReportItem = as<
                 variant="Critical"
                 fill="None"
                 size="300"
-                after={<Icon size="100" src={Icons.Warning} />}
+                after={<Icon size={1} path={mdiAlertCircleOutline} />}
                 radii="300"
                 onClick={() => setOpen(true)}
                 aria-pressed={open}
@@ -1024,7 +1024,7 @@ export const Message = as<'div', MessageProps>(
                                 : undefined
                         }
                         alt={senderDisplayName}
-                        renderFallback={() => <Icon size="200" src={Icons.User} filled />}
+                        renderFallback={() => <Icon size={1} path={mdiAccount} />}
                     />
                 </Avatar>
             </AvatarBase>
@@ -1154,7 +1154,7 @@ export const Message = as<'div', MessageProps>(
                                             radii="300"
                                             aria-pressed={!!emojiBoardAnchor}
                                         >
-                                            <Icon src={Icons.SmilePlus} size="100" />
+                                            <Icon size={1} path={mdiEmoticonPlus} />
                                         </IconButton>
                                     </PopOut>
                                 )}
@@ -1165,7 +1165,7 @@ export const Message = as<'div', MessageProps>(
                                     size="300"
                                     radii="300"
                                 >
-                                    <Icon src={Icons.ReplyArrow} size="100" />
+                                    <Icon size={1} path={mdiReply} />
                                 </IconButton>
                                 {canEditEvent(mx, mEvent) && onEditId && (
                                     <IconButton
@@ -1174,7 +1174,7 @@ export const Message = as<'div', MessageProps>(
                                         size="300"
                                         radii="300"
                                     >
-                                        <Icon src={Icons.Pencil} size="100" />
+                                        <Icon size={1} path={mdiPencil} />
                                     </IconButton>
                                 )}
                                 <PopOut
@@ -1205,7 +1205,7 @@ export const Message = as<'div', MessageProps>(
                                                     {mEvent.getType() == 'org.matrix.msc3381.poll.start' && mEvent.sender?.userId == (mx.getUserId() ?? '') && (
                                                         <MenuItem
                                                             size="300"
-                                                            after={<Icon size="100" src={Icons.Check} />}
+                                                            after={<Icon size={1} path={mdiCheck} />}
                                                             radii="300"
                                                             onClick={handleEndPoll}
                                                         >
@@ -1222,7 +1222,7 @@ export const Message = as<'div', MessageProps>(
                                                     {canSendReaction && (
                                                         <MenuItem
                                                             size="300"
-                                                            after={<Icon size="100" src={Icons.SmilePlus} />}
+                                                            after={<Icon size={1} path={mdiEmoticonPlus} />}
                                                             radii="300"
                                                             onClick={handleAddReactions}
                                                         >
@@ -1245,7 +1245,7 @@ export const Message = as<'div', MessageProps>(
                                                     )}
                                                     <MenuItem
                                                         size="300"
-                                                        after={<Icon size="100" src={Icons.ReplyArrow} />}
+                                                        after={<Icon size={1} path={mdiReply} />}
                                                         radii="300"
                                                         data-event-id={mEvent.getId()}
                                                         onClick={(evt: any) => {
@@ -1265,7 +1265,7 @@ export const Message = as<'div', MessageProps>(
                                                     {canEditEvent(mx, mEvent) && onEditId && (
                                                         <MenuItem
                                                             size="300"
-                                                            after={<Icon size="100" src={Icons.Pencil} />}
+                                                            after={<Icon size={1} path={mdiPencil} />}
                                                             radii="300"
                                                             data-event-id={mEvent.getId()}
                                                             onClick={() => {
@@ -1330,7 +1330,7 @@ export const Message = as<'div', MessageProps>(
                                         onClick={handleOpenMenu}
                                         aria-pressed={!!menuAnchor}
                                     >
-                                        <Icon src={Icons.VerticalDots} size="100" />
+                                        <Icon size={1} path={mdiDotsVertical} />
                                     </IconButton>
                                 </PopOut>
                             </Box>
@@ -1475,7 +1475,7 @@ export const Event = as<'div', EventProps>(
                                         onClick={handleOpenMenu}
                                         aria-pressed={!!menuAnchor}
                                     >
-                                        <Icon src={Icons.VerticalDots} size="100" />
+                                        <Icon size={1} path={mdiDotsVertical} />
                                     </IconButton>
                                 </PopOut>
                             </Box>

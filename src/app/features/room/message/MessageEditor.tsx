@@ -9,10 +9,7 @@ import React, {
 import {
     Box,
     Chip,
-    Icon,
     IconButton,
-    Icons,
-    Line,
     PopOut,
     RectCords,
     Spinner,
@@ -49,6 +46,8 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getEditedEvent, trimReplyFromFormattedBody } from '../../../utils/room';
 import { mobileOrTablet } from '../../../utils/user-agent';
 import { getText } from '../../../../lang';
+import Icon from '@mdi/react';
+import { mdiEmoticon, mdiEmoticonOutline } from '@mdi/js';
 
 type MessageEditorProps = {
     roomId: string;
@@ -290,7 +289,7 @@ export const MessageEditor = as<'div', MessageEditorProps>(
                                                     size="300"
                                                     radii="300"
                                                 >
-                                                    <Icon size="400" src={Icons.Smile} filled={anchor !== undefined} />
+                                                    <Icon size={1} path={anchor !== undefined ? mdiEmoticon : mdiEmoticonOutline} />
                                                 </IconButton>
                                             </PopOut>
                                         )}

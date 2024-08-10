@@ -12,9 +12,7 @@ import React, {
 import { useNavigate } from 'react-router-dom';
 import {
     Box,
-    Icon,
     IconButton,
-    Icons,
     Line,
     Menu,
     MenuItem,
@@ -24,6 +22,7 @@ import {
     config,
     toRem,
 } from 'folds';
+import { Icon as MDIcon } from '@mdi/react';
 import { useAtom, useAtomValue } from 'jotai';
 import { Room } from 'matrix-js-sdk';
 import {
@@ -91,6 +90,7 @@ import { markAsRead } from '../../../../client/action/notifications';
 import { copyToClipboard } from '../../../utils/dom';
 import { openInviteUser, openSpaceSettings } from '../../../../client/action/navigation';
 import { getText } from '../../../../lang';
+import { mdiAccount, mdiAccountPlus, mdiCheckAll, mdiChevronUp, mdiCog, mdiLink, mdiLinkVariant, mdiPin, mdiPlus, mdiTune } from '@mdi/js';
 
 type SpaceMenuProps = {
     room: Room;
@@ -145,7 +145,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(
                     <MenuItem
                         onClick={handleMarkAsRead}
                         size="300"
-                        after={<Icon size="100" src={Icons.CheckTwice} />}
+                        after={<MDIcon size={1} path={mdiCheckAll} />}
                         radii="300"
                         disabled={!unread}
                     >
@@ -158,7 +158,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(
                             size="300"
                             radii="300"
                             onClick={handleUnpin}
-                            after={<Icon size="100" src={Icons.Pin} />}
+                            after={<MDIcon size={1} path={mdiPin} />}
                         >
                             <Text style={{ flexGrow: 1 }} as="span" size="T300">
                                 {getText('btn.unpin')}
@@ -173,7 +173,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(
                         variant="Primary"
                         fill="None"
                         size="300"
-                        after={<Icon size="100" src={Icons.UserPlus} />}
+                        after={<MDIcon size={1} path={mdiAccountPlus} />}
                         radii="300"
                         disabled={!canInvite}
                     >
@@ -184,7 +184,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(
                     <MenuItem
                         onClick={handleCopyLink}
                         size="300"
-                        after={<Icon size="100" src={Icons.Link} />}
+                        after={<MDIcon size={1} path={mdiLinkVariant} />}
                         radii="300"
                     >
                         <Text style={{ flexGrow: 1 }} as="span" size="T300">
@@ -194,7 +194,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(
                     <MenuItem
                         onClick={handleRoomSettings}
                         size="300"
-                        after={<Icon size="100" src={Icons.Setting} />}
+                        after={<MDIcon size={1} path={mdiCog} />}
                         radii="300"
                     >
                         <Text style={{ flexGrow: 1 }} as="span" size="T300">
@@ -504,7 +504,7 @@ function OpenedSpaceFolder({ folder, onClose, children }: OpenedSpaceFolderProps
             <SidebarFolderDropTarget ref={aboveTargetRef} position="Top" />
             <SidebarAvatar size="300">
                 <IconButton data-id={folder.id} size="300" variant="Background" onClick={onClose}>
-                    <Icon size="400" src={Icons.ChevronTop} filled />
+                    <MDIcon size={1} path={mdiChevronUp} />
                 </IconButton>
             </SidebarAvatar>
             {children}

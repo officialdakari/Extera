@@ -21,5 +21,6 @@
     "login.forgot_password_link": "ふぉるごっとぱすをーど？",
     "login.login_button": "ろぎん",
     "error.register.invalid_request": "Failed to register.ようろれくべすとだたわずいんわりど。",
-    "title.incoming_call": "インコメンがカール {0}"
+    "title.incoming_call": "インコメンがカール {0}",
+    "title.incoming_video_call": "インコメンがウィデオカール {0}"
 }
