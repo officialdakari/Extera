@@ -34,7 +34,7 @@ export const toMatrixCustomHTML = (
     content: string,
     getDisplayName: any
 ): string => {
-    const table = {};
+    const table: Record<string, string> = {};
     var str = parseBlockMD(
         content.replaceAll('<', '&lt;')
             .replaceAll('>', '&gt;')
@@ -45,7 +45,7 @@ export const toMatrixCustomHTML = (
         })
         .replaceAll(userMentionRegexp, (match: string, mxId: string) => {
             const id = `{[${v4()}]}`;
-            table[id] = `<a href="https://matrix.to/#/${mxId}">@${getDisplayName(mxId)}</a>`;
+            table[id] = `<a href="https://matrix.to/#/${mxId}">${getDisplayName(mxId)}</a>`;
             return id;
         })
         .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => {
@@ -83,7 +83,6 @@ export const getMentions = (content: string): Mentions => {
             user_ids.push(match[1]);
         }
     }
-    // TODO Implement @room checking
     const room = /{@room}/g.test(content);
     return {
         user_ids, room

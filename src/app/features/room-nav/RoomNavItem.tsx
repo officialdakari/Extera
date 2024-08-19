@@ -303,7 +303,16 @@ export function RoomNavItem({
                                 <UnreadBadge highlight={unread.highlight > 0} count={unread.total} />
                             </UnreadBadgeCenter>
                         )}
-                        {muted && !optionsVisible && <Icon size={1} path={mdiBellCancel} />}
+                        {muted && !optionsVisible && (
+                            <IconButton
+                                variant="Background"
+                                fill="None"
+                                size="300"
+                                radii="300"
+                            >
+                                <Icon size={0.8} path={mdiBellCancel} />
+                            </IconButton>
+                        )}
                     </Box>
                 </NavItemContent>
             </NavLink>

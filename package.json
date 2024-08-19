@@ -78,6 +78,7 @@
         "react-quill": "2.0.0",
         "react-quilljs": "2.0.2",
         "react-range": "1.8.14",
+        "react-resizable": "3.0.5",
         "react-router-dom": "6.20.0",
         "sanitize-html": "2.12.1",
         "showdown": "2.1.0",

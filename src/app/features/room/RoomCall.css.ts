@@ -5,11 +5,11 @@ export const RoomCallBox = style({
     width: 'auto',
     //minHeight: '200px',
     margin: '10px',
-    //backgroundColor: color.SurfaceVariant.Container,
     color: color.SurfaceVariant.OnContainer,
+    padding: config.space.S400,
+    //backgroundColor: color.SurfaceVariant.Container,
     //boxShadow: `inset 0 0 0 ${config.borderWidth.B300} ${color.SurfaceVariant.ContainerLine}`,
     //borderRadius: config.radii.R400,
-    padding: config.space.S400,
     gap: '20px'
 });
 

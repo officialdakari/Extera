@@ -1,5 +1,4 @@
 import { createContext, useContext } from 'react';
-import { MatrixClient } from 'matrix-js-sdk';
 
 const CallContext = createContext<any | null>(null);
 

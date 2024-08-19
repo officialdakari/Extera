@@ -1,4 +1,4 @@
-import React, { FormEventHandler, MouseEventHandler, forwardRef, useEffect, useMemo, useState } from 'react';
+import React, { FormEventHandler, MouseEventHandler, ReactNode, forwardRef, useEffect, useMemo, useState } from 'react';
 import FocusTrap from 'focus-trap-react';
 import {
     Box,
@@ -71,8 +71,10 @@ import { getReactCustomHtmlParser } from '../../plugins/react-custom-html-parser
 import { HTMLReactParserOptions } from 'html-react-parser';
 import { Message } from './message';
 import { Image } from '../../components/media';
-import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiChevronLeft, mdiChevronRight, mdiClose, mdiCog, mdiDotsVertical, mdiLinkVariant, mdiMagnify, mdiPhone, mdiPin } from '@mdi/js';
+import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiChevronLeft, mdiChevronRight, mdiClose, mdiCog, mdiDotsVertical, mdiLinkVariant, mdiMagnify, mdiPhone, mdiPin, mdiWidgets } from '@mdi/js';
 import Icon from '@mdi/react';
+import { WidgetItem } from '../../components/widget/WidgetItem';
+import { useModals } from '../../hooks/useModals';
 
 type RoomMenuProps = {
     room: Room;
@@ -215,7 +217,9 @@ export function RoomViewHeader({
     const topic = useRoomTopic(room);
     const [statusMessage, setStatusMessage] = useState('');
     const [showPinned, setShowPinned] = useState(false);
-    const [pinned, setPinned]: [any[], any] = useState([]);
+    const [showWidgets, setShowWidgets] = useState(false);
+    const [pinned, setPinned] = useState<ReactNode[]>([]);
+    const [widgets, setWidgets] = useState<ReactNode[]>([]);
     const avatarUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
 
     const setPeopleDrawer = useSetSetting(settingsAtom, 'isPeopleDrawer');
@@ -282,8 +286,63 @@ export function RoomViewHeader({
     const [jumpAnchor, setJumpAnchor] = useState<RectCords>();
     const [pageNo, setPageNo] = useState(1);
     const [loadingPinList, setLoadingPinList] = useState(true);
+    const modals = useModals();
 
     // officialdakari 24.07.2024 - надо зарефакторить это всё, но мне пока лень
+
+    const handleWidgetsClick = async () => {
+        const userId = mx.getUserId();
+        if (typeof userId !== 'string') return;
+        const profile = mx.getUser(userId);
+        const timeline = room.getLiveTimeline();
+        const state = timeline.getState(EventTimeline.FORWARDS);
+        const widgets = [
+            ...(state?.getStateEvents('m.widget') ?? []),
+            ...(state?.getStateEvents('im.vector.modular.widgets') ?? [])
+        ];
+        const widgetList: ReactNode[] = [];
+        console.log(widgets);
+        if (!widgets || widgets.length < 1) {
+            setWidgets(
+                [
+                    <Text>{getText('widgets.none')}</Text>
+                ]
+            );
+        } else {
+            for (const ev of widgets) {
+                const content = ev.getContent();
+                if (typeof content.url !== 'string') continue;
+                const data = {
+                    matrix_user_id: userId,
+                    matrix_room_id: room.roomId,
+                    matrix_display_name: profile?.displayName ?? userId,
+                    matrix_avatar_url: profile?.avatarUrl && mx.mxcUrlToHttp(profile?.avatarUrl),
+                    ...content.data
+                };
+                var url = `${content.url}`; // Should not be a reference
+                for (const key in data) {
+                    if (typeof data[key] === 'string') {
+                        url = url.replaceAll(`$${key}`, data[key]);
+                    }
+                }
+                if (!url.startsWith('https://')) continue;
+                const openWidget = () => {
+                    modals.addModal({
+                        allowClose: true,
+                        title: content.name ?? 'Widget',
+                        node: (
+                            <iframe style={{ border: 'none' }} allow="autoplay; camera; clipboard-write; compute-pressure; display-capture; hid; microphone; screen-wake-lock" allowFullScreen src={url}></iframe>
+                        )
+                    });
+                };
+                widgetList.push(
+                    <WidgetItem onClick={openWidget} name={typeof content.name === 'string' ? content.name : undefined} url={url} type={content.type} />
+                );
+            }
+        }
+        setWidgets(widgetList);
+        setShowWidgets(true);
+    };
 
     const updatePinnedList = async () => {
         const pinnedMessages = [];
@@ -382,6 +441,10 @@ export function RoomViewHeader({
 
     const handlePinnedClose = () => {
         setShowPinned(false);
+    };
+
+    const handleWidgetsClose = () => {
+        setShowWidgets(false);
     };
 
     const getPresenceFn = usePresences();
@@ -533,7 +596,50 @@ export function RoomViewHeader({
                     </FocusTrap>
                 </OverlayCenter>
             </Overlay>
+            <Overlay open={showWidgets} backdrop={<OverlayBackdrop />}>
+                <OverlayCenter>
+                    <FocusTrap
+                        focusTrapOptions={{
+                            initialFocus: false,
+                            onDeactivate: handleWidgetsClose,
+                            clickOutsideDeactivates: true
+                        }}
+                    >
+                        <Modal variant="Surface" size="500">
+                            <Header
+                                style={{
+                                    padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
+                                    borderBottomWidth: config.borderWidth.B300,
+                                }}
+                                variant="Surface"
+                                size="500"
+                            >
+                                <Box grow="Yes">
+                                    <Text size="H4">{getText('widgets.title')}</Text>
+                                </Box>
+                                <IconButton size="300" onClick={handleWidgetsClose} radii="300">
+                                    <Icon size={1} path={mdiClose} />
+                                </IconButton>
+                            </Header>
+                            <Box tabIndex={-1} direction='Column' style={{ width: 'auto', height: 'inherit' }}>
+                                {widgets}
+                            </Box>
+                        </Modal>
+                    </FocusTrap>
+                </OverlayCenter>
+            </Overlay>
             <Box grow="Yes" gap="300">
+                <Box shrink="No">
+                    <IconButton
+                        variant="Background"
+                        fill="None"
+                        size="300"
+                        radii="300"
+                        onClick={() => history.back()}
+                    >
+                        <Icon size={1} path={mdiArrowLeft} />
+                    </IconButton>
+                </Box>
                 <Box grow="Yes" alignItems="Center" gap="300">
                     <Avatar onClick={handleAvClick} size="300">
                         <RoomAvatar
@@ -610,13 +716,28 @@ export function RoomViewHeader({
                         offset={4}
                         tooltip={
                             <Tooltip>
+                                <Text>{getText('tooltip.widgets')}</Text>
+                            </Tooltip>
+                        }
+                    >
+                        {(triggerRef) => (
+                            <IconButton ref={triggerRef} onClick={handleWidgetsClick}>
+                                <Icon size={1} path={mdiWidgets} />
+                            </IconButton>
+                        )}
+                    </TooltipProvider>
+                    <TooltipProvider
+                        position="Bottom"
+                        offset={4}
+                        tooltip={
+                            <Tooltip>
                                 <Text>{getText('tooltip.pinned')}</Text>
                             </Tooltip>
                         }
                     >
                         {(triggerRef) => (
                             <IconButton ref={triggerRef} onClick={handlePinnedClick}>
-                               <Icon size={1} path={mdiPin} />
+                                <Icon size={1} path={mdiPin} />
                             </IconButton>
                         )}
                     </TooltipProvider>
