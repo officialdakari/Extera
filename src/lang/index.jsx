@@ -20,7 +20,7 @@ const langs = {
 };
 var lang = {};
 
-const language = navigator.languages.find(x => supported.includes(x)) ?? defaultLanguage;
+const language = navigator.languages.map(x => x.slice(0, 2)).find(x => supported.includes(x)) ?? defaultLanguage;
 lang = langs[language];
 
 export const translate = (key, ...elements) => {

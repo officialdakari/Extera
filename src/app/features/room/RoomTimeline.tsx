@@ -1211,6 +1211,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 const reactions = reactionRelations && reactionRelations.getSortedAnnotationsByKey();
                 const hasReactions = reactions && reactions.length > 0;
                 const highlighted = focusItem?.index === item && focusItem.highlight;
+                const { replyEventId } = mEvent;
 
                 return (
                     <Message
@@ -1236,6 +1237,19 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         onTouchEnd={onTouchEnd}
                         style={{ transform: `translateX(${isTouchingSide && mEvent.getId() == swipingId ? clamp(sideMoved - sideMovedInit, -window.innerWidth, 0) : 0}px)` }}
                         onReactionToggle={handleReactionToggle}
+                        reply={
+                            replyEventId && (
+                                <Reply
+                                    as="button"
+                                    mx={mx}
+                                    room={room}
+                                    timelineSet={timelineSet}
+                                    eventId={replyEventId}
+                                    data-reply-id={replyEventId}
+                                    onClick={handleOpenReply}
+                                />
+                            )
+                        }
                         reactions={
                             reactionRelations && (
                                 <Reactions

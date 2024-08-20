@@ -130,6 +130,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const [enableCaptions] = useSetting(settingsAtom, 'extera_enableCaptions');
         const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
+        const [msgContent, setMsgContent] = useState<IContent>();
         const [msgDraft, setMsgDraft] = useAtom(roomIdToMsgDraftAtomFamily(roomId));
         const [replyDraft, setReplyDraft] = useAtom(roomIdToReplyDraftAtomFamily(roomId));
         const [uploadBoard, setUploadBoard] = useState(true);
@@ -184,7 +185,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const handlePaste = useFilePasteHandler(handleFiles);
         const dropZoneVisible = useFileDropZone(fileDropContainerRef, handleFiles);
         const [showStickerButton, setShowStickerButton] = useState(true);
-        const [sending, setSending] = useState(false);
         const [screenSize] = useScreenSize();
 
         const handleRemoveUpload = useCallback(
@@ -230,10 +230,22 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         };
 
         const handleSendUpload = async (uploads: UploadSuccess[]) => {
+            console.log('handlesendupload', selectedFiles);
+
             const contents = await sendFiles(uploads);
-            contents.forEach((content) => {
-                mx.sendMessage(roomId, content);
-            });
+
+            for (const content of contents) {
+                if (enableCaptions && msgContent) {
+                    content['m.relates_to'] = msgContent['m.relates_to'];
+                    content['m.mentions'] = msgContent['m.mentions'];
+                    content.body = msgContent.body;
+                    content.formatted_body = msgContent.formatted_body;
+                    content.format = msgContent.format;
+                } else {
+                    delete content.filename;
+                }
+                await mx.sendMessage(roomId, content);
+            }
         };
 
         const dontHideKeyboard = useCallback((evt?: MouseEvent) => {
@@ -253,10 +265,9 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             return content.displayname || mxId;
         };
 
-        const submit = useCallback(async () => {
+        const getContent = useCallback(() => {
             const ta = textAreaRef.current;
             if (!ta) return;
-            uploadBoardHandlers.current?.handleSend();
             const commandName = getBeginCommand(textAreaRef);
             let plainText = toPlainText(ta.value, getDisplayName).trim();
             let customHtml = trimCustomHtml(
@@ -293,7 +304,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 }
 
                 resetEditor(textAreaRef);
-                setShowStickerButton(false);
+                setShowStickerButton(true);
 
                 if (!ghostMode) sendTypingStatus(false);
                 return;
@@ -324,6 +335,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     room
                 }
             };
+
             if (replyDraft || !customHtmlEqualsPlainText(formattedBody, body)) {
                 content.format = 'org.matrix.custom.html';
                 content.formatted_body = formattedBody;
@@ -335,13 +347,46 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     },
                 };
             }
-            mx.sendMessage(roomId, content);
 
-            setReplyDraft(undefined);
-            sendTypingStatus(false);
-            resetEditor(textAreaRef);
-            setShowStickerButton(false);
+            return content;
+        }, [mx, room, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands]);
+
+        const submit = useCallback(async () => {
+            const content = getContent();
+            if (!content) return;
+            /*
+                on c# i am:
+                if (condition)
+                {
+                    action();
+                }
+                on js i am:
+                if (condition) {
+                    action();
+                }
+            */
+            setMsgContent(content);
         }, [mx, roomId, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands]);
+
+        useEffect(() => {
+            if (msgContent) {
+                console.debug(enableCaptions, msgContent);
+                console.debug(selectedFiles);
+                if (selectedFiles.length == 0 || !enableCaptions) {
+                    mx.sendMessage(roomId, msgContent);
+                    console.debug(selectedFiles.length < 1, !enableCaptions, "Sending a separate message");
+                }
+
+                uploadBoardHandlers.current?.handleSend();
+                console.debug(selectedFiles);
+
+                setReplyDraft(undefined);
+                sendTypingStatus(false);
+                resetEditor(textAreaRef);
+                setShowStickerButton(true);
+                setMsgContent(undefined);
+            }
+        }, [msgContent]);
 
         const readReceipt = useCallback(() => {
             markAsRead(roomId);
@@ -398,11 +443,23 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 await getImageUrlBlob(stickerUrl)
             );
 
-            mx.sendEvent(roomId, EventType.Sticker, {
+            const content: IContent = {
                 body: label,
                 url: mxc,
-                info,
-            });
+                info
+            };
+
+            if (replyDraft) {
+                content['m.relates_to'] = {
+                    'm.in_reply_to': {
+                        event_id: replyDraft.eventId,
+                    },
+                };
+            }
+
+            mx.sendEvent(roomId, EventType.Sticker, content);
+
+            setReplyDraft(undefined);
         };
 
         const handleEmoticonSelect = (unicode: string, shortcode: string) => {
