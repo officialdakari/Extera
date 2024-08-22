@@ -14,5 +14,6 @@ This is a fork of Cinny with some improvements and new features:
 - Hidden chats
 - Multiple languages support (English and Russian only atm)
 - Chat backgrounds
-
--# Based on Cinny
+- Updated bubble message layout
+- Reply fallbacks as an option (disabled by default)
+- Toggle mentioning when replying
