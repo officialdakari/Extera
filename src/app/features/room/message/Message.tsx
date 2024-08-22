@@ -27,12 +27,13 @@ import React, {
     MouseEventHandler,
     ReactNode,
     useCallback,
+    useEffect,
     useMemo,
     useState,
 } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { useHover, useFocusWithin } from 'react-aria';
-import { EventTimeline, MatrixEvent, Room } from 'matrix-js-sdk';
+import { EventTimeline, MatrixEvent, Room, RoomEvent } from 'matrix-js-sdk';
 import { Relations } from 'matrix-js-sdk/lib/models/relations';
 import classNames from 'classnames';
 import {
@@ -912,6 +913,7 @@ export const Message = as<'div', MessageProps>(
     ) => {
         const mx = useMatrixClient();
         const senderId = mEvent.getSender() ?? '';
+        const userId = mx.getUserId() ?? '';
         const [hover, setHover] = useState(false);
         const { hoverProps } = useHover({ onHoverChange: setHover });
         const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: setHover });
@@ -940,17 +942,19 @@ export const Message = as<'div', MessageProps>(
                 alignItems="Baseline"
                 grow="Yes"
             >
-                <Username
-                    as="button"
-                    style={{ color: colorMXID(senderId) }}
-                    data-user-id={senderId}
-                    onContextMenu={onUserClick}
-                    onClick={onUsernameClick}
-                >
-                    <Text as="span" size={messageLayout === 2 ? 'T300' : 'T400'} truncate>
-                        <b>{senderDisplayName}</b>
-                    </Text>
-                </Username>
+                {(messageLayout !== 2 || senderId !== userId) && (
+                    <Username
+                        as="button"
+                        style={{ color: colorMXID(senderId) }}
+                        data-user-id={senderId}
+                        onContextMenu={onUserClick}
+                        onClick={onUsernameClick}
+                    >
+                        <Text as="span" size={messageLayout === 2 ? 'T300' : 'T400'} truncate>
+                            <b>{senderDisplayName}</b>
+                        </Text>
+                    </Username>
+                )}
                 <Box shrink="No" gap="100">
                     {messageLayout === 0 && hover && (
                         <>
@@ -962,7 +966,8 @@ export const Message = as<'div', MessageProps>(
                             </Text>
                         </>
                     )}
-                    <Time ts={mEvent.getTs()} compact={messageLayout === 1} />
+                    {messageLayout !== 2 &&
+                        <Time ts={mEvent.getTs()} compact={messageLayout === 1} />}
                 </Box>
             </Box>
         );
@@ -1105,9 +1110,26 @@ export const Message = as<'div', MessageProps>(
             });
         };
 
+        const [delivered, setDelivered] = useState(mEvent.getId()?.startsWith('$'));
+
+        useEffect(() => {
+            const listener = (event: MatrixEvent) => {
+                if (event.getId() === mEvent.getId()) {
+                    setDelivered(true);
+                }
+            };
+
+            if (!delivered) {
+                mx.on(RoomEvent.LocalEchoUpdated, listener);
+                return () => {
+                    mx.off(RoomEvent.LocalEchoUpdated, listener);
+                };
+            }
+        });
+
         return (
             <MessageBase
-                className={classNames(css.MessageBase, className)}
+                className={classNames(delivered ? css.MessageBase : css.MessageBaseSending, className)}
                 tabIndex={0}
                 space={messageSpacing}
                 collapse={collapse}
@@ -1344,7 +1366,7 @@ export const Message = as<'div', MessageProps>(
                     </CompactLayout>
                 )}
                 {messageLayout === 2 && (
-                    <BubbleLayout before={avatarJSX} onContextMenu={handleContextMenu}>
+                    <BubbleLayout before={userId !== senderId && avatarJSX} rightAligned={userId === senderId} after={<Time ts={mEvent.getTs()} compact={false} />} onContextMenu={handleContextMenu}>
                         {headerJSX}
                         {msgContentJSX}
                         {footerJSX}

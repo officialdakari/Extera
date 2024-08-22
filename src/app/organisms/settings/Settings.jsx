@@ -389,6 +389,7 @@ function ExteraSection() {
     const [enableCaptions, setEnableCaptions] = useSetting(settingsAtom, 'extera_enableCaptions');
     const [renameTgBot, setRenameTgBot] = useSetting(settingsAtom, 'extera_renameTgBot');
     const [smoothScroll, setSmoothScroll] = useSetting(settingsAtom, 'extera_smoothScroll');
+    const [replyFallbacks, setReplyFallbacks] = useSetting(settingsAtom, 'replyFallbacks');
 
     return (
         <div className="settings-extera">
@@ -433,6 +434,16 @@ function ExteraSection() {
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.rename_tg_bot.desc')}</Text>}
+                />
+                <SettingTile
+                    title={getText('settings.reply_fallbacks.title')}
+                    options={(
+                        <Toggle
+                            isActive={replyFallbacks}
+                            onToggle={() => setReplyFallbacks(!replyFallbacks)}
+                        />
+                    )}
+                    content={<Text variant="b3">{getText('settings.reply_fallbacks.desc')}</Text>}
                 />
             </div>
         </div>

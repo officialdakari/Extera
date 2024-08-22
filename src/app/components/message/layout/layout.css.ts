@@ -41,6 +41,8 @@ const SpacingVariant = styleVariants({
     },
 });
 
+// Who shortened "animation" like that {:orehus:mxc://officialdakari.ru/VrjQRgGeQyzPcFQxkDroeQJZ:}
+// ok I wont touch it
 const highlightAnime = keyframes({
     '0%': {
         backgroundColor: color.Primary.Container,
@@ -58,6 +60,7 @@ const highlightAnime = keyframes({
         backgroundColor: color.Primary.Container,
     },
 });
+
 const HighlightVariant = styleVariants({
     true: {
         animation: `${highlightAnime} 2000ms ease-in-out`,
@@ -136,20 +139,30 @@ export const ModernBefore = style({
 export const BubbleBefore = style([ModernBefore]);
 
 export const BubbleContent = style({
-    maxWidth: toRem(800),
+    maxWidth: '75%',
     padding: config.space.S200,
     backgroundColor: color.SurfaceVariant.Container,
     color: color.SurfaceVariant.OnContainer,
     borderRadius: config.radii.R400,
+    position: 'relative',
 });
+
+export const BubbleContentRightAligned = style([
+    BubbleContent,
+    {
+        backgroundColor: color.Surface.ContainerActive,
+    }
+]);
 
 export const BubbleAfter = style({
     color: color.SurfaceVariant.OnContainer,
-    justifyContent: 'end',
-    alignContent: 'end',
-    alignSelf: 'end',
-    fontSize: 'small'
+    whiteSpace: 'nowrap',
+    fontSize: 'small',
+    marginTop: config.space.S200,
+    alignSelf: 'flex-end',
+    marginLeft: 'auto',
 });
+
 
 export const Username = style({
     overflow: 'hidden',

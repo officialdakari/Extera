@@ -6,11 +6,13 @@ export const resetEditor = (editor: React.RefObject<HTMLTextAreaElement>) => {
     e.value = '';
     e.blur();
     e.focus();
+    e.rows = 1;
+    e.style.height = `auto`;
 };
 
 export const resetEditorHistory = (editor: React.RefObject<HTMLTextAreaElement>) => {
     // eslint-disable-next-line no-param-reassign
-    
+
 };
 
 export const isEmptyEditor = (editor: React.RefObject<HTMLTextAreaElement>): boolean => {

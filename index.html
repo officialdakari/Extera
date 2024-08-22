@@ -13,7 +13,8 @@
 
     <meta property="og:title" content="Extera" />
     <meta property="og:url" content="https://extera.officialdakari.ru" />
-    <meta property="og:image" content="https://extera-public.officialdakari.ru/res/android/android-chrome-icon-72x72.png" />
+    <meta property="og:image"
+        content="https://extera-public.officialdakari.ru/res/android/android-chrome-icon-72x72.png" />
     <meta property="og:description" content="Additional cool features and little design improvements for Cinny." />
     <meta name="theme-color" content="#000000" />
 
@@ -44,6 +45,9 @@
     </script>
     <div id="root"></div>
     <script type="module" src="./src/index.tsx"></script>
+
+    <!-- Do not remove; it is intended for android build -->
+    <script src="cordova.js"></script>
 </body>
 
 </html>

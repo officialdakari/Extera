@@ -55,7 +55,8 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
         newDesign
     }, ref) => {
         const updateRows = (target: HTMLTextAreaElement) => {
-            target.rows = target.value.split('\n').length;
+            target.style.height = `auto`;
+            target.style.height = `${target.scrollHeight}px`;
         };
         const handleChange = (evt: ChangeEvent<HTMLTextAreaElement>) => {
             const previousText = evt.target.dataset.previousText ?? '';

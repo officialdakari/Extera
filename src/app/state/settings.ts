@@ -38,6 +38,7 @@ export interface Settings {
     pushesEnabled: boolean;
     newDesignInput: boolean;
     hideEmojiAdvert: boolean;
+    replyFallbacks: boolean;
 }
 
 const defaultSettings: Settings = {
@@ -72,7 +73,8 @@ const defaultSettings: Settings = {
     extera_wallpaper: null,
     pushesEnabled: false,
     newDesignInput: false,
-    hideEmojiAdvert: false
+    hideEmojiAdvert: false,
+    replyFallbacks: false
 };
 
 export const getSettings = () => {

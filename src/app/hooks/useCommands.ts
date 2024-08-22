@@ -6,6 +6,7 @@ import * as roomActions from '../../client/action/room';
 import { useRoomNavigate } from './useRoomNavigate';
 import { openHiddenRooms } from '../../client/action/navigation';
 import { getText } from '../../lang';
+import { initEruda } from '../utils/eruda';
 
 export const SHRUG = '¯\\_(ツ)_/¯';
 export const LENNY = '( ͡° ͜ʖ ͡°)';
@@ -58,7 +59,8 @@ export enum Command {
     Premium = 'premium',
     Hide = 'hide',
     UnHide = 'unhide',
-    HiddenList = 'hidden'
+    HiddenList = 'hidden',
+    Eruda = 'eruda'
 }
 
 export type CommandContent = {
@@ -103,6 +105,13 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
                 name: Command.UnFlip,
                 description: getText('command.emote.desc', UNFLIP),
                 exe: async () => undefined,
+            },
+            [Command.Eruda]: {
+                name: Command.Eruda,
+                description: 'Open mobile devtools',
+                exe: async () => {
+                    initEruda();
+                }
             },
             [Command.StartDm]: {
                 name: Command.StartDm,

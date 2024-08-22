@@ -1572,7 +1572,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
             prevEvent !== undefined &&
             prevEvent.getSender() === mEvent.getSender() &&
             prevEvent.getType() === mEvent.getType() &&
-            minuteDifference(prevEvent.getTs(), mEvent.getTs()) < 2;
+            minuteDifference(prevEvent.getTs(), mEvent.getTs()) < 5;
 
         const eventJSX = reactionOrEditEvent(mEvent)
             ? null

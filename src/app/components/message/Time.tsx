@@ -18,7 +18,7 @@ export const Time = as<'span', TimeProps & ComponentProps<typeof Text>>(
         } else if (yesterday(ts)) {
             time = getText('time.yesterday', timeHourMinute(ts));
         } else {
-            time = `${timeDayMonYear(ts)} ${timeHourMinute(ts)}`;
+            time = new Date(ts).toLocaleString();
         }
 
         return (

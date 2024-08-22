@@ -27,6 +27,7 @@ import { AsyncStatus } from '../../hooks/useAsyncCallback';
 import { useZoom } from '../../hooks/useZoom';
 import { createPage, usePdfDocumentLoader, usePdfJSLoader } from '../../plugins/pdfjs-dist';
 import { getText } from '../../../lang';
+import { saveFile } from '../../utils/saveFile';
 
 export type PdfViewerProps = {
     name: string;
@@ -78,7 +79,7 @@ export const PdfViewer = as<'div', PdfViewerProps>(
         }, [docState, pageNo, zoom]);
 
         const handleDownload = () => {
-            FileSaver.saveAs(src, name);
+            saveFile(src, name);
         };
 
         const handleJumpSubmit: FormEventHandler<HTMLFormElement> = (evt) => {

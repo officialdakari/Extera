@@ -790,7 +790,7 @@
 	"settings.extera.header": "Дополнительные настройки",
 	"settings.hide_ads.title": "Скрыть рекламу",
 	"settings.hide_ads.desc": "Скрыть рекламу в каналах из Telegram.",
-	"settings.captions.title": "Подписи к файлам (в разработке)",
+	"settings.captions.title": "Подписи к файлам",
 	"settings.captions.desc": "Отправлять подписи и файлы в одном сообщении.",
 	"settings.smooth_scroll.title": "Плавная прокрутка",
 	"settings.smooth_scroll.desc": "Использовать плавную прокрутку при получении сообщения.",
@@ -867,5 +867,7 @@
 	"title.incoming_video_call": "Входящий видеозвонок от {0}",
 	"tooltip.widgets": "Виджеты",
 	"widgets.title": "Виджеты",
-	"btn.widget.open": "Открыть"
+	"btn.widget.open": "Открыть",
+    "settings.reply_fallbacks.title": "Ответ в содержимом сообщения",
+    "settings.reply_fallbacks.desc": "Добавлять ответ в содержимое сообщения. Используйте, если кто-то не видит Ваши ответы."
 }

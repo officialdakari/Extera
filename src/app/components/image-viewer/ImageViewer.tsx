@@ -8,6 +8,7 @@ import { useZoom } from '../../hooks/useZoom';
 import { usePan } from '../../hooks/usePan';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
+import { saveFile } from '../../utils/saveFile';
 
 export type ImageViewerProps = {
     alt: string;
@@ -27,7 +28,7 @@ export const ImageViewer = as<'div', ImageViewerProps>(
                 Date.now().toString(),
                 `.${parts[parts.length - 1]}`
             ].join('');
-            FileSaver.saveAs(src, fileName);
+            saveFile(src, fileName);
         };
 
         useBackButton(() => {

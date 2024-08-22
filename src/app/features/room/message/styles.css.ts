@@ -6,6 +6,18 @@ export const MessageBase = style({
     transition: 'linear'
 });
 
+export const MessageBaseSending = style({
+    position: 'relative',
+    transition: 'linear',
+    opacity: 0.5
+});
+
+export const MessageBaseFailed = style({
+    position: 'relative',
+    transition: 'linear',
+    color: 'red'
+});
+
 export const MessageOptionsBase = style([
     DefaultReset,
     {

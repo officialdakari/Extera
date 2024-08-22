@@ -110,7 +110,7 @@ import { getText } from '../../../lang';
 import { openHiddenRooms } from '../../../client/action/navigation';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 import Icon from '@mdi/react';
-import { mdiCheckAll, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiFile, mdiPlusCircle, mdiPlusCircleOutline, mdiSend, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
+import { mdiAt, mdiBell, mdiBellOff, mdiCheckAll, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiFile, mdiPlusCircle, mdiPlusCircleOutline, mdiSend, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
 
 interface RoomInputProps {
     fileDropContainerRef: RefObject<HTMLElement>;
@@ -129,10 +129,11 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const roomToParents = useAtomValue(roomToParentsAtom);
         const [enableCaptions] = useSetting(settingsAtom, 'extera_enableCaptions');
         const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
+        const [replyFallbacks] = useSetting(settingsAtom, 'replyFallbacks');
 
         const [msgContent, setMsgContent] = useState<IContent>();
-        const [msgDraft, setMsgDraft] = useAtom(roomIdToMsgDraftAtomFamily(roomId));
         const [replyDraft, setReplyDraft] = useAtom(roomIdToReplyDraftAtomFamily(roomId));
+        const [replyMention, setReplyMention] = useState(true);
         const [uploadBoard, setUploadBoard] = useState(true);
         const [selectedFiles, setSelectedFiles] = useAtom(roomIdToUploadItemsAtomFamily(roomId));
         const uploadFamilyObserverAtom = createUploadFamilyObserverAtom(
@@ -241,8 +242,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     content.body = msgContent.body;
                     content.formatted_body = msgContent.formatted_body;
                     content.format = msgContent.format;
-                } else {
-                    delete content.filename;
                 }
                 await mx.sendMessage(roomId, content);
             }
@@ -307,14 +306,14 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 setShowStickerButton(true);
 
                 if (!ghostMode) sendTypingStatus(false);
-                return;
+                return {};
             }
 
-            if (plainText === '') return;
+            if (plainText === '') return {};
 
             let body = plainText;
             let formattedBody = customHtml;
-            if (replyDraft) {
+            if (replyDraft && replyFallbacks) {
                 body = parseReplyBody(replyDraft.userId, trimReplyFromBody(replyDraft.body)) + body;
                 formattedBody =
                     parseReplyFormattedBody(
@@ -340,6 +339,12 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 content.format = 'org.matrix.custom.html';
                 content.formatted_body = formattedBody;
             }
+
+            if (replyDraft && replyMention) {
+                if (content['m.mentions'] && !content['m.mentions'].user_ids) content['m.mentions'].user_ids = [];
+                content['m.mentions']?.user_ids?.push(replyDraft.userId);
+            }
+
             if (replyDraft) {
                 content['m.relates_to'] = {
                     'm.in_reply_to': {
@@ -353,7 +358,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
         const submit = useCallback(async () => {
             const content = getContent();
-            if (!content) return;
+            //if (!content && selectedFiles.length == 0) return;
             /*
                 on c# i am:
                 if (condition)
@@ -372,7 +377,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             if (msgContent) {
                 console.debug(enableCaptions, msgContent);
                 console.debug(selectedFiles);
-                if (selectedFiles.length == 0 || !enableCaptions) {
+                if (typeof msgContent.body === 'string' && (selectedFiles.length == 0 || !enableCaptions)) {
                     mx.sendMessage(roomId, msgContent);
                     console.debug(selectedFiles.length < 1, !enableCaptions, "Sending a separate message");
                 }
@@ -611,6 +616,15 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                             {trimReplyFromBody(replyDraft.body)}
                                         </Text>
                                     </ReplyLayout>
+                                    <IconButton
+                                        onMouseDown={dontHideKeyboard}
+                                        onClick={() => setReplyMention(!replyMention)}
+                                        variant="SurfaceVariant"
+                                        size="300"
+                                        radii="300"
+                                    >
+                                        <Icon size={1} path={replyMention ? mdiBell : mdiBellOff} />
+                                    </IconButton>
                                     <IconButton
                                         onMouseDown={dontHideKeyboard}
                                         onClick={() => setReplyDraft(undefined)}

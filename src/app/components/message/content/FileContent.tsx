@@ -32,6 +32,7 @@ import { RenderBody } from '../RenderBody';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiAlert, mdiArrowDownBold, mdiArrowRight } from '@mdi/js';
+import { saveFile } from '../../../utils/saveFile';
 
 const renderErrorButton = (retry: () => void, text: string) => (
     <TooltipProvider
@@ -254,7 +255,7 @@ export function DownloadFile({ body, mimeType, url, info, encInfo, filename, for
     const [downloadState, download] = useAsyncCallback(
         useCallback(async () => {
             const httpUrl = await getFileSrcUrl(mx.mxcUrlToHttp(url) ?? '', mimeType, encInfo);
-            FileSaver.saveAs(httpUrl, filename ?? body);
+            saveFile(httpUrl, filename ?? body);
             return httpUrl;
         }, [mx, url, mimeType, encInfo, body, filename])
     );
