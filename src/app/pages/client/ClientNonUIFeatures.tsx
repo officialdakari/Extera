@@ -283,7 +283,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
         <>
             <FaviconUpdater />
 
-            {!pushes && (
+            {!pushes && typeof window.Notification !== 'undefined' && (
                 <>
                     <MessageNotifications />
                     <InviteNotifications />

@@ -39,7 +39,6 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
     const [newDesignInput] = useSetting(settingsAtom, 'newDesignInput');
     const { getPowerLevel, canSendEvent } = usePowerLevelsAPI(powerLevels);
     const myUserId = mx.getUserId();
-    const mDirects = useAtomValue(mDirectAtom);
     const canMessage = myUserId
         ? canSendEvent(EventType.RoomMessage, getPowerLevel(myUserId))
         : false;

@@ -512,7 +512,9 @@
     "perms.react.title": "Send reactions",
     "perms.react.desc": "Set minimum power level to send reactions.",
     "perms.redact.title": "Delete messages",
-    "perms.redact.desc": "Set minimum power level to delete messages.",
+    "perms.redact.desc": "Set minimum power level to delete messages sent by others.",
+    "perms.redact_own.title": "Delete own messages",
+    "perms.redact_own.desc": "Set minimum power level to delete own messages.",
     "perms.ping_room.title": "Ping everyone (@room)",
     "perms.ping_room.desc": "Set minimum power level to ping @room.",
     "perms.manage_rooms.title": "Manage rooms",
@@ -869,5 +871,10 @@
     "widgets.title": "Widgets",
     "btn.widget.open": "Open",
     "settings.reply_fallbacks.title": "Reply fallbacks",
-    "settings.reply_fallbacks.desc": "Add reply into message body. Turn on, if someone doesn't see your replies."
+    "settings.reply_fallbacks.desc": "Add reply into message body. Turn on, if someone doesn't see your replies.",
+    "placeholder.room_input.be_careful": "Think twice before sending - you can't delete own messages...",
+    "m.image": "Image",
+    "m.video": "Video",
+    "m.audio": "Audio",
+    "m.file": "File"
 }

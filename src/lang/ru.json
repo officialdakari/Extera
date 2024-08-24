@@ -507,7 +507,9 @@
 	"perms.react.title": "Отправлять реакции",
 	"perms.react.desc": "Минимальный уровень прав для отправки реакций.",
 	"perms.redact.title": "Удалять сообщения",
-	"perms.redact.desc": "Минимальный уровень прав для удаления сообщений.",
+	"perms.redact.desc": "Минимальный уровень прав для удаления сообщений, отправленных другими.",
+	"perms.redact_own.title": "Удалять свои сообщения",
+	"perms.redact_own.desc": "Минимальный уровень прав для удаления своих сообщений.",
 	"perms.ping_room.title": "Упомянуть комнату (@room)",
 	"perms.ping_room.desc": "Минимальный уровень прав для упоминания комнаты (@room).",
 	"perms.manage_rooms.title": "Управлять комнатами",
@@ -868,6 +870,11 @@
 	"tooltip.widgets": "Виджеты",
 	"widgets.title": "Виджеты",
 	"btn.widget.open": "Открыть",
-    "settings.reply_fallbacks.title": "Ответ в содержимом сообщения",
-    "settings.reply_fallbacks.desc": "Добавлять ответ в содержимое сообщения. Используйте, если кто-то не видит Ваши ответы."
+	"settings.reply_fallbacks.title": "Ответ в содержимом сообщения",
+	"settings.reply_fallbacks.desc": "Добавлять ответ в содержимое сообщения. Используйте, если кто-то не видит Ваши ответы.",
+	"placeholder.room_input.be_careful": "Думайте дважды перед отправкой - Вы не можете удалять свои сообщения...",
+	"m.image": "Изображение",
+	"m.video": "Видео",
+	"m.audio": "Аудио",
+	"m.file": "Файл"
 }

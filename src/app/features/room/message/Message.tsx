@@ -367,7 +367,7 @@ export const MessagePinItem = as<
     return (
         <MenuItem
             size="300"
-            after={<Icon size={1} path={isPinned ? mdiPin : mdiPinOff} />}
+            after={<Icon size={1} path={isPinned ? mdiPinOff : mdiPin} />}
             radii="300"
             {...props}
             ref={ref}

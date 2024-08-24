@@ -111,6 +111,7 @@ import { openHiddenRooms } from '../../../client/action/navigation';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 import Icon from '@mdi/react';
 import { mdiAt, mdiBell, mdiBellOff, mdiCheckAll, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiFile, mdiPlusCircle, mdiPlusCircleOutline, mdiSend, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
+import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
 
 interface RoomInputProps {
     fileDropContainerRef: RefObject<HTMLElement>;
@@ -136,6 +137,12 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const [replyMention, setReplyMention] = useState(true);
         const [uploadBoard, setUploadBoard] = useState(true);
         const [selectedFiles, setSelectedFiles] = useAtom(roomIdToUploadItemsAtomFamily(roomId));
+        const powerLevels = usePowerLevelsContext();
+        const { getPowerLevel, canSendEvent } = usePowerLevelsAPI(powerLevels);
+        const myUserId = mx.getUserId();
+        const canRedact = myUserId
+            ? canSendEvent(EventType.RoomRedaction, getPowerLevel(myUserId))
+            : false;
         const uploadFamilyObserverAtom = createUploadFamilyObserverAtom(
             roomUploadAtomFamily,
             selectedFiles.map((f) => f.file)
@@ -231,19 +238,18 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         };
 
         const handleSendUpload = async (uploads: UploadSuccess[]) => {
-            console.log('handlesendupload', selectedFiles);
-
             const contents = await sendFiles(uploads);
 
             for (const content of contents) {
                 if (enableCaptions && msgContent) {
-                    content['m.relates_to'] = msgContent['m.relates_to'];
-                    content['m.mentions'] = msgContent['m.mentions'];
-                    content.body = msgContent.body;
-                    content.formatted_body = msgContent.formatted_body;
-                    content.format = msgContent.format;
+                    await mx.sendMessage(roomId, {
+                        ...content,
+                        ...msgContent,
+                        msgtype: content.msgtype
+                    });
+                } else {
+                    await mx.sendMessage(roomId, content);
                 }
-                await mx.sendMessage(roomId, content);
             }
         };
 
@@ -587,7 +593,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     newDesign={newDesign}
                     // editor={editor}
                     textAreaRef={textAreaRef}
-                    placeholder={getText('placeholder.room_input')}
+                    placeholder={getText(canRedact ? 'placeholder.room_input' : 'placeholder.room_input.be_careful')}
                     onKeyDown={handleKeyDown}
                     onKeyUp={handleKeyUp}
                     onPaste={handlePaste}

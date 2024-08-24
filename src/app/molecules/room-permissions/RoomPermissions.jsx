@@ -40,6 +40,12 @@ const permissionsInfo = {
         description: getText('perms.redact.desc'),
         default: 50,
     },
+    'm.room.redaction': {
+        parent: 'events',
+        name: getText('perms.redact_own.title'),
+        description: getText('perms.redact_own.desc'),
+        default: 0,
+    },
     notifications: {
         name: getText('perms.ping_room.title'),
         description: getText('perms.ping_room.desc'),
@@ -142,7 +148,7 @@ const permissionsInfo = {
 };
 
 const roomPermsGroups = {
-    [getText('room_perms.general')]: ['users_default', 'events_default', 'm.reaction', 'redact', 'notifications'],
+    [getText('room_perms.general')]: ['users_default', 'events_default', 'm.reaction', 'redact', 'm.room.redaction', 'notifications'],
     [getText('room_perms.members')]: ['invite', 'kick', 'ban'],
     [getText('room_perms.room_profile')]: ['m.room.avatar', 'm.room.name', 'm.room.topic'],
     [getText('room_perms.settings')]: ['state_default', 'm.room.canonical_alias', 'm.room.power_levels', 'm.room.encryption', 'm.room.history_visibility'],

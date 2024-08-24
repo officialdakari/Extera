@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useRef } from 'react';
 import { Box, Chip, Icon, Icons, Text, toRem } from 'folds';
 import { IContent, MatrixEvent } from 'matrix-js-sdk';
 import { JUMBO_EMOJI_REG, URL_REG } from '../../utils/regex';
@@ -217,10 +217,11 @@ export function MImage({ content, renderImageContent, renderBody, outlined }: MI
         return <BrokenContent />;
     }
     const height = scaleYDimension(imgInfo?.w || 400, 400, imgInfo?.h || 400);
+    const attachmentRef = useRef<HTMLDivElement>(null);
 
     return (
         <>
-            <Attachment outlined={outlined}>
+            <Attachment ref={attachmentRef} outlined={outlined}>
                 <AttachmentBox
                     style={{
                         height: toRem(height < 48 ? 48 : height),
@@ -240,7 +241,8 @@ export function MImage({ content, renderImageContent, renderBody, outlined }: MI
             </Attachment>
             {content.body && content.filename && (
                 <MessageTextBody
-                    preWrap={typeof content.formatted_body !== 'string'}>
+                    preWrap={typeof content.formatted_body !== 'string'}
+                    style={{ maxWidth: `${attachmentRef.current?.clientWidth ?? 400}px` }}>
                     {renderBody({
                         body: content.body,
                         customBody: content.format == 'org.matrix.custom.html' ? content.formatted_body : undefined
@@ -278,10 +280,11 @@ export function MVideo({ content, renderAsFile, renderVideoContent, renderBody, 
     }
 
     const height = scaleYDimension(videoInfo.w || 400, 400, videoInfo.h || 400);
+    const attachmentRef = useRef<HTMLDivElement>(null);
 
     return (
         <>
-            <Attachment outlined={outlined}>
+            <Attachment ref={attachmentRef} outlined={outlined}>
                 <AttachmentBox
                     style={{
                         height: toRem(height < 48 ? 48 : height),
@@ -299,7 +302,8 @@ export function MVideo({ content, renderAsFile, renderVideoContent, renderBody, 
 
             {content.body && content.filename && (
                 <MessageTextBody
-                    preWrap={typeof content.formatted_body !== 'string'}>
+                    preWrap={typeof content.formatted_body !== 'string'}
+                    style={{ maxWidth: `${attachmentRef.current?.clientWidth ?? 400}px` }}>
                     {renderBody({
                         body: content.body,
                         customBody: content.format == 'org.matrix.custom.html' ? content.formatted_body : undefined
@@ -335,9 +339,11 @@ export function MAudio({ content, renderAsFile, renderAudioContent, renderBody, 
         return <BrokenContent />;
     }
 
+    const attachmentRef = useRef<HTMLDivElement>(null);
+
     return (
         <>
-            <Attachment outlined={outlined}>
+            <Attachment ref={attachmentRef} outlined={outlined}>
                 <AttachmentHeader>
                     <FileHeader body={content.filename ?? content.body ?? 'Audio'} mimeType={safeMimeType} />
                 </AttachmentHeader>
@@ -352,11 +358,10 @@ export function MAudio({ content, renderAsFile, renderAudioContent, renderBody, 
                     </AttachmentContent>
                 </AttachmentBox>
             </Attachment>
-
-
             {content.body && content.filename && (
                 <MessageTextBody
-                    preWrap={typeof content.formatted_body !== 'string'}>
+                    preWrap={typeof content.formatted_body !== 'string'}
+                    style={{ maxWidth: `${attachmentRef.current?.clientWidth ?? 400}px` }}>
                     {renderBody({
                         body: content.body,
                         customBody: content.format == 'org.matrix.custom.html' ? content.formatted_body : undefined
@@ -393,9 +398,11 @@ export function MFile({ content, renderFileContent, renderBody, outlined, htmlRe
         return <BrokenContent />;
     }
 
+    const attachmentRef = useRef<HTMLDivElement>(null);
+
     return (
         <>
-            <Attachment outlined={outlined}>
+            <Attachment ref={attachmentRef} outlined={outlined}>
                 <AttachmentHeader>
                     <FileHeader
                         body={content.filename ?? content.body ?? 'Unnamed File'}
@@ -421,7 +428,8 @@ export function MFile({ content, renderFileContent, renderBody, outlined, htmlRe
 
             {content.body && content.filename && (
                 <MessageTextBody
-                    preWrap={typeof content.formatted_body !== 'string'}>
+                    preWrap={typeof content.formatted_body !== 'string'}
+                    style={{ maxWidth: `${attachmentRef.current?.clientWidth ?? 400}px` }}>
                     {renderBody({
                         body: content.body,
                         customBody: content.format == 'org.matrix.custom.html' ? content.formatted_body : undefined

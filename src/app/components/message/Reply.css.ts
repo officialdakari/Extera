@@ -1,28 +1,35 @@
 import { style } from '@vanilla-extract/css';
-import { config, toRem } from 'folds';
+import { color, config, toRem } from 'folds';
 
 export const ReplyBend = style({
-  flexShrink: 0,
+    flexShrink: 0,
 });
 
 export const Reply = style({
-  marginBottom: toRem(1),
-  minWidth: 0,
-  maxWidth: '100%',
-  minHeight: config.lineHeight.T300,
-  selectors: {
-    'button&': {
-      cursor: 'pointer',
+    marginBottom: toRem(1),
+    minWidth: 0,
+    maxWidth: '100%',
+    minHeight: config.lineHeight.T300,
+    maxHeight: '600px',
+    selectors: {
+        'button&': {
+            cursor: 'pointer',
+        },
     },
-  },
+    backgroundColor: color.Background.ContainerHover,
+    padding: '5px',
+    borderRadius: config.radii.R300,
+    borderStyle: 'solid',
+    borderColor: color.Surface.Container,
+    maskImage: `linear-gradient(to bottom, black calc(100% - 50px), transparent)`
 });
 
 export const ReplyContent = style({
-  opacity: config.opacity.P300,
-
-  selectors: {
-    [`${Reply}:hover &`]: {
-      opacity: config.opacity.P500,
+    opacity: config.opacity.P300,
+    maxWidth: '100%',
+    selectors: {
+        [`${Reply}:hover &`]: {
+            opacity: config.opacity.P500,
+        },
     },
-  },
 });

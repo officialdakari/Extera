@@ -27,6 +27,8 @@ import { Image, MediaControl, Video } from './media';
 import { ImageViewer } from './image-viewer';
 import { PdfViewer } from './Pdf-viewer';
 import { TextViewer } from './text-viewer';
+import { Box } from 'folds';
+import { getText } from '../../lang';
 
 type RenderMessageContentProps = {
     displayName: string;
@@ -39,6 +41,7 @@ type RenderMessageContentProps = {
     highlightRegex?: RegExp;
     htmlReactParserOptions: HTMLReactParserOptions;
     outlineAttachment?: boolean;
+    hideAttachment?: boolean;
 };
 export function RenderMessageContent({
     displayName,
@@ -51,7 +54,9 @@ export function RenderMessageContent({
     highlightRegex,
     htmlReactParserOptions,
     outlineAttachment,
+    hideAttachment
 }: RenderMessageContentProps) {
+    const { body, formatted_body: customBody } = getContent() as any;
     const renderFile = () => (
         <MFile
             htmlReactParserOptions={htmlReactParserOptions}
@@ -177,7 +182,17 @@ export function RenderMessageContent({
     }
 
     if (msgType === MsgType.Image) {
-        return (
+        return hideAttachment ? (
+            <Box direction='Column'>
+                <b>{getText('m.image')}</b>
+                <RenderBody
+                    body={body}
+                    customBody={customBody}
+                    highlightRegex={highlightRegex}
+                    htmlReactParserOptions={htmlReactParserOptions}
+                />
+            </Box>
+        ) : (
             <MImage
                 content={getContent()}
                 renderBody={(props) => (
@@ -201,7 +216,17 @@ export function RenderMessageContent({
     }
 
     if (msgType === MsgType.Video) {
-        return (
+        return hideAttachment ? (
+            <Box direction='Column'>
+                <b>{getText('m.video')}</b>
+                <RenderBody
+                    body={body}
+                    customBody={customBody}
+                    highlightRegex={highlightRegex}
+                    htmlReactParserOptions={htmlReactParserOptions}
+                />
+            </Box>
+        ) : (
             <MVideo
                 content={getContent()}
                 renderAsFile={renderFile}
@@ -240,7 +265,17 @@ export function RenderMessageContent({
     }
 
     if (msgType === MsgType.Audio) {
-        return (
+        return hideAttachment ? (
+            <Box direction='Column'>
+                <b>{getText('m.audio')}</b>
+                <RenderBody
+                    body={body}
+                    customBody={customBody}
+                    highlightRegex={highlightRegex}
+                    htmlReactParserOptions={htmlReactParserOptions}
+                />
+            </Box>
+        ) : (
             <MAudio
                 content={getContent()}
                 renderBody={(props) => (
@@ -260,7 +295,17 @@ export function RenderMessageContent({
     }
 
     if (msgType === MsgType.File) {
-        return renderFile();
+        return hideAttachment ? (
+            <Box direction='Column'>
+                <b>{getText('m.file')}</b>
+                <RenderBody
+                    body={body}
+                    customBody={customBody}
+                    highlightRegex={highlightRegex}
+                    htmlReactParserOptions={htmlReactParserOptions}
+                />
+            </Box>
+        ) : renderFile();
     }
 
     if (msgType === MsgType.Location) {
