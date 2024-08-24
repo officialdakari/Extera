@@ -5,8 +5,7 @@ import { getMxIdLocalPart } from '../utils/matrix';
 import { isMembershipChanged } from '../utils/room';
 import { useMatrixClient } from './useMatrixClient';
 import { mdiAccount, mdiAccountLock, mdiAccountLockOpen, mdiAccountPlus, mdiAccountRemove, mdiArrowRight, mdiAt } from '@mdi/js';
-
-/// TODO: TRANSLATE THIS!
+import { getText, translate } from '../../lang';
 
 export type ParsedResult = {
     icon: string;
@@ -40,7 +39,7 @@ export const useMemberEventParser = (): MemberEventParser => {
         if (!senderId || !userId)
             return {
                 icon: mdiAccount,
-                body: 'Broken membership event',
+                body: getText('membership.broken'),
             };
 
         const senderName = getDisplayName(senderId, mEvent.getRoomId());
@@ -51,26 +50,22 @@ export const useMemberEventParser = (): MemberEventParser => {
                 if (prevContent.membership === Membership.Knock) {
                     return {
                         icon: mdiAccountPlus,
-                        body: (
-                            <>
-                                <b>{senderName}</b>
-                                {' accepted '}
-                                <b>{userName}</b>
-                                {`'s join request `}
-                                {content.reason}
-                            </>
+                        body: translate(
+                            'membership.request_accepted',
+                            <b>{senderName}</b>,
+                            <b>{userName}</b>,
+                            content.reason
                         ),
                     };
                 }
 
                 return {
                     icon: mdiAccountPlus,
-                    body: (
-                        <>
-                            <b>{senderName}</b>
-                            {' invited '}
-                            <b>{userName}</b> {content.reason}
-                        </>
+                    body: translate(
+                        'membership.invited',
+                        <b>{senderName}</b>,
+                        <b>{userName}</b>,
+                        content.reason
                     ),
                 };
             }
@@ -78,12 +73,10 @@ export const useMemberEventParser = (): MemberEventParser => {
             if (content.membership === Membership.Knock) {
                 return {
                     icon: mdiAccountPlus,
-                    body: (
-                        <>
-                            <b>{userName}</b>
-                            {' request to join room '}
-                            {content.reason}
-                        </>
+                    body: translate(
+                        'membership.knock',
+                        <b>{senderName}</b>,
+                        content.reason
                     ),
                 };
             }
@@ -91,11 +84,9 @@ export const useMemberEventParser = (): MemberEventParser => {
             if (content.membership === Membership.Join) {
                 return {
                     icon: mdiAccountPlus,
-                    body: (
-                        <>
-                            <b>{userName}</b>
-                            {' joined the room'}
-                        </>
+                    body: translate(
+                        'membership.join',
+                        <b>{senderName}</b>
                     ),
                 };
             }
@@ -106,19 +97,18 @@ export const useMemberEventParser = (): MemberEventParser => {
                         icon: mdiAccountRemove,
                         body:
                             senderId === userId ? (
-                                <>
-                                    <b>{userName}</b>
-                                    {' rejected the invitation '}
-                                    {content.reason}
-                                </>
+                                translate(
+                                    'membership.invite_rejected',
+                                    <b>{senderName}</b>,
+                                    content.reason
+                                )
                             ) : (
-                                <>
-                                    <b>{senderName}</b>
-                                    {' rejected '}
-                                    <b>{userName}</b>
-                                    {`'s join request `}
-                                    {content.reason}
-                                </>
+                                translate(
+                                    'membership.request_rejected',
+                                    <b>{senderName}</b>,
+                                    <b>{userName}</b>,
+                                    content.reason
+                                )
                             ),
                     };
                 }
@@ -128,19 +118,18 @@ export const useMemberEventParser = (): MemberEventParser => {
                         icon: mdiAccountRemove,
                         body:
                             senderId === userId ? (
-                                <>
-                                    <b>{userName}</b>
-                                    {' revoked joined request '}
-                                    {content.reason}
-                                </>
+                                translate(
+                                    'membership.knock_cancel',
+                                    <b>{userName}</b>,
+                                    content.reason
+                                )
                             ) : (
-                                <>
-                                    <b>{senderName}</b>
-                                    {' revoked '}
-                                    <b>{userName}</b>
-                                    {`'s invite `}
-                                    {content.reason}
-                                </>
+                                translate(
+                                    'membership.invite_cancel',
+                                    <b>{senderName}</b>,
+                                    <b>{userName}</b>,
+                                    content.reason
+                                )
                             ),
                     };
                 }
@@ -149,11 +138,12 @@ export const useMemberEventParser = (): MemberEventParser => {
                     return {
                         icon: mdiAccountLockOpen,
                         body: (
-                            <>
-                                <b>{senderName}</b>
-                                {' unbanned '}
-                                <b>{userName}</b> {content.reason}
-                            </>
+                            translate(
+                                'membership.unban',
+                                <b>{senderName}</b>,
+                                <b>{userName}</b>,
+                                content.reason
+                            )
                         ),
                     };
                 }
@@ -162,17 +152,18 @@ export const useMemberEventParser = (): MemberEventParser => {
                     icon: mdiAccountRemove,
                     body:
                         senderId === userId ? (
-                            <>
-                                <b>{userName}</b>
-                                {' left the room '}
-                                {content.reason}
-                            </>
+                            translate(
+                                'membership.leave',
+                                <b>{userName}</b>,
+                                content.reason
+                            )
                         ) : (
-                            <>
-                                <b>{senderName}</b>
-                                {' kicked '}
-                                <b>{userName}</b> {content.reason}
-                            </>
+                            translate(
+                                'membership.kick',
+                                <b>{senderName}</b>,
+                                <b>{userName}</b>,
+                                content.reason
+                            )
                         ),
                 };
             }
@@ -181,11 +172,12 @@ export const useMemberEventParser = (): MemberEventParser => {
                 return {
                     icon: mdiAccountLock,
                     body: (
-                        <>
-                            <b>{senderName}</b>
-                            {' banned '}
-                            <b>{userName}</b> {content.reason}
-                        </>
+                        translate(
+                            'membership.ban',
+                            <b>{senderName}</b>,
+                            <b>{userName}</b>,
+                            content.reason
+                        )
                     ),
                 };
             }
@@ -197,32 +189,32 @@ export const useMemberEventParser = (): MemberEventParser => {
             return {
                 icon: mdiAt,
                 body: content.displayname ? (
-                    <>
-                        <b>{prevUserName}</b>
-                        {' changed display name to '}
+                    translate(
+                        'membership.display_name',
+                        <b>{prevUserName}</b>,
                         <b>{userName}</b>
-                    </>
+                    )
                 ) : (
-                    <>
+                    translate(
+                        'membership.remove_display_name',
                         <b>{prevUserName}</b>
-                        {' removed their display name '}
-                    </>
+                    )
                 ),
             };
         }
         if (content.avatar_url !== prevContent.avatar_url) {
             return {
                 icon: mdiAccount,
-                body: content.displayname ? (
-                    <>
-                        <b>{userName}</b>
-                        {' changed their avatar'}
-                    </>
+                body: content.avatar_url ? (
+                    translate(
+                        'membership.avatar',
+                        <b>{userName}</b>,
+                    )
                 ) : (
-                    <>
-                        <b>{userName}</b>
-                        {' removed their avatar '}
-                    </>
+                    translate(
+                        'membership.remove_avatar',
+                        <b>{userName}</b>,
+                    )
                 ),
             };
         }
@@ -231,22 +223,22 @@ export const useMemberEventParser = (): MemberEventParser => {
             return {
                 icon: mdiAccount,
                 body: content['ru.officialdakari.extera_banner'] ? (
-                    <>
-                        <b>{userName}</b>
-                        {' changed their banner'}
-                    </>
+                    translate(
+                        'membership.banner',
+                        <b>{userName}</b>,
+                    )
                 ) : (
-                    <>
-                        <b>{userName}</b>
-                        {' removed their banner'}
-                    </>
+                    translate(
+                        'membership.remove_banner',
+                        <b>{userName}</b>,
+                    )
                 ),
             };
         }
 
         return {
             icon: mdiAccount,
-            body: 'Broken membership event',
+            body: getText('membership.broken'),
         };
     };
 
