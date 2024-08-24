@@ -33,7 +33,7 @@ import React, {
 } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { useHover, useFocusWithin } from 'react-aria';
-import { EventTimeline, MatrixEvent, Room, RoomEvent } from 'matrix-js-sdk';
+import { EventTimeline, MatrixEvent, RelationType, Room, RoomEvent } from 'matrix-js-sdk';
 import { Relations } from 'matrix-js-sdk/lib/models/relations';
 import classNames from 'classnames';
 import {
@@ -616,7 +616,10 @@ export const MessageDeleteItem = as<
     const [deleteState, deleteMessage] = useAsyncCallback(
         useCallback(
             (eventId: string, reason?: string) =>
-                mx.redactEvent(room.roomId, eventId, undefined, reason ? { reason } : undefined),
+                mx.redactEvent(room.roomId, eventId, undefined, {
+                    reason,
+                    with_rel_types: [RelationType.Replace]
+                }),
             [mx, room]
         )
     );
