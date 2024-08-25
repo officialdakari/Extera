@@ -895,5 +895,6 @@
     "membership.remove_avatar": "{0} removed their profile picture.",
     "membership.banner": "{0} changed their profile banner.",
     "membership.remove_banner": "{0} removed their profile banner.",
-    "membership.broken": "Broken membership event"
+    "membership.broken": "Broken membership event",
+    "room_header.end_meeting": "End meeting"
 }

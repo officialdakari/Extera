@@ -23,6 +23,9 @@ import { createModals, ModalsProvider } from '../../hooks/useModals';
 import Icon from '@mdi/react';
 import { mdiClose } from '@mdi/js';
 import { Modals } from '../../components/modal/Modal';
+import { usePermission } from '../../hooks/usePermission';
+import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
+import { Permissions } from '../../state/widgetPermissions';
 
 function SystemEmojiFeature() {
     const [twitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
@@ -53,6 +56,7 @@ type ClientRootProps = {
 export function ClientRoot({ children }: ClientRootProps) {
     const [loading, setLoading] = useState(true);
     const { baseUrl } = getSecret();
+    const mx = initMatrix.matrixClient;
 
     useEffect(() => {
         const handleStart = () => {
@@ -72,7 +76,7 @@ export function ClientRoot({ children }: ClientRootProps) {
     // todo refactor that shit
     // TODO means I will never do that
     useEffect(() => {
-        const onMessage = (evt: MessageEvent<any>) => {
+        const onMessage = async (evt: MessageEvent<any>) => {
             const { data, source } = evt;
             const respond = (response: any) => {
                 source?.postMessage({
@@ -80,6 +84,29 @@ export function ClientRoot({ children }: ClientRootProps) {
                     response
                 });
             };
+
+            const iframe = Array.from(document.getElementsByTagName('iframe'))
+                .find(x => x.contentWindow == source);
+
+            if (!iframe) return console.error('no iframe');
+            const roomId = iframe.dataset.widgetRoomId;
+            if (typeof roomId !== 'string') return;
+            const widgetKey = `${iframe.dataset.widgetRoomId}_${iframe.dataset.widgetEventId}`;
+            // это говно       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            const [perms, setPerms] = usePermission(widgetKey, {});
+            const getPermission = async (key: keyof Permissions) => {
+                if (typeof perms[key] === 'undefined') {
+                    const result = await confirmDialog('Widget permission', `Allow ${iframe.dataset.widgetRoomName} to ${key}?`, 'Yes', 'positive');
+                    setPerms((x: Permissions) => {
+                        x[key] = result;
+                        return x;
+                    });
+                }
+                return perms[key];
+            };
+
+            console.debug('!!!!', data);
+
             if (data.api === 'fromWidget') {
                 if (data.action === 'supported_api_versions') {
                     respond({
@@ -88,10 +115,16 @@ export function ClientRoot({ children }: ClientRootProps) {
                 } else if (data.action === 'content_loaded') {
                     respond({ success: true });
                 } else if (data.action === 'send_event') {
-                    // TODO send_event
-                    // 1. we should know from which room that widget is
-                    // 2. we should ask user for permission and remember permission
-                    // 3. we should make a setting tab to manage widget permissions
+                    if (!(await getPermission('sendEvents'))) {
+                        return respond({
+                            error: {
+                                message: 'Forbidden'
+                            }
+                        });
+                    }
+                    mx?.sendMessage(roomId, data.event).then(() => {
+                        respond({ success: true });
+                    });
                 }
             }
         };

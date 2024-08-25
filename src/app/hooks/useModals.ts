@@ -13,6 +13,7 @@ type Modal = {
     node: ReactNode;
     allowClose?: boolean;
     title?: string;
+    externalUrl?: string;
 };
 
 const ModalsContext = createContext<ModalsType | undefined>(undefined);

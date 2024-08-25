@@ -895,5 +895,6 @@
     "membership.remove_avatar": "{0} изменил(-а) аватар профиля.",
     "membership.banner": "{0} изменил(-а) баннер профиля.",
     "membership.remove_banner": "{0} убрал(-а) баннер профиля.",
-    "membership.broken": "Повреждённое событие"
+    "membership.broken": "Повреждённое событие",
+    "room_header.end_meeting": "Завершить видеозвонок"
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, Text, config } from 'folds';
-import { CallEvent, EventType, MatrixCall, MatrixEvent, MatrixEventEvent, Room, RoomEvent } from 'matrix-js-sdk';
+import { CallEvent, EventTimeline, EventType, MatrixCall, MatrixEvent, MatrixEventEvent, Room, RoomEvent } from 'matrix-js-sdk';
 
 import { useStateEvent } from '../../hooks/useStateEvent';
 import { StateEvent } from '../../../types/matrix/room';
@@ -24,6 +24,9 @@ import { useAtomValue } from 'jotai';
 import { mDirectAtom } from '../../state/mDirectList';
 import { useRoomCall } from '../../hooks/useCall';
 import { CallState } from 'matrix-js-sdk/lib/webrtc/call';
+import { useModals } from '../../hooks/useModals';
+import { v4 } from 'uuid';
+import { generateConferenceID } from '../../../util/conferenceID';
 
 export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
     const roomInputRef = useRef(null);
@@ -73,6 +76,74 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
         setCallWindow(
             <RoomCall room={room} call={newCall} onHangup={onHangup} />
         );
+    };
+
+    const modals = useModals();
+
+    const openWidget = async (ev: MatrixEvent) => {
+        const profile = myUserId ? mx.getUser(myUserId) : null;
+        const content = ev.getContent();
+        if (typeof content.url !== 'string') return;
+        const data = {
+            matrix_user_id: myUserId,
+            matrix_room_id: room.roomId,
+            matrix_display_name: profile?.displayName ?? myUserId,
+            matrix_avatar_url: profile?.avatarUrl && mx.mxcUrlToHttp(profile?.avatarUrl),
+            ...content.data
+        };
+        var url = `${content.url}`; // Should not be a reference
+        for (const key in data) {
+            if (typeof data[key] === 'string') {
+                url = url.replaceAll(`$${key}`, data[key]);
+            }
+        }
+        if (!url.startsWith('https://')) return;
+        modals.addModal({
+            allowClose: true,
+            title: content.name ?? 'Widget',
+            node: (
+                <iframe
+                    style={{ border: 'none', width: '100%', height: '100%' }}
+                    allow="autoplay; camera; clipboard-write; compute-pressure; display-capture; hid; microphone; screen-wake-lock"
+                    allowFullScreen
+                    data-widget-room-id={ev.getRoomId()}
+                    data-widget-event-id={ev.getId()}
+                    data-widget-name={content.name}
+                    data-widget-room-name={room.name}
+                    src={url}
+                />
+            ),
+            externalUrl: url
+        });
+    };
+
+    const handleVideoCall = async (dontCreate?: boolean) => {
+        const timeline = room.getLiveTimeline();
+        const state = timeline.getState(EventTimeline.FORWARDS);
+        const widgetsEvents = [
+            ...(state?.getStateEvents('m.widget') ?? []),
+            ...(state?.getStateEvents('im.vector.modular.widgets') ?? [])
+        ];
+
+        const ev = widgetsEvents.find(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
+        console.debug(ev);
+        if (ev) return openWidget(ev);
+        if (dontCreate === true) return;
+        const conferenceId = generateConferenceID();
+        const id = `m.jitsi_${myUserId}_${Date.now()}`;
+        const sent = await mx.sendStateEvent(room.roomId, 'im.vector.modular.widgets', {
+            creatorUserId: myUserId,
+            data: {
+                conferenceId,
+                domain: 'meet.element.io',
+                isAudioOnly: false
+            },
+            id,
+            name: 'Jitsi Meet',
+            type: 'jitsi',
+            url: `https://app.element.io/jitsi.html?confId=${conferenceId}#conferenceDomain=$domain&conferenceId=$conferenceId&isAudioOnly=$isAudioOnly&displayName=$matrix_display_name&avatarUrl=$matrix_avatar_url&userId=$matrix_user_id&roomId=$matrix_room_id&theme=$theme`
+        }, id);
+        handleVideoCall(true);
     };
 
     const onHangup = () => {
@@ -128,7 +199,7 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
 
     return (
         <Page ref={roomViewRef} style={style}>
-            <RoomViewHeader handleCall={handleCall} />
+            <RoomViewHeader handleVideoCall={handleVideoCall} handleCall={handleCall} />
             <Box grow="Yes" direction="Column">
                 <RoomTimeline
                     key={roomId}

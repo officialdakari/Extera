@@ -46,7 +46,7 @@ const defaultSettings: Settings = {
     useSystemTheme: true,
     isMarkdown: true,
     editorToolbar: false,
-    twitterEmoji: false,
+    twitterEmoji: true,
 
     isPeopleDrawer: true,
     memberSortFilterIndex: 0,
@@ -63,8 +63,8 @@ const defaultSettings: Settings = {
     showNotifications: true,
     isNotificationSounds: true,
 
-    extera_enableCaptions: false,
-    extera_hideTgAds: false,
+    extera_enableCaptions: true,
+    extera_hideTgAds: true,
     extera_renameTgBot: false,
     extera_ghostMode: false,
     extera_smoothScroll: true,

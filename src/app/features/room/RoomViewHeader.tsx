@@ -25,7 +25,7 @@ import {
     Button,
 } from 'folds';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { EventTimeline, JoinRule, MatrixEvent, Room } from 'matrix-js-sdk';
+import { EventTimeline, EventType, JoinRule, MatrixEvent, Room } from 'matrix-js-sdk';
 import { useAtomValue } from 'jotai';
 
 import { useStateEvent } from '../../hooks/useStateEvent';
@@ -71,7 +71,7 @@ import { getReactCustomHtmlParser } from '../../plugins/react-custom-html-parser
 import { HTMLReactParserOptions } from 'html-react-parser';
 import { Message } from './message';
 import { Image } from '../../components/media';
-import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiChevronLeft, mdiChevronRight, mdiClose, mdiCog, mdiDotsVertical, mdiLinkVariant, mdiMagnify, mdiPhone, mdiPin, mdiWidgets } from '@mdi/js';
+import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiChevronLeft, mdiChevronRight, mdiClose, mdiCog, mdiDotsVertical, mdiLinkVariant, mdiMagnify, mdiPhone, mdiPin, mdiVideo, mdiVideoOff, mdiWidgets } from '@mdi/js';
 import Icon from '@mdi/react';
 import { WidgetItem } from '../../components/widget/WidgetItem';
 import { useModals } from '../../hooks/useModals';
@@ -87,8 +87,20 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
         const { hashRouter } = useClientConfig();
         const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
         const powerLevels = usePowerLevelsContext();
-        const { getPowerLevel, canDoAction } = usePowerLevelsAPI(powerLevels);
+        const { getPowerLevel, canDoAction, canSendEvent } = usePowerLevelsAPI(powerLevels);
         const canInvite = canDoAction('invite', getPowerLevel(mx.getUserId() ?? ''));
+        const myUserId = mx.getUserId();
+        const timeline = room.getLiveTimeline();
+        const state = timeline.getState(EventTimeline.FORWARDS);
+        const widgetsEvents = [
+            ...(state?.getStateEvents('m.widget') ?? []),
+            ...(state?.getStateEvents('im.vector.modular.widgets') ?? [])
+        ];
+        const videoCallEvent = widgetsEvents.find(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
+
+        const canRedact = myUserId
+            ? canSendEvent(EventType.RoomRedaction, getPowerLevel(myUserId))
+            : false;
 
         const handleMarkAsRead = () => {
             markAsRead(room.roomId);
@@ -108,6 +120,15 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
         const handleRoomSettings = () => {
             toggleRoomSettings(room.roomId);
             requestClose();
+        };
+
+        const endJitsi = () => {
+            const evs = widgetsEvents.filter(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
+            for (const ev of evs) {
+                const eventId = ev.getId();
+                if (!eventId) continue;
+                mx.redactEvent(room.roomId, eventId);
+            }
         };
 
         return (
@@ -189,6 +210,21 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                             </>
                         )}
                     </UseStateProvider>
+                    {canRedact && videoCallEvent && (
+                        <MenuItem
+                            onClick={endJitsi}
+                            variant="Critical"
+                            fill="None"
+                            size="300"
+                            after={<Icon size={1} path={mdiVideoOff} />}
+                            radii="300"
+                            disabled={!canInvite}
+                        >
+                            <Text style={{ flexGrow: 1 }} as="span" size="T300">
+                                {getText('room_header.end_meeting')}
+                            </Text>
+                        </MenuItem>
+                    )}
                 </Box>
             </Menu>
         );
@@ -197,10 +233,12 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
 
 type RoomViewHeaderProps = {
     handleCall: any;
+    handleVideoCall: any;
 };
 
 export function RoomViewHeader({
-    handleCall
+    handleCall,
+    handleVideoCall
 }: RoomViewHeaderProps) {
     const navigate = useNavigate();
     const mx = useMatrixClient();
@@ -221,6 +259,22 @@ export function RoomViewHeader({
     const [pinned, setPinned] = useState<ReactNode[]>([]);
     const [widgets, setWidgets] = useState<ReactNode[]>([]);
     const avatarUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
+    const powerLevels = usePowerLevelsContext();
+    const { getPowerLevel, canSendEvent, canSendStateEvent } = usePowerLevelsAPI(powerLevels);
+    const myUserId = mx.getUserId();
+    const timeline = room.getLiveTimeline();
+    const state = timeline.getState(EventTimeline.FORWARDS);
+    const widgetsEvents = [
+        ...(state?.getStateEvents('m.widget') ?? []),
+        ...(state?.getStateEvents('im.vector.modular.widgets') ?? [])
+    ];
+    const canEditWidgets = myUserId
+        ? canSendStateEvent('im.vector.modular.widgets', getPowerLevel(myUserId))
+        : false;
+
+    const videoCallEvent = widgetsEvents.find(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
+
+    const showVideoCallButton = canEditWidgets || videoCallEvent;
 
     const setPeopleDrawer = useSetSetting(settingsAtom, 'isPeopleDrawer');
     const location = useLocation();
@@ -331,8 +385,18 @@ export function RoomViewHeader({
                         allowClose: true,
                         title: content.name ?? 'Widget',
                         node: (
-                            <iframe style={{ border: 'none' }} allow="autoplay; camera; clipboard-write; compute-pressure; display-capture; hid; microphone; screen-wake-lock" allowFullScreen src={url}></iframe>
-                        )
+                            <iframe
+                                style={{ border: 'none', width: '100%', height: '100%' }}
+                                allow="autoplay; camera; clipboard-write; compute-pressure; display-capture; hid; microphone; screen-wake-lock"
+                                allowFullScreen
+                                data-widget-room-id={ev.getRoomId()}
+                                data-widget-event-id={ev.getId()}
+                                data-widget-name={content.name}
+                                data-widget-room-name={room.name}
+                                src={url}
+                            />
+                        ),
+                        externalUrl: url
                     });
                 };
                 widgetList.push(
@@ -757,6 +821,11 @@ export function RoomViewHeader({
                                 </IconButton>
                             )}
                         </TooltipProvider>
+                    )}
+                    {!mDirects.has(room.roomId) && showVideoCallButton && (
+                        <IconButton onClick={handleVideoCall}>
+                            <Icon size={1} path={mdiVideo} />
+                        </IconButton>
                     )}
                     {mDirects.has(room.roomId) && (
                         <IconButton onClick={handleCall}>

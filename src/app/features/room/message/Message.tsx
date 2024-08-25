@@ -29,6 +29,7 @@ import React, {
     useCallback,
     useEffect,
     useMemo,
+    useRef,
     useState,
 } from 'react';
 import FocusTrap from 'focus-trap-react';
@@ -91,6 +92,7 @@ import { Image } from '../../../components/media';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccount, mdiAlertCircleOutline, mdiCheck, mdiCheckAll, mdiClose, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiPencil, mdiPin, mdiPinOff, mdiReply, mdiRestore } from '@mdi/js';
+import { useBackButton } from '../../../hooks/useBackButton';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -285,6 +287,8 @@ export const MessageSourceCodeItem = as<
         setOpen(false);
         onClose?.();
     };
+
+    useBackButton(handleClose);
 
     return (
         <>
@@ -1038,9 +1042,13 @@ export const Message = as<'div', MessageProps>(
             </AvatarBase>
         );
 
+        const childrenRef = useRef<HTMLDivElement>(null);
+
         const msgContentJSX = (
             <Box direction="Column" alignSelf="Start" style={{ maxWidth: '100%' }}>
-                {reply}
+                <div style={{ width: `${childrenRef.current?.clientWidth}px`, maxWidth: `${childrenRef.current?.clientWidth}px` }}>
+                    {reply}
+                </div>
                 {edit && onEditId ? (
                     <MessageEditor
                         style={{
@@ -1054,7 +1062,9 @@ export const Message = as<'div', MessageProps>(
                         onCancel={() => onEditId()}
                     />
                 ) : (
-                    children
+                    <div ref={childrenRef}>
+                        {children}
+                    </div>
                 )}
                 {reactions}
             </Box>
