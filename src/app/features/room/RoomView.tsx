@@ -141,7 +141,7 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
             id,
             name: 'Jitsi Meet',
             type: 'jitsi',
-            url: `https://app.element.io/jitsi.html?confId=${conferenceId}#conferenceDomain=$domain&conferenceId=$conferenceId&isAudioOnly=$isAudioOnly&displayName=$matrix_display_name&avatarUrl=$matrix_avatar_url&userId=$matrix_user_id&roomId=$matrix_room_id&theme=$theme`
+            url: `https://officialdakari.ru/jitsi.html?confId=${conferenceId}#conferenceDomain=$domain&conferenceId=$conferenceId&isAudioOnly=$isAudioOnly&displayName=$matrix_display_name&avatarUrl=$matrix_avatar_url&userId=$matrix_user_id&roomId=$matrix_room_id&theme=$theme`
         }, id);
         handleVideoCall(true);
     };

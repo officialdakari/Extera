@@ -63,7 +63,6 @@ export function Modals({ modals }: ModalsProps) {
                                 }}>
                                     <Modal variant="Surface" style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100' }}>
                                         <Header
-                                            className='modal-header'
                                             style={{
                                                 padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
                                                 borderBottomWidth: config.borderWidth.B300,
@@ -71,7 +70,7 @@ export function Modals({ modals }: ModalsProps) {
                                             variant="Surface"
                                             size="500"
                                         >
-                                            <Box grow="Yes">
+                                            <Box className='modal-header' grow="Yes">
                                                 <Text size="H4">{content.title ?? 'Modal'}</Text>
                                             </Box>
                                             {
