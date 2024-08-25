@@ -11,6 +11,7 @@ export const Reply = style({
     maxWidth: '100%',
     minHeight: config.lineHeight.T300,
     maxHeight: '600px',
+    width: '100%',
     selectors: {
         'button&': {
             cursor: 'pointer',
@@ -27,6 +28,7 @@ export const Reply = style({
 export const ReplyContent = style({
     opacity: config.opacity.P300,
     maxWidth: '100%',
+    maxHeight: '100px',
     selectors: {
         [`${Reply}:hover &`]: {
             opacity: config.opacity.P500,

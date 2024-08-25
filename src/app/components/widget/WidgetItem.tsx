@@ -9,10 +9,10 @@ type WidgetItemProps = {
     url: string;
     type: string;
     onClick?: () => void;
+    onRemove?: () => void;
 };
 
-export function WidgetItem({ name, type, url, onClick }: WidgetItemProps) {
-
+export function WidgetItem({ name, type, url, onClick, onRemove }: WidgetItemProps) {
     return (
         <Box className={css.WidgetItem} direction='Row'>
             <Box direction='Column'>
@@ -23,9 +23,16 @@ export function WidgetItem({ name, type, url, onClick }: WidgetItemProps) {
                     {type}
                 </Text>
             </Box>
-            <Button variant='Primary' onClick={onClick}>
-                {getText('btn.widget.open')}
-            </Button>
+            <div style={{ display: 'flex', gap: '4px' }}>
+                <Button variant='Primary' onClick={onClick}>
+                    {getText('btn.widget.open')}
+                </Button>
+                {onRemove && (
+                    <Button variant='Critical' onClick={onRemove}>
+                        {getText('btn.widget.remove')}
+                    </Button>
+                )}
+            </div>
         </Box>
     );
 }

@@ -75,6 +75,7 @@ import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiChevronLeft, 
 import Icon from '@mdi/react';
 import { WidgetItem } from '../../components/widget/WidgetItem';
 import { useModals } from '../../hooks/useModals';
+import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 
 type RoomMenuProps = {
     room: Room;
@@ -99,7 +100,7 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
         const videoCallEvent = widgetsEvents.find(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
 
         const canRedact = myUserId
-            ? canSendEvent(EventType.RoomRedaction, getPowerLevel(myUserId))
+            ? canDoAction('redact', getPowerLevel(myUserId))
             : false;
 
         const handleMarkAsRead = () => {
@@ -260,7 +261,7 @@ export function RoomViewHeader({
     const [widgets, setWidgets] = useState<ReactNode[]>([]);
     const avatarUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
     const powerLevels = usePowerLevelsContext();
-    const { getPowerLevel, canSendEvent, canSendStateEvent } = usePowerLevelsAPI(powerLevels);
+    const { getPowerLevel, canSendEvent, canSendStateEvent, canDoAction } = usePowerLevelsAPI(powerLevels);
     const myUserId = mx.getUserId();
     const timeline = room.getLiveTimeline();
     const state = timeline.getState(EventTimeline.FORWARDS);
@@ -270,6 +271,10 @@ export function RoomViewHeader({
     ];
     const canEditWidgets = myUserId
         ? canSendStateEvent('im.vector.modular.widgets', getPowerLevel(myUserId))
+        : false;
+
+    const canRedact = myUserId
+        ? canDoAction('redact', getPowerLevel(myUserId))
         : false;
 
     const videoCallEvent = widgetsEvents.find(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
@@ -381,6 +386,7 @@ export function RoomViewHeader({
                 }
                 if (!url.startsWith('https://')) continue;
                 const openWidget = () => {
+                    setShowWidgets(false);
                     modals.addModal({
                         allowClose: true,
                         title: content.name ?? 'Widget',
@@ -399,8 +405,21 @@ export function RoomViewHeader({
                         externalUrl: url
                     });
                 };
+                const removeWidget = async () => {
+                    setShowWidgets(false);
+                    if (!(await confirmDialog(
+                        getText('confirm.remove_widget.title'),
+                        getText('confirm.remove_widget.question'),
+                        getText('btn.widget.remove'),
+                        'danger'
+                    ))) return;
+                    const evId = ev.getId();
+                    if (!evId) return;
+                    mx.redactEvent(room.roomId, evId);
+                };
+                console.debug(`Can redact: ${canRedact}`);
                 widgetList.push(
-                    <WidgetItem onClick={openWidget} name={typeof content.name === 'string' ? content.name : undefined} url={url} type={content.type} />
+                    <WidgetItem onClick={openWidget} onRemove={canRedact ? removeWidget : undefined} name={typeof content.name === 'string' ? content.name : undefined} url={url} type={content.type} />
                 );
             }
         }
