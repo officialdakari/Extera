@@ -211,6 +211,8 @@ export const MessageReadReceiptItem = as<
         onClose?.();
     };
 
+    useBackButton(handleClose);
+
     return (
         <>
             <Overlay open={open} backdrop={<OverlayBackdrop />}>
@@ -526,6 +528,8 @@ export const MessageRecoverItem = as<
         onClose?.();
     };
 
+    useBackButton(handleClose);
+
     return (
         <>
             <Overlay open={open} backdrop={<OverlayBackdrop />}>
@@ -619,11 +623,19 @@ export const MessageDeleteItem = as<
 
     const [deleteState, deleteMessage] = useAsyncCallback(
         useCallback(
-            (eventId: string, reason?: string) =>
-                mx.redactEvent(room.roomId, eventId, undefined, {
-                    reason,
-                    with_rel_types: [RelationType.Replace]
-                }),
+            (eventId: string, reason?: string) => {
+                mx.relations(room.roomId, eventId, RelationType.Replace)
+                    .then(({events}) => {
+                        for (const ev of events) {
+                            const evId = ev.getId();
+                            if (!evId) continue;
+                            mx.redactEvent(room.roomId, evId, undefined, {reason});
+                        }
+                    });
+                return mx.redactEvent(room.roomId, eventId, undefined, {
+                    reason
+                });
+            },
             [mx, room]
         )
     );
