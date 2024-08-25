@@ -1,7 +1,7 @@
 const cons = {
     name: 'Extera',
     app_id: 'ru.officialdakari.extera',
-    version: '1.2',
+    version: '1.3',
     secretKey: {
         ACCESS_TOKEN: 'cinny_access_token',
         DEVICE_ID: 'cinny_device_id',
