@@ -27,6 +27,7 @@ import { CallState } from 'matrix-js-sdk/lib/webrtc/call';
 import { useModals } from '../../hooks/useModals';
 import { v4 } from 'uuid';
 import { generateConferenceID } from '../../../util/conferenceID';
+import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
 
 export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
     const roomInputRef = useRef(null);
@@ -98,6 +99,8 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
             }
         }
         if (!url.startsWith('https://')) return;
+        const r = await getIntegrationManagerURL(mx, room);
+        if (url.startsWith('https://scalar.vector.im') && r?.token) url += `&scalar_token=${r.token}`;
         modals.addModal({
             allowClose: true,
             title: content.name ?? 'Widget',
@@ -110,6 +113,7 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string }) {
                     data-widget-event-id={ev.getId()}
                     data-widget-name={content.name}
                     data-widget-room-name={room.name}
+                    data-widget={true}
                     src={url}
                 />
             ),

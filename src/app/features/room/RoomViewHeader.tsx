@@ -71,11 +71,12 @@ import { getReactCustomHtmlParser } from '../../plugins/react-custom-html-parser
 import { HTMLReactParserOptions } from 'html-react-parser';
 import { Message } from './message';
 import { Image } from '../../components/media';
-import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiChevronLeft, mdiChevronRight, mdiClose, mdiCog, mdiDotsVertical, mdiLinkVariant, mdiMagnify, mdiPhone, mdiPin, mdiVideo, mdiVideoOff, mdiWidgets } from '@mdi/js';
+import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiChevronLeft, mdiChevronRight, mdiClose, mdiCog, mdiDotsVertical, mdiLinkVariant, mdiMagnify, mdiPhone, mdiPin, mdiPlus, mdiVideo, mdiVideoOff, mdiWidgets } from '@mdi/js';
 import Icon from '@mdi/react';
 import { WidgetItem } from '../../components/widget/WidgetItem';
 import { useModals } from '../../hooks/useModals';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
+import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
 
 type RoomMenuProps = {
     room: Room;
@@ -385,6 +386,8 @@ export function RoomViewHeader({
                     }
                 }
                 if (!url.startsWith('https://')) continue;
+                const r = await getIntegrationManagerURL(mx, room);
+                if (url.startsWith('https://scalar.vector.im') && r?.token) url += `&scalar_token=${r.token}`;
                 const openWidget = () => {
                     setShowWidgets(false);
                     modals.addModal({
@@ -399,6 +402,7 @@ export function RoomViewHeader({
                                 data-widget-event-id={ev.getId()}
                                 data-widget-name={content.name}
                                 data-widget-room-name={room.name}
+                                data-widget={true}
                                 src={url}
                             />
                         ),
@@ -558,6 +562,27 @@ export function RoomViewHeader({
         setJumpAnchor(evt.currentTarget.getBoundingClientRect());
     };
 
+    const handleScalar = async () => {
+        setShowWidgets(false);
+        const r = await getIntegrationManagerURL(mx, room);
+        if (!r?.url) return;
+        const { url } = r;
+        modals.addModal({
+            allowClose: true,
+            title: 'Integrations',
+            node: (
+                <iframe
+                    style={{ border: 'none', width: '100%', height: '100%' }}
+                    allow="autoplay; camera; clipboard-write; compute-pressure; display-capture; hid; microphone; screen-wake-lock"
+                    allowFullScreen
+                    data-integration-manager={true}
+                    src={url}
+                />
+            ),
+            externalUrl: url
+        });
+    };
+
     useEffect(() => {
         const isDm = room.getDMInviter() || room.getJoinedMemberCount() == 2;
         if (isDm) {
@@ -700,6 +725,9 @@ export function RoomViewHeader({
                                 <Box grow="Yes">
                                     <Text size="H4">{getText('widgets.title')}</Text>
                                 </Box>
+                                <IconButton size="300" onClick={handleScalar} radii="300">
+                                    <Icon size={1} path={mdiPlus} />
+                                </IconButton>
                                 <IconButton size="300" onClick={handleWidgetsClose} radii="300">
                                     <Icon size={1} path={mdiClose} />
                                 </IconButton>

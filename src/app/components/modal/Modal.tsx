@@ -46,11 +46,11 @@ export function Modals({ modals }: ModalsProps) {
         <>
             {record && Object.entries(record).map(
                 ([id, content]) => (
-                    <div key={id} className={css.DraggableContainer}>
                         <Draggable
                             defaultPosition={{ x: 0, y: 0 }}
                             handle='.modal-header'
                         >
+                    <div key={id} className={css.DraggableContainer}>
                             <Resizable
                                 width={dimensions[id]?.width || 500}
                                 height={dimensions[id]?.height || 300}
@@ -94,8 +94,8 @@ export function Modals({ modals }: ModalsProps) {
                                     </Modal>
                                 </div>
                             </Resizable>
+                            </div>
                         </Draggable>
-                    </div>
                 )
             )}
         </>
