@@ -23,7 +23,7 @@
         "@atlaskit/pragmatic-drag-and-drop": "1.1.6",
         "@atlaskit/pragmatic-drag-and-drop-auto-scroll": "1.3.0",
         "@atlaskit/pragmatic-drag-and-drop-hitbox": "1.0.3",
-        "@fontsource/inter": "4.5.14",
+        "@fontsource/inter": "5.0.20",
         "@matrix-org/olm": "3.2.14",
         "@mdi/js": "7.4.47",
         "@mdi/react": "1.6.1",
