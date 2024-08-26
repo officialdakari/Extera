@@ -36,6 +36,7 @@ type CustomEditorProps = {
     onPaste?: ClipboardEventHandler;
     textAreaRef: React.RefObject<HTMLTextAreaElement>;
     newDesign?: boolean;
+    disabled?: boolean;
 };
 
 export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
@@ -52,7 +53,8 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
         onChange,
         onPaste,
         textAreaRef,
-        newDesign
+        newDesign,
+        disabled
     }, ref) => {
         const updateRows = (target: HTMLTextAreaElement) => {
             target.style.height = `auto`;
@@ -109,6 +111,8 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
                             onPaste={onPaste}
                             placeholder={placeholder}
                             onChange={handleChange}
+                            disabled={disabled}
+                            aria-disabled={disabled}
                         />
                     </Scroll>
                     {after && (

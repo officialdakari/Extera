@@ -326,8 +326,9 @@ type MAudioProps = {
     renderBody: (props: RenderBodyProps) => ReactNode;
     renderAudioContent: (props: RenderAudioContentProps) => ReactNode;
     outlined?: boolean;
+    voiceMessage?: boolean;
 };
-export function MAudio({ content, renderAsFile, renderAudioContent, renderBody, outlined }: MAudioProps) {
+export function MAudio({ content, renderAsFile, renderAudioContent, renderBody, voiceMessage, outlined }: MAudioProps) {
     const audioInfo = content?.info;
     const mxcUrl = content.file?.url ?? content.url;
     const safeMimeType = getBlobSafeMimeType(audioInfo?.mimetype ?? '');
@@ -341,7 +342,16 @@ export function MAudio({ content, renderAsFile, renderAudioContent, renderBody, 
 
     const attachmentRef = useRef<HTMLDivElement>(null);
 
-    return (
+    return voiceMessage ? (
+        <div style={{margin: '5px'}}>
+            {renderAudioContent({
+                info: audioInfo,
+                mimeType: safeMimeType,
+                url: mxcUrl,
+                encInfo: content.file,
+            })}
+        </div>
+    ) : (
         <>
             <Attachment ref={attachmentRef} outlined={outlined}>
                 <AttachmentHeader>

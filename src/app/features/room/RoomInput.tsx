@@ -110,8 +110,9 @@ import { getText } from '../../../lang';
 import { openHiddenRooms } from '../../../client/action/navigation';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 import Icon from '@mdi/react';
-import { mdiAt, mdiBell, mdiBellOff, mdiCheckAll, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiFile, mdiPlusCircle, mdiPlusCircleOutline, mdiSend, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
+import { mdiAt, mdiBell, mdiBellOff, mdiCheckAll, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiFile, mdiMicrophone, mdiPlusCircle, mdiPlusCircleOutline, mdiSend, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
 import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
+import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
 
 interface RoomInputProps {
     fileDropContainerRef: RefObject<HTMLElement>;
@@ -131,6 +132,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const [enableCaptions] = useSetting(settingsAtom, 'extera_enableCaptions');
         const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
         const [replyFallbacks] = useSetting(settingsAtom, 'replyFallbacks');
+        const [voiceMessages] = useSetting(settingsAtom, 'voiceMessages');
 
         const [msgContent, setMsgContent] = useState<IContent>();
         const [replyDraft, setReplyDraft] = useAtom(roomIdToReplyDraftAtomFamily(roomId));
@@ -149,7 +151,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         );
         const uploadBoardHandlers = useRef<UploadBoardImperativeHandlers>();
 
-        const editorRef = useRef(null);
+        const ar = useVoiceRecorder();
 
         const imagePackRooms: Room[] = useMemo(() => {
             const allParentSpaces = [roomId].concat(Array.from(getAllParents(roomToParents, roomId)));
@@ -364,20 +366,16 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
         const submit = useCallback(async () => {
             const content = getContent();
-            //if (!content && selectedFiles.length == 0) return;
-            /*
-                on c# i am:
-                if (condition)
-                {
-                    action();
-                }
-                on js i am:
-                if (condition) {
-                    action();
-                }
-            */
-            setMsgContent(content);
-        }, [mx, roomId, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands]);
+            if (!ar.isRecording) {
+                setMsgContent(content);
+            } else {
+                ar.stopRecording();
+            }
+        }, [mx, roomId, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, ar]);
+
+        const stopRecording = useCallback(() => {
+            ar.stopRecording();
+        }, [ar]);
 
         useEffect(() => {
             if (msgContent) {
@@ -398,6 +396,41 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 setMsgContent(undefined);
             }
         }, [msgContent]);
+
+        const recordVoice = useCallback(() => {
+            ar.startRecording();
+        }, [mx, ar]);
+
+        const sendVoice = useCallback(async () => {
+            console.log('Sending voice');
+            ar.stopRecording();
+            const blob = ar.blob;
+            console.log(`blob!!!`, blob);
+            if (blob) {
+                const { content_uri } = await mx.uploadContent(blob, {
+                    type: 'audio/ogg',
+                    name: 'Voice message.ogg'
+                });
+                setMsgContent({
+                    msgtype: 'm.audio',
+                    'org.matrix.msc3245.voice': {},
+                    body: 'Voice message.ogg',
+                    info: {
+                        mimetype: 'audio/ogg',
+                        size: blob.size,
+                        duration: ar.duration
+                    },
+                    'org.matrix.msc1767.audio': {
+                        duration: ar.duration,
+                    },
+                    url: content_uri
+                });
+            }
+        }, [mx, roomId, replyDraft]);
+
+        useEffect(() => {
+            if (!ar.isRecording && ar.blob) sendVoice();
+        }, [ar.blob]);
 
         const readReceipt = useCallback(() => {
             markAsRead(roomId);
@@ -593,7 +626,8 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     newDesign={newDesign}
                     // editor={editor}
                     textAreaRef={textAreaRef}
-                    placeholder={getText(canRedact ? 'placeholder.room_input' : 'placeholder.room_input.be_careful')}
+                    disabled={ar.isRecording}
+                    placeholder={ar.isRecording ? getText('placeholder.room_input.voice') : getText(canRedact ? 'placeholder.room_input' : 'placeholder.room_input.be_careful')}
                     onKeyDown={handleKeyDown}
                     onKeyUp={handleKeyUp}
                     onPaste={handlePaste}
@@ -645,7 +679,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                         )
                     }
                     before={
-                        <IconButton
+                        !ar.isRecording && <IconButton
                             onClick={() => pickFile('*')}
                             variant="SurfaceVariant"
                             size="300"
@@ -656,60 +690,70 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     }
                     after={
                         <>
-                            <IconButton onMouseDown={dontHideKeyboard} onClick={readReceipt} variant="SurfaceVariant" size="300" radii="300">
-                                <Icon size={1} path={mdiCheckAll} />
-                            </IconButton>
-                            <UseStateProvider initial={undefined}>
-                                {(emojiBoardTab: EmojiBoardTab | undefined, setEmojiBoardTab) => (
-                                    <PopOut
-                                        offset={16}
-                                        alignOffset={-44}
-                                        position="Top"
-                                        align="End"
-                                        anchor={
-                                            emojiBoardTab === undefined
-                                                ? undefined
-                                                : emojiBtnRef.current?.getBoundingClientRect() ?? undefined
-                                        }
-                                        content={
-                                            <EmojiBoard
-                                                tab={emojiBoardTab}
-                                                onTabChange={setEmojiBoardTab}
-                                                imagePackRooms={imagePackRooms}
-                                                returnFocusOnDeactivate={false}
-                                                onEmojiSelect={handleEmoticonSelect}
-                                                onCustomEmojiSelect={handleCustomEmoticonSelect}
-                                                onStickerSelect={handleStickerSelect}
-                                                requestClose={() => {
-                                                    setEmojiBoardTab(undefined);
-                                                    if (!mobileOrTablet()) textAreaRef.current?.focus();
-                                                }}
-                                            />
-                                        }
-                                    >
-                                        {(
-                                            <IconButton
-                                                aria-pressed={
-                                                    !!emojiBoardTab
+                            {!ar.isRecording && (
+                                <>
+                                    <IconButton onMouseDown={dontHideKeyboard} onClick={readReceipt} variant="SurfaceVariant" size="300" radii="300">
+                                        <Icon size={1} path={mdiCheckAll} />
+                                    </IconButton>
+                                    <UseStateProvider initial={undefined}>
+                                        {(emojiBoardTab: EmojiBoardTab | undefined, setEmojiBoardTab) => (
+                                            <PopOut
+                                                offset={16}
+                                                alignOffset={-44}
+                                                position="Top"
+                                                align="End"
+                                                anchor={
+                                                    emojiBoardTab === undefined
+                                                        ? undefined
+                                                        : emojiBtnRef.current?.getBoundingClientRect() ?? undefined
                                                 }
-                                                onClick={() => setEmojiBoardTab(showStickerButton ? EmojiBoardTab.Sticker : EmojiBoardTab.Emoji)}
-                                                //onMouseDown={dontHideKeyboard}
-                                                variant="SurfaceVariant"
-                                                size="300"
-                                                radii="300"
-                                                ref={emojiBtnRef}
+                                                content={
+                                                    <EmojiBoard
+                                                        tab={emojiBoardTab}
+                                                        onTabChange={setEmojiBoardTab}
+                                                        imagePackRooms={imagePackRooms}
+                                                        returnFocusOnDeactivate={false}
+                                                        onEmojiSelect={handleEmoticonSelect}
+                                                        onCustomEmojiSelect={handleCustomEmoticonSelect}
+                                                        onStickerSelect={handleStickerSelect}
+                                                        requestClose={() => {
+                                                            setEmojiBoardTab(undefined);
+                                                            if (!mobileOrTablet()) textAreaRef.current?.focus();
+                                                        }}
+                                                    />
+                                                }
                                             >
-                                                <Icon
-                                                    size={1}
-                                                    path={showStickerButton ? (!!emojiBoardTab ? mdiSticker : mdiStickerOutline) : (!!emojiBoardTab ? mdiEmoticon : mdiEmoticonOutline)}
-                                                />
-                                            </IconButton>
+                                                {(
+                                                    <IconButton
+                                                        aria-pressed={
+                                                            !!emojiBoardTab
+                                                        }
+                                                        onClick={() => setEmojiBoardTab(showStickerButton ? EmojiBoardTab.Sticker : EmojiBoardTab.Emoji)}
+                                                        //onMouseDown={dontHideKeyboard}
+                                                        variant="SurfaceVariant"
+                                                        size="300"
+                                                        radii="300"
+                                                        ref={emojiBtnRef}
+                                                    >
+                                                        <Icon
+                                                            size={1}
+                                                            path={showStickerButton ? (!!emojiBoardTab ? mdiSticker : mdiStickerOutline) : (!!emojiBoardTab ? mdiEmoticon : mdiEmoticonOutline)}
+                                                        />
+                                                    </IconButton>
+                                                )}
+                                            </PopOut>
                                         )}
-                                    </PopOut>
-                                )}
-                            </UseStateProvider>
-                            {screenSize !== ScreenSize.Mobile && (
-                                <IconButton onMouseDown={dontHideKeyboard} onClick={submit} variant="SurfaceVariant" size="300" radii="300">
+                                    </UseStateProvider>
+                                </>
+                            )}
+                            {(isEmptyEditor(textAreaRef) && !ar.isRecording && voiceMessages) ? (
+                                <>
+                                    <IconButton onMouseDown={dontHideKeyboard} onClick={recordVoice} variant="SurfaceVariant" size="300" radii="300">
+                                        <Icon size={1} path={mdiMicrophone} />
+                                    </IconButton>
+                                </>
+                            ) : (
+                                <IconButton onMouseDown={dontHideKeyboard} onClick={ar.isRecording ? stopRecording : submit} variant="SurfaceVariant" size="300" radii="300">
                                     <Icon size={1} path={mdiSendOutline} />
                                 </IconButton>
                             )}

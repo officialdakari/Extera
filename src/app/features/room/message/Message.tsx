@@ -625,11 +625,11 @@ export const MessageDeleteItem = as<
         useCallback(
             (eventId: string, reason?: string) => {
                 mx.relations(room.roomId, eventId, RelationType.Replace)
-                    .then(({events}) => {
+                    .then(({ events }) => {
                         for (const ev of events) {
                             const evId = ev.getId();
                             if (!evId) continue;
-                            mx.redactEvent(room.roomId, evId, undefined, {reason});
+                            mx.redactEvent(room.roomId, evId, undefined, { reason });
                         }
                     });
                 return mx.redactEvent(room.roomId, eventId, undefined, {
@@ -1055,10 +1055,11 @@ export const Message = as<'div', MessageProps>(
         );
 
         const childrenRef = useRef<HTMLDivElement>(null);
+        const limitReplyWidth = { width: `${childrenRef.current?.clientWidth}px`, maxWidth: `${childrenRef.current?.clientWidth}px` };
 
         const msgContentJSX = (
             <Box direction="Column" alignSelf="Start" style={{ maxWidth: '100%' }}>
-                <div style={{ width: `${childrenRef.current?.clientWidth}px`, maxWidth: `${childrenRef.current?.clientWidth}px` }}>
+                <div style={mEvent.getType() === 'm.sticker' || (!['m.text', 'm.notice'].includes(mEvent.getContent().msgtype ?? '')) ? limitReplyWidth : undefined}>
                     {reply}
                 </div>
                 {edit && onEditId ? (

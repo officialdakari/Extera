@@ -77,6 +77,7 @@ function AppearanceSection() {
     const [showHiddenEvents, setShowHiddenEvents] = useSetting(settingsAtom, 'showHiddenEvents');
     const [wallpaperURL, setWallpaperURL] = useSetting(settingsAtom, 'extera_wallpaper');
     const [newDesignInput, setNewDesignInput] = useSetting(settingsAtom, 'newDesignInput');
+    const [voiceMessages, setVoiceMessages] = useSetting(settingsAtom, 'voiceMessages');
     const spacings = ['0', '100', '200', '300', '400', '500'];
 
     const wallpaperInputRef = useRef(null);
@@ -225,6 +226,16 @@ function AppearanceSection() {
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.enter_newline.desc', isMacOS() ? KeySymbol.Command : 'Ctrl')}</Text>}
+                />
+                <SettingTile
+                    title={getText('settings.voice_messages.title')}
+                    options={(
+                        <Toggle
+                            isActive={voiceMessages}
+                            onToggle={() => setVoiceMessages(!voiceMessages)}
+                        />
+                    )}
+                    content={<Text variant="b3">{getText('settings.voice_messages.desc')}</Text>}
                 />
                 <SettingTile
                     title={getText('settings.new_design_input.title')}

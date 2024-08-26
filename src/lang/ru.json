@@ -899,5 +899,8 @@
 	"membership.broken": "Повреждённое событие",
 	"room_header.end_meeting": "Завершить видеозвонок",
 	"confirm.remove_widget.title": "Убрать виджет",
-	"confirm.remove_widget.question": "Вы уверены что хотите убрать этот виджет? Он будет убран для всех участников этой комнаты."
+	"confirm.remove_widget.question": "Вы уверены что хотите убрать этот виджет? Он будет убран для всех участников этой комнаты.",
+	"placeholder.room_input.voice": "Запись голосового сообщения...",
+	"settings.voice_messages.title": "Голосовые сообщения",
+	"settings.voice_messages.desc": "Показывать кнопку голосовых сообщений."
 }

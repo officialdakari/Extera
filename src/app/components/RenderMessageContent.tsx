@@ -29,6 +29,7 @@ import { PdfViewer } from './Pdf-viewer';
 import { TextViewer } from './text-viewer';
 import { Box } from 'folds';
 import { getText } from '../../lang';
+import { VoiceContent } from './message/content/VoiceContent';
 
 type RenderMessageContentProps = {
     displayName: string;
@@ -56,7 +57,8 @@ export function RenderMessageContent({
     outlineAttachment,
     hideAttachment
 }: RenderMessageContentProps) {
-    const { body, formatted_body: customBody } = getContent() as any;
+    const content = getContent() as any;
+    const { body, formatted_body: customBody } = content;
     const renderFile = () => (
         <MFile
             htmlReactParserOptions={htmlReactParserOptions}
@@ -287,9 +289,14 @@ export function RenderMessageContent({
                 )}
                 renderAsFile={renderFile}
                 renderAudioContent={(props) => (
-                    <AudioContent {...props} renderMediaControl={(p) => <MediaControl {...p} />} />
+                    content['org.matrix.msc3245.voice'] ? (
+                        <VoiceContent {...props} renderMediaControl={(p) => <MediaControl {...p} />} />
+                    ) : (
+                        <AudioContent {...props} renderMediaControl={(p) => <MediaControl {...p} />} />
+                    )
                 )}
                 outlined={outlineAttachment}
+                voiceMessage={content['org.matrix.msc3245.voice'] ? true : false}
             />
         );
     }

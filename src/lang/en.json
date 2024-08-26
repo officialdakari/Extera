@@ -899,5 +899,8 @@
     "membership.banner": "{0} changed their profile banner.",
     "membership.remove_banner": "{0} removed their profile banner.",
     "membership.broken": "Broken membership event",
-    "room_header.end_meeting": "End meeting"
+    "room_header.end_meeting": "End meeting",
+    "placeholder.room_input.voice": "Recording voice message",
+    "settings.voice_messages.title": "Voice messages",
+    "settings.voice_messages.desc": "Show voice message recording button."
 }
