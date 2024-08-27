@@ -64,20 +64,21 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
             const previousText = evt.target.dataset.previousText ?? '';
             var newText = evt.target.value;
             evt.target.dataset.previousText = newText;
-            const tagsBefore = Array.from(previousText.matchAll(anyTagRegexp));
-            const tagsAfter = Array.from(newText.matchAll(deleteEndRegexp));
-            const tagsAfter2 = Array.from(newText.matchAll(deleteStartRegexp));
-            const mutual = [
-                ...tagsAfter.filter(x => tagsBefore.find(y => y.index == x.index)).reverse(),
-                ...tagsAfter2.filter(x => tagsBefore.find(y => y.index == x.index || (y.index && (y.index - 1 == x.index)))).reverse()
-            ];
-            console.log(tagsBefore, tagsAfter, tagsAfter2);
-            console.log(mutual);
-            console.log(previousText, newText);
-            for (const m of mutual) {
-                if (m.index)
-                    newText = `${newText.slice(0, m.index)}${newText.slice(m.index + m[0].length)}`;
-            }
+            // const tagsBefore = Array.from(previousText.matchAll(anyTagRegexp));
+            // const tagsAfter = Array.from(newText.matchAll(deleteEndRegexp));
+            // const tagsAfter2 = Array.from(newText.matchAll(deleteStartRegexp));
+            // const mutual = [
+            //     ...tagsAfter.filter(x => tagsBefore.find(y => y.index == x.index)).reverse(),
+            //     ...tagsAfter2.filter(x => tagsBefore.find(y => y.index == x.index || (y.index && (y.index - 1 == x.index)))).reverse()
+            // ];
+            // console.log(tagsBefore, tagsAfter, tagsAfter2);
+            // console.log(mutual);
+            // console.log(previousText, newText);
+            // for (const m of mutual) {
+            //     if (m.index)
+            //         newText = `${newText.slice(0, m.index)}${newText.slice(m.index + m[0].length)}`;
+            // }
+            // TODO FIX THAT
             evt.target.value = newText;
             evt.target.dataset.previousText = newText;
             updateRows(evt.target);
