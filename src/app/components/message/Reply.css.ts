@@ -21,8 +21,8 @@ export const Reply = style({
     padding: '5px',
     borderRadius: config.radii.R300,
     borderStyle: 'solid',
-    borderColor: color.Surface.Container,
-    maskImage: `linear-gradient(to bottom, black calc(100% - 50px), transparent)`
+    borderLeftWidth: '3px'
+    //maskImage: `linear-gradient(to bottom, black calc(100% - 50px), transparent)`
 });
 
 export const ReplyContent = style({

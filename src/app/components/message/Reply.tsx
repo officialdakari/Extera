@@ -31,6 +31,7 @@ export const ReplyLayout = as<'div', ReplyLayoutProps>(
     ({ username, userColor, className, children, ...props }, ref) => (
         <Box
             className={classNames(css.Reply, className)}
+            style={{ borderLeftColor: userColor }}
             alignItems="Start"
             direction='Column'
             {...props}

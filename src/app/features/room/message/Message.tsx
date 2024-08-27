@@ -1211,13 +1211,12 @@ export const Message = as<'div', MessageProps>(
         );
 
         const childrenRef = useRef<HTMLDivElement>(null);
-        const limitReplyWidth = { width: `${childrenRef.current?.clientWidth}px`, maxWidth: `${childrenRef.current?.clientWidth}px` };
 
         const msgContentJSX = (
             <Box direction="Column" alignSelf="Start" style={{ maxWidth: '100%' }}>
-                <div style={mEvent.getType() === 'm.sticker' || (!['m.text', 'm.notice'].includes(mEvent.getContent().msgtype ?? '')) ? limitReplyWidth : undefined}>
+                <span style={mEvent.getType() === 'm.sticker' || (!['m.text', 'm.notice'].includes(mEvent.getContent().msgtype ?? '')) ? { maxWidth: `${childrenRef.current?.clientWidth}px` } : undefined}>
                     {reply}
-                </div>
+                </span>
                 {edit && onEditId ? (
                     <MessageEditor
                         style={{
@@ -1231,9 +1230,9 @@ export const Message = as<'div', MessageProps>(
                         onCancel={() => onEditId()}
                     />
                 ) : (
-                    <div ref={childrenRef}>
+                    <span ref={childrenRef} style={{width: 'fit-content'}}>
                         {children}
-                    </div>
+                    </span>
                 )}
                 {reactions}
             </Box>
