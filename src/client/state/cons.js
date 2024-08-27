@@ -90,6 +90,7 @@ const cons = {
             NOTIFICATION_SOUNDS_TOGGLED: 'NOTIFICATION_SOUNDS_TOGGLED',
         },
     },
+    ecs_base_url: 'https://extera-cloud-services.officialdakari.ru'
 };
 
 Object.freeze(cons);

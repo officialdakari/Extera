@@ -91,8 +91,9 @@ import { ImageViewer } from '../../../components/image-viewer';
 import { Image } from '../../../components/media';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
-import { mdiAccount, mdiAlertCircleOutline, mdiCheck, mdiCheckAll, mdiClose, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiPencil, mdiPin, mdiPinOff, mdiReply, mdiRestore } from '@mdi/js';
+import { mdiAccount, mdiAlertCircleOutline, mdiCheck, mdiCheckAll, mdiClose, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiPencil, mdiPin, mdiPinOff, mdiReply, mdiRestore, mdiTranslate } from '@mdi/js';
 import { useBackButton } from '../../../hooks/useBackButton';
+import { translateContent } from '../../../utils/translation';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -463,6 +464,7 @@ export const MessageRecoverItem = as<
 
     const handleClick = async () => {
         setOpen(true);
+        //if (onClose) onClose();
         if (!(await mx.isSynapseAdministrator())) {
             return setMessage(
                 getText('error.recover')
@@ -573,6 +575,160 @@ export const MessageRecoverItem = as<
             >
                 <Text className={css.MessageMenuItemText} as="span" size="T300" truncate>
                     {getText('msg_menu.recover')}
+                </Text>
+            </MenuItem>
+        </>
+    );
+});
+
+export const MessageTranslateItem = as<
+    'button',
+    {
+        room: Room;
+        mEvent: MatrixEvent;
+        onClose?: () => void;
+    }
+>(({ room, mEvent, onClose, ...props }, ref) => {
+    const mx = useMatrixClient();
+    const { navigateRoom, navigateSpace } = useRoomNavigate();
+    const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
+    const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
+        () =>
+            getReactCustomHtmlParser(mx, room, {
+                handleSpoilerClick: (evt) => {
+                    const target = evt.currentTarget;
+                    if (target.getAttribute('aria-pressed') === 'true') {
+                        evt.stopPropagation();
+                        target.setAttribute('aria-pressed', 'false');
+                        target.style.cursor = 'initial';
+                    }
+                },
+                handleMentionClick: (evt) => {
+                    const target = evt.currentTarget;
+                    const mentionId = target.getAttribute('data-mention-id');
+                    if (typeof mentionId !== 'string') return;
+                    if (isUserId(mentionId)) {
+                        openProfileViewer(mentionId, room.roomId);
+                        return;
+                    }
+                    if (isRoomId(mentionId) && mx.getRoom(mentionId)) {
+                        if (mx.getRoom(mentionId)?.isSpaceRoom()) navigateSpace(mentionId);
+                        else navigateRoom(mentionId);
+                        return;
+                    }
+                    openJoinAlias(mentionId);
+                },
+            }),
+        [mx, room, navigateRoom, navigateSpace]
+    );
+
+    const [open, setOpen] = useState(false);
+    const [message, setMessage]: [any, any] = useState(
+        <DefaultPlaceholder />
+    );
+    const [messageLayout] = useSetting(settingsAtom, 'messageLayout');
+    const [messageSpacing] = useSetting(settingsAtom, 'messageSpacing');
+
+    const handleClick = async () => {
+        setOpen(true);
+        //if (onClose) onClose();
+        const eventId = mEvent.getId();
+        const translatedContent = await translateContent(mEvent.getContent());
+        const getContent = () => translatedContent;
+        setMessage(
+            <Message
+                key={mEvent.getId()}
+                data-message-id={eventId}
+                room={room}
+                mEvent={mEvent}
+                edit={false}
+                canDelete={false}
+                canSendReaction={false}
+                collapse={false}
+                highlight={false}
+                messageSpacing={messageSpacing}
+                messageLayout={messageLayout}
+                onReactionToggle={(evt: any) => null}
+                onReplyClick={(evt: any) => null}
+                onUserClick={(evt: any) => null}
+                onUsernameClick={(evt: any) => null}
+            >
+                {mEvent.getType() == 'm.room.message' && <RenderMessageContent
+                    displayName={mEvent.sender?.rawDisplayName || mEvent.sender?.userId || getText('generic.unknown')}
+                    msgType={translatedContent.msgtype ?? ''}
+                    ts={mEvent.getTs()}
+                    edited={false}
+                    getContent={getContent as GetContentCallback}
+                    mediaAutoLoad={true}
+                    urlPreview={false}
+                    htmlReactParserOptions={htmlReactParserOptions}
+                />}
+                {mEvent.getType() == 'm.sticker' && <MSticker
+                    content={mEvent.getContent()}
+                    renderImageContent={(props) => (
+                        <ImageContent
+                            {...props}
+                            autoPlay={mediaAutoLoad}
+                            renderImage={(p) => <Image loading="lazy" />}
+                            renderViewer={(p) => <ImageViewer {...p} />}
+                        />
+                    )}
+                />}
+            </Message>
+        );
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setMessage(null);
+        onClose?.();
+    };
+
+    useBackButton(handleClose);
+
+    return (
+        <>
+            <Overlay open={open} backdrop={<OverlayBackdrop />}>
+                <OverlayCenter>
+                    <FocusTrap
+                        focusTrapOptions={{
+                            initialFocus: false,
+                            onDeactivate: handleClose,
+                            clickOutsideDeactivates: true
+                        }}
+                    >
+                        <Modal variant="Surface" size="500">
+                            <Header
+                                style={{
+                                    padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
+                                    borderBottomWidth: config.borderWidth.B300,
+                                }}
+                                variant="Surface"
+                                size="500"
+                            >
+                                <Box grow="Yes">
+                                    <Text size="H4">{getText('translated.title')}</Text>
+                                </Box>
+                                <IconButton size="300" onClick={handleClose} radii="300">
+                                    <Icon size={1} path={mdiClose} />
+                                </IconButton>
+                            </Header>
+                            {message}
+                        </Modal>
+                    </FocusTrap>
+                </OverlayCenter>
+            </Overlay>
+            <MenuItem
+                size="300"
+                after={<Icon size={1} path={mdiTranslate} />}
+                radii="300"
+                onClick={handleClick}
+                {...props}
+                ref={ref}
+                aria-pressed={open}
+            >
+                <Text className={css.MessageMenuItemText} as="span" size="T300" truncate>
+                    {getText('msg_menu.translate')}
                 </Text>
             </MenuItem>
         </>
@@ -1136,7 +1292,7 @@ export const Message = as<'div', MessageProps>(
             });
         };
 
-        const [delivered, setDelivered] = useState(mEvent.getId()?.startsWith('$'));
+        const [delivered, setDelivered] = useState(!mEvent.getId() || mEvent.getId()?.startsWith('$'));
 
         useEffect(() => {
             const listener = (event: MatrixEvent) => {
@@ -1341,6 +1497,9 @@ export const Message = as<'div', MessageProps>(
                                                         canPin && <MessagePinItem room={room} mEvent={mEvent} onClose={closeMenu} />
                                                     }
                                                     <MessageCopyLinkItem room={room} mEvent={mEvent} onClose={closeMenu} />
+                                                    {
+                                                        !mEvent.isRedacted() && <MessageTranslateItem room={room} mEvent={mEvent} onClose={closeMenu} /> 
+                                                    }
                                                     {
                                                         mEvent.isRedacted() && <MessageRecoverItem room={room} mEvent={mEvent} onClose={closeMenu} />
                                                     }

@@ -902,5 +902,7 @@
 	"confirm.remove_widget.question": "Вы уверены что хотите убрать этот виджет? Он будет убран для всех участников этой комнаты.",
 	"placeholder.room_input.voice": "Запись голосового сообщения...",
 	"settings.voice_messages.title": "Голосовые сообщения",
-	"settings.voice_messages.desc": "Показывать кнопку голосовых сообщений."
+	"settings.voice_messages.desc": "Показывать кнопку голосовых сообщений.",
+	"translated.title": "Переведённое сообщение",
+	"msg_menu.translate": "Перевести"
 }

@@ -58,7 +58,7 @@ export function RenderMessageContent({
     hideAttachment
 }: RenderMessageContentProps) {
     const content = getContent() as any;
-    const { body, formatted_body: customBody } = content;
+    var { body, formatted_body: customBody } = content;
     const renderFile = () => (
         <MFile
             htmlReactParserOptions={htmlReactParserOptions}

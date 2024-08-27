@@ -902,5 +902,7 @@
     "room_header.end_meeting": "End meeting",
     "placeholder.room_input.voice": "Recording voice message",
     "settings.voice_messages.title": "Voice messages",
-    "settings.voice_messages.desc": "Show voice message recording button."
+    "settings.voice_messages.desc": "Show voice message recording button.",
+    "translated.title": "Translated message",
+    "msg_menu.translate": "Translate"
 }
