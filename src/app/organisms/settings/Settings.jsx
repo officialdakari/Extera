@@ -467,12 +467,23 @@ function NotificationsSection() {
 
     const [, updateState] = useState({});
 
+    const requestPermissions = () => {
+        if (typeof window.Notification !== 'undefined') window.Notification?.requestPermission().then(setPermission);
+        else if (window.cordova?.plugins?.notification?.local) {
+            cordova.plugins.notification.local.requestPermission((granted) => {
+                setPermission(granted);
+            });
+        }
+    };
+
     const renderOptions = () => {
-        if (window.Notification === undefined) {
+        if (window.Notification === undefined && !window.cordova?.plugins?.notification?.local) {
             return <Text className="settings-notifications__not-supported">{getText('settings.notifications.unsupported')}</Text>;
         }
 
-        if (permission === 'granted') {
+        window.cordova?.plugins?.notification?.local?.hasPermission(setPermission);
+
+        if (permission) {
             return (
                 <Toggle
                     isActive={settings._showNotifications}
@@ -488,7 +499,7 @@ function NotificationsSection() {
         return (
             <Button
                 variant="primary"
-                onClick={() => window.Notification.requestPermission().then(setPermission)}
+                onClick={requestPermissions}
             >
                 {getText('btn.notifications.request_permission')}
             </Button>

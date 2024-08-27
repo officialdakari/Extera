@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai';
 import React, { ReactNode, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EventTimeline, EventType, RoomEvent, RoomEventHandlerMap } from 'matrix-js-sdk';
+import { EventTimeline, EventType, IContent, RoomEvent, RoomEventHandlerMap } from 'matrix-js-sdk';
 import { roomToUnreadAtom, unreadEqual, unreadInfoToUnread } from '../../state/room/roomToUnread';
 import LogoSVG from '../../../../public/res/svg/cinny.svg';
 import LogoUnreadSVG from '../../../../public/res/svg/cinny-unread.svg';
@@ -34,6 +34,9 @@ import { usePowerLevels, usePowerLevelsAPI } from '../../hooks/usePowerLevels';
 import { usePermission } from '../../hooks/usePermission';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { Permissions } from '../../state/widgetPermissions';
+import { randomNumberBetween } from '../../utils/common';
+import { removeNotifications, roomIdToHash } from '../../utils/notifications';
+import { markAsRead } from '../../../client/action/notifications';
 
 function FaviconUpdater() {
     const roomToUnread = useAtomValue(roomToUnreadAtom);
@@ -93,7 +96,7 @@ function InviteNotifications() {
 
     useEffect(() => {
         if (invites.length > perviousInviteLen && mx.getSyncState() === 'SYNCING') {
-            if (Notification.permission === 'granted') {
+            if (window.Notification !== undefined && Notification.permission === 'granted') {
                 notify(invites.length - perviousInviteLen);
             }
 
@@ -127,29 +130,74 @@ function MessageNotifications() {
         ({
             roomName,
             roomAvatar,
+            roomId,
             username,
+            content,
+            eventType,
+            eventId
         }: {
             roomName: string;
             roomAvatar?: string;
             username: string;
             roomId: string;
             eventId: string;
+            content: IContent;
+            eventType: string;
         }) => {
-            const noti = new window.Notification(roomName, {
-                icon: roomAvatar,
-                badge: roomAvatar,
-                body: `New inbox notification from ${username}`,
-                silent: true,
-            });
+            if (window.Notification !== undefined && Notification.permission === 'granted') {
+                const noti = new window.Notification(roomName, {
+                    icon: roomAvatar,
+                    badge: roomAvatar,
+                    body: `New inbox notification from ${username}`,
+                    silent: true,
+                });
 
-            noti.onclick = () => {
-                if (!window.closed) navigate(getInboxNotificationsPath());
-                noti.close();
-                notifRef.current = undefined;
-            };
+                noti.onclick = () => {
+                    if (!window.closed) navigate(getInboxNotificationsPath());
+                    noti.close();
+                    notifRef.current = undefined;
+                };
 
-            notifRef.current?.close();
-            notifRef.current = noti;
+                notifRef.current?.close();
+                notifRef.current = noti;
+            } else if (typeof (window as any).cordova?.plugins.notification.local !== 'undefined') {
+                const plugin = (window as any).cordova.plugins.notification;
+                var message = typeof content.body === 'string' ? content.body : 'Unsupported message';
+                if (content.msgtype === 'm.image') message = `[Image${typeof content.filename === 'string' ? `: ${content.filename}` : ''}] ${message}`;
+                else if (content.msgtype === 'm.video') message = `[Video${typeof content.filename === 'string' ? `: ${content.filename}` : ''}] ${message}`;
+                else if (content.msgtype === 'm.audio') message = `[Audio${typeof content.filename === 'string' ? `: ${content.filename}` : ''}] ${message}`;
+                else if (content.msgtype === 'm.file') message = `[File${typeof content.filename === 'string' ? `: ${content.filename}` : ''}] ${message}`;
+                if (eventType === 'm.room.encrypted') message = `Encrypted message`;
+                const id = roomIdToHash(roomId);
+                const text = [
+                    { person: username, message }
+                ];
+                plugin.local.hasPermission((granted: any) => {
+                    if (granted) {
+                        plugin.local.isPresent(id, (isPresent: boolean) => {
+                            if (isPresent) {
+                                plugin.local.update({
+                                    id,
+                                    text
+                                });
+                            } else {
+                                plugin.local.schedule({
+                                    id,
+                                    title: roomName,
+                                    icon: roomAvatar ? mx.mxcUrlToHttp(roomAvatar, 96, 96, 'scale', true) : undefined,
+                                    text,
+                                    data: {
+                                        roomId
+                                    },
+                                    actions: [
+                                        { id: 'read', title: 'Mark as read' }
+                                    ]
+                                });
+                            }
+                        });
+                    }
+                })
+            }
         },
         [navigate]
     );
@@ -160,7 +208,7 @@ function MessageNotifications() {
     }, []);
 
     useEffect(() => {
-        const handleTimelineEvent: RoomEventHandlerMap[RoomEvent.Timeline] = (
+        const handleTimelineEvent: RoomEventHandlerMap[RoomEvent.Timeline] = async (
             mEvent,
             room,
             toStartOfTimeline,
@@ -179,6 +227,11 @@ function MessageNotifications() {
             )
                 return;
 
+            if (mEvent.getType() !== 'm.room.message' && mEvent.getType() !== 'm.room.encrypted') return;
+
+            await mx.decryptEventIfNeeded(mEvent, {
+                forceRedecryptIfUntrusted: true
+            });
             const sender = mEvent.getSender();
             const eventId = mEvent.getId();
             if (!sender || !eventId || mEvent.getSender() === mx.getUserId()) return;
@@ -194,7 +247,7 @@ function MessageNotifications() {
                 return;
             }
 
-            if (showNotifications && Notification.permission === 'granted') {
+            if (showNotifications) {
                 const avatarMxc =
                     room.getAvatarFallbackMember()?.getMxcAvatarUrl() ?? room.getMxcAvatarUrl();
                 notify({
@@ -205,6 +258,8 @@ function MessageNotifications() {
                     username: getMemberDisplayName(room, sender) ?? getMxIdLocalPart(sender) ?? sender,
                     roomId: room.roomId,
                     eventId,
+                    content: mEvent.getContent(),
+                    eventType: mEvent.getType()
                 });
             }
 
@@ -536,11 +591,27 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
         };
     }, []);
 
+    const plugin = (window as any).cordova?.plugins?.notification?.local;
+    useEffect(() => {
+        const callback = (notification: any, eopts: any) => {
+            const roomId = notification?.data?.roomId;
+            if (typeof roomId === 'string') {
+                removeNotifications(roomId);
+                markAsRead(roomId);
+            }
+        };
+
+        plugin.on('read', callback);
+        return () => {
+            plugin.un('read', callback);
+        };
+    }, [plugin]);
+
     return (
         <>
             <FaviconUpdater />
 
-            {!pushes && typeof window.Notification !== 'undefined' && (
+            {!pushes && (typeof window.Notification !== 'undefined' || typeof (window as any).cordova?.plugins?.notification?.local) && (
                 <>
                     <MessageNotifications />
                     <InviteNotifications />

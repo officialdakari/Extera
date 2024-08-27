@@ -26,7 +26,7 @@ export const secondsToMinutesAndSeconds = (seconds: number): string => {
 };
 
 export const getFileTypeIcon = (fileType: string): string => {
-    if (!fileType) return mdiFile;
+    if (typeof fileType !== 'string' || !fileType.toLowerCase) return mdiFile;
     const type = fileType.toLowerCase();
     if (type.startsWith('audio')) {
         return mdiMusicNote;
