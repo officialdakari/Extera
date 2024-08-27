@@ -7,7 +7,7 @@ import { TUploadContent } from '../../utils/matrix';
 import { getFileTypeIcon } from '../../utils/common';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
-import { mdiCheck, mdiClose } from '@mdi/js';
+import { mdiCheck, mdiClose, mdiFile } from '@mdi/js';
 
 type UploadCardRendererProps = {
     file: TUploadContent;
@@ -35,11 +35,17 @@ export function UploadCardRenderer({
         cancelUpload();
         onRemove(file);
     };
+    
+    console.log(file);
+    console.log(isEncrypted);
+    console.log(onRemove);
+    
+    const icon = getFileTypeIcon(file?.type);
 
     return (
         <UploadCard
             radii="300"
-            before={<Icon size={0.8} path={getFileTypeIcon(file.type)} />}
+            before={<Icon size={0.8} path={icon ?? mdiFile} />}
             after={
                 <>
                     {upload.status === UploadStatus.Error && (
@@ -82,7 +88,7 @@ export function UploadCardRenderer({
             }
         >
             <Text size="H6" truncate>
-                {file.name}
+                {typeof file?.name === 'string' ? file.name : file.localURL}
             </Text>
             {upload.status === UploadStatus.Success && (
                 <Icon style={{ color: color.Success.Main }} path={mdiCheck} size={1} />

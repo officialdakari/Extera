@@ -1230,9 +1230,9 @@ export const Message = as<'div', MessageProps>(
                         onCancel={() => onEditId()}
                     />
                 ) : (
-                    <span ref={childrenRef} style={{width: 'fit-content'}}>
+                    <div ref={childrenRef} style={{width: 'fit-content', maxWidth:'100%'}}>
                         {children}
-                    </span>
+                    </div>
                 )}
                 {reactions}
             </Box>
