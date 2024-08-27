@@ -593,18 +593,20 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
 
     const plugin = (window as any).cordova?.plugins?.notification?.local;
     useEffect(() => {
-        const callback = (notification: any, eopts: any) => {
-            const roomId = notification?.data?.roomId;
-            if (typeof roomId === 'string') {
-                removeNotifications(roomId);
-                markAsRead(roomId);
-            }
-        };
+        if (plugin) {
+            const callback = (notification: any, eopts: any) => {
+                const roomId = notification?.data?.roomId;
+                if (typeof roomId === 'string') {
+                    removeNotifications(roomId);
+                    markAsRead(roomId);
+                }
+            };
 
-        plugin.on('read', callback);
-        return () => {
-            plugin.un('read', callback);
-        };
+            plugin.on('read', callback);
+            return () => {
+                plugin.un('read', callback);
+            };
+        }
     }, [plugin]);
 
     return (
