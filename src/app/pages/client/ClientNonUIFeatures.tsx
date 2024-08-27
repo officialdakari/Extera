@@ -246,7 +246,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
 
     useEffect(() => {
         const clickHandler = async (ev: any) => {
-            if (ev.target.tagName.toLowerCase() === 'a' || ev.target.tagName.toLowerCase() === 'span') {
+            if (ev.target.tagName?.toLowerCase() === 'a' || ev.target.tagName?.toLowerCase() === 'span') {
                 const href = ev.target.getAttribute('data-mention-href') ?? ev.target.getAttribute('href');
                 if (!href) return;
                 const url = parse(href as string);

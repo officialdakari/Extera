@@ -1,11 +1,13 @@
 import React from 'react';
-import { Chip, Icon, IconButton, Icons, Text, color } from 'folds';
+import { Chip, IconButton, Text, color } from 'folds';
 import { UploadCard, UploadCardError, UploadCardProgress } from './UploadCard';
 import { TUploadAtom, UploadStatus, useBindUploadAtom } from '../../state/upload';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { TUploadContent } from '../../utils/matrix';
 import { getFileTypeIcon } from '../../utils/common';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiCheck, mdiClose } from '@mdi/js';
 
 type UploadCardRendererProps = {
     file: TUploadContent;
@@ -37,7 +39,7 @@ export function UploadCardRenderer({
     return (
         <UploadCard
             radii="300"
-            before={<Icon src={getFileTypeIcon(Icons, file.type)} />}
+            before={<Icon size={0.8} path={getFileTypeIcon(file.type)} />}
             after={
                 <>
                     {upload.status === UploadStatus.Error && (
@@ -59,7 +61,7 @@ export function UploadCardRenderer({
                         radii="Pill"
                         size="300"
                     >
-                        <Icon src={Icons.Cross} size="200" />
+                        <Icon path={mdiClose} size={1} />
                     </IconButton>
                 </>
             }
@@ -83,7 +85,7 @@ export function UploadCardRenderer({
                 {file.name}
             </Text>
             {upload.status === UploadStatus.Success && (
-                <Icon style={{ color: color.Success.Main }} src={Icons.Check} size="100" />
+                <Icon style={{ color: color.Success.Main }} path={mdiCheck} size={1} />
             )}
         </UploadCard>
     );
