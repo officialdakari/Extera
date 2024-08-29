@@ -19,15 +19,14 @@ import Spinner from '../../atoms/spinner/Spinner';
 import RoomSelector from '../room-selector/RoomSelector';
 import Dialog from '../dialog/Dialog';
 
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
-import SearchIC from '../../../../public/res/ic/outlined/search.svg';
-
 import { useStore } from '../../hooks/useStore';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { useDirects, useRooms, useSpaces } from '../../state/hooks/roomList';
 import { allRoomsAtom } from '../../state/room-list/roomList';
 import { mDirectAtom } from '../../state/mDirectList';
 import { getText } from '../../../lang';
+import { mdiClose, mdiMagnify } from '@mdi/js';
+import Icon from '@mdi/react';
 
 function SpaceAddExistingContent({ roomId, spaces: onlySpaces }) {
     const mountStore = useStore(roomId);
@@ -130,9 +129,9 @@ function SpaceAddExistingContent({ roomId, spaces: onlySpaces }) {
                     ev.preventDefault();
                 }}
             >
-                <RawIcon size="small" src={SearchIC} />
+                <Icon size={0.7} path={mdiMagnify} />
                 <Input name="searchInput" onChange={handleSearch} placeholder={getText('placeholder.search_room')} autoFocus />
-                <IconButton size="small" type="button" onClick={handleSearchClear} src={CrossIC} />
+                <IconButton size="small" type="button" onClick={handleSearchClear} src={mdiClose} />
             </form>
             {searchIds?.length === 0 && <Text>{getText('generic.no_results.2')}</Text>}
             {(searchIds || allRoomIds).map((rId) => {
@@ -240,7 +239,7 @@ function SpaceAddExisting() {
                     </span>
                 </Text>
             }
-            contentOptions={<IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />}
+            contentOptions={<IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />}
             onRequestClose={requestClose}
         >
             {room ? <SpaceAddExistingContent roomId={room.roomId} spaces={data.spaces} /> : <div />}

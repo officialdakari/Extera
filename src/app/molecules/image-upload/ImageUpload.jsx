@@ -9,8 +9,8 @@ import Avatar from '../../atoms/avatar/Avatar';
 import Spinner from '../../atoms/spinner/Spinner';
 import RawIcon from '../../atoms/system-icons/RawIcon';
 
-import PlusIC from '../../../../public/res/ic/outlined/plus.svg';
 import { getText } from '../../../lang';
+import { mdiPlus } from '@mdi/js';
 
 function ImageUpload({
     text, bgColor, imageSrc, onUpload, onRequestRemove,
@@ -61,7 +61,7 @@ function ImageUpload({
                     {uploadPromise === null && (
                         size === 'large'
                             ? <Text variant="b3" weight="bold">{getText('img_upload.upload')}</Text>
-                            : <RawIcon src={PlusIC} color="white" />
+                            : <RawIcon src={mdiPlus} color="white" />
                     )}
                     {uploadPromise !== null && <Spinner size="small" />}
                 </div>

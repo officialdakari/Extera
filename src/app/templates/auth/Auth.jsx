@@ -1,3 +1,5 @@
+// todo translate
+
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
@@ -20,11 +22,9 @@ import Header, { TitleWrapper } from '../../atoms/header/Header';
 import Avatar from '../../atoms/avatar/Avatar';
 import ContextMenu, { MenuItem, MenuHeader } from '../../atoms/context-menu/ContextMenu';
 
-import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
-import EyeIC from '../../../../public/res/ic/outlined/eye.svg';
-import EyeBlindIC from '../../../../public/res/ic/outlined/eye-blind.svg';
 import CinnySvg from '../../../../public/res/svg/cinny.svg';
 import SSOButtons from '../../molecules/sso-buttons/SSOButtons';
+import { mdiChevronDown, mdiEye, mdiEyeOff } from '@mdi/js';
 
 const LOCALPART_SIGNUP_REGEX = /^[a-z0-9_\-.=/]+$/;
 const BAD_LOCALPART_ERROR = 'Username can only contain characters a-z, 0-9, or \'=_-./\'';
@@ -142,7 +142,7 @@ function Homeserver({ onChange }) {
                             }
                         </>
                     )}
-                    render={(toggleMenu) => <IconButton onClick={toggleMenu} src={ChevronBottomIC} />}
+                    render={(toggleMenu) => <IconButton onClick={toggleMenu} src={mdiChevronDown} />}
                 />
             </div>
             {process.error !== undefined && <Text className="homeserver-form__error" variant="b3">{process.error}</Text>}
@@ -226,7 +226,7 @@ function Login({ loginFlow, baseUrl }) {
                             ))
                         )}
                         render={(toggleMenu) => (
-                            <Button onClick={toggleMenu} iconSrc={ChevronBottomIC}>
+                            <Button onClick={toggleMenu} iconSrc={mdiChevronDown}>
                                 {loginTypes[typeIndex]}
                             </Button>
                         )}
@@ -251,7 +251,7 @@ function Login({ loginFlow, baseUrl }) {
                                 {errors.email && <Text className="auth-form__error" variant="b3">{errors.email}</Text>}
                                 <div className="auth-form__pass-eye-wrapper">
                                     <Input values={values.password} name="password" onChange={handleChange} label="Password" type={passVisible ? 'text' : 'password'} required />
-                                    <IconButton onClick={() => setPassVisible(!passVisible)} src={passVisible ? EyeIC : EyeBlindIC} size="extra-small" />
+                                    <IconButton onClick={() => setPassVisible(!passVisible)} src={passVisible ? mdiEye : mdiEyeOff} size="extra-small" />
                                 </div>
                                 {errors.password && <Text className="auth-form__error" variant="b3">{errors.password}</Text>}
                                 {errors.other && <Text className="auth-form__error" variant="b3">{errors.other}</Text>}
@@ -458,12 +458,12 @@ function Register({ registerInfo, loginFlow, baseUrl }) {
                                 {errors.username && <Text className="auth-form__error" variant="b3">{errors.username}</Text>}
                                 <div className="auth-form__pass-eye-wrapper">
                                     <Input values={values.password} name="password" onChange={handleChange} label="Password" type={passVisible ? 'text' : 'password'} required />
-                                    <IconButton onClick={() => setPassVisible(!passVisible)} src={passVisible ? EyeIC : EyeBlindIC} size="extra-small" />
+                                    <IconButton onClick={() => setPassVisible(!passVisible)} src={passVisible ? mdiEye : mdiEyeOff} size="extra-small" />
                                 </div>
                                 {errors.password && <Text className="auth-form__error" variant="b3">{errors.password}</Text>}
                                 <div className="auth-form__pass-eye-wrapper">
                                     <Input values={values.confirmPassword} name="confirmPassword" onChange={handleChange} label="Confirm password" type={cPassVisible ? 'text' : 'password'} required />
-                                    <IconButton onClick={() => setCPassVisible(!cPassVisible)} src={cPassVisible ? EyeIC : EyeBlindIC} size="extra-small" />
+                                    <IconButton onClick={() => setCPassVisible(!cPassVisible)} src={cPassVisible ? mdiEye : mdiEyeOff} size="extra-small" />
                                 </div>
                                 {errors.confirmPassword && <Text className="auth-form__error" variant="b3">{errors.confirmPassword}</Text>}
                                 {isEmail && <Input values={values.email} name="email" onChange={handleChange} label={`Email${isEmailRequired ? '' : ' (optional)'}`} type="email" required={isEmailRequired} />}

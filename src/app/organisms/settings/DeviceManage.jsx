@@ -15,10 +15,6 @@ import InfoCard from '../../atoms/card/InfoCard';
 import Spinner from '../../atoms/spinner/Spinner';
 import SettingTile from '../../molecules/setting-tile/SettingTile';
 
-import PencilIC from '../../../../public/res/ic/outlined/pencil.svg';
-import BinIC from '../../../../public/res/ic/outlined/bin.svg';
-import InfoIC from '../../../../public/res/ic/outlined/info.svg';
-
 import { authRequest } from './AuthRequest';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 
@@ -27,6 +23,7 @@ import { useDeviceList } from '../../hooks/useDeviceList';
 import { useCrossSigningStatus } from '../../hooks/useCrossSigningStatus';
 import { accessSecretStorage } from './SecretStorageAccess';
 import { getText, translate } from '../../../lang';
+import { mdiDelete, mdiInformationOutline, mdiPencil } from '@mdi/js';
 
 const promptDeviceName = async (deviceName) => new Promise((resolve) => {
     let isCompleted = false;
@@ -174,8 +171,8 @@ function DeviceManage() {
                         : (
                             <>
                                 {(isCSEnabled && canVerify) && <Button onClick={() => verify(deviceId, isCurrentDevice)} variant="positive">Verify</Button>}
-                                <IconButton size="small" onClick={() => handleRename(device)} src={PencilIC} tooltip={getText('tooltip.rename_session')} />
-                                <IconButton size="small" onClick={() => handleRemove(device)} src={BinIC} tooltip={getText('tooltip.remove_session')} />
+                                <IconButton size="small" onClick={() => handleRename(device)} src={mdiPencil} tooltip={getText('tooltip.rename_session')} />
+                                <IconButton size="small" onClick={() => handleRemove(device)} src={mdiDelete} tooltip={getText('tooltip.remove_session')} />
                             </>
                         )
                 }
@@ -227,7 +224,7 @@ function DeviceManage() {
                         <InfoCard
                             rounded
                             variant="primary"
-                            iconSrc={InfoIC}
+                            iconSrc={mdiInformationOutline}
                             title={getText('device_manage.verify.title')}
                         />
                     </div>
@@ -237,7 +234,7 @@ function DeviceManage() {
                         <InfoCard
                             rounded
                             variant="surface"
-                            iconSrc={InfoIC}
+                            iconSrc={mdiInformationOutline}
                             title={getText('device_manage.tip')}
                         />
                     </div>
@@ -247,7 +244,7 @@ function DeviceManage() {
                         <InfoCard
                             rounded
                             variant="caution"
-                            iconSrc={InfoIC}
+                            iconSrc={mdiInformationOutline}
                             title={getText('device_manage.crosssigning_tip')}
                         />
                     </div>

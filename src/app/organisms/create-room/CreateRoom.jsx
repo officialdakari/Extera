@@ -21,19 +21,10 @@ import SegmentControl from '../../atoms/segmented-controls/SegmentedControls';
 import Dialog from '../../molecules/dialog/Dialog';
 import SettingTile from '../../molecules/setting-tile/SettingTile';
 
-import HashPlusIC from '../../../../public/res/ic/outlined/hash-plus.svg';
-import SpacePlusIC from '../../../../public/res/ic/outlined/space-plus.svg';
-import HashIC from '../../../../public/res/ic/outlined/hash.svg';
-import HashLockIC from '../../../../public/res/ic/outlined/hash-lock.svg';
-import HashGlobeIC from '../../../../public/res/ic/outlined/hash-globe.svg';
-import SpaceIC from '../../../../public/res/ic/outlined/space.svg';
-import SpaceLockIC from '../../../../public/res/ic/outlined/space-lock.svg';
-import SpaceGlobeIC from '../../../../public/res/ic/outlined/space-globe.svg';
-import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
+import { mdiChevronDown, mdiClose, mdiPlus, mdiPound, mdiStarFourPoints } from '@mdi/js';
 
 function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
     const [joinRule, setJoinRule] = useState(parentId ? 'restricted' : 'invite');
@@ -139,8 +130,6 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
         'create_room.join_rule.restricted',
         'create_room.join_rule.public'
     ].map(s => getText(s));
-    const jrRoomIC = [HashLockIC, HashIC, HashGlobeIC];
-    const jrSpaceIC = [SpaceLockIC, SpaceIC, SpaceGlobeIC];
     const handleJoinRule = (evt) => {
         openReusableContextMenu('bottom', getEventCords(evt, '.btn-surface'), (closeMenu) => (
             <>
@@ -150,7 +139,7 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                         key={rule}
                         variant={rule === joinRule ? 'positive' : 'surface'}
                         iconSrc={
-                            isSpace ? jrSpaceIC[joinRules.indexOf(rule)] : jrRoomIC[joinRules.indexOf(rule)]
+                            isSpace ? mdiStarFourPoints : mdiPound
                         }
                         onClick={() => {
                             closeMenu();
@@ -171,7 +160,7 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                 <SettingTile
                     title={getText('create_room.join_rule.title')}
                     options={
-                        <Button onClick={handleJoinRule} iconSrc={ChevronBottomIC}>
+                        <Button onClick={handleJoinRule} iconSrc={mdiChevronDown}>
                             {joinRuleShortText[joinRules.indexOf(joinRule)]}
                         </Button>
                     }
@@ -251,7 +240,7 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                     <Input name="name" label={getText('create_room.name', getText(isSpace ? 'create_room.name.space' : 'create_room.name.room'))} required />
                     <Button
                         disabled={isValidAddress === false || isCreatingRoom}
-                        iconSrc={isSpace ? SpacePlusIC : HashPlusIC}
+                        iconSrc={mdiPlus}
                         type="submit"
                         variant="primary"
                     >
@@ -322,7 +311,7 @@ function CreateRoom() {
                     </span>
                 </Text>
             }
-            contentOptions={<IconButton src={CrossIC} onClick={onRequestClose} tooltip="Close" />}
+            contentOptions={<IconButton src={mdiClose} onClick={onRequestClose} tooltip="Close" />}
             onRequestClose={onRequestClose}
         >
             {create ? (

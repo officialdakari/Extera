@@ -17,8 +17,6 @@ import RawModal from '../../atoms/modal/RawModal';
 import ScrollView from '../../atoms/scroll/ScrollView';
 import RoomSelector from '../../molecules/room-selector/RoomSelector';
 
-import SearchIC from '../../../../public/res/ic/outlined/search.svg';
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { useDirects, useRooms, useSpaces } from '../../state/hooks/roomList';
 import { roomToUnreadAtom } from '../../state/room/roomToUnread';
@@ -27,6 +25,8 @@ import { allRoomsAtom } from '../../state/room-list/roomList';
 import { mDirectAtom } from '../../state/mDirectList';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
+import { mdiClose, mdiMagnify } from '@mdi/js';
+import Icon from '@mdi/react';
 
 function useVisiblityToggle(setResult) {
     const [isOpen, setIsOpen] = useState(false);
@@ -219,9 +219,9 @@ function Search() {
                         openFirstResult();
                     }}
                 >
-                    <RawIcon src={SearchIC} size="small" />
+                    <Icon src={mdiMagnify} size={0.7} />
                     <Input onChange={handleOnChange} forwardRef={searchRef} placeholder={getText('placeholder.search_chats')} />
-                    <IconButton size="small" src={CrossIC} type="reset" onClick={handleCross} tabIndex={-1} />
+                    <IconButton size="small" src={mdiClose} type="reset" onClick={handleCross} tabIndex={-1} />
                 </form>
                 <div className="search-dialog__content-wrapper">
                     <ScrollView autoHide>

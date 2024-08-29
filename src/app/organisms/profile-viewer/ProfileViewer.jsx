@@ -34,11 +34,6 @@ import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 import PowerLevelSelector from '../../molecules/power-level-selector/PowerLevelSelector';
 import Dialog from '../../molecules/dialog/Dialog';
 
-import ShieldEmptyIC from '../../../../public/res/ic/outlined/shield-empty.svg';
-import ChevronRightIC from '../../../../public/res/ic/outlined/chevron-right.svg';
-import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
-
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
@@ -49,6 +44,7 @@ import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { VerificationBadge } from '../../components/verification-badge/VerificationBadge';
 import { Box } from 'folds';
+import { mdiChevronDown, mdiChevronRight, mdiClose, mdiShieldOutline } from '@mdi/js';
 
 function ModerationTools({ roomId, userId }) {
     const mx = initMatrix.matrixClient;
@@ -138,7 +134,7 @@ function SessionInfo({ userId }) {
                     devices.map((device) => (
                         <Chip
                             key={device.deviceId}
-                            iconSrc={ShieldEmptyIC}
+                            iconSrc={mdiShieldOutline}
                             text={device.getDisplayName() || device.deviceId}
                         />
                     ))}
@@ -150,7 +146,7 @@ function SessionInfo({ userId }) {
         <div className="session-info">
             <MenuItem
                 onClick={() => setIsVisible(!isVisible)}
-                iconSrc={isVisible ? ChevronBottomIC : ChevronRightIC}
+                iconSrc={isVisible ? mdiChevronDown : mdiChevronRight}
             >
                 <Text variant="b2">{getText('session_info.item', devices?.length ?? 0)}</Text>
             </MenuItem>
@@ -436,7 +432,7 @@ function ProfileViewer() {
                         <Text variant="b3">{getText('profile_viewer.power_level')}</Text>
                         <Button
                             onClick={canChangeRole ? handlePowerSelector : null}
-                            iconSrc={canChangeRole ? ChevronBottomIC : null}
+                            iconSrc={canChangeRole ? mdiChevronDown : null}
                         >
                             {`${getPowerLabel(powerLevel) || getText('generic.pl_member')} - ${powerLevel}`}
                         </Button>
@@ -461,7 +457,7 @@ function ProfileViewer() {
             title={userId}
             onAfterClose={handleAfterClose}
             onRequestClose={closeDialog}
-            contentOptions={<IconButton src={CrossIC} onClick={closeDialog} tooltip="Close" />}
+            contentOptions={<IconButton src={mdiClose} onClick={closeDialog} tooltip="Close" />}
         >
             {roomId ? renderProfile() : <div />}
         </Dialog>

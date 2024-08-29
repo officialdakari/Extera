@@ -18,13 +18,13 @@ import navigation from '../../../client/state/navigation';
 import { openNavigation } from '../../../client/action/navigation';
 import cons from '../../../client/state/cons';
 
-import VerticalMenuIC from '../../../../public/res/ic/outlined/vertical-menu.svg';
 import { MatrixClientProvider } from '../../hooks/useMatrixClient';
 import { ClientContent } from './ClientContent';
 import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import { clamp } from '../../utils/common';
 import { useTouchMenu } from '../../hooks/useTouchMenu';
+import { mdiDotsVertical } from '@mdi/js';
 
 function SystemEmojiFeature() {
     const [twitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
@@ -112,7 +112,7 @@ function Client() {
                             </>
                         }
                         render={(toggle) => (
-                            <IconButton size="extra-small" onClick={toggle} src={VerticalMenuIC} />
+                            <IconButton onClick={toggle} src={mdiDotsVertical} />
                         )}
                     />
                 </div>

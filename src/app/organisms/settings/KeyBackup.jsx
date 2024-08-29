@@ -16,13 +16,10 @@ import SettingTile from '../../molecules/setting-tile/SettingTile';
 
 import { accessSecretStorage } from './SecretStorageAccess';
 
-import InfoIC from '../../../../public/res/ic/outlined/info.svg';
-import BinIC from '../../../../public/res/ic/outlined/bin.svg';
-import DownloadIC from '../../../../public/res/ic/outlined/download.svg';
-
 import { useStore } from '../../hooks/useStore';
 import { useCrossSigningStatus } from '../../hooks/useCrossSigningStatus';
 import { getText } from '../../../lang';
+import { mdiDelete, mdiDownload, mdiInformation, mdiInformationOutline } from '@mdi/js';
 
 function CreateKeyBackupDialog({ keyData }) {
     const [done, setDone] = useState(false);
@@ -266,12 +263,12 @@ function KeyBackup() {
         return (
             <>
                 <IconButton
-                    src={DownloadIC}
+                    src={mdiDownload}
                     variant="positive"
                     onClick={openRestoreKeyBackup}
                     tooltip={getText('tooltip.restore_backup')}
                 />
-                <IconButton src={BinIC} onClick={openDeleteKeyBackup} tooltip="Delete backup" />
+                <IconButton src={mdiDelete} onClick={openDeleteKeyBackup} tooltip="Delete backup" />
             </>
         );
     };
@@ -289,7 +286,7 @@ function KeyBackup() {
                             style={{ marginTop: 'var(--sp-ultra-tight)' }}
                             rounded
                             variant="caution"
-                            iconSrc={InfoIC}
+                            iconSrc={mdiInformationOutline}
                             title={getText('crosssigning.tip.2')}
                         />
                     )}

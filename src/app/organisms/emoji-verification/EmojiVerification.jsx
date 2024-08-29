@@ -15,10 +15,10 @@ import Button from '../../atoms/button/Button';
 import Spinner from '../../atoms/spinner/Spinner';
 import Dialog from '../../molecules/dialog/Dialog';
 
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
 import { useStore } from '../../hooks/useStore';
 import { accessSecretStorage } from '../settings/SecretStorageAccess';
 import { getText } from '../../../lang';
+import { mdiClose } from '@mdi/js';
 
 function EmojiVerificationContent({ data, requestClose }) {
     const [sas, setSas] = useState(null);
@@ -192,7 +192,7 @@ function EmojiVerification() {
                     {getText('emoji_verification.title')}
                 </Text>
             }
-            contentOptions={<IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />}
+            contentOptions={<IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />}
             onRequestClose={requestClose}
         >
             {data !== null ? (

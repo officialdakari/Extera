@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import './Chip.scss';
 
 import Text from '../text/Text';
-import RawIcon from '../system-icons/RawIcon';
+import Icon from '@mdi/react';
 
 function Chip({
   iconSrc, iconColor, text, children,
@@ -11,7 +11,7 @@ function Chip({
 }) {
   return (
     <button className="chip" type="button" onClick={onClick}>
-      {iconSrc != null && <RawIcon src={iconSrc} color={iconColor} size="extra-small" />}
+      {iconSrc != null && <Icon path={iconSrc} color={iconColor ?? 'white'} size={0.7} />}
       {(text != null && text !== '') && <Text variant="b3">{text}</Text>}
       {children}
     </button>

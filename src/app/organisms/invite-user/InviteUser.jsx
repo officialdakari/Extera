@@ -14,12 +14,11 @@ import Input from '../../atoms/input/Input';
 import PopupWindow from '../../molecules/popup-window/PopupWindow';
 import RoomTile from '../../molecules/room-tile/RoomTile';
 
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
-import UserIC from '../../../../public/res/ic/outlined/user.svg';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getDMRoomFor } from '../../utils/matrix';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
+import { mdiAccount, mdiClose } from '@mdi/js';
 
 function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
     const [isSearching, updateIsSearching] = useState(false);
@@ -256,7 +255,7 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
         <PopupWindow
             isOpen={isOpen}
             title={typeof roomId === 'string' ? getText('invite.title', mx.getRoom(roomId).name) : getText('invite.dm')}
-            contentOptions={<IconButton src={CrossIC} onClick={onRequestClose} tooltip="Close" />}
+            contentOptions={<IconButton src={mdiClose} onClick={onRequestClose} tooltip="Close" />}
             onRequestClose={onRequestClose}
         >
             <div className="invite-user">
@@ -268,7 +267,7 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
                     }}
                 >
                     <Input value={searchTerm} forwardRef={usernameRef} label={getText('label.name_or_id')} />
-                    <Button disabled={isSearching} iconSrc={UserIC} variant="primary" type="submit">
+                    <Button disabled={isSearching} iconSrc={mdiAccount} variant="primary" type="submit">
                         {getText('btn.invite.search')}
                     </Button>
                 </form>

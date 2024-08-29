@@ -8,8 +8,8 @@ import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 import Header, { TitleWrapper } from '../../atoms/header/Header';
 import ScrollView from '../../atoms/scroll/ScrollView';
 import RawModal from '../../atoms/modal/RawModal';
+import { mdiChevronLeft } from '@mdi/js';
 
-import ChevronLeftIC from '../../../../public/res/ic/outlined/chevron-left.svg';
 
 function PWContentSelector({ selected, variant, iconSrc, type, onClick, children }) {
   const pwcsClass = selected ? ' pw-content-selector--selected' : '';
@@ -68,7 +68,7 @@ function PopupWindow({
             <Header>
               <IconButton
                 size="small"
-                src={ChevronLeftIC}
+                src={mdiChevronLeft}
                 onClick={onRequestClose}
                 tooltip="Back"
               />

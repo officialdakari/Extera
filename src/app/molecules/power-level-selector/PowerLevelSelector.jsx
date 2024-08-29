@@ -5,8 +5,8 @@ import './PowerLevelSelector.scss';
 import IconButton from '../../atoms/button/IconButton';
 import { MenuHeader, MenuItem } from '../../atoms/context-menu/ContextMenu';
 
-import CheckIC from '../../../../public/res/ic/outlined/check.svg';
 import { getText } from '../../../lang';
+import { mdiCheck } from '@mdi/js';
 
 function PowerLevelSelector({
   value, max, onSelect,
@@ -31,7 +31,7 @@ function PowerLevelSelector({
           autoComplete="off"
           required
         />
-        <IconButton variant="primary" src={CheckIC} type="submit" />
+        <IconButton variant="primary" src={mdiCheck} type="submit" />
       </form>
       {max >= 0 && <MenuHeader>{getText('pl_selector.presets')}</MenuHeader>}
       {max >= 100 && <MenuItem variant={value === 100 ? 'positive' : 'surface'} onClick={() => onSelect(100)}>{getText('power_level.admin')}</MenuItem>}

@@ -12,10 +12,9 @@ import RawIcon from '../../atoms/system-icons/RawIcon';
 import IconButton from '../../atoms/button/IconButton';
 import ImagePackUsageSelector from './ImagePackUsageSelector';
 
-import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
-import PencilIC from '../../../../public/res/ic/outlined/pencil.svg';
-import BinIC from '../../../../public/res/ic/outlined/bin.svg';
 import { getText } from '../../../lang';
+import { mdiChevronDown, mdiDelete, mdiPencil } from '@mdi/js';
+import Icon from '@mdi/react';
 
 function ImagePackItem({
   url, shortcode, usage, onUsageChange, onDelete, onRename,
@@ -44,11 +43,11 @@ function ImagePackItem({
       </div>
       <div className="image-pack-item__usage">
         <div className="image-pack-item__btn">
-          {onRename && <IconButton tooltip="Rename" size="extra-small" src={PencilIC} onClick={() => onRename(shortcode)} />}
-          {onDelete && <IconButton tooltip="Delete" size="extra-small" src={BinIC} onClick={() => onDelete(shortcode)} />}
+          {onRename && <IconButton tooltip="Rename" src={mdiPencil} onClick={() => onRename(shortcode)} />}
+          {onDelete && <IconButton tooltip="Delete" src={mdiDelete} onClick={() => onDelete(shortcode)} />}
         </div>
         <Button onClick={onUsageChange ? handleUsageSelect : undefined}>
-          {onUsageChange && <RawIcon src={ChevronBottomIC} size="extra-small" />}
+          {onUsageChange && <Icon src={mdiChevronDown} size={0.7} />}
           <Text variant="b2">
             {usage === 'emoticon' && getText('image.usage.emoji')}
             {usage === 'sticker' && getText('image.usage.sticker')}

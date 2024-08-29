@@ -14,13 +14,11 @@ import SettingTile from '../setting-tile/SettingTile';
 
 import NotificationSelector from './NotificationSelector';
 
-import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
-
 import { useAccountData } from '../../hooks/useAccountData';
 import {
   notifType, typeToLabel, getActionType, getTypeActions,
 } from './GlobalNotification';
+import { mdiChevronDown, mdiClose } from '@mdi/js';
 
 const DISPLAY_NAME = '.m.rule.contains_display_name';
 const ROOM_PING = '.m.rule.roomnotif';
@@ -172,7 +170,7 @@ function GlobalNotification() {
       <SettingTile
         title="Message containing my display name"
         options={(
-          <Button onClick={(evt) => onSelect(evt, DISPLAY_NAME)} iconSrc={ChevronBottomIC}>
+          <Button onClick={(evt) => onSelect(evt, DISPLAY_NAME)} iconSrc={mdiChevronDown}>
             { typeToLabel[rulesToType[DISPLAY_NAME]] }
           </Button>
         )}
@@ -181,7 +179,7 @@ function GlobalNotification() {
       <SettingTile
         title="Message containing my username"
         options={(
-          <Button onClick={(evt) => onSelect(evt, USERNAME)} iconSrc={ChevronBottomIC}>
+          <Button onClick={(evt) => onSelect(evt, USERNAME)} iconSrc={mdiChevronDown}>
             { typeToLabel[rulesToType[USERNAME]] }
           </Button>
         )}
@@ -190,7 +188,7 @@ function GlobalNotification() {
       <SettingTile
         title="Message containing @room"
         options={(
-          <Button onClick={(evt) => onSelect(evt, ROOM_PING)} iconSrc={ChevronBottomIC}>
+          <Button onClick={(evt) => onSelect(evt, ROOM_PING)} iconSrc={mdiChevronDown}>
             {typeToLabel[rulesToType[ROOM_PING]]}
           </Button>
         )}
@@ -200,7 +198,7 @@ function GlobalNotification() {
         <SettingTile
           title="Message containing keywords"
           options={(
-            <Button onClick={(evt) => onSelect(evt, KEYWORD)} iconSrc={ChevronBottomIC}>
+            <Button onClick={(evt) => onSelect(evt, KEYWORD)} iconSrc={mdiChevronDown}>
               {typeToLabel[rulesToType[KEYWORD]]}
             </Button>
           )}
@@ -220,10 +218,9 @@ function GlobalNotification() {
               <div>
                 {keywordRules.map((rule) => (
                   <Chip
-                    iconSrc={CrossIC}
+                    iconSrc={mdiClose}
                     key={rule.rule_id}
                     text={rule.pattern}
-                    iconColor={CrossIC}
                     onClick={() => removeKeyword(rule)}
                   />
                 ))}

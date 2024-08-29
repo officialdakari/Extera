@@ -5,8 +5,7 @@ import './InfoCard.scss';
 import Text from '../text/Text';
 import RawIcon from '../system-icons/RawIcon';
 import IconButton from '../button/IconButton';
-
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
+import { mdiClose } from '@mdi/js';
 
 function InfoCard({
   className, style,
@@ -29,7 +28,7 @@ function InfoCard({
         {content}
       </div>
       {requestClose && (
-        <IconButton src={CrossIC} variant={variant} onClick={requestClose} />
+        <IconButton src={mdiClose} variant={variant} onClick={requestClose} />
       )}
     </div>
   );

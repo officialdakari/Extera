@@ -9,31 +9,28 @@ import Text from '../../atoms/text/Text';
 import RadioButton from '../../atoms/button/RadioButton';
 import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 
-import BellIC from '../../../../public/res/ic/outlined/bell.svg';
-import BellRingIC from '../../../../public/res/ic/outlined/bell-ring.svg';
-import BellPingIC from '../../../../public/res/ic/outlined/bell-ping.svg';
-import BellOffIC from '../../../../public/res/ic/outlined/bell-off.svg';
 import { getNotificationType } from '../../utils/room';
 import { getText } from '../../../lang';
+import { mdiBell, mdiBellAlert, mdiBellOff, mdiBellRing } from '@mdi/js';
 
 const items = [
     {
-        iconSrc: BellIC,
+        iconSrc: mdiBell,
         text: getText('room_notifications.global'),
         type: cons.notifs.DEFAULT,
     },
     {
-        iconSrc: BellRingIC,
+        iconSrc: mdiBellRing,
         text: getText('room_notifications.all'),
         type: cons.notifs.ALL_MESSAGES,
     },
     {
-        iconSrc: BellPingIC,
+        iconSrc: mdiBellAlert,
         text: getText('room_notifications.mentions'),
         type: cons.notifs.MENTIONS_AND_KEYWORDS,
     },
     {
-        iconSrc: BellOffIC,
+        iconSrc: mdiBellOff,
         text: getText('room_notifications.mute'),
         type: cons.notifs.MUTE,
     },

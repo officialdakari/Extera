@@ -1,11 +1,5 @@
+import { mdiPound, mdiStarFourPoints } from '@mdi/js';
 import initMatrix from '../client/initMatrix';
-
-import HashIC from '../../public/res/ic/outlined/hash.svg';
-import HashGlobeIC from '../../public/res/ic/outlined/hash-globe.svg';
-import HashLockIC from '../../public/res/ic/outlined/hash-lock.svg';
-import SpaceIC from '../../public/res/ic/outlined/space.svg';
-import SpaceGlobeIC from '../../public/res/ic/outlined/space-globe.svg';
-import SpaceLockIC from '../../public/res/ic/outlined/space-lock.svg';
 
 const WELL_KNOWN_URI = '/.well-known/matrix/client';
 
@@ -91,10 +85,10 @@ export function trimHTMLReply(html) {
 
 export function joinRuleToIconSrc(joinRule, isSpace) {
     return ({
-        restricted: () => (isSpace ? SpaceIC : HashIC),
-        knock: () => (isSpace ? SpaceLockIC : HashLockIC),
-        invite: () => (isSpace ? SpaceLockIC : HashLockIC),
-        public: () => (isSpace ? SpaceGlobeIC : HashGlobeIC),
+        restricted: () => (isSpace ? mdiStarFourPoints : mdiPound),
+        knock: () => (isSpace ? mdiStarFourPoints : mdiPound),
+        invite: () => (isSpace ? mdiStarFourPoints : mdiPound),
+        public: () => (isSpace ? mdiStarFourPoints : mdiPound),
     }[joinRule]?.() || null);
 }
 

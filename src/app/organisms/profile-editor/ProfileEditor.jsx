@@ -10,11 +10,11 @@ import Button from '../../atoms/button/Button';
 import ImageUpload from '../../molecules/image-upload/ImageUpload';
 import Input from '../../atoms/input/Input';
 
-import PencilIC from '../../../../public/res/ic/outlined/pencil.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 
 import './ProfileEditor.scss';
 import { getText } from '../../../lang';
+import { mdiPencil } from '@mdi/js';
 
 function ProfileEditor({ userId }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -106,8 +106,7 @@ function ProfileEditor({ userId }) {
                     {username ?? userId}
                 </Text>
                 <IconButton
-                    src={PencilIC}
-                    size="extra-small"
+                    src={mdiPencil}
                     tooltip="Edit"
                     onClick={() => setIsEditing(true)}
                 />

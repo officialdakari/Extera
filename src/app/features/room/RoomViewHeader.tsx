@@ -77,6 +77,7 @@ import { WidgetItem } from '../../components/widget/WidgetItem';
 import { useModals } from '../../hooks/useModals';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
+import { nameInitials } from '../../utils/common';
 
 type RoomMenuProps = {
     room: Room;
@@ -757,9 +758,7 @@ export function RoomViewHeader({
                             roomId={room.roomId}
                             src={avatarUrl}
                             alt={name}
-                            renderFallback={() => (
-                                <RoomIcon size="200" joinRule={room.getJoinRule() ?? JoinRule.Restricted} />
-                            )}
+                            renderFallback={() => nameInitials(name)}
                         />
                     </Avatar>
                     <Box direction="Column">

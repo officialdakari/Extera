@@ -18,17 +18,11 @@ import RoomPermissions from '../../molecules/room-permissions/RoomPermissions';
 import RoomMembers from '../../molecules/room-members/RoomMembers';
 import RoomEmojis from '../../molecules/room-emojis/RoomEmojis';
 
-import UserIC from '../../../../public/res/ic/outlined/user.svg';
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
-import SettingsIC from '../../../../public/res/ic/outlined/settings.svg';
-import ShieldUserIC from '../../../../public/res/ic/outlined/shield-user.svg';
-import LeaveArrowIC from '../../../../public/res/ic/outlined/leave-arrow.svg';
-import EmojiIC from '../../../../public/res/ic/outlined/emoji.svg';
-
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { getText, translate } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
+import { mdiAccount, mdiArrowLeft, mdiClose, mdiCog, mdiEmoticon, mdiShield } from '@mdi/js';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -39,22 +33,22 @@ const tabText = {
 
 const tabItems = [
     {
-        iconSrc: SettingsIC,
+        iconSrc: mdiCog,
         text: tabText.GENERAL,
         disabled: false,
     },
     {
-        iconSrc: UserIC,
+        iconSrc: mdiAccount,
         text: tabText.MEMBERS,
         disabled: false,
     },
     {
-        iconSrc: EmojiIC,
+        iconSrc: mdiEmoticon,
         text: tabText.EMOJIS,
         disabled: false,
     },
     {
-        iconSrc: ShieldUserIC,
+        iconSrc: mdiShield,
         text: tabText.PERMISSIONS,
         disabled: false,
     },
@@ -79,7 +73,7 @@ function GeneralSettings({ roomId }) {
                         );
                         if (isConfirmed) mx.leave(roomId);
                     }}
-                    iconSrc={LeaveArrowIC}
+                    iconSrc={mdiArrowLeft}
                 >
                     {getText('btn.leave')}
                 </MenuItem>
@@ -148,7 +142,7 @@ function SpaceSettings() {
                     )}
                 </Text>
             }
-            contentOptions={<IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />}
+            contentOptions={<IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />}
             onRequestClose={requestClose}
         >
             {isOpen && (

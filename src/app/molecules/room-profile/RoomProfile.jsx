@@ -15,14 +15,13 @@ import Input from '../../atoms/input/Input';
 import IconButton from '../../atoms/button/IconButton';
 import ImageUpload from '../image-upload/ImageUpload';
 
-import PencilIC from '../../../../public/res/ic/outlined/pencil.svg';
-
 import { useStore } from '../../hooks/useStore';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { confirmDialog } from '../confirm-dialog/ConfirmDialog';
 import { mDirectAtom } from '../../state/mDirectList';
 import { LINKIFY_OPTS } from '../../plugins/react-custom-html-parser';
 import { getText } from '../../../lang';
+import { mdiPencil } from '@mdi/js';
 
 function RoomProfile({ roomId }) {
     const isMountStore = useStore();
@@ -197,7 +196,7 @@ function RoomProfile({ roomId }) {
                 </Text>
                 {(canChangeName || canChangeTopic) && (
                     <IconButton
-                        src={PencilIC}
+                        src={mdiPencil}
                         size="extra-small"
                         tooltip="Edit"
                         onClick={() => setIsEditing(true)}

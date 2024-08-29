@@ -11,9 +11,8 @@ import SettingTile from '../setting-tile/SettingTile';
 
 import NotificationSelector from './NotificationSelector';
 
-import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
-
 import { useAccountData } from '../../hooks/useAccountData';
+import { mdiChevronDown } from '@mdi/js';
 
 export const notifType = {
   ON: 'on',
@@ -134,7 +133,7 @@ function GlobalNotification() {
       <SettingTile
         title="Direct messages"
         options={(
-          <Button onClick={(evt) => onSelect(evt, DM)} iconSrc={ChevronBottomIC}>
+          <Button onClick={(evt) => onSelect(evt, DM)} iconSrc={mdiChevronDown}>
             { typeToLabel[rulesToType[DM]] }
           </Button>
         )}
@@ -143,7 +142,7 @@ function GlobalNotification() {
       <SettingTile
         title="Encrypted direct messages"
         options={(
-          <Button onClick={(evt) => onSelect(evt, ENC_DM)} iconSrc={ChevronBottomIC}>
+          <Button onClick={(evt) => onSelect(evt, ENC_DM)} iconSrc={mdiChevronDown}>
             {typeToLabel[rulesToType[ENC_DM]]}
           </Button>
         )}
@@ -152,7 +151,7 @@ function GlobalNotification() {
       <SettingTile
         title="Rooms messages"
         options={(
-          <Button onClick={(evt) => onSelect(evt, ROOM)} iconSrc={ChevronBottomIC}>
+          <Button onClick={(evt) => onSelect(evt, ROOM)} iconSrc={mdiChevronDown}>
             {typeToLabel[rulesToType[ROOM]]}
           </Button>
         )}
@@ -161,7 +160,7 @@ function GlobalNotification() {
       <SettingTile
         title="Encrypted rooms messages"
         options={(
-          <Button onClick={(evt) => onSelect(evt, ENC_ROOM)} iconSrc={ChevronBottomIC}>
+          <Button onClick={(evt) => onSelect(evt, ENC_ROOM)} iconSrc={mdiChevronDown}>
             {typeToLabel[rulesToType[ENC_ROOM]]}
           </Button>
         )}

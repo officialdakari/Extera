@@ -11,9 +11,8 @@ import Button from '../../atoms/button/Button';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
 import SettingTile from '../setting-tile/SettingTile';
 
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
-
 import { useAccountData } from '../../hooks/useAccountData';
+import { mdiClose } from '@mdi/js';
 
 function IgnoreUserList() {
   useAccountData('m.ignored_user_list');
@@ -45,10 +44,9 @@ function IgnoreUserList() {
               <div>
                 {ignoredUsers.map((uId) => (
                   <Chip
-                    iconSrc={CrossIC}
+                    iconSrc={mdiClose}
                     key={uId}
                     text={uId}
-                    iconColor={CrossIC}
                     onClick={() => roomActions.unignore([uId])}
                   />
                 ))}

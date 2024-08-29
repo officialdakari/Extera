@@ -7,14 +7,8 @@ import initMatrix from '../../../client/initMatrix';
 import Text from '../../atoms/text/Text';
 import RadioButton from '../../atoms/button/RadioButton';
 import { MenuItem } from '../../atoms/context-menu/ContextMenu';
-
-import HashIC from '../../../../public/res/ic/outlined/hash.svg';
-import HashLockIC from '../../../../public/res/ic/outlined/hash-lock.svg';
-import HashGlobeIC from '../../../../public/res/ic/outlined/hash-globe.svg';
-import SpaceIC from '../../../../public/res/ic/outlined/space.svg';
-import SpaceLockIC from '../../../../public/res/ic/outlined/space-lock.svg';
-import SpaceGlobeIC from '../../../../public/res/ic/outlined/space-globe.svg';
 import { getText } from '../../../lang';
+import { mdiEarth, mdiLock, mdiLockOff, mdiLockOpenOutline, mdiLockOutline, mdiPound, mdiStarFourPoints } from '@mdi/js';
 
 const visibility = {
     INVITE: 'invite',
@@ -79,17 +73,17 @@ function RoomVisibility({ roomId }) {
     const canChange = room.currentState.hasSufficientPowerLevelFor('state_default', myPowerlevel);
 
     const items = [{
-        iconSrc: isSpace ? SpaceLockIC : HashLockIC,
+        iconSrc: mdiLockOutline,
         text: getText('room_visibility.invite'),
         type: visibility.INVITE,
         unsupported: false,
     }, {
-        iconSrc: isSpace ? SpaceIC : HashIC,
+        iconSrc: mdiLockOpenOutline,
         text: getText(roomVersion < 8 ? 'room_visibility.restricted.unsupported' : 'room_visibility.restricted'),
         type: visibility.RESTRICTED,
         unsupported: roomVersion < 8 || noSpaceParent,
     }, {
-        iconSrc: isSpace ? SpaceGlobeIC : HashGlobeIC,
+        iconSrc: mdiEarth,
         text: getText('room_visibility.public'),
         type: visibility.PUBLIC,
         unsupported: false,

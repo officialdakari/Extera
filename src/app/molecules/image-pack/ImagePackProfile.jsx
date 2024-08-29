@@ -13,9 +13,8 @@ import Input from '../../atoms/input/Input';
 import ImageUpload from '../image-upload/ImageUpload';
 import ImagePackUsageSelector from './ImagePackUsageSelector';
 
-import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
-import PencilIC from '../../../../public/res/ic/outlined/pencil.svg';
 import { getText } from '../../../lang';
+import { mdiChevronDown, mdiPencil } from '@mdi/js';
 
 function ImagePackProfile({
     avatarUrl, displayName, attribution, usage,
@@ -82,7 +81,7 @@ function ImagePackProfile({
                             <>
                                 <div>
                                     <Text>{displayName}</Text>
-                                    {onEditProfile && <IconButton size="extra-small" onClick={() => setIsEdit(true)} src={PencilIC} tooltip={getText('tooltip.edit')} />}
+                                    {onEditProfile && <IconButton size="extra-small" onClick={() => setIsEdit(true)} src={mdiPencil} tooltip={getText('tooltip.edit')} />}
                                 </div>
                                 {attribution && <Text variant="b3">{attribution}</Text>}
                             </>
@@ -93,7 +92,7 @@ function ImagePackProfile({
                 <Text variant="b3">{getText('image_pack.pack_usage')}</Text>
                 <Button
                     onClick={onUsageChange ? handleUsageSelect : undefined}
-                    iconSrc={onUsageChange ? ChevronBottomIC : null}
+                    iconSrc={onUsageChange ? mdiChevronDown : null}
                 >
                     <Text>
                         {usage === 'emoticon' && getText('image.usage.emoji')}

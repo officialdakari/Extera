@@ -14,12 +14,11 @@ import Input from '../../atoms/input/Input';
 import Spinner from '../../atoms/spinner/Spinner';
 import Dialog from '../../molecules/dialog/Dialog';
 
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
-
 import { useStore } from '../../hooks/useStore';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
+import { mdiClose } from '@mdi/js';
 
 const ALIAS_OR_ID_REG = /^[#|!].+:.+\..+$/;
 
@@ -137,7 +136,7 @@ function JoinAlias() {
                     {getText('join_alias.title')}
                 </Text>
             }
-            contentOptions={<IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />}
+            contentOptions={<IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />}
             onRequestClose={requestClose}
         >
             {data ? <JoinAliasContent term={data.term} requestClose={requestClose} /> : <div />}

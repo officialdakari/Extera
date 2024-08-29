@@ -9,8 +9,8 @@ import Text from '../../atoms/text/Text';
 import Button from '../../atoms/button/Button';
 import Input from '../../atoms/input/Input';
 import IconButton from '../../atoms/button/IconButton';
-import CirclePlusIC from '../../../../public/res/ic/outlined/circle-plus.svg';
 import { getText } from '../../../lang';
+import { mdiPlusCircle } from '@mdi/js';
 
 function ImagePackUpload({ onUpload }) {
   const mx = initMatrix.matrixClient;
@@ -56,7 +56,7 @@ function ImagePackUpload({ onUpload }) {
         imgFile
           ? (
             <div className="image-pack-upload__file">
-              <IconButton onClick={handleRemove} src={CirclePlusIC} tooltip={getText('tooltip.remove_file')} />
+              <IconButton onClick={handleRemove} src={mdiPlusCircle} tooltip={getText('tooltip.remove_file')} />
               <Text>{imgFile.name}</Text>
             </div>
           )

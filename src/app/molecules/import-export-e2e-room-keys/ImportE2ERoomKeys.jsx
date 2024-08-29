@@ -11,10 +11,10 @@ import Button from '../../atoms/button/Button';
 import Input from '../../atoms/input/Input';
 import Spinner from '../../atoms/spinner/Spinner';
 
-import CirclePlusIC from '../../../../public/res/ic/outlined/circle-plus.svg';
 
 import { useStore } from '../../hooks/useStore';
 import { getText } from '../../../lang';
+import { mdiPlusCircle } from '@mdi/js';
 
 function ImportE2ERoomKeys() {
     const isMountStore = useStore();
@@ -111,7 +111,7 @@ function ImportE2ERoomKeys() {
             <form className="import-e2e-room-keys__form" onSubmit={(e) => { e.preventDefault(); importE2ERoomKeys(); }}>
                 {keyFile !== null && (
                     <div className="import-e2e-room-keys__file">
-                        <IconButton onClick={removeImportKeysFile} src={CirclePlusIC} tooltip={getText('tooltip.remove_file')} />
+                        <IconButton onClick={removeImportKeysFile} src={mdiPlusCircle} tooltip={getText('tooltip.remove_file')} />
                         <Text>{keyFile.name}</Text>
                     </div>
                 )}

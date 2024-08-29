@@ -5,8 +5,7 @@ import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
 import IconButton from '../../atoms/button/IconButton';
 import Dialog from './Dialog';
-
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
+import { mdiClose } from '@mdi/js';
 
 function ReusableDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,7 +37,7 @@ function ReusableDialog() {
       title={data?.title || ''}
       onAfterClose={handleAfterClose}
       onRequestClose={handleRequestClose}
-      contentOptions={<IconButton src={CrossIC} onClick={handleRequestClose} tooltip="Close" />}
+      contentOptions={<IconButton src={mdiClose} onClick={handleRequestClose} tooltip="Close" />}
       invisibleScroll
     >
       {data?.render(handleRequestClose) || <div />}

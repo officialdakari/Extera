@@ -13,10 +13,10 @@ import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
 import PowerLevelSelector from '../power-level-selector/PowerLevelSelector';
 import SettingTile from '../setting-tile/SettingTile';
 
-import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
 
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { getText } from '../../../lang';
+import { mdiChevronDown } from '@mdi/js';
 
 const permissionsInfo = {
     users_default: {
@@ -263,7 +263,7 @@ function RoomPermissions({ roomId }) {
                                                             ? (e) => handlePowerSelector(e, permKey, permInfo.parent, powerLevel)
                                                             : null
                                                     }
-                                                    iconSrc={canChangePermission ? ChevronBottomIC : null}
+                                                    iconSrc={canChangePermission ? mdiChevronDown : null}
                                                 >
                                                     <Text variant="b2">
                                                         {`${getPowerLabel(powerLevel) || getText('generic.pl_member')} - ${powerLevel}`}
