@@ -1,11 +1,13 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { Suspense, lazy } from 'react';
 import classNames from 'classnames';
-import { Box, Chip, Header, Icon, IconButton, Icons, Scroll, Text, as } from 'folds';
+import { Box, Chip, Header, IconButton, Scroll, Text, as } from 'folds';
 import { ErrorBoundary } from 'react-error-boundary';
 import * as css from './TextViewer.css';
 import { copyToClipboard } from '../../utils/dom';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiArrowLeft } from '@mdi/js';
 
 const ReactPrism = lazy(() => import('../../plugins/react-prism/ReactPrism'));
 
@@ -32,7 +34,7 @@ export const TextViewer = as<'div', TextViewerProps>(
                 <Header className={css.TextViewerHeader} size="400">
                     <Box grow="Yes" alignItems="Center" gap="200">
                         <IconButton size="300" radii="300" onClick={requestClose}>
-                            <Icon size="50" src={Icons.ArrowLeft} />
+                        <Icon size={1} path={mdiArrowLeft} />
                         </IconButton>
                         <Text size="T300" truncate>
                             {name}

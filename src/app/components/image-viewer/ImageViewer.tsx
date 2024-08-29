@@ -2,13 +2,15 @@
 import React from 'react';
 import FileSaver from 'file-saver';
 import classNames from 'classnames';
-import { Box, Chip, Header, Icon, IconButton, Icons, Text, as } from 'folds';
+import { Box, Chip, Header, IconButton, Text, as } from 'folds';
 import * as css from './ImageViewer.css';
 import { useZoom } from '../../hooks/useZoom';
 import { usePan } from '../../hooks/usePan';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { saveFile } from '../../utils/saveFile';
+import Icon from '@mdi/react';
+import { mdiArrowLeft, mdiDownload, mdiMinus, mdiPlus } from '@mdi/js';
 
 export type ImageViewerProps = {
     alt: string;
@@ -45,7 +47,7 @@ export const ImageViewer = as<'div', ImageViewerProps>(
                 <Header className={css.ImageViewerHeader} size="400">
                     <Box grow="Yes" alignItems="Center" gap="200">
                         <IconButton size="300" radii="300" onClick={requestClose}>
-                            <Icon size="50" src={Icons.ArrowLeft} />
+                            <Icon size={1} path={mdiArrowLeft} />
                         </IconButton>
                         <Text size="T300" truncate>
                             {alt}
@@ -60,7 +62,7 @@ export const ImageViewer = as<'div', ImageViewerProps>(
                             onClick={zoomOut}
                             aria-label={getText('aria.zoom_out')}
                         >
-                            <Icon size="50" src={Icons.Minus} />
+                            <Icon size={1} path={mdiMinus} />
                         </IconButton>
                         <Chip variant="SurfaceVariant" radii="Pill" onClick={() => setZoom(zoom === 1 ? 2 : 1)}>
                             <Text size="B300">{Math.round(zoom * 100)}%</Text>
@@ -73,13 +75,13 @@ export const ImageViewer = as<'div', ImageViewerProps>(
                             onClick={zoomIn}
                             aria-label={getText('aria.zoom_in')}
                         >
-                            <Icon size="50" src={Icons.Plus} />
+                            <Icon size={1} path={mdiPlus} />
                         </IconButton>
                         <Chip
                             variant="Primary"
                             onClick={handleDownload}
                             radii="300"
-                            before={<Icon size="50" src={Icons.Download} />}
+                            before={<Icon size={1} path={mdiDownload} />}
                         >
                             <Text size="B300">{getText('btn.download')}</Text>
                         </Chip>

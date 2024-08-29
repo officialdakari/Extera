@@ -4,6 +4,5 @@ export * from './Editor';
 export * from './Elements';
 export * from './keyboard';
 export * from './output';
-export * from './Toolbar';
 export * from './input';
 export * from './types';

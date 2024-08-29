@@ -47,6 +47,8 @@ import { EventTimeline } from 'matrix-js-sdk';
 import Banner from './Banner';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
+import { VerificationBadge } from '../../components/verification-badge/VerificationBadge';
+import { Box } from 'folds';
 
 function ModerationTools({ roomId, userId }) {
     const mx = initMatrix.matrixClient;
@@ -422,9 +424,12 @@ function ProfileViewer() {
                 <div className="profile-viewer__user">
                     <Avatar style={avStyle} imageSrc={avatarUrl} text={username} bgColor={colorMXID(userId)} size="large" />
                     <div className="profile-viewer__user__info">
-                        <Text variant="s1" weight="medium">
-                            {username}
-                        </Text>
+                        <Box direction='Row'>
+                            <Text variant="s1" weight="medium">
+                                {username}
+                            </Text>
+                            <VerificationBadge userId={userId} userName={username} />
+                        </Box>
                         <Text variant="b2">{userId}</Text>
                     </div>
                     <div className="profile-viewer__user__role">

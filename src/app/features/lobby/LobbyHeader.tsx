@@ -2,9 +2,7 @@ import React, { MouseEventHandler, forwardRef, useState } from 'react';
 import {
     Avatar,
     Box,
-    Icon,
     IconButton,
-    Icons,
     Line,
     Menu,
     MenuItem,
@@ -31,6 +29,8 @@ import { IPowerLevels, usePowerLevelsAPI } from '../../hooks/usePowerLevels';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { LeaveSpacePrompt } from '../../components/leave-space-prompt';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCog, mdiDotsVertical } from '@mdi/js';
 
 type LobbyMenuProps = {
     roomId: string;
@@ -61,7 +61,7 @@ const LobbyMenu = forwardRef<HTMLDivElement, LobbyMenuProps>(
                         variant="Primary"
                         fill="None"
                         size="300"
-                        after={<Icon size="100" src={Icons.UserPlus} />}
+                        after={<Icon size={0.8} path={mdiAccountPlus} />}
                         radii="300"
                         disabled={!canInvite}
                     >
@@ -72,7 +72,7 @@ const LobbyMenu = forwardRef<HTMLDivElement, LobbyMenuProps>(
                     <MenuItem
                         onClick={handleRoomSettings}
                         size="300"
-                        after={<Icon size="100" src={Icons.Setting} />}
+                        after={<Icon size={0.8} path={mdiCog} />}
                         radii="300"
                     >
                         <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
@@ -90,7 +90,7 @@ const LobbyMenu = forwardRef<HTMLDivElement, LobbyMenuProps>(
                                     variant="Critical"
                                     fill="None"
                                     size="300"
-                                    after={<Icon size="100" src={Icons.ArrowGoLeft} />}
+                                    after={<Icon size={0.8} path={mdiArrowLeft} />}
                                     radii="300"
                                     aria-pressed={promptLeave}
                                 >
@@ -165,7 +165,7 @@ export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
                     >
                         {(triggerRef) => (
                             <IconButton ref={triggerRef} onClick={() => setPeopleDrawer((drawer) => !drawer)}>
-                                <Icon size="400" src={Icons.User} />
+                                <Icon size={1} path={mdiAccount} />
                             </IconButton>
                         )}
                     </TooltipProvider>
@@ -181,7 +181,7 @@ export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
                     >
                         {(triggerRef) => (
                             <IconButton onClick={handleOpenMenu} ref={triggerRef} aria-pressed={!!menuAnchor}>
-                                <Icon size="400" src={Icons.VerticalDots} filled={!!menuAnchor} />
+                                <Icon size={1} path={mdiDotsVertical} />
                             </IconButton>
                         )}
                     </TooltipProvider>

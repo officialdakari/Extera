@@ -904,5 +904,6 @@
     "settings.voice_messages.title": "Voice messages",
     "settings.voice_messages.desc": "Show voice message recording button.",
     "translated.title": "Translated message",
-    "msg_menu.translate": "Translate"
+    "msg_menu.translate": "Translate",
+    "alert.scam": "This user tries to mock the verification mark."
 }

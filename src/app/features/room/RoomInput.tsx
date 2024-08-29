@@ -162,7 +162,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             }, []);
         }, [mx, roomId, roomToParents]);
 
-        const [toolbar, setToolbar] = useSetting(settingsAtom, 'editorToolbar');
         const [autocompleteQuery, setAutocompleteQuery] =
             useState<AutocompleteQuery<AutocompletePrefix>>();
 

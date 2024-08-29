@@ -5,6 +5,7 @@ import './Button.scss';
 import Text from '../text/Text';
 import RawIcon from '../system-icons/RawIcon';
 import { blurOnBubbling } from './script';
+import Icon from '@mdi/react';
 
 const Button = React.forwardRef(({
   id, className, variant, iconSrc,
@@ -22,7 +23,7 @@ const Button = React.forwardRef(({
       type={type}
       disabled={disabled}
     >
-      {iconSrc !== null && <RawIcon size="small" src={iconSrc} />}
+      {iconSrc !== null && <Icon size={0.8} path={iconSrc} />}
       {typeof children === 'string' && <Text variant="b1">{ children }</Text>}
       {typeof children !== 'string' && children }
     </button>

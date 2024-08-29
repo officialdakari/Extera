@@ -15,6 +15,7 @@
   .ic-raw {
     background-color: $color;
   }
+  color: $color;
 }
 @mixin focus($color) {
   &:focus {

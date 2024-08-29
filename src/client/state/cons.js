@@ -1,7 +1,7 @@
 const cons = {
     name: 'Extera',
     app_id: 'ru.officialdakari.extera',
-    version: '1.3',
+    version: '1.4',
     secretKey: {
         ACCESS_TOKEN: 'cinny_access_token',
         DEVICE_ID: 'cinny_device_id',
@@ -90,7 +90,26 @@ const cons = {
             NOTIFICATION_SOUNDS_TOGGLED: 'NOTIFICATION_SOUNDS_TOGGLED',
         },
     },
-    ecs_base_url: 'https://extera-cloud-services.officialdakari.ru'
+    ecs_base_url: 'https://extera-cloud-services.officialdakari.ru',
+    scam_strings: [
+        'verif',
+        '✔️',
+        '✅',
+        '☑️',
+        '✓',
+        '✔',
+        '⍻',
+        '🗸',
+        '🗹',
+        '🮱',
+        '☐',
+        '☑'
+    ],
+    avatarStyles: {
+        'online': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#079d16', borderRadius: '50%' },
+        'offline': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#737373', borderRadius: '50%' },
+        'unavailable': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#b9a12d', borderRadius: '50%' }
+    }
 };
 
 Object.freeze(cons);

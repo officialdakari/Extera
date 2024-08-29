@@ -4,9 +4,7 @@ import {
     Avatar,
     Box,
     Header,
-    Icon,
     IconButton,
-    Icons,
     MenuItem,
     Scroll,
     Text,
@@ -22,6 +20,8 @@ import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { openProfileViewer } from '../../../client/action/navigation';
 import { UserAvatar } from '../user-avatar';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiAccount, mdiClose } from '@mdi/js';
 
 export type EventReadersProps = {
     room: Room;
@@ -48,7 +48,7 @@ export const EventReaders = as<'div', EventReadersProps>(
                         <Text size="H3">{getText('event_readers.seen_by')}</Text>
                     </Box>
                     <IconButton size="300" onClick={requestClose}>
-                        <Icon src={Icons.Cross} />
+                    <Icon size={1} path={mdiClose} />
                     </IconButton>
                 </Header>
                 <Box grow="Yes">
@@ -75,7 +75,7 @@ export const EventReaders = as<'div', EventReadersProps>(
                                                     userId={readerId}
                                                     src={avatarUrl ?? undefined}
                                                     alt={name}
-                                                    renderFallback={() => <Icon size="50" src={Icons.User} filled />}
+                                                    renderFallback={() => <Icon size={1} path={mdiAccount} />}
                                                 />
                                             </Avatar>
                                         }

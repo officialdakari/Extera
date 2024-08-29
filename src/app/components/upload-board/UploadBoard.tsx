@@ -1,11 +1,13 @@
 import React, { MutableRefObject, ReactNode, useImperativeHandle, useRef } from 'react';
-import { Badge, Box, Chip, Header, Icon, Icons, Spinner, Text, as, percent } from 'folds';
+import { Badge, Box, Chip, Header, Spinner, Text, as, percent } from 'folds';
 import classNames from 'classnames';
 import { useAtomValue } from 'jotai';
 
 import * as css from './UploadBoard.css';
 import { TUploadFamilyObserverAtom, Upload, UploadStatus, UploadSuccess } from '../../state/upload';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiChevronRight, mdiChevronUp, mdiClose } from '@mdi/js';
 
 type UploadBoardProps = {
     header: ReactNode;
@@ -88,22 +90,10 @@ export function UploadBoardHeader({
                 grow="Yes"
                 gap="100"
             >
-                <Icon src={open ? Icons.ChevronTop : Icons.ChevronRight} size="50" />
+                <Icon size={1} path={open ? mdiChevronUp : mdiChevronRight} />
                 <Text size="H6">{getText('upload_board.title')}</Text>
             </Box>
             <Box className={css.UploadBoardHeaderContent} alignItems="Center" gap="100">
-                {/* {isSuccess && (
-                    <Chip
-                        as="button"
-                        onClick={handleSend}
-                        variant="Primary"
-                        radii="Pill"
-                        outlined
-                        after={<Icon src={Icons.Send} size="50" filled />}
-                    >
-                        <Text size="B300">{getText('btn.ub_send')}</Text>
-                    </Chip>
-                )} */}
                 {isError && !open && (
                     <Badge variant="Critical" fill="Solid" radii="300">
                         <Text size="L400">{getText('error.upload')}</Text>
@@ -123,7 +113,7 @@ export function UploadBoardHeader({
                         onClick={handleCancel}
                         variant="SurfaceVariant"
                         radii="Pill"
-                        after={<Icon src={Icons.Cross} size="50" />}
+                        after={<Icon size={1} path={mdiClose} />}
                     >
                         <Text size="B300">{getText(uploads.length === 1 ? 'btn.ub_remove' : 'btn.ub_remove_all')}</Text>
                     </Chip>

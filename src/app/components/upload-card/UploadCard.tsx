@@ -1,8 +1,10 @@
-import { Badge, Box, Icon, Icons, ProgressBar, Text, percent } from 'folds';
+import { Badge, Box, ProgressBar, Text, percent } from 'folds';
 import React, { ReactNode, forwardRef } from 'react';
 
 import * as css from './UploadCard.css';
 import { bytesToSize } from '../../utils/common';
+import Icon from '@mdi/react';
+import { mdiAlert } from '@mdi/js';
 
 type UploadCardProps = {
   before?: ReactNode;
@@ -56,7 +58,7 @@ type UploadCardErrorProps = {
 export function UploadCardError({ children }: UploadCardErrorProps) {
   return (
     <Box className={css.UploadCardError} alignItems="Center" gap="300">
-      <Icon src={Icons.Warning} size="50" />
+     <Icon size={1} path={mdiAlert} />
       {children}
     </Box>
   );

@@ -19,19 +19,13 @@ import RoomPermissions from '../../molecules/room-permissions/RoomPermissions';
 import RoomMembers from '../../molecules/room-members/RoomMembers';
 import RoomEmojis from '../../molecules/room-emojis/RoomEmojis';
 
-import UserIC from '../../../../public/res/ic/outlined/user.svg';
-import SettingsIC from '../../../../public/res/ic/outlined/settings.svg';
-import EmojiIC from '../../../../public/res/ic/outlined/emoji.svg';
-import ShieldUserIC from '../../../../public/res/ic/outlined/shield-user.svg';
-import LockIC from '../../../../public/res/ic/outlined/lock.svg';
-import LeaveArrowIC from '../../../../public/res/ic/outlined/leave-arrow.svg';
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
-
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import PopupWindow from '../../molecules/popup-window/PopupWindow';
-import IconButton from '../../atoms/button/IconButton';
 import { getText, translate } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
+import { mdiAccount, mdiArrowLeft, mdiClose, mdiCog, mdiEmoticon, mdiLock, mdiShield } from '@mdi/js';
+import { IconButton } from 'folds';
+import Icon from '@mdi/react';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -43,27 +37,27 @@ const tabText = {
 
 const tabItems = [
     {
-        iconSrc: SettingsIC,
+        iconSrc: mdiCog,
         text: tabText.GENERAL,
         disabled: false,
     },
     {
-        iconSrc: UserIC,
+        iconSrc: mdiAccount,
         text: tabText.MEMBERS,
         disabled: false,
     },
     {
-        iconSrc: EmojiIC,
+        iconSrc: mdiEmoticon,
         text: tabText.EMOJIS,
         disabled: false,
     },
     {
-        iconSrc: ShieldUserIC,
+        iconSrc: mdiShield,
         text: tabText.PERMISSIONS,
         disabled: false,
     },
     {
-        iconSrc: LockIC,
+        iconSrc: mdiLock,
         text: tabText.SECURITY,
         disabled: false,
     },
@@ -89,7 +83,7 @@ function GeneralSettings({ roomId }) {
                         if (!isConfirmed) return;
                         mx.leave(roomId);
                     }}
-                    iconSrc={LeaveArrowIC}
+                    iconSrc={mdiArrowLeft}
                 >
                     {getText('btn.leave')}
                 </MenuItem>
@@ -178,7 +172,7 @@ function RoomSettings() {
                     )}
                 </Text>
             }
-            contentOptions={<IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />}
+            contentOptions={<IconButton onClick={requestClose} tooltip="Close"><Icon path={mdiClose} size={0.8} /></IconButton>}
             onRequestClose={requestClose}
         >
             {isOpen && (

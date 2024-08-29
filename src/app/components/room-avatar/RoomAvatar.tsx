@@ -1,9 +1,11 @@
 import { JoinRule } from 'matrix-js-sdk';
-import { AvatarFallback, AvatarImage, Icon, Icons, color } from 'folds';
+import { AvatarFallback, AvatarImage, color } from 'folds';
 import React, { ComponentProps, ReactEventHandler, ReactNode, forwardRef, useState } from 'react';
 import * as css from './RoomAvatar.css';
 import { joinRuleToIconSrc } from '../../utils/room';
 import colorMXID from '../../../util/colorMXID';
+import Icon from '@mdi/react';
+import { mdiPound } from '@mdi/js';
 
 type RoomAvatarProps = {
     roomId: string;
@@ -42,15 +44,17 @@ export function RoomAvatar({ roomId, src, alt, renderFallback }: RoomAvatarProps
 }
 
 export const RoomIcon = forwardRef<
-    SVGSVGElement,
-    Omit<ComponentProps<typeof Icon>, 'src'> & {
+    HTMLSpanElement,
+    Omit<ComponentProps<typeof Icon>, 'path'> & {
         joinRule: JoinRule;
         space?: boolean;
     }
 >(({ joinRule, space, ...props }, ref) => (
-    <Icon
-        src={joinRuleToIconSrc(Icons, joinRule, space || false) ?? Icons.Hash}
-        {...props}
-        ref={ref}
-    />
+    <span ref={ref}>
+        <Icon
+            path={joinRuleToIconSrc(joinRule, space || false) ?? mdiPound}
+            size={0.8}
+            {...props}
+        />
+    </span>
 ));

@@ -7,9 +7,7 @@ import {
     Button,
     Chip,
     Header,
-    Icon,
     IconButton,
-    Icons,
     Input,
     Menu,
     PopOut,
@@ -28,6 +26,8 @@ import { useZoom } from '../../hooks/useZoom';
 import { createPage, usePdfDocumentLoader, usePdfJSLoader } from '../../plugins/pdfjs-dist';
 import { getText } from '../../../lang';
 import { saveFile } from '../../utils/saveFile';
+import Icon from '@mdi/react';
+import { mdiAlert, mdiArrowLeft, mdiChevronLeft, mdiChevronRight, mdiDownload, mdiMinus, mdiPlus } from '@mdi/js';
 
 export type PdfViewerProps = {
     name: string;
@@ -110,7 +110,7 @@ export const PdfViewer = as<'div', PdfViewerProps>(
                 <Header className={css.PdfViewerHeader} size="400">
                     <Box grow="Yes" alignItems="Center" gap="200">
                         <IconButton size="300" radii="300" onClick={requestClose}>
-                            <Icon size="50" src={Icons.ArrowLeft} />
+                            <Icon size={1} path={mdiArrowLeft} />
                         </IconButton>
                         <Text size="T300" truncate>
                             {name}
@@ -125,7 +125,7 @@ export const PdfViewer = as<'div', PdfViewerProps>(
                             onClick={zoomOut}
                             aria-label={getText('aria.zoom_out')}
                         >
-                            <Icon size="50" src={Icons.Minus} />
+                            <Icon size={1} path={mdiMinus} />
                         </IconButton>
                         <Chip variant="SurfaceVariant" radii="Pill" onClick={() => setZoom(zoom === 1 ? 2 : 1)}>
                             <Text size="B300">{Math.round(zoom * 100)}%</Text>
@@ -138,13 +138,13 @@ export const PdfViewer = as<'div', PdfViewerProps>(
                             onClick={zoomIn}
                             aria-label={getText('aria.zoom_in')}
                         >
-                            <Icon size="50" src={Icons.Plus} />
+                            <Icon size={1} path={mdiPlus} />
                         </IconButton>
                         <Chip
                             variant="Primary"
                             onClick={handleDownload}
                             radii="300"
-                            before={<Icon size="50" src={Icons.Download} />}
+                            before={<Icon size={1} path={mdiDownload} />}
                         >
                             <Text size="B300">{getText('btn.download')}</Text>
                         </Chip>
@@ -160,7 +160,7 @@ export const PdfViewer = as<'div', PdfViewerProps>(
                                 fill="Soft"
                                 size="300"
                                 radii="300"
-                                before={<Icon src={Icons.Warning} size="50" />}
+                                before={<Icon size={1} path={mdiAlert} />}
                                 onClick={loadPdfJS}
                             >
                                 <Text size="B300">{getText('btn.retry')}</Text>
@@ -186,7 +186,7 @@ export const PdfViewer = as<'div', PdfViewerProps>(
                         <Chip
                             variant="Secondary"
                             radii="300"
-                            before={<Icon size="50" src={Icons.ChevronLeft} />}
+                            before={<Icon size={1} path={mdiChevronLeft} />}
                             onClick={handlePrevPage}
                             aria-disabled={pageNo <= 1}
                         >
@@ -247,7 +247,7 @@ export const PdfViewer = as<'div', PdfViewerProps>(
                         <Chip
                             variant="Primary"
                             radii="300"
-                            after={<Icon size="50" src={Icons.ChevronRight} />}
+                            after={<Icon size={1} path={mdiChevronRight} />}
                             onClick={handleNextPage}
                             aria-disabled={pageNo >= docState.data.numPages}
                         >

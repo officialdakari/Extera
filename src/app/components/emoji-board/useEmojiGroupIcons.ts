@@ -1,21 +1,21 @@
 import { useMemo } from 'react';
-import { IconSrc, Icons } from 'folds';
 
 import { EmojiGroupId } from '../../plugins/emoji';
+import { mdiCup, mdiEmoticon, mdiFlag, mdiImage, mdiLamp, mdiLeaf, mdiPeace, mdiTennisBall } from '@mdi/js';
 
-export type IEmojiGroupIcons = Record<EmojiGroupId, IconSrc>;
+export type IEmojiGroupIcons = Record<EmojiGroupId, string>;
 
 export const useEmojiGroupIcons = (): IEmojiGroupIcons =>
   useMemo(
     () => ({
-      [EmojiGroupId.People]: Icons.Smile,
-      [EmojiGroupId.Nature]: Icons.Leaf,
-      [EmojiGroupId.Food]: Icons.Cup,
-      [EmojiGroupId.Activity]: Icons.Ball,
-      [EmojiGroupId.Travel]: Icons.Photo,
-      [EmojiGroupId.Object]: Icons.Bulb,
-      [EmojiGroupId.Symbol]: Icons.Peace,
-      [EmojiGroupId.Flag]: Icons.Flag,
+      [EmojiGroupId.People]: mdiEmoticon,
+      [EmojiGroupId.Nature]: mdiLeaf,
+      [EmojiGroupId.Food]: mdiCup,
+      [EmojiGroupId.Activity]: mdiTennisBall,
+      [EmojiGroupId.Travel]: mdiImage,
+      [EmojiGroupId.Object]: mdiLamp,
+      [EmojiGroupId.Symbol]: mdiPeace,
+      [EmojiGroupId.Flag]: mdiFlag,
     }),
     []
   );

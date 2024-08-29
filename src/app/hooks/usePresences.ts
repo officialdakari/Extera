@@ -13,15 +13,15 @@ export const usePresences = () => {
     const mx = useMatrixClient();
     const [presences, setPresences] = useState<Record<string, PresenceData>>({});
 
-    const getPresence = useCallback((userId: string) => {
+    const getPresence = useCallback((userId: string): PresenceData | undefined => {
         if (presences[userId]) {
             return presences[userId];
         }
         const user = mx.getUser(userId);
-        if (!user) return null;
+        if (!user) return undefined;
         return {
             lastActiveAgo: user.lastActiveAgo,
-            presence: user.presence,
+            presence: (user.presence as 'online' | 'offline' | 'unavailable'),
             presenceStatusMsg: user.presenceStatusMsg
         };
     }, [mx, presences]);

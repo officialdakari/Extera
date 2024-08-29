@@ -1,5 +1,6 @@
 import {
     Avatar,
+    Badge,
     Box,
     Button,
     Dialog,
@@ -94,6 +95,8 @@ import Icon from '@mdi/react';
 import { mdiAccount, mdiAlertCircleOutline, mdiCheck, mdiCheckAll, mdiClose, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiPencil, mdiPin, mdiPinOff, mdiReply, mdiRestore, mdiTranslate } from '@mdi/js';
 import { useBackButton } from '../../../hooks/useBackButton';
 import { translateContent } from '../../../utils/translation';
+import { getLocalVerification } from '../../../utils/getVerificationState';
+import { VerificationBadge } from '../../../components/verification-badge/VerificationBadge';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -1127,6 +1130,8 @@ export const Message = as<'div', MessageProps>(
                     >
                         <Text as="span" size={messageLayout === 2 ? 'T300' : 'T400'} truncate>
                             <b>{senderDisplayName}</b>
+
+                            {mEvent.sender?.userId && <VerificationBadge userId={mEvent.sender?.userId} userName={senderDisplayName} />}
                         </Text>
                     </Username>
                 )}
@@ -1230,7 +1235,7 @@ export const Message = as<'div', MessageProps>(
                         onCancel={() => onEditId()}
                     />
                 ) : (
-                    <div ref={childrenRef} style={{width: 'fit-content', maxWidth:'100%'}}>
+                    <div ref={childrenRef} style={{ width: 'fit-content', maxWidth: '100%' }}>
                         {children}
                     </div>
                 )}
@@ -1497,7 +1502,7 @@ export const Message = as<'div', MessageProps>(
                                                     }
                                                     <MessageCopyLinkItem room={room} mEvent={mEvent} onClose={closeMenu} />
                                                     {
-                                                        !mEvent.isRedacted() && <MessageTranslateItem room={room} mEvent={mEvent} onClose={closeMenu} /> 
+                                                        !mEvent.isRedacted() && <MessageTranslateItem room={room} mEvent={mEvent} onClose={closeMenu} />
                                                     }
                                                     {
                                                         mEvent.isRedacted() && <MessageRecoverItem room={room} mEvent={mEvent} onClose={closeMenu} />

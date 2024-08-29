@@ -10,6 +10,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
 
   min-width: 80px;
   padding: var(--sp-extra-tight) var(--sp-normal);
@@ -37,6 +38,7 @@
   .text {
     color: $textColor;
   }
+  color: $textColor;
   .ic-raw {
     background-color: $iconColor;
   }

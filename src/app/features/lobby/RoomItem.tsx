@@ -141,7 +141,6 @@ function RoomProfileError({ roomId, suggested, error, via }: RoomProfileErrorPro
                         <RoomIcon
                             size="300"
                             joinRule={privateRoom ? JoinRule.Invite : JoinRule.Restricted}
-                            filled
                         />
                     )}
                 />
@@ -211,7 +210,7 @@ function RoomProfile({
                     src={avatarUrl}
                     alt={name}
                     renderFallback={() => (
-                        <RoomIcon size="300" joinRule={joinRule ?? JoinRule.Restricted} filled />
+                        <RoomIcon size="300" joinRule={joinRule ?? JoinRule.Restricted} />
                     )}
                 />
             </Avatar>

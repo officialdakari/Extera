@@ -15,9 +15,7 @@ import {
     Box,
     Button,
     Chip,
-    Icon,
     IconButton,
-    Icons,
     Input,
     Line,
     Scroll,
@@ -54,6 +52,8 @@ import { getText } from '../../../lang';
 import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import { openJoinAlias } from '../../../client/action/navigation';
+import Icon from '@mdi/react';
+import { mdiArrowRight, mdiHistory, mdiMagnify, mdiSticker, mdiStickerOutline } from '@mdi/js';
 
 const RECENT_GROUP_ID = 'recent_group';
 const SEARCH_GROUP_ID = 'search_group';
@@ -348,7 +348,7 @@ function RecentEmojiSidebarStack({ onItemClick }: { onItemClick: (id: string) =>
                 label="Recent"
                 onItemClick={() => onItemClick(RECENT_GROUP_ID)}
             >
-                <Icon src={Icons.RecentClock} filled={activeGroupId === RECENT_GROUP_ID} />
+                <Icon size={1} path={mdiHistory} />
             </SidebarBtn>
         </SidebarStack>
     );
@@ -419,7 +419,7 @@ function NativeEmojiSidebarStack({
                     label={labels[group.id]}
                     onItemClick={onItemClick}
                 >
-                    <Icon src={icons[group.id]} filled={activeGroupId === group.id} />
+                    <Icon path={icons[group.id]} size={1} />
                 </SidebarBtn>
             ))}
         </SidebarStack>
@@ -555,7 +555,7 @@ export const StickerGroups = memo(({ mx, groups }: { mx: MatrixClient; groups: I
                 direction="Column"
                 gap="300"
             >
-                <Icon size="600" src={Icons.Sticker} />
+                <Icon size={1} path={mdiStickerOutline} />
                 <Box direction="Inherit">
                     <Text align="Center">{getText('emojiboard.no_sticker_packs')}</Text>
                     <Text priority="300" align="Center" size="T200">
@@ -810,7 +810,7 @@ export function EmojiBoard({
                                         <Chip
                                             variant="Primary"
                                             radii="Pill"
-                                            after={<Icon src={Icons.ArrowRight} size="50" />}
+                                            after={<Icon size={1} path={mdiArrowRight} />}
                                             outlined
                                             onClick={() => {
                                                 const searchInput = document.querySelector<HTMLInputElement>(
@@ -825,7 +825,7 @@ export function EmojiBoard({
                                             <Text size="L400">{getText('emojiboard.react')}</Text>
                                         </Chip>
                                     ) : (
-                                        <Icon src={Icons.Search} size="50" />
+                                        <Icon size={1} path={mdiMagnify} />
                                     )
                                 }
                                 onChange={handleOnChange}

@@ -1,5 +1,5 @@
 import React, { ReactNode, useRef } from 'react';
-import { Box, Chip, Icon, Icons, Text, toRem } from 'folds';
+import { Box, Chip, Text, toRem } from 'folds';
 import { IContent, MatrixEvent } from 'matrix-js-sdk';
 import { JUMBO_EMOJI_REG, URL_REG } from '../../utils/regex';
 import { trimReplyFromBody } from '../../utils/room';
@@ -30,6 +30,9 @@ import { Attachment, AttachmentBox, AttachmentContent, AttachmentHeader } from '
 import { FileHeader } from './FileHeader';
 import { HTMLReactParserOptions } from 'html-react-parser';
 import { RenderBody } from './RenderBody';
+import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiOpenInNew } from '@mdi/js';
 
 export function MBadEncrypted() {
     return (
@@ -468,9 +471,9 @@ export function MLocation({ content }: MLocationProps) {
                 rel="noreferrer noopener"
                 variant="Primary"
                 radii="Pill"
-                before={<Icon src={Icons.External} size="50" />}
+                before={<Icon size={1} path={mdiOpenInNew} />}
             >
-                <Text size="B300">Open Location</Text>
+                <Text size="B300">{getText('btn.open_location')}</Text>
             </Chip>
         </Box>
     );

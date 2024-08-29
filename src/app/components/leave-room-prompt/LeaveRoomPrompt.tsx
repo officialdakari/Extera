@@ -10,8 +10,6 @@ import {
     Box,
     Text,
     IconButton,
-    Icon,
-    Icons,
     color,
     Button,
     Spinner,
@@ -20,6 +18,8 @@ import { MatrixError } from 'matrix-js-sdk';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiClose } from '@mdi/js';
 
 type LeaveRoomPromptProps = {
     roomId: string;
@@ -68,7 +68,7 @@ export function LeaveRoomPrompt({ roomId, onDone, onCancel }: LeaveRoomPromptPro
                                 <Text size="H4">{getText('leaveroom.title')}</Text>
                             </Box>
                             <IconButton size="300" onClick={onCancel} radii="300">
-                                <Icon src={Icons.Cross} />
+                                <Icon size={1} path={mdiClose} />
                             </IconButton>
                         </Header>
                         <Box style={{ padding: config.space.S400 }} direction="Column" gap="400">

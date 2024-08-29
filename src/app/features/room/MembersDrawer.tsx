@@ -58,6 +58,8 @@ import { usePresences } from '../../hooks/usePresences';
 import { getText } from '../../../lang';
 import { mdiAccount, mdiChevronUp, mdiClose, mdiFilterOutline, mdiMagnify, mdiSort } from '@mdi/js';
 import Icon from '@mdi/react';
+import cons from '../../../client/state/cons';
+import { VerificationBadge } from '../../components/verification-badge/VerificationBadge';
 
 export const MembershipFilters = {
     filterJoined: (m: RoomMember) => m.membership === Membership.Join,
@@ -78,13 +80,6 @@ export type MembershipFilter = {
     filterFn: MembershipFilterFn;
     color: ContainerColor;
     id: string;
-};
-
-// TODO: Define that shit globally, do not ^C ^V from RoomNavItem.tsx
-const styles = {
-    'online': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#079d16', borderRadius: '50%' },
-    'offline': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#737373', borderRadius: '50%' },
-    'unavailable': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#b9a12d', borderRadius: '50%' }
 };
 
 const useMembershipFilterMenu = (): MembershipFilter[] =>
@@ -265,8 +260,8 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
 
     const getPresenceFn = usePresences();
 
-    const [avStyles, setAvStyles]: [Record<string, any>, any] = useState({});
-    const [statusMsgs, setStatusMsgs]: [Record<string, string>, any] = useState({});
+    const [avStyles, setAvStyles] = useState<Record<string, React.CSSProperties>>({});
+    const [statusMsgs, setStatusMsgs] = useState<Record<string, string>>({});
 
     useEffect(() => {
         const fetchMemberAvStylesAndStatus = () => {
@@ -277,10 +272,11 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                 try {
                     const presence = getPresenceFn(member.userId);
                     if (!presence) return;
-                    newAvStyles[member.userId] = Object.keys(styles).includes(presence.presence) ? styles[presence.presence] : styles.offline;
+                    newAvStyles[member.userId] = Object.keys(cons.avatarStyles).includes(presence.presence) ? cons.avatarStyles[presence.presence] : cons.avatarStyles.offline;
                     newStatusMsgs[member.userId] = presence.presenceStatusMsg ?? presence.presence;
                 } catch (error) {
                     // handle error if needed
+                    console.error(`Cant load presence for ${member.userId}`, error);
                 }
             });
 
@@ -565,10 +561,13 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                             }
                                         >
                                             <Box grow="Yes" direction='Column'>
-                                                <Text size="T400" truncate>
-                                                    {name}
-                                                </Text>
-                                                <Text size="C400" truncate>
+                                                <Box direction='Row'>
+                                                    <Text size="T400" truncate>
+                                                        {name}
+                                                    </Text>
+                                                    <VerificationBadge userId={member.userId} userName={name} />
+                                                </Box>
+                                                <Text size="B300" truncate>
                                                     {statusMsgs[member.userId]}
                                                 </Text>
                                             </Box>

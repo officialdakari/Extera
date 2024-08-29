@@ -175,7 +175,6 @@ export function RoomMentionAutocomplete({
                                             <RoomIcon
                                                 size="50"
                                                 joinRule={room.getJoinRule() ?? JoinRule.Restricted}
-                                                filled
                                             />
                                         )}
                                     />

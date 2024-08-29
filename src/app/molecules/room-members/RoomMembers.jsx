@@ -18,6 +18,10 @@ import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
 import SegmentedControls from '../../atoms/segmented-controls/SegmentedControls';
 import PeopleSelector from '../people-selector/PeopleSelector';
 import { getText } from '../../../lang';
+import { useMatrixClient } from '../../hooks/useMatrixClient';
+import { usePresences } from '../../hooks/usePresences';
+import cons from '../../../client/state/cons';
+import { VerificationBadge } from '../../components/verification-badge/VerificationBadge';
 
 const PER_PAGE_MEMBER = 50;
 
@@ -109,6 +113,7 @@ function useSearchMembers(members) {
 }
 
 function RoomMembers({ roomId }) {
+    const mx = useMatrixClient();
     const [itemCount, setItemCount] = useState(PER_PAGE_MEMBER);
     const [membership, setMembership] = useState('join');
     const [members] = useMemberOfMembership(roomId, membership);
@@ -122,7 +127,35 @@ function RoomMembers({ roomId }) {
         setItemCount(itemCount + PER_PAGE_MEMBER);
     };
 
+    const getPresenceFn = usePresences();
+    const [avStyles, setAvStyles] = useState({});
+    const [statusMsgs, setStatusMsgs] = useState({});
+
     const mList = searchMembers ? searchMembers.data : members.slice(0, itemCount);
+
+    useEffect(() => {
+        const fetchMemberAvStylesAndStatus = () => {
+            const newAvStyles = {};
+            const newStatusMsgs = {};
+
+            members.map((member) => {
+                try {
+                    const presence = getPresenceFn(member.userId);
+                    if (!presence) return;
+                    newAvStyles[member.userId] = Object.keys(cons.avatarStyles).includes(presence.presence) ? cons.avatarStyles[presence.presence] : cons.avatarStyles.offline;
+                    newStatusMsgs[member.userId] = presence.presenceStatusMsg ?? presence.presence;
+                } catch (error) {
+                    // handle error if needed
+                    console.error(`Could not load presence for ${member.userId}`, error);
+                }
+            });
+
+            setAvStyles(newAvStyles);
+            setStatusMsgs(newStatusMsgs);
+        };
+
+        fetchMemberAvStylesAndStatus();
+    }, [members, mList, mx]);
     return (
         <div className="room-members">
             <MenuHeader>{getText('room_members.search_title')}</MenuHeader>
@@ -156,6 +189,9 @@ function RoomMembers({ roomId }) {
                         name={member.name}
                         color={colorMXID(member.userId)}
                         peopleRole={member.peopleRole}
+                        avStyle={avStyles[member.userId]}
+                        status={statusMsgs[member.userId]}
+                        verificationBadge={<VerificationBadge userId={member.userId} userName={member.name} />}
                     />
                 ))}
                 {

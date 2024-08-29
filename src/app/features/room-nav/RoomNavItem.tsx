@@ -42,6 +42,7 @@ import { usePresences } from '../../hooks/usePresences';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccountPlus, mdiArrowLeft, mdiBellCancel, mdiCheckAll, mdiCog, mdiDotsVertical, mdiLinkVariant } from '@mdi/js';
+import cons from '../../../client/state/cons';
 
 type RoomNavItemMenuProps = {
     room: Room;
@@ -221,13 +222,6 @@ export function RoomNavItem({
         }
     }
 
-    // TODO: Color customization
-    const styles = {
-        'online': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#079d16', borderRadius: '50%' },
-        'offline': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#737373', borderRadius: '50%' },
-        'unavailable': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#b9a12d', borderRadius: '50%' }
-    };
-
     const [avStyle, setAvStyle] = useState({});
 
     const mDirects = useAtomValue(mDirectAtom);
@@ -240,7 +234,7 @@ export function RoomNavItem({
             const user = room.getDMInviter() ?? room.guessDMUserId();
             const presence = getPresenceFn(user);
             if (presence)
-                setAvStyle(styles[presence.presence]);
+                setAvStyle(cons.avatarStyles[presence.presence]);
         }
     }, [mx, directs, room]);
 
@@ -279,7 +273,6 @@ export function RoomNavItem({
                             ) : (
                                 <RoomIcon
                                     style={{ opacity: unread ? config.opacity.P500 : config.opacity.P300 }}
-                                    filled={selected}
                                     size="100"
                                     joinRule={room.getJoinRule()}
                                 />
@@ -289,7 +282,7 @@ export function RoomNavItem({
                             <Text priority={unread ? '500' : '300'} as="span" size="Inherit" truncate>
                                 {room.name}
                             </Text>
-                            <Text priority={unread ? '500' : '300'} as="span" size="C400" truncate>
+                            <Text priority={unread ? '500' : '300'} as="span" size="B300" truncate>
                                 {lastMessage}
                             </Text>
                         </Box>

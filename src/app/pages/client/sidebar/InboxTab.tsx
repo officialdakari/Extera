@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon, Icons } from 'folds';
 import { Icon as MDIcon } from '@mdi/react';
 import { useAtomValue } from 'jotai';
 import {

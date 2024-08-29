@@ -36,16 +36,6 @@ import CrossSigning from './CrossSigning';
 import KeyBackup from './KeyBackup';
 import DeviceManage from './DeviceManage';
 
-import SunIC from '../../../../public/res/ic/outlined/sun.svg';
-import EmojiIC from '../../../../public/res/ic/outlined/emoji.svg';
-import LockIC from '../../../../public/res/ic/outlined/lock.svg';
-import BellIC from '../../../../public/res/ic/outlined/bell.svg';
-import InfoIC from '../../../../public/res/ic/outlined/info.svg';
-import PowerIC from '../../../../public/res/ic/outlined/power.svg';
-import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
-import EyeIC from '../../../../public/res/ic/outlined/eye.svg';
-import StarIC from '../../../../public/res/ic/outlined/star.svg';
-
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { useSetting } from '../../state/hooks/settings';
@@ -58,6 +48,7 @@ import Banner from '../profile-editor/Banner';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { disablePush, enablePush } from '../../../push';
+import { mdiArrowLeft, mdiBell, mdiClose, mdiCog, mdiEmoticon, mdiEye, mdiInformationSlabCircle, mdiInformationSlabCircleOutline, mdiLock, mdiStar } from '@mdi/js';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
@@ -657,37 +648,37 @@ export const tabText = {
 };
 const tabItems = [{
     text: tabText.APPEARANCE,
-    iconSrc: SunIC,
+    iconSrc: mdiCog,
     disabled: false,
     render: () => <AppearanceSection />,
 }, {
     text: tabText.PRESENCE,
-    iconSrc: EyeIC,
+    iconSrc: mdiEye,
     disabled: false,
     render: () => <PresenceSection />,
 }, {
     text: tabText.NOTIFICATIONS,
-    iconSrc: BellIC,
+    iconSrc: mdiBell,
     disabled: false,
     render: () => <NotificationsSection />,
 }, {
     text: tabText.EMOJI,
-    iconSrc: EmojiIC,
+    iconSrc: mdiEmoticon,
     disabled: false,
     render: () => <EmojiSection />,
 }, {
     text: tabText.SECURITY,
-    iconSrc: LockIC,
+    iconSrc: mdiLock,
     disabled: false,
     render: () => <SecuritySection />,
 }, {
     text: tabText.EXTERA,
-    iconSrc: StarIC,
+    iconSrc: mdiStar,
     disabled: false,
     render: () => <ExteraSection />,
 }, {
     text: tabText.ABOUT,
-    iconSrc: InfoIC,
+    iconSrc: mdiInformationSlabCircle,
     disabled: false,
     render: () => <AboutSection />,
 }];
@@ -770,13 +761,13 @@ function Settings() {
             title={<Text variant="s1" weight="medium" primary>{getText('settings.title')}</Text>}
             contentOptions={(
                 <>
-                    {bannerSrc && <Button variant='surface' iconSrc={CrossIC} onClick={handleBannerRemove}>
+                    {bannerSrc && <Button variant='surface' iconSrc={mdiClose} onClick={handleBannerRemove}>
                         {getText('btn.remove_banner')}
                     </Button>}
-                    <Button variant="danger" iconSrc={PowerIC} onClick={handleLogout}>
+                    <Button variant="danger" iconSrc={mdiArrowLeft} onClick={handleLogout}>
                         {getText('btn.logout_session')}
                     </Button>
-                    <IconButton src={CrossIC} onClick={requestClose} tooltip="Close" />
+                    <IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />
                 </>
             )}
             onRequestClose={requestClose}

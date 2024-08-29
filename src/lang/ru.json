@@ -904,5 +904,6 @@
 	"settings.voice_messages.title": "Голосовые сообщения",
 	"settings.voice_messages.desc": "Показывать кнопку голосовых сообщений.",
 	"translated.title": "Переведённое сообщение",
-	"msg_menu.translate": "Перевести"
+	"msg_menu.translate": "Перевести",
+    "alert.scam": "Этот пользователь пытается подделать статус подтверждения."
 }

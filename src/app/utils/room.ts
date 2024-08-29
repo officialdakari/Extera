@@ -25,6 +25,7 @@ import {
   StateEvent,
   UnreadInfo,
 } from '../../types/matrix/room';
+import { mdiPound, mdiStarFourPoints } from '@mdi/js';
 
 export const getStateEvent = (
   room: Room,
@@ -251,23 +252,10 @@ export const getUnreadInfos = (mx: MatrixClient): UnreadInfo[] => {
 };
 
 export const joinRuleToIconSrc = (
-  icons: Record<IconName, IconSrc>,
   joinRule: JoinRule,
   space: boolean
-): IconSrc | undefined => {
-  if (joinRule === JoinRule.Restricted) {
-    return space ? icons.Space : icons.Hash;
-  }
-  if (joinRule === JoinRule.Knock) {
-    return space ? icons.SpaceLock : icons.HashLock;
-  }
-  if (joinRule === JoinRule.Invite) {
-    return space ? icons.SpaceLock : icons.HashLock;
-  }
-  if (joinRule === JoinRule.Public) {
-    return space ? icons.SpaceGlobe : icons.HashGlobe;
-  }
-  return undefined;
+): string | undefined => {
+    return space ? mdiStarFourPoints : mdiPound;
 };
 
 export const getRoomAvatarUrl = (

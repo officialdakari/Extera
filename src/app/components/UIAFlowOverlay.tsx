@@ -7,13 +7,13 @@ import {
     Text,
     TooltipProvider,
     Tooltip,
-    Icons,
-    Icon,
     Chip,
     IconButton,
 } from 'folds';
 import FocusTrap from 'focus-trap-react';
 import { getText } from '../../lang';
+import Icon from '@mdi/react';
+import { mdiClose } from '@mdi/js';
 
 export type UIAFlowOverlayProps = {
     currentStep: number;
@@ -61,7 +61,7 @@ export function UIAFlowOverlay({
                                     radii="Pill"
                                     outlined
                                 >
-                                    <Icon size="50" src={Icons.Cross} />
+                                    <Icon size={1} path={mdiClose} />
                                 </IconButton>
                             )}
                         </TooltipProvider>

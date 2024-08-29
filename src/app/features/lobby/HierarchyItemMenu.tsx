@@ -3,8 +3,6 @@ import FocusTrap from 'focus-trap-react';
 import {
     Box,
     IconButton,
-    Icon,
-    Icons,
     PopOut,
     Menu,
     MenuItem,
@@ -28,6 +26,8 @@ import { UseStateProvider } from '../../components/UseStateProvider';
 import { LeaveSpacePrompt } from '../../components/leave-space-prompt';
 import { LeaveRoomPrompt } from '../../components/leave-room-prompt';
 import { getText } from '../../../lang';
+import Icon from '@mdi/react';
+import { mdiArrowLeft, mdiDotsVertical } from '@mdi/js';
 
 type HierarchyItemWithParent = HierarchyItem & {
     parentId: string;
@@ -212,7 +212,7 @@ export function HierarchyItemMenu({
                 radii="300"
                 aria-pressed={!!menuAnchor}
             >
-                <Icon size="50" src={Icons.VerticalDots} />
+               <Icon size={1} path={mdiDotsVertical} />
             </IconButton>
             {menuAnchor && (
                 <PopOut
@@ -261,7 +261,7 @@ export function HierarchyItemMenu({
                                                         variant="Critical"
                                                         fill="None"
                                                         size="300"
-                                                        after={<Icon size="100" src={Icons.ArrowGoLeft} />}
+                                                        after={<Icon size={1} path={mdiArrowLeft} />}
                                                         radii="300"
                                                         aria-pressed={promptLeave}
                                                     >
