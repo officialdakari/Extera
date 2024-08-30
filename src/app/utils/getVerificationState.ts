@@ -38,7 +38,7 @@ export async function getLocalVerification(mxId: string | undefined): Promise<Ve
 
 // FYI, ECS stands for "Extera Cloud Services"
 // Why cloud? because it sounds cool. Actually it runs on a Beelink
-var ecsVerification: Record<string, VerificationState | string | boolean> = {};
+var ecsVerification: Record<string, VerificationState> = {};
 export async function getECSVerification(mxId: string | undefined): Promise<VerificationState> {
     if (!mxId) return { verified: false };
     if (!ecsVerification[mxId]) {
@@ -47,13 +47,12 @@ export async function getECSVerification(mxId: string | undefined): Promise<Veri
             const f = await fetch(`${cons.ecs_base_url}/badge/${mxId}`);
             ecsVerification[mxId] = await f.json();
         } catch (error) {
-            ecsVerification[mxId] = false;
+            ecsVerification[mxId] = { verified: false };
         }
     }
-    return ecsVerification[mxId] ? {
-        verified: ecsVerification[mxId] ? true : false,
-        label: typeof ecsVerification[mxId] === 'object' ? (typeof ecsVerification[mxId].label === 'string' ? ecsVerification[mxId].label : undefined) : typeof ecsVerification[mxId] === 'string' ? ecsVerification[mxId] : undefined,
-        description: typeof ecsVerification[mxId] === 'object' ? (typeof ecsVerification[mxId].description === 'string' ? ecsVerification[mxId].description : undefined) : undefined,
+    const e = ecsVerification[mxId];
+    return e ? {
+        ...e,
         source: 'ecs'
     } : {
         verified: false

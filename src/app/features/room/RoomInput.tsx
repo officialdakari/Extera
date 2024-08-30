@@ -120,9 +120,10 @@ interface RoomInputProps {
     roomId: string;
     room: Room;
     newDesign?: boolean;
+    threadRootId?: string;
 }
 export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
-    ({ fileDropContainerRef, roomId, room, textAreaRef, newDesign }, ref) => {
+    ({ fileDropContainerRef, roomId, room, textAreaRef, newDesign, threadRootId }, ref) => {
         const mx = useMatrixClient();
         const [enterForNewline] = useSetting(settingsAtom, 'enterForNewline');
         const [isMarkdown] = useSetting(settingsAtom, 'isMarkdown');
@@ -352,16 +353,27 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 content['m.mentions']?.user_ids?.push(replyDraft.userId);
             }
 
-            if (replyDraft) {
+            if (threadRootId) {
                 content['m.relates_to'] = {
+                    rel_type: 'm.thread',
+                    event_id: threadRootId,
                     'm.in_reply_to': {
-                        event_id: replyDraft.eventId,
+                        event_id: threadRootId
                     },
+                    is_falling_back: true
                 };
             }
 
+            if (replyDraft) {
+                if (!content['m.relates_to']) content['m.relates_to'] = {};
+                content['m.relates_to']['m.in_reply_to'] = {
+                    event_id: replyDraft.eventId
+                };
+                content['m.relates_to'].is_falling_back = false;
+            }
+
             return content;
-        }, [mx, room, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands]);
+        }, [mx, room, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, threadRootId]);
 
         const submit = useCallback(async () => {
             const content = getContent();
@@ -370,11 +382,15 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             } else {
                 ar.stopRecording();
             }
-        }, [mx, roomId, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, ar]);
+        }, [mx, roomId, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, ar, threadRootId, setMsgContent]);
 
         const stopRecording = useCallback(() => {
             ar.stopRecording();
         }, [ar]);
+
+        useEffect(() => {
+
+        }, [threadRootId]);
 
         useEffect(() => {
             if (msgContent) {

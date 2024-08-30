@@ -10,24 +10,24 @@ import { PowerLevelsContextProvider, usePowerLevels } from '../../hooks/usePower
 import { useRoom } from '../../hooks/useRoom';
 
 export function Room() {
-  const { eventId } = useParams();
-  const room = useRoom();
+    const { eventId, threadRootId } = useParams();
+    const room = useRoom();
 
-  const [isDrawer] = useSetting(settingsAtom, 'isPeopleDrawer');
-  const screenSize = useScreenSizeContext();
-  const powerLevels = usePowerLevels(room);
+    const [isDrawer] = useSetting(settingsAtom, 'isPeopleDrawer');
+    const screenSize = useScreenSizeContext();
+    const powerLevels = usePowerLevels(room);
 
-  return (
-    <PowerLevelsContextProvider value={powerLevels}>
-      <Box grow="Yes">
-        <RoomView room={room} eventId={eventId} />
-        {screenSize === ScreenSize.Desktop && isDrawer && (
-          <>
-            <Line variant="Background" direction="Vertical" size="300" />
-            <MembersDrawer key={room.roomId} room={room} />
-          </>
-        )}
-      </Box>
-    </PowerLevelsContextProvider>
-  );
+    return (
+        <PowerLevelsContextProvider value={powerLevels}>
+            <Box grow="Yes">
+                <RoomView room={room} eventId={eventId !== 'thread' ? eventId : undefined} threadRootId={threadRootId} />
+                {screenSize === ScreenSize.Desktop && isDrawer && (
+                    <>
+                        <Line variant="Background" direction="Vertical" size="300" />
+                        <MembersDrawer key={room.roomId} room={room} />
+                    </>
+                )}
+            </Box>
+        </PowerLevelsContextProvider>
+    );
 }

@@ -1,21 +1,21 @@
 export const ROOT_PATH = '/';
 
 export type LoginPathSearchParams = {
-  username?: string;
-  email?: string;
-  loginToken?: string;
+    username?: string;
+    email?: string;
+    loginToken?: string;
 };
 export const LOGIN_PATH = '/login/:server?/';
 
 export type RegisterPathSearchParams = {
-  username?: string;
-  email?: string;
-  token?: string;
+    username?: string;
+    email?: string;
+    token?: string;
 };
 export const REGISTER_PATH = '/register/:server?/';
 
 export type ResetPasswordPathSearchParams = {
-  email?: string;
+    email?: string;
 };
 export const RESET_PASSWORD_PATH = '/reset-password/:server?/';
 
@@ -28,14 +28,14 @@ export const _LOBBY_PATH = 'lobby/';
  * Like: url?rooms=!one:server,!two:server
  */
 export type _SearchPathSearchParams = {
-  global?: string;
-  term?: string;
-  order?: string;
-  rooms?: string;
-  senders?: string;
+    global?: string;
+    term?: string;
+    order?: string;
+    rooms?: string;
+    senders?: string;
 };
 export const _SEARCH_PATH = 'search/';
-export const _ROOM_PATH = ':roomIdOrAlias/:eventId?/';
+export const _ROOM_PATH = ':roomIdOrAlias/:eventId?/:threadRootId?/';
 
 export const HOME_PATH = '/home/';
 export const HOME_CREATE_PATH = `/home/${_CREATE_PATH}`;
@@ -58,11 +58,11 @@ export const EXPLORE_PATH = '/explore/';
 export const EXPLORE_FEATURED_PATH = `/explore/${_FEATURED_PATH}`;
 
 export type ExploreServerPathSearchParams = {
-  limit?: string;
-  since?: string;
-  term?: string;
-  type?: string;
-  instance?: string;
+    limit?: string;
+    since?: string;
+    term?: string;
+    type?: string;
+    instance?: string;
 };
 export const EXPLORE_SERVER_PATH = `/explore/${_SERVER_PATH}`;
 
@@ -70,7 +70,7 @@ export const _NOTIFICATIONS_PATH = 'notifications/';
 export const _INVITES_PATH = 'invites/';
 export const INBOX_PATH = '/inbox/';
 export type InboxNotificationsPathSearchParams = {
-  only?: string;
+    only?: string;
 };
 export const INBOX_NOTIFICATIONS_PATH = `/inbox/${_NOTIFICATIONS_PATH}`;
 export const INBOX_INVITES_PATH = `/inbox/${_INVITES_PATH}`;

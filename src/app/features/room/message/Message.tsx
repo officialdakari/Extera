@@ -92,11 +92,13 @@ import { ImageViewer } from '../../../components/image-viewer';
 import { Image } from '../../../components/media';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
-import { mdiAccount, mdiAlertCircleOutline, mdiCheck, mdiCheckAll, mdiClose, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiPencil, mdiPin, mdiPinOff, mdiReply, mdiRestore, mdiTranslate } from '@mdi/js';
+import { mdiAccount, mdiAlertCircleOutline, mdiCheck, mdiCheckAll, mdiClose, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReply, mdiRestore, mdiTranslate } from '@mdi/js';
 import { useBackButton } from '../../../hooks/useBackButton';
 import { translateContent } from '../../../utils/translation';
 import { getLocalVerification } from '../../../utils/getVerificationState';
 import { VerificationBadge } from '../../../components/verification-badge/VerificationBadge';
+import { NavLink } from '../../../components/nav';
+import { useLocation } from 'react-router-dom';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -499,6 +501,7 @@ export const MessageRecoverItem = as<
                 messageLayout={messageLayout}
                 onReactionToggle={(evt: any) => null}
                 onReplyClick={(evt: any) => null}
+                onDiscussClick={(evt: any) => null}
                 onUserClick={(evt: any) => null}
                 onUsernameClick={(evt: any) => null}
             >
@@ -653,6 +656,7 @@ export const MessageTranslateItem = as<
                 messageLayout={messageLayout}
                 onReactionToggle={(evt: any) => null}
                 onReplyClick={(evt: any) => null}
+                onDiscussClick={(evt: any) => null}
                 onUserClick={(evt: any) => null}
                 onUsernameClick={(evt: any) => null}
             >
@@ -1056,9 +1060,11 @@ export type MessageProps = {
     onUserClick: MouseEventHandler<HTMLButtonElement>;
     onUsernameClick: MouseEventHandler<HTMLButtonElement>;
     onReplyClick: MouseEventHandler<HTMLButtonElement>;
+    onDiscussClick: MouseEventHandler<HTMLButtonElement>;
     onEditId?: (eventId?: string) => void;
     onReactionToggle: (targetEventId: string, key: string, shortcode?: string) => void;
     reply?: ReactNode;
+    thread?: ReactNode;
     reactions?: ReactNode;
 };
 export const Message = as<'div', MessageProps>(
@@ -1080,9 +1086,11 @@ export const Message = as<'div', MessageProps>(
             onUserClick,
             onUsernameClick,
             onReplyClick,
+            onDiscussClick,
             onReactionToggle,
             onEditId,
             reply,
+            thread,
             reactions,
             children,
             ...props
@@ -1098,6 +1106,7 @@ export const Message = as<'div', MessageProps>(
         const [tgRename] = useSetting(settingsAtom, 'extera_renameTgBot');
         const [menuAnchor, setMenuAnchor] = useState<RectCords>();
         const [emojiBoardAnchor, setEmojiBoardAnchor] = useState<RectCords>();
+        const loc = useLocation();
 
         const content = mEvent.getContent();
 
@@ -1152,12 +1161,6 @@ export const Message = as<'div', MessageProps>(
             </Box>
         );
 
-        const buttons: any[] | undefined = typeof content['ru.officialdakari.extera.buttons'] == 'object' &&
-            content['ru.officialdakari.extera.buttons'].filter &&
-            content['ru.officialdakari.extera.buttons'].filter(
-                (x: any) => typeof x.id == 'string' && typeof x.name == 'string'
-            );
-
         const handleBtnClick = async (evt: MouseEvent<HTMLButtonElement>) => {
             const b = evt.currentTarget;
             b.disabled = true;
@@ -1172,25 +1175,7 @@ export const Message = as<'div', MessageProps>(
             b.disabled = false;
         };
 
-        const footerJSX = !collapse && buttons && buttons.length > 0 && (
-            <div style={{ marginTop: '10px' }}>
-                {buttons.length > 16 ?
-                    (
-                        <Text>{getText('msg.too_many_buttons')}</Text>
-                    ) :
-                    (
-                        buttons.map((btn: any) =>
-                            <>
-                                <Button onClick={handleBtnClick} size='300' data-id={btn.id}>
-                                    {btn.name}
-                                </Button>
-                                &nbsp;
-                            </>
-                        )
-                    )
-                }
-            </div>
-        );
+        const footerJSX = null;
 
         const avatarJSX = !collapse && messageLayout !== 1 && (
             <AvatarBase>
@@ -1217,6 +1202,12 @@ export const Message = as<'div', MessageProps>(
 
         const childrenRef = useRef<HTMLDivElement>(null);
 
+        const buttons: any[] | undefined = typeof content['ru.officialdakari.extera.buttons'] == 'object' &&
+            content['ru.officialdakari.extera.buttons'].filter &&
+            content['ru.officialdakari.extera.buttons'].filter(
+                (x: any) => typeof x.id == 'string' && typeof x.name == 'string'
+            );
+
         const msgContentJSX = (
             <Box direction="Column" alignSelf="Start" style={{ maxWidth: '100%' }}>
                 <span style={mEvent.getType() === 'm.sticker' || (!['m.text', 'm.notice'].includes(mEvent.getContent().msgtype ?? '')) ? { maxWidth: `${childrenRef.current?.clientWidth}px` } : undefined}>
@@ -1237,6 +1228,19 @@ export const Message = as<'div', MessageProps>(
                 ) : (
                     <div ref={childrenRef} style={{ width: 'fit-content', maxWidth: '100%' }}>
                         {children}
+                    </div>
+                )}
+                {thread}
+                {buttons && buttons.length <= 16 && (
+                    <div>
+                        {buttons.map((btn: any) =>
+                            <>
+                                <Button onClick={handleBtnClick} size='300' data-id={btn.id}>
+                                    {btn.name}
+                                </Button>
+                                &nbsp;
+                            </>
+                        )}
                     </div>
                 )}
                 {reactions}
@@ -1375,6 +1379,15 @@ export const Message = as<'div', MessageProps>(
                                 >
                                     <Icon size={1} path={mdiReply} />
                                 </IconButton>
+                                <IconButton
+                                    onClick={onDiscussClick}
+                                    data-event-id={mEvent.getId()}
+                                    variant="SurfaceVariant"
+                                    size="300"
+                                    radii="300"
+                                >
+                                    <Icon size={1} path={mdiMessage} />
+                                </IconButton>
                                 {canEditEvent(mx, mEvent) && onEditId && (
                                     <IconButton
                                         onClick={() => onEditId(mEvent.getId())}
@@ -1468,6 +1481,25 @@ export const Message = as<'div', MessageProps>(
                                                             truncate
                                                         >
                                                             {getText('msg_menu.reply')}
+                                                        </Text>
+                                                    </MenuItem>
+                                                    <MenuItem
+                                                        size="300"
+                                                        after={<Icon size={1} path={mdiMessage} />}
+                                                        radii="300"
+                                                        data-event-id={mEvent.getId()}
+                                                        onClick={(evt: any) => {
+                                                            onDiscussClick?.(evt);
+                                                            closeMenu();
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            className={css.MessageMenuItemText}
+                                                            as="span"
+                                                            size="T300"
+                                                            truncate
+                                                        >
+                                                            {getText('msg_menu.discuss')}
                                                         </Text>
                                                     </MenuItem>
                                                     {canEditEvent(mx, mEvent) && onEditId && (

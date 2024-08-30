@@ -118,6 +118,7 @@ import { parse } from 'url';
 import { getText, translate } from '../../../lang';
 import { mdiCheckAll, mdiChevronDown, mdiCodeBraces, mdiCodeBracesBox, mdiImageEdit, mdiMessageAlert, mdiPencilBox } from '@mdi/js';
 import Icon from '@mdi/react';
+import { ThreadPreview } from './message/ThreadPreview';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
     ({ position, className, ...props }, ref) => (
@@ -232,6 +233,7 @@ type RoomTimelineProps = {
     eventId?: string;
     roomInputRef: RefObject<HTMLElement>;
     textAreaRef: RefObject<HTMLTextAreaElement>;
+    threadRootId?: string;
 };
 
 const PAGINATION_LIMIT = 80;
@@ -270,6 +272,44 @@ const useEventTimelineLoader = (
     );
 
     return loadEventTimeline;
+};
+
+const useThreadTimelineLoader = (
+    mx: MatrixClient,
+    room: Room,
+    onLoad: (eventId: string, linkedTimelines: EventTimeline[], evtAbsIndex: number) => void,
+    onError: (err: Error | null) => void
+) => {
+    const loadThreadTimeline = useCallback(
+        async (eventId: string) => {
+            const thread = room.getThread(eventId);
+            if (!thread?.timelineSet) {
+                onError(null);
+                return;
+            }
+            const [err, replyEvtTimeline] = thread.liveTimeline
+                ? [null, thread.liveTimeline]
+                : await to(
+                    mx.getThreadTimeline(thread?.timelineSet, eventId)
+                );
+            if (!replyEvtTimeline) {
+                onError(err ?? null);
+                return;
+            }
+            // const linkedTimelines = getLinkedTimelines(replyEvtTimeline);
+            const absIndex = getEventIdAbsoluteIndex([], replyEvtTimeline, eventId);
+
+            if (absIndex === undefined) {
+                onError(err ?? null);
+                return;
+            }
+
+            onLoad(eventId, [replyEvtTimeline], absIndex);
+        },
+        [mx, room, onLoad, onError]
+    );
+
+    return loadThreadTimeline;
 };
 
 const useTimelinePagination = (
@@ -431,7 +471,7 @@ const getRoomUnreadInfo = (room: Room, scrollTo = false) => {
     };
 };
 
-export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomTimelineProps) {
+export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadRootId }: RoomTimelineProps) {
     const mx = useMatrixClient();
     const encryptedRoom = mx.isRoomEncrypted(room.roomId);
     const [messageLayout] = useSetting(settingsAtom, 'messageLayout');
@@ -528,8 +568,13 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
     const parseMemberEvent = useMemberEventParser();
 
     const [timeline, setTimeline] = useState<Timeline>(() =>
-        eventId ? getEmptyTimeline() : getInitialTimeline(room)
+        eventId || threadRootId ? getEmptyTimeline() : getInitialTimeline(room)
     );
+
+    // const [timeline, setTimeline] = useState<Timeline>(() =>
+    //     eventId ? getEmptyTimeline() : threadRootId ? getThreadTimeline(room, threadRootId) ?? getInitialTimeline(room) : getInitialTimeline(room)
+    // );
+
     const eventsLength = getTimelinesEventsCount(timeline.linkedTimelines);
     const liveTimelineLinked =
         timeline.linkedTimelines[timeline.linkedTimelines.length - 1] === getLiveTimeline(room);
@@ -566,6 +611,37 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
         });
 
     const loadEventTimeline = useEventTimelineLoader(
+        mx,
+        room,
+        useCallback(
+            (evtId, lTimelines, evtAbsIndex) => {
+                if (!alive()) return;
+                const evLength = getTimelinesEventsCount(lTimelines);
+
+                setFocusItem({
+                    index: evtAbsIndex,
+                    scrollTo: true,
+                    highlight: evtId !== readUptoEventIdRef.current,
+                });
+                setTimeline({
+                    linkedTimelines: lTimelines,
+                    range: {
+                        start: Math.max(evtAbsIndex - PAGINATION_LIMIT, 0),
+                        end: Math.min(evtAbsIndex + PAGINATION_LIMIT, evLength),
+                    },
+                });
+            },
+            [alive]
+        ),
+        useCallback(() => {
+            if (!alive()) return;
+            setTimeline(getInitialTimeline(room));
+            scrollToBottomRef.current.count += 1;
+            scrollToBottomRef.current.smooth = false;
+        }, [alive, room])
+    );
+
+    const loadThreadTimeline = useThreadTimelineLoader(
         mx,
         room,
         useCallback(
@@ -767,6 +843,13 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
         }
     }, [eventId, loadEventTimeline]);
 
+    useEffect(() => {
+        if (threadRootId) {
+            setTimeline(getEmptyTimeline());
+            loadThreadTimeline(threadRootId);
+        }
+    }, [threadRootId, loadThreadTimeline]);
+
     // Scroll to bottom on initial timeline load
     useLayoutEffect(() => {
         const scrollEl = scrollRef.current;
@@ -786,7 +869,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 evtTimeline && getEventIdAbsoluteIndex(linkedTimelines, evtTimeline, readUptoEventId);
             if (absoluteIndex) {
                 scrollToItem(absoluteIndex, {
-                    behavior: 'instant',
+                    behavior: smoothScroll ? 'smooth' : 'instant',
                     align: 'start',
                     stopInView: true,
                 });
@@ -798,7 +881,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
     useLayoutEffect(() => {
         if (focusItem && focusItem.scrollTo) {
             scrollToItem(focusItem.index, {
-                behavior: 'instant',
+                behavior: smoothScroll ? 'smooth' : 'instant',
                 align: 'center',
                 stopInView: true,
             });
@@ -839,7 +922,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
             if (editMsgElement) {
                 scrollToElement(editMsgElement, {
                     align: 'center',
-                    behavior: 'smooth',
+                    behavior: smoothScroll ? 'smooth' : 'instant',
                     stopInView: true,
                 });
             }
@@ -873,7 +956,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
 
             if (typeof absoluteIndex === 'number') {
                 scrollToItem(absoluteIndex, {
-                    behavior: 'smooth',
+                    behavior: smoothScroll ? 'smooth' : 'instant',
                     align: 'center',
                     stopInView: true,
                 });
@@ -1041,14 +1124,18 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         onUserClick={handleUserClick}
                         onUsernameClick={handleUsernameClick}
                         onReplyClick={(evt: MouseEvent) => handleReplyId(evt.currentTarget.getAttribute('data-event-id'))}
+                        onDiscussClick={(evt: MouseEvent) => navigateRoom(room.roomId, 'thread', evt.currentTarget.getAttribute('data-event-id') || undefined)}
                         onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
                         onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
                         onTouchEnd={onTouchEnd}
                         style={{ transform: `translateX(${isTouchingSide && mEvent.getId() == swipingId ? clamp(sideMoved - sideMovedInit, -window.innerWidth / 2, 0) : 0}px)` }}
                         onReactionToggle={handleReactionToggle}
                         onEditId={handleEdit}
+                        thread={
+                            <ThreadPreview mEvent={mEvent} room={room} onClick={() => navigateRoom(room.roomId, 'thread', mEvent.getId() || undefined)} />
+                        }
                         reply={
-                            replyEventId && (
+                            replyEventId && !mEvent.getContent()['m.relates_to']?.is_falling_back && (
                                 <Reply
                                     as="button"
                                     mx={mx}
@@ -1118,14 +1205,18 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         onUserClick={handleUserClick}
                         onUsernameClick={handleUsernameClick}
                         onReplyClick={(evt: MouseEvent) => handleReplyId(evt.currentTarget.getAttribute('data-event-id'))}
+                        onDiscussClick={(evt: MouseEvent) => navigateRoom(room.roomId, 'thread', evt.currentTarget.getAttribute('data-event-id') || undefined)}
                         onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
                         onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
                         onTouchEnd={onTouchEnd}
                         style={{ transform: `translateX(${isTouchingSide && mEvent.getId() == swipingId ? clamp(sideMoved - sideMovedInit, -window.innerWidth, 0) : 0}px)` }}
                         onReactionToggle={handleReactionToggle}
                         onEditId={handleEdit}
+                        thread={
+                            <ThreadPreview mEvent={mEvent} room={room} onClick={() => navigateRoom(room.roomId, 'thread', mEvent.getId() || undefined)} />
+                        }
                         reply={
-                            replyEventId && (
+                            replyEventId && !mEvent.getContent()['m.relates_to']?.is_falling_back && (
                                 <Reply
                                     as="button"
                                     mx={mx}
@@ -1232,13 +1323,17 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         onUserClick={handleUserClick}
                         onUsernameClick={handleUsernameClick}
                         onReplyClick={(evt: MouseEvent) => handleReplyId(evt.currentTarget.getAttribute('data-event-id'))}
+                        onDiscussClick={(evt: MouseEvent) => navigateRoom(room.roomId, 'thread', evt.currentTarget.getAttribute('data-event-id') || undefined)}
                         onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
                         onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
                         onTouchEnd={onTouchEnd}
                         style={{ transform: `translateX(${isTouchingSide && mEvent.getId() == swipingId ? clamp(sideMoved - sideMovedInit, -window.innerWidth, 0) : 0}px)` }}
                         onReactionToggle={handleReactionToggle}
+                        thread={
+                            <ThreadPreview mEvent={mEvent} room={room} onClick={() => navigateRoom(room.roomId, 'thread', mEvent.getId() || undefined)} />
+                        }
                         reply={
-                            replyEventId && (
+                            replyEventId && !mEvent.getContent()['m.relates_to']?.is_falling_back && (
                                 <Reply
                                     as="button"
                                     mx={mx}
@@ -1306,6 +1401,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         onUserClick={handleUserClick}
                         onUsernameClick={handleUsernameClick}
                         onReplyClick={(evt: MouseEvent) => handleReplyId(evt.currentTarget.getAttribute('data-event-id'))}
+                        onDiscussClick={(evt: MouseEvent) => navigateRoom(room.roomId, 'thread', evt.currentTarget.getAttribute('data-event-id') || undefined)}
                         onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
                         onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
                         onTouchEnd={onTouchEnd}
@@ -1557,6 +1653,15 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
         const mEventId = mEvent?.getId();
 
         if (!mEvent || !mEventId) return null;
+
+        const content = mEvent.getContent();
+        if (!threadRootId && content['m.relates_to']?.rel_type === 'm.thread') {
+            return null;
+        }
+
+        if (typeof threadRootId === 'string' && (content['m.relates_to']?.rel_type !== 'm.thread' || content['m.relates_to']?.event_id !== threadRootId)) {
+            return null;
+        }
 
         if (!newDivider && readUptoEventIdRef.current) {
             newDivider = prevEvent?.getId() === readUptoEventIdRef.current;

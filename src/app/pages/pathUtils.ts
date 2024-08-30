@@ -90,10 +90,11 @@ export const getHomePath = (): string => HOME_PATH;
 export const getHomeCreatePath = (): string => HOME_CREATE_PATH;
 export const getHomeJoinPath = (): string => HOME_JOIN_PATH;
 export const getHomeSearchPath = (): string => HOME_SEARCH_PATH;
-export const getHomeRoomPath = (roomIdOrAlias: string, eventId?: string): string => {
+export const getHomeRoomPath = (roomIdOrAlias: string, eventId?: string, threadRootId?: string): string => {
   const params = {
     roomIdOrAlias: encodeURIComponent(roomIdOrAlias),
     eventId: eventId ? encodeURIComponent(eventId) : null,
+    threadRootId: threadRootId ? encodeURIComponent(threadRootId) : null,
   };
 
   return generatePath(HOME_ROOM_PATH, params);
@@ -101,10 +102,11 @@ export const getHomeRoomPath = (roomIdOrAlias: string, eventId?: string): string
 
 export const getDirectPath = (): string => DIRECT_PATH;
 export const getDirectCreatePath = (): string => DIRECT_CREATE_PATH;
-export const getDirectRoomPath = (roomIdOrAlias: string, eventId?: string): string => {
+export const getDirectRoomPath = (roomIdOrAlias: string, eventId?: string, threadRootId?: string): string => {
   const params = {
     roomIdOrAlias: encodeURIComponent(roomIdOrAlias),
     eventId: eventId ? encodeURIComponent(eventId) : null,
+    threadRootId: threadRootId ? encodeURIComponent(threadRootId) : null,
   };
 
   return generatePath(DIRECT_ROOM_PATH, params);
@@ -132,12 +134,14 @@ export const getSpaceSearchPath = (spaceIdOrAlias: string): string => {
 export const getSpaceRoomPath = (
   spaceIdOrAlias: string,
   roomIdOrAlias: string,
-  eventId?: string
+  eventId?: string, 
+  threadRootId?: string
 ): string => {
   const params = {
     spaceIdOrAlias: encodeURIComponent(spaceIdOrAlias),
     roomIdOrAlias: encodeURIComponent(roomIdOrAlias),
     eventId: eventId ? encodeURIComponent(eventId) : null,
+    threadRootId: threadRootId ? encodeURIComponent(threadRootId) : null,
   };
 
   return generatePath(SPACE_ROOM_PATH, params);
