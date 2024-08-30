@@ -50,7 +50,7 @@ export function VerificationBadge({ userId, userName }: VerificationBadgeProps) 
                         align="Center"
                     >
                         {(triggerRef) =>
-                            <Badge ref={triggerRef} radii='Pill' variant={state.warning ? 'Critical' : 'Success'} style={{ marginLeft: '4px', verticalAlign: 'text-bottom', alignSelf: 'center', color: 'white' }}>
+                            <Badge ref={triggerRef} radii='Pill' variant={state.warning ? 'Critical' : state.source === 'homeserver' ? 'Success' : 'Primary'} style={{ marginLeft: '4px', verticalAlign: 'text-bottom', alignSelf: 'center', color: 'white' }}>
                                 {state.verified && <Icon size={0.7} path={mdiCheck} />}
                                 {typeof state.label === 'string' && (
                                     <Text size='B300'>

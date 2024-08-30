@@ -10,6 +10,7 @@ const cons = {
     },
     DEVICE_DISPLAY_NAME: 'Extera Chat',
     IN_CINNY_SPACES: 'ru.officialdakari.extera.spaces',
+    EXTERA_BANNER_URL: 'ru.officialdakari.extera_banner',
     supportEventTypes: [
         'm.room.create',
         'm.room.message',

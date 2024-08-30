@@ -4,6 +4,7 @@ import { useMatrixClient } from "../hooks/useMatrixClient";
 
 type VerificationState = {
     verified: boolean;
+    source?: 'homeserver' | 'ecs';
     warning?: boolean;
     label?: string;
     description?: string;
@@ -16,17 +17,22 @@ export async function getLocalVerification(mxId: string | undefined): Promise<Ve
     if (!domain) return { verified: false };
     if (!mxId) return { verified: false };
     if (!localVerification) {
-        const f = await fetch(`https://${domain}/.well-known/extera/verified.json`);
-        if (f.ok) {
-            localVerification = await f.json();
-        } else if (f.status !== 404) {
-            localVerification = {}; // assume homeserver does not support extera local verification
+        try {
+            const f = await fetch(`https://${domain}/.well-known/extera/verified.json`);
+            if (f.ok) {
+                localVerification = await f.json();
+            } else if (f.status !== 404) {
+                localVerification = {}; // assume homeserver does not support extera local verification
+            }
+        } catch (error) {
+            localVerification = {}; // i forgor abt CORS   
         }
     }
     return (localVerification && localVerification[mxId]) ? {
         verified: localVerification[mxId] ? true : false,
         label: typeof localVerification[mxId] === 'object' ? (typeof localVerification[mxId].label === 'string' ? localVerification[mxId].label : undefined) : typeof localVerification[mxId] === 'string' ? localVerification[mxId] : undefined,
-        description: typeof localVerification[mxId] === 'object' ? (typeof localVerification[mxId].description === 'string' ? localVerification[mxId].description : undefined) : undefined
+        description: typeof localVerification[mxId] === 'object' ? (typeof localVerification[mxId].description === 'string' ? localVerification[mxId].description : undefined) : undefined,
+        source: 'homeserver'
     } : undefined;
 }
 
@@ -47,7 +53,8 @@ export async function getECSVerification(mxId: string | undefined): Promise<Veri
     return ecsVerification[mxId] ? {
         verified: ecsVerification[mxId] ? true : false,
         label: typeof ecsVerification[mxId] === 'object' ? (typeof ecsVerification[mxId].label === 'string' ? ecsVerification[mxId].label : undefined) : typeof ecsVerification[mxId] === 'string' ? ecsVerification[mxId] : undefined,
-        description: typeof ecsVerification[mxId] === 'object' ? (typeof ecsVerification[mxId].description === 'string' ? ecsVerification[mxId].description : undefined) : undefined
+        description: typeof ecsVerification[mxId] === 'object' ? (typeof ecsVerification[mxId].description === 'string' ? ecsVerification[mxId].description : undefined) : undefined,
+        source: 'ecs'
     } : {
         verified: false
     };

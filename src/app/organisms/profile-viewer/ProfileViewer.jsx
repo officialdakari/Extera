@@ -370,8 +370,8 @@ function ProfileViewer() {
 
         console.log(membershipContent);
 
-        if (typeof membershipContent['ru.officialdakari.extera_banner'] === 'string' && membershipContent['ru.officialdakari.extera_banner'].startsWith('mxc://')) {
-            bannerUrl = membershipContent['ru.officialdakari.extera_banner'];
+        if (typeof membershipContent[cons.EXTERA_BANNER_URL] === 'string' && membershipContent[cons.EXTERA_BANNER_URL].startsWith('mxc://')) {
+            bannerUrl = membershipContent[cons.EXTERA_BANNER_URL];
         }
 
         const canChangeRole =
