@@ -5,7 +5,7 @@ This is a fork of Cinny with some improvements and new features:
 - New commands: /lenny /tableflip /unflip
 - Profile banners (like in Discord)
 - Support for polls (Only receiving, not sending)
-- Support for captions (Only receiving, not sending)
+- Support for captions (Both sending and receiving)
 - Round avatars
 - Detailed RoomNavItem: Bigger avatar and view last message
 - Ghost mode (Disable read receipts and typing status)
@@ -17,3 +17,5 @@ This is a fork of Cinny with some improvements and new features:
 - Updated bubble message layout
 - Reply fallbacks as an option (disabled by default)
 - Toggle mentioning when replying
+- Account verification status
+- Message translation
