@@ -24,7 +24,7 @@ import {
     Input,
     Button,
 } from 'folds';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { EventTimeline, EventType, JoinRule, MatrixEvent, Room } from 'matrix-js-sdk';
 import { useAtomValue } from 'jotai';
 
@@ -244,6 +244,7 @@ export function RoomViewHeader({
     handleVideoCall
 }: RoomViewHeaderProps) {
     const navigate = useNavigate();
+    const {threadRootId} = useParams();
     const mx = useMatrixClient();
     const screenSize = useScreenSizeContext();
     const room = useRoom();
@@ -490,6 +491,7 @@ export function RoomViewHeader({
                     messageLayout={messageLayout}
                     onReactionToggle={(evt: any) => null}
                     onReplyClick={(evt: any) => null}
+                    onDiscussClick={(evt: any) => null}
                     onUserClick={(evt: any) => null}
                     onUsernameClick={(evt: any) => null}
                 >
@@ -561,6 +563,14 @@ export function RoomViewHeader({
 
     const handleOpenJump: MouseEventHandler<HTMLButtonElement> = (evt) => {
         setJumpAnchor(evt.currentTarget.getBoundingClientRect());
+    };
+
+    const handleBack: MouseEventHandler<HTMLButtonElement> = (evt) => {
+        if (!threadRootId) {
+            history.back();
+        } else {
+            navigateRoom(room.roomId, threadRootId);
+        }
     };
 
     const handleScalar = async () => {
@@ -747,7 +757,7 @@ export function RoomViewHeader({
                         fill="None"
                         size="300"
                         radii="300"
-                        onClick={() => history.back()}
+                        onClick={handleBack}
                     >
                         <Icon size={1} path={mdiArrowLeft} />
                     </IconButton>
