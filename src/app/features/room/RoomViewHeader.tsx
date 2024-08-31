@@ -78,6 +78,7 @@ import { useModals } from '../../hooks/useModals';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
 import { nameInitials } from '../../utils/common';
+import { roomToParentsAtom } from '../../state/room/roomToParents';
 
 type RoomMenuProps = {
     room: Room;
@@ -263,6 +264,7 @@ export function RoomViewHeader({
     const [pinned, setPinned] = useState<ReactNode[]>([]);
     const [widgets, setWidgets] = useState<ReactNode[]>([]);
     const avatarUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
+    const roomToParents = useAtomValue(roomToParentsAtom);
     const powerLevels = usePowerLevelsContext();
     const { getPowerLevel, canSendEvent, canSendStateEvent, canDoAction } = usePowerLevelsAPI(powerLevels);
     const myUserId = mx.getUserId();
@@ -566,11 +568,7 @@ export function RoomViewHeader({
     };
 
     const handleBack: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        if (!threadRootId) {
-            history.back();
-        } else {
-            navigateRoom(room.roomId, threadRootId);
-        }
+        history.back();
     };
 
     const handleScalar = async () => {
