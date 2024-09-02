@@ -907,5 +907,11 @@
     "msg_menu.translate": "Translate",
     "alert.scam": "This user tries to mock the verification mark.",
     "msg_menu.discuss": "Discuss",
-    "btn.thread": "{0} message(s)"
+    "btn.thread": "{0} message(s)",
+    "settings.change_password.title": "Change password",
+    "settings.change_password.header": "Change password",
+    "change_password.btn": "Change",
+    "change_password.header": "Change password",
+    "change_password.title": "New password",
+    "change_password.old": "Enter old password"
 }

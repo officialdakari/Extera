@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './Settings.scss';
 
 // Holy shit this code will be worser than yandere simulator's :catstare:
@@ -8,6 +8,7 @@ import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import settings from '../../../client/state/settings';
 import navigation from '../../../client/state/navigation';
+import { Button as FoldsButton, IconButton as FoldsIconButton, Text as FoldsText } from 'folds';
 import {
     toggleSystemTheme,
     toggleNotifications, toggleNotificationSounds,
@@ -43,12 +44,15 @@ import { settingsAtom } from '../../state/settings';
 import { isMacOS } from '../../utils/user-agent';
 import { KeySymbol } from '../../utils/key-symbol';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
-import { Input } from 'folds';
+import { Box, config, Dialog, Header, Input, Overlay, OverlayBackdrop, OverlayCenter } from 'folds';
 import Banner from '../profile-editor/Banner';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { disablePush, enablePush } from '../../../push';
 import { mdiArrowLeft, mdiBell, mdiClose, mdiCog, mdiEmoticon, mdiEye, mdiInformationSlabCircle, mdiInformationSlabCircleOutline, mdiLock, mdiStar } from '@mdi/js';
+import { authRequest } from './AuthRequest';
+import Icon from '@mdi/react';
+import FocusTrap from 'focus-trap-react';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
@@ -555,36 +559,117 @@ function EmojiSection() {
 }
 
 function SecuritySection() {
+    const mx = useMatrixClient();
+    const [open, setOpen] = useState(false);
+    const [disableBtn, setDisableBtn] = useState(false);
+
+    const changePassword = useCallback(async (evt) => {
+        evt.preventDefault();
+        setOpen(false);
+        setDisableBtn(true);
+        await authRequest(getText('change_password.old'), async (auth) => {
+            await mx.setPassword(auth, evt.target.passwordInput.value, false);
+            setDisableBtn(false);
+        });
+    }, [mx]);
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const openChangePassword = () => {
+        setOpen(true);
+        setDisableBtn(false);
+    };
+
     return (
-        <div className="settings-security">
-            <div className="settings-security__card">
-                <MenuHeader>{getText('settings.cross_signing.header')}</MenuHeader>
-                <CrossSigning />
-                <KeyBackup />
+        <>
+            <Overlay open={open} backdrop={<OverlayBackdrop />}>
+                <OverlayCenter>
+                    <FocusTrap
+                        focusTrapOptions={{
+                            initialFocus: false,
+                            onDeactivate: handleClose,
+                            clickOutsideDeactivates: true,
+                        }}
+                    >
+                        <Dialog variant="Surface">
+                            <Header
+                                style={{
+                                    padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
+                                    borderBottomWidth: config.borderWidth.B300,
+                                }}
+                                variant="Surface"
+                                size="500"
+                            >
+                                <Box grow="Yes">
+                                    <Text size="H4">{getText('change_password.header')}</Text>
+                                </Box>
+                                <FoldsIconButton size="300" onClick={handleClose} radii="300">
+                                    <Icon size={1} path={mdiClose} />
+                                </FoldsIconButton>
+                            </Header>
+                            <Box
+                                as="form"
+                                style={{ padding: config.space.S400 }}
+                                direction="Column"
+                                gap="400"
+                                onSubmit={changePassword}
+                            >
+                                <Box direction="Column" gap="100">
+                                    <Input name="passwordInput" placeholder={getText('change_password.title')} type='password' variant="Secondary" autoComplete='off' />
+                                </Box>
+                                <FoldsButton
+                                    type="submit"
+                                    variant="Critical"
+                                    disabled={disableBtn}
+                                >
+                                    {getText('change_password.btn')}
+                                </FoldsButton>
+                            </Box>
+                        </Dialog>
+                    </FocusTrap>
+                </OverlayCenter>
+            </Overlay>
+            <div className="settings-security">
+                <div className="settings-security__card">
+                    <MenuHeader>{getText('settings.cross_signing.header')}</MenuHeader>
+                    <CrossSigning />
+                    <KeyBackup />
+                </div>
+                <div className="settings-security__card">
+                    <MenuHeader>{getText('settings.change_password.header')}</MenuHeader>
+                    <SettingTile
+                        title={getText('settings.change_password.title')}
+                        options={(
+                            <Button onClick={openChangePassword} variant='danger'>{getText('change_password.btn')}</Button>
+                        )}
+                    />
+                </div>
+                <DeviceManage />
+                <div className="settings-security__card">
+                    <MenuHeader>{getText('settings.encryption_keys.header')}</MenuHeader>
+                    <SettingTile
+                        title={getText('settings.export.title')}
+                        content={(
+                            <>
+                                <Text variant="b3">{getText('settings.export.desc')}</Text>
+                                <ExportE2ERoomKeys />
+                            </>
+                        )}
+                    />
+                    <SettingTile
+                        title={getText('settings.import.title')}
+                        content={(
+                            <>
+                                <Text variant="b3">{getText('settings.import.desc')}</Text>
+                                <ImportE2ERoomKeys />
+                            </>
+                        )}
+                    />
+                </div>
             </div>
-            <DeviceManage />
-            <div className="settings-security__card">
-                <MenuHeader>{getText('settings.encryption_keys.header')}</MenuHeader>
-                <SettingTile
-                    title={getText('settings.export.title')}
-                    content={(
-                        <>
-                            <Text variant="b3">{getText('settings.export.desc')}</Text>
-                            <ExportE2ERoomKeys />
-                        </>
-                    )}
-                />
-                <SettingTile
-                    title={getText('settings.import.title')}
-                    content={(
-                        <>
-                            <Text variant="b3">{getText('settings.import.desc')}</Text>
-                            <ImportE2ERoomKeys />
-                        </>
-                    )}
-                />
-            </div>
-        </div>
+        </>
     );
 }
 
