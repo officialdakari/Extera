@@ -14,7 +14,7 @@ export async function saveFile(src, name) {
         return FileSaver.saveAs(src, name);
     }
     console.log(`Saving file ${src} ${name}`);
-    if (typeof src === 'string' && src.startsWith('http')) {
+    if (typeof src === 'string') {
         downloader.get(src, null, name);
     } else {
         alert(`File is something other thing; cant download.`);
