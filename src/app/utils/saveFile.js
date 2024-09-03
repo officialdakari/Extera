@@ -1,7 +1,7 @@
 import FileSaver from "file-saver";
 import { v4 } from "uuid";
 
-if (window.cordova) {
+if (window.cordova && typeof window.downloader !== 'undefined') {
     downloader.init({
         folder: 'Extera',
         unzip: false,
