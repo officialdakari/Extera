@@ -84,7 +84,7 @@ export function ReadTextFile({ body, mimeType, url, encInfo, renderViewer, forma
     const [textViewer, setTextViewer] = useState(false);
 
     const loadSrc = useCallback(
-        () => getFileSrcUrl(mx.mxcUrlToHttp(url) ?? '', mimeType, encInfo),
+        () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo),
         [mx, url, mimeType, encInfo]
     );
 

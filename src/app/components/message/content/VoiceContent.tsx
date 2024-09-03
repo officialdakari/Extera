@@ -49,7 +49,7 @@ export function VoiceContent({
 
     const [srcState, loadSrc] = useAsyncCallback(
         useCallback(
-            () => getFileSrcUrl(mx.mxcUrlToHttp(url) ?? '', mimeType, encInfo),
+            () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo),
             [mx, url, mimeType, encInfo]
         )
     );
@@ -85,7 +85,7 @@ export function VoiceContent({
 
     return renderMediaControl({
         after: (
-            <Box direction='Row' grow='Yes' alignItems='Center' style={{width: '200px', gap: '4px'}}>
+            <Box direction='Row' grow='Yes' alignItems='Center' style={{ width: '200px', gap: '4px' }}>
                 <IconButton
                     onClick={handlePlay}
                     radii="Pill"

@@ -20,7 +20,7 @@ export function ThumbnailContent({ info, renderImage }: ThumbnailContentProps) {
                 throw new Error(getText('msg.thumbnail.failed'));
             }
             return getFileSrcUrl(
-                mx.mxcUrlToHttp(thumbMxcUrl) ?? '',
+                mx.mxcUrlToHttp(thumbMxcUrl, undefined, undefined, undefined, false, true, true) ?? '',
                 thumbInfo.mimetype,
                 info.thumbnail_file
             );

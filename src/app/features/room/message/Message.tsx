@@ -35,7 +35,7 @@ import React, {
 } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { useHover, useFocusWithin } from 'react-aria';
-import { EventTimeline, MatrixEvent, RelationType, Room, RoomEvent } from 'matrix-js-sdk';
+import { EventTimeline, MatrixEvent, RelationType, Room, RoomEvent, TimelineEvents } from 'matrix-js-sdk';
 import { Relations } from 'matrix-js-sdk/lib/models/relations';
 import classNames from 'classnames';
 import {
@@ -362,6 +362,7 @@ export const MessagePinItem = as<
         if (onClose) onClose();
         if (!eventId) return;
         pinned.push(eventId);
+        // @ts-ignore
         await mx.sendStateEvent(room.roomId, 'm.room.pinned_events', {
             pinned
         });
@@ -371,6 +372,7 @@ export const MessagePinItem = as<
         if (onClose) onClose();
         if (!eventId) return;
         pinned = pinned.filter(x => x !== eventId);
+        // @ts-ignore
         await mx.sendStateEvent(room.roomId, 'm.room.pinned_events', {
             pinned
         });
@@ -1165,6 +1167,7 @@ export const Message = as<'div', MessageProps>(
             const b = evt.currentTarget;
             b.disabled = true;
             if (typeof b.dataset.id !== 'string') return;
+            // @ts-ignore
             await mx.sendEvent(room.roomId, 'ru.officialdakari.extera.button_click', {
                 "m.relates_to": {
                     event_id: mEvent.getId(),
@@ -1290,13 +1293,15 @@ export const Message = as<'div', MessageProps>(
             const eventId = mEvent.getId();
             if (!roomId || !eventId) return;
             closeMenu();
+            // @ts-ignore
             mx.sendEvent(roomId, 'org.matrix.msc3381.poll.end', {
-                body: '',
                 'org.matrix.msc1767.text': 'Ended poll',
                 'm.relates_to': {
                     rel_type: 'm.reference',
                     event_id: eventId
-                }
+                },
+                // @ts-ignore
+                body: 'Ended poll'
             });
         };
 

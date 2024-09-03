@@ -49,7 +49,7 @@ export function AudioContent({
 
     const [srcState, loadSrc] = useAsyncCallback(
         useCallback(
-            () => getFileSrcUrl(mx.mxcUrlToHttp(url) ?? '', mimeType, encInfo),
+            () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo),
             [mx, url, mimeType, encInfo]
         )
     );
