@@ -22,7 +22,8 @@ export function ThumbnailContent({ info, renderImage }: ThumbnailContentProps) {
             return getFileSrcUrl(
                 mx.mxcUrlToHttp(thumbMxcUrl, undefined, undefined, undefined, false, true, true) ?? '',
                 thumbInfo.mimetype,
-                info.thumbnail_file
+                info.thumbnail_file,
+                mx
             );
         }, [mx, info])
     );

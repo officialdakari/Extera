@@ -92,13 +92,16 @@ import { ImageViewer } from '../../../components/image-viewer';
 import { Image } from '../../../components/media';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
-import { mdiAccount, mdiAlertCircleOutline, mdiCheck, mdiCheckAll, mdiClose, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReply, mdiRestore, mdiTranslate } from '@mdi/js';
+import { mdiAccount, mdiAlertCircleOutline, mdiCheck, mdiCheckAll, mdiClose, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiDownload, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReply, mdiRestore, mdiTranslate } from '@mdi/js';
 import { useBackButton } from '../../../hooks/useBackButton';
 import { translateContent } from '../../../utils/translation';
 import { getLocalVerification } from '../../../utils/getVerificationState';
 import { VerificationBadge } from '../../../components/verification-badge/VerificationBadge';
 import { NavLink } from '../../../components/nav';
 import { useLocation } from 'react-router-dom';
+import { saveFile } from '../../../utils/saveFile';
+import { getFileSrcUrl } from '../../../components/message/content/util';
+import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -334,6 +337,49 @@ export const MessageSourceCodeItem = as<
                 </Text>
             </MenuItem>
         </>
+    );
+});
+
+export const MessageFileDownloadItem = as<
+    'button',
+    {
+        room: Room;
+        mEvent: MatrixEvent;
+        onClose?: () => void;
+    }
+>(({ room, mEvent, onClose, ...props }, ref) => {
+    const mx = useMatrixClient();
+    const content = mEvent.getContent();
+    const { url, filename, body } = content;
+    const fileName = filename ?? body;
+    const mxc = url ?? content.file?.url;
+    const fileInfo = content?.info;
+    const handleClick = async () => {
+        const httpUrl = mx.mxcUrlToHttp(mxc, undefined, undefined, undefined, false, true, true);
+        if (!httpUrl) return onClose?.();
+        const Url = await getFileSrcUrl(
+            httpUrl,
+            fileInfo?.mimetype ?? FALLBACK_MIMETYPE,
+            content.file,
+            mx
+        );
+        saveFile(Url, fileName);
+        onClose?.();
+    };
+    return (
+        <MenuItem
+            size="300"
+            after={<Icon size={1} path={mdiDownload} />}
+            radii="300"
+            {...props}
+            ref={ref}
+            disabled={typeof mxc !== 'string' || typeof fileName !== 'string' || !url.startsWith('mxc://')}
+            onClick={handleClick}
+        >
+            <Text className={css.MessageMenuItemText} as="span" size="T300">
+                {getText('msg_menu.download')}
+            </Text>
+        </MenuItem>
     );
 });
 
@@ -1507,6 +1553,11 @@ export const Message = as<'div', MessageProps>(
                                                             {getText('msg_menu.discuss')}
                                                         </Text>
                                                     </MenuItem>
+                                                    {
+                                                        typeof content.url === 'string' && content.msgtype && ['m.file', 'm.audio', 'm.image', 'm.video'].includes(content.msgtype) && (
+                                                            <MessageFileDownloadItem room={room} mEvent={mEvent} onClose={closeMenu} />
+                                                        )
+                                                    }
                                                     {canEditEvent(mx, mEvent) && onEditId && (
                                                         <MenuItem
                                                             size="300"

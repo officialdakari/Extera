@@ -94,7 +94,7 @@ export function RenderMessageContent({
                         />
                     )}
                 >
-                    <DownloadFile htmlReactParserOptions={htmlReactParserOptions} filename={filename} format={format} formatted_body={formatted_body} body={body} mimeType={mimeType} url={url} encInfo={encInfo} info={info} />
+                    <DownloadFile filename={filename} body={body} mimeType={mimeType} url={url} encInfo={encInfo} info={info} />
                 </FileContent>
             )}
             outlined={outlineAttachment}

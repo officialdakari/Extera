@@ -86,7 +86,7 @@ export const ImageContent = as<'div', ImageContentProps>(
 
         const [srcState, loadSrc] = useAsyncCallback(
             useCallback(
-                () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType || FALLBACK_MIMETYPE, encInfo),
+                () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType || FALLBACK_MIMETYPE, encInfo, mx),
                 [mx, url, mimeType, encInfo]
             )
         );

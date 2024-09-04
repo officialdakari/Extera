@@ -69,7 +69,7 @@ export const VideoContent = as<'div', VideoContentProps>(
 
         const [srcState, loadSrc] = useAsyncCallback(
             useCallback(
-                () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo),
+                () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo, mx),
                 [mx, url, mimeType, encInfo]
             )
         );

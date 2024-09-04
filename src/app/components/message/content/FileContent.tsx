@@ -243,18 +243,15 @@ export type DownloadFileProps = {
     mimeType: string;
     url: string;
     info: IFileInfo;
-    formatted_body?: string;
-    format?: string;
     filename?: string;
-    htmlReactParserOptions: HTMLReactParserOptions;
     encInfo?: EncryptedAttachmentInfo;
 };
-export function DownloadFile({ body, mimeType, url, info, encInfo, filename, format, formatted_body, htmlReactParserOptions }: DownloadFileProps) {
+export function DownloadFile({ body, mimeType, url, info, encInfo, filename }: DownloadFileProps) {
     const mx = useMatrixClient();
 
     const [downloadState, download] = useAsyncCallback(
         useCallback(async () => {
-            const httpUrl = await getFileSrcUrl(mx.mxcUrlToHttp(url) ?? '', mimeType, encInfo);
+            const httpUrl = await getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo, mx);
             saveFile(httpUrl, filename ?? body);
             return httpUrl;
         }, [mx, url, mimeType, encInfo, body, filename])

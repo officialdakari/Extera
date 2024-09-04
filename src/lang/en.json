@@ -913,5 +913,6 @@
     "change_password.btn": "Change",
     "change_password.header": "Change password",
     "change_password.title": "New password",
-    "change_password.old": "Enter old password"
+    "change_password.old": "Enter old password",
+    "msg_menu.download": "Download"
 }

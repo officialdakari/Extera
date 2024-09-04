@@ -24,13 +24,7 @@ export const ImageViewer = as<'div', ImageViewerProps>(
         const { pan, cursor, onMouseDown, onTouchStart } = usePan(zoom > 1);
 
         const handleDownload = () => {
-            const parts = alt.split('.');
-            const fileName = [
-                ...parts.slice(0, parts.length - 2).join('.'),
-                Date.now().toString(),
-                `.${parts[parts.length - 1]}`
-            ].join('');
-            saveFile(src, fileName);
+            saveFile(src, alt);
         };
 
         useBackButton(() => {
