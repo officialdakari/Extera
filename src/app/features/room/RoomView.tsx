@@ -135,6 +135,7 @@ export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?
         if (dontCreate === true) return;
         const conferenceId = generateConferenceID();
         const id = `m.jitsi_${myUserId}_${Date.now()}`;
+        // @ts-ignore
         const sent = await mx.sendStateEvent(room.roomId, 'im.vector.modular.widgets', {
             creatorUserId: myUserId,
             data: {

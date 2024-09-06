@@ -18,7 +18,6 @@ import {
     EventTimeline,
     EventTimelineSet,
     EventTimelineSetHandlerMap,
-    IEncryptedFile,
     MatrixClient,
     MatrixEvent,
     Room,
@@ -217,7 +216,7 @@ export const getEventIdAbsoluteIndex = (
 };
 
 export const factoryGetFileSrcUrl =
-    (httpUrl: string, mimeType: string, encFile?: IEncryptedFile) => async (): Promise<string> => {
+    (httpUrl: string, mimeType: string, encFile?: any) => async (): Promise<string> => {
         if (encFile) {
             if (typeof httpUrl !== 'string') throw new Error('Malformed event');
             const encRes = await fetch(httpUrl, { method: 'GET' });
@@ -1047,6 +1046,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
                 (reactions.find(eventWithShortcode)?.getContent().shortcode as string | undefined);
             mx.sendEvent(
                 room.roomId,
+                // @ts-ignore
                 MessageEvent.Reaction,
                 getReactionContent(targetEventId, key, rShortcode)
             );

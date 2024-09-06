@@ -18,6 +18,10 @@ export const MessageBaseFailed = style({
     color: 'red'
 });
 
+export const MessageTimestamp = style({
+    opacity: 0.4
+});
+
 export const MessageOptionsBase = style([
     DefaultReset,
     {

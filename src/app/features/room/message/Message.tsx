@@ -1193,6 +1193,9 @@ export const Message = as<'div', MessageProps>(
                     </Username>
                 )}
                 <Box shrink="No" gap="100">
+                    {messageLayout === 2 && senderId !== userId && (
+                        <Time className={css.MessageTimestamp} ts={mEvent.getTs()} compact={true} />
+                    )}
                     {messageLayout === 0 && hover && (
                         <>
                             <Text as="span" size="T200" priority="300">
@@ -1473,6 +1476,10 @@ export const Message = as<'div', MessageProps>(
                                                         }}
                                                     />
                                                 )}
+                                                <div style={{ margin: '4px' }}>
+                                                    {new Date(mEvent.getTs()).toLocaleString()}
+                                                </div>
+                                                <Line size='300' />
                                                 <Box direction="Column" gap="100" className={css.MessageMenuGroup}>
                                                     {mEvent.getType() == 'org.matrix.msc3381.poll.start' && mEvent.sender?.userId == (mx.getUserId() ?? '') && (
                                                         <MenuItem
@@ -1643,7 +1650,7 @@ export const Message = as<'div', MessageProps>(
                     </CompactLayout>
                 )}
                 {messageLayout === 2 && (
-                    <BubbleLayout before={userId !== senderId && avatarJSX} rightAligned={userId === senderId} after={<Time ts={mEvent.getTs()} compact={false} />} onContextMenu={handleContextMenu}>
+                    <BubbleLayout before={userId !== senderId && avatarJSX} rightAligned={userId === senderId} onContextMenu={handleContextMenu}>
                         {headerJSX}
                         {msgContentJSX}
                         {footerJSX}

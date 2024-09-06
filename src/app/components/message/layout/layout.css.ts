@@ -158,7 +158,6 @@ export const BubbleAfter = style({
     color: color.SurfaceVariant.OnContainer,
     whiteSpace: 'nowrap',
     fontSize: 'small',
-    marginTop: config.space.S200,
     alignSelf: 'flex-end',
     marginLeft: 'auto',
 });

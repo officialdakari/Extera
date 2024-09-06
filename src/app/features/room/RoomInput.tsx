@@ -247,9 +247,11 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     await mx.sendMessage(roomId, {
                         ...content,
                         ...msgContent,
+                        // @ts-ignore
                         msgtype: content.msgtype
                     });
                 } else {
+                    // @ts-ignore
                     await mx.sendMessage(roomId, content);
                 }
             }
@@ -397,6 +399,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 console.debug(enableCaptions, msgContent);
                 console.debug(selectedFiles);
                 if (typeof msgContent.body === 'string' && (selectedFiles.length == 0 || !enableCaptions)) {
+                    // @ts-ignore
                     mx.sendMessage(roomId, msgContent);
                     console.debug(selectedFiles.length < 1, !enableCaptions, "Sending a separate message");
                 }
@@ -516,6 +519,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 };
             }
 
+            // @ts-ignore
             mx.sendEvent(roomId, EventType.Sticker, content);
 
             setReplyDraft(undefined);
