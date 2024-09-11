@@ -32,6 +32,7 @@ export default function getCachedURL(url: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         const w = window as any;
         if (!w.cordova || w.cordova.platformId === 'browser') {
+            console.error(`not cordova, returning directly`);
             resolve(url);
             return;
         }
@@ -40,8 +41,10 @@ export default function getCachedURL(url: string): Promise<string> {
         w.resolveLocalFileSystemURL(path, (fileEntry: any) => {
             const nUrl = fileEntry.toURL();
             resolve(nUrl);
+            console.log(`Loading file from cache ${nUrl} ${url}`);
         }, (err: Error) => {
             cacheFile(url, path);
+            console.error(`Failed to cache file!`, url, path, err);
             resolve(url);
         });
     });
