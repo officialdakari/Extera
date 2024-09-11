@@ -102,7 +102,6 @@ import { useLocation } from 'react-router-dom';
 import { saveFile } from '../../../utils/saveFile';
 import { getFileSrcUrl } from '../../../components/message/content/util';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
-import getCachedURL from '../../../utils/cache';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -1230,8 +1229,6 @@ export const Message = as<'div', MessageProps>(
 
         const footerJSX = null;
 
-        const [avatarUrl, setAvatarUrl] = useState<string | undefined>();
-
         const avatarJSX = !collapse && messageLayout !== 1 && (
             <AvatarBase>
                 <Avatar
@@ -1244,7 +1241,9 @@ export const Message = as<'div', MessageProps>(
                     <UserAvatar
                         userId={senderId}
                         src={
-                            avatarUrl
+                            senderAvatarMxc
+                                ? mx.mxcUrlToHttp(senderAvatarMxc, 48, 48, 'crop') ?? undefined
+                                : undefined
                         }
                         alt={senderDisplayName}
                         renderFallback={() => <Icon size={1} path={mdiAccount} />}
@@ -1252,17 +1251,6 @@ export const Message = as<'div', MessageProps>(
                 </Avatar>
             </AvatarBase>
         );
-
-        useEffect(() => {
-            const url = senderAvatarMxc
-                ? mx.mxcUrlToHttp(senderAvatarMxc, 48, 48, 'crop') ?? undefined
-                : undefined;
-            if (url) {
-                getCachedURL(url).then((x) => {
-                    setAvatarUrl(x);
-                });
-            }
-        }, [mx, senderAvatarMxc]);
 
         const childrenRef = useRef<HTMLDivElement>(null);
 

@@ -8,7 +8,6 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getMxIdLocalPart } from '../../../utils/matrix';
 import { nameInitials } from '../../../utils/common';
 import { getText } from '../../../../lang';
-import getCachedURL from '../../../utils/cache';
 
 type UserProfile = {
     avatar_url?: string;
@@ -20,7 +19,9 @@ export function UserTab() {
 
     const [profile, setProfile] = useState<UserProfile>({});
     const displayName = profile.displayname ?? getMxIdLocalPart(userId) ?? userId;
-    const [avatarUrl, setAvatarUrl] = useState<string | undefined>();
+    const avatarUrl = profile.avatar_url
+        ? mx.mxcUrlToHttp(profile.avatar_url, 96, 96, 'crop') ?? undefined
+        : undefined;
 
     useEffect(() => {
         const user = mx.getUser(userId);
@@ -36,10 +37,6 @@ export function UserTab() {
                 avatar_url: myUser.displayName,
             }));
         };
-        setProfile({
-            avatar_url: user?.avatarUrl,
-            displayname: user?.rawDisplayName
-        });
         mx.getProfileInfo(userId).then((info) => setProfile(() => ({ ...info })));
         user?.on(UserEvent.AvatarUrl, onAvatarChange);
         user?.on(UserEvent.DisplayName, onDisplayNameChange);
@@ -48,17 +45,6 @@ export function UserTab() {
             user?.removeListener(UserEvent.DisplayName, onDisplayNameChange);
         };
     }, [mx, userId]);
-
-    useEffect(() => {
-        const avatarHttp = profile.avatar_url
-            ? mx.mxcUrlToHttp(profile.avatar_url, 96, 96, 'crop') ?? undefined
-            : undefined;
-        if (avatarHttp) {
-            getCachedURL(avatarHttp).then((x) => {
-                setAvatarUrl(x);
-            });
-        }
-    }, [mx, profile]);
 
     return (
         <SidebarItem>

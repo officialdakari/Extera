@@ -43,7 +43,6 @@ import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccountPlus, mdiArrowLeft, mdiBellCancel, mdiCheckAll, mdiCog, mdiDotsVertical, mdiLinkVariant } from '@mdi/js';
 import cons from '../../../client/state/cons';
-import getCachedURL from '../../utils/cache';
 
 type RoomNavItemMenuProps = {
     room: Room;
@@ -224,8 +223,6 @@ export function RoomNavItem({
     }
 
     const [avStyle, setAvStyle] = useState({});
-    const avUrl = direct ? getDirectRoomAvatarUrl(mx, room, 96) : getRoomAvatarUrl(mx, room, 96);
-    const [avatarUrl, setAvatarUrl] = useState<string | undefined>();
 
     const mDirects = useAtomValue(mDirectAtom);
     const directs = useDirects(mx, allRoomsAtom, mDirects);
@@ -244,14 +241,6 @@ export function RoomNavItem({
     useEffect(() => {
         updateAvStyle();
     }, [updateAvStyle]);
-
-    useEffect(() => {
-        if (avUrl) {
-            getCachedURL(avUrl).then((x) => {
-                setAvatarUrl(x);
-            });
-        }
-    }, [avUrl, setAvatarUrl]);
 
     return (
         <NavItem
@@ -272,7 +261,7 @@ export function RoomNavItem({
                                 <RoomAvatar
                                     roomId={room.roomId}
                                     src={
-                                        avatarUrl
+                                        direct ? getDirectRoomAvatarUrl(mx, room, 96) : getRoomAvatarUrl(mx, room, 96)
                                     }
                                     alt={room.name}
                                     renderFallback={() => (
