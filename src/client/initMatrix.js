@@ -25,8 +25,10 @@ class InitMatrix extends EventEmitter {
             this.setupSync();
             this.listenEvents();
             this.initializing = false;
-        } catch {
+        } catch (err) {
+            console.error(`Failed to init MatrixClient!`, err);
             this.initializing = false;
+            console.log(`now I know why ignoring errors in catch is a bad practice...`);
         }
     }
 
@@ -36,9 +38,6 @@ class InitMatrix extends EventEmitter {
             localStorage: global.localStorage,
             dbName: 'web-sync-store',
         });
-        console.debug(`Starting up Database...`);
-        await indexedDBStore.startup();
-        console.debug(`Started up Database...`);
         const secret = getSecret();
 
         this.matrixClient = sdk.createClient({
@@ -53,8 +52,11 @@ class InitMatrix extends EventEmitter {
             verificationMethods: [
                 'm.sas.v1',
             ],
-            fallbackICEServerAllowed: true
+            fallbackICEServerAllowed: true,
+
         });
+
+        await indexedDBStore.startup();
 
         await this.matrixClient.initCrypto();
 
