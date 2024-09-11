@@ -53,6 +53,7 @@ import { mdiArrowLeft, mdiBell, mdiClose, mdiCog, mdiEmoticon, mdiEye, mdiInform
 import { authRequest } from './AuthRequest';
 import Icon from '@mdi/react';
 import FocusTrap from 'focus-trap-react';
+import getCachedURL from '../../utils/cache';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
@@ -91,21 +92,55 @@ function AppearanceSection() {
     };
 
     const [uploadPromise, setUploadPromise] = useState(null);
+    const cordova = window.cordova;
 
+    /**
+     * @type {React.ChangeEventHandler<HTMLInputElement>}
+     * @returns 
+     */
     async function uploadImage(e) {
         const file = e.target.files.item(0);
         if (file === null) return;
-        try {
-            const uPromise = mx.uploadContent(file);
-            setUploadPromise(uPromise);
+        if (cordova) {
+            window.resolveLocalFileSystemURL(cordova.file.dataDirectory, async (fileSystem) => {
+                try {
+                    const fileEntry = await new Promise((resolve, reject) => {
+                        fileSystem.getFile(file.name, { create: true, exclusive: false }, resolve, reject);
+                    });
 
-            const res = await uPromise;
-            if (typeof res?.content_uri === 'string') {
-                setWallpaperURL(res.content_uri);
-            };
-            setUploadPromise(null);
-        } catch {
-            setUploadPromise(null);
+                    const fileWriter = await new Promise((resolve, reject) => {
+                        fileEntry.createWriter(resolve, reject);
+                    });
+
+                    const blob = new Blob([file], { type: file.type });
+
+                    await new Promise((resolve, reject) => {
+                        fileWriter.onwriteend = resolve;
+                        fileWriter.onerror = reject;
+                        fileWriter.write(blob);
+                    });
+
+                    const localURL = fileEntry.toURL();
+
+                    // Обновляем состояние с местным URL
+                    setWallpaperURL(localURL);
+                } catch (error) {
+                    console.error('Error while saving file:', error);
+                }
+            });
+        } else {
+            try {
+                const uPromise = mx.uploadContent(file);
+                setUploadPromise(uPromise);
+
+                const res = await uPromise;
+                if (typeof res?.content_uri === 'string') {
+                    setWallpaperURL(res.content_uri);
+                };
+                setUploadPromise(null);
+            } catch {
+                setUploadPromise(null);
+            }
         }
         wallpaperInputRef.current.value = null;
     }
