@@ -1,6 +1,6 @@
 import md5 from 'md5';
 
-function cacheFile(url: string, path: string): Promise<void> {
+function cacheFile(url: string, name: string): Promise<void> {
     return new Promise<void>(async (resolve, reject) => {
         const f = await fetch(url);
         if (!f.ok) throw new Error();
@@ -9,8 +9,8 @@ function cacheFile(url: string, path: string): Promise<void> {
         const { cordova } = w;
 
         // Сохраняем файл используя cordova-plugin-file
-        w.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, (dir: any) => {
-            dir.getFile(path, { create: true }, (file: any) => {
+        w.resolveLocalFileSystemURL(cordova.file.cacheDirectory, (dir: any) => {
+            dir.getFile(name, { create: true }, (file: any) => {
                 file.createWriter(function (writer: any) {
                     writer.onwriteend = function () {
                         console.debug(`Downloaded!!!`);
@@ -36,7 +36,8 @@ export default function getCachedURL(url: string): Promise<string> {
             resolve(url);
             return;
         }
-        const path = `${w.cordova.file.cacheDirectory}/${md5(url)}`;
+        const name = md5(url);
+        const path = `${w.cordova.file.cacheDirectory}/${name}`;
 
         w.resolveLocalFileSystemURL(path, (fileEntry: any) => {
             const nUrl = fileEntry.toURL();
@@ -44,7 +45,7 @@ export default function getCachedURL(url: string): Promise<string> {
             console.log(`Loading file from cache ${nUrl} ${url}`);
         }, (err: Error) => {
             cacheFile(url, path);
-            console.error(`Failed to cache file!`, url, path, err);
+            console.error(`Failed to cache file!`, url, name, err);
             resolve(url);
         });
     });
