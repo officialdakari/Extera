@@ -358,7 +358,7 @@ function ProfileViewer() {
         const username = roomMember ? getUsernameOfRoomMember(roomMember) : getUsername(userId);
         const avatarMxc = roomMember?.getMxcAvatarUrl?.() || mx.getUser(userId)?.avatarUrl;
         const avatarHttp = avatarMxc && avatarMxc !== 'null' ? mx.mxcUrlToHttp(avatarMxc, 80, 80, 'crop') : null;
-        const [avatarUrl, setAvatarUrl] = useState();
+        const [avatarUrl, setAvatarUrl] = useState(undefined);
 
         useEffect(() => {
             if (avatarHttp) {
@@ -375,7 +375,7 @@ function ProfileViewer() {
         const membership = roomState.getStateEvents('m.room.member', userId);
         const membershipContent = membership?.getContent() ?? {};
 
-        const [bannerUrl, setBannerUrl] = useState();
+        const [bannerUrl, setBannerUrl] = useState(undefined);
 
         if (typeof membershipContent[cons.EXTERA_BANNER_URL] === 'string' && membershipContent[cons.EXTERA_BANNER_URL].startsWith('mxc://')) {
             const bannerSrc = mx.mxcUrlToHttp(membershipContent[cons.EXTERA_BANNER_URL]);

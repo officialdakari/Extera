@@ -1,35 +1,36 @@
 import md5 from 'md5';
+import initMatrix from '../../client/initMatrix';
 
 function cacheFile(url: string, name: string): Promise<void> {
+    const mx = initMatrix.matrixClient!;
+    const { cordova, FileTransfer } = window as any;
     return new Promise<void>(async (resolve, reject) => {
-        const f = await fetch(url);
-        if (!f.ok) throw new Error();
-        const arrayBuffer = await f.arrayBuffer();
-        const w = window as any;
-        const { cordova } = w;
-
-        // Сохраняем файл используя cordova-plugin-file
-        w.resolveLocalFileSystemURL(cordova.file.cacheDirectory, (dir: any) => {
-            dir.getFile(name, { create: true }, (file: any) => {
-                file.createWriter(function (writer: any) {
-                    writer.onwriteend = function () {
-                        console.debug(`Downloaded!!!`);
-                    };
-                    writer.onerror = function (e: Error) {
-                        console.error('Write failed: ' + e.toString());
-                    };
-
-                    const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
-                    writer.write(blob);
-                    resolve();
-                }, reject);
-            }, reject);
-        });
+        const ft = new FileTransfer();
+        ft.download(
+            url,
+            `${cordova.file.cacheDirectory}/${name}`,
+            function () {
+                console.debug(`Downloaded!!!`);
+                resolve();
+            },
+            function (error: Error) {
+                console.error(error, `could not download !!! ${name}`, error);
+                reject(error);
+            },
+            false,
+            {
+                headers: {
+                    'Authorization': mx ? `Bearer ${mx.getAccessToken()}` : undefined
+                }
+            }
+        );
     });
 }
 
 export default function getCachedURL(url: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
+        resolve(url);
+        return;
         const w = window as any;
         if (!w.cordova || w.cordova.platformId === 'browser') {
             console.error(`not cordova, returning directly`);
