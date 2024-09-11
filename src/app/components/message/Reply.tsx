@@ -1,19 +1,19 @@
+/* eslint-disable no-nested-ternary */
 import { Box, Text, as, color, toRem } from 'folds';
 import { EventTimelineSet, MatrixClient, MatrixEvent, Room } from 'matrix-js-sdk';
 import { CryptoBackend } from 'matrix-js-sdk/lib/common-crypto/CryptoBackend';
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import to from 'await-to-js';
 import classNames from 'classnames';
+import { HTMLReactParserOptions } from 'html-react-parser';
 import colorMXID from '../../../util/colorMXID';
-import { getMemberDisplayName, trimReplyFromBody } from '../../utils/room';
+import { getMemberDisplayName } from '../../utils/room';
 import { getMxIdLocalPart, isRoomId, isUserId } from '../../utils/matrix';
 import { LinePlaceholder } from './placeholder';
 import { randomNumberBetween } from '../../utils/common';
 import * as css from './Reply.css';
 import { MessageBadEncryptedContent, MessageDeletedContent, MessageFailedContent } from './content';
-import { getReactCustomHtmlParser, scaleSystemEmoji } from '../../plugins/react-custom-html-parser';
-import Icon from '@mdi/react';
-import { mdiReply } from '@mdi/js';
+import { getReactCustomHtmlParser } from '../../plugins/react-custom-html-parser';
 import { RenderMessageContent } from '../RenderMessageContent';
 import { GetContentCallback } from '../../../types/matrix/room';
 import { getText } from '../../../lang';
@@ -21,7 +21,6 @@ import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { openJoinAlias, openProfileViewer } from '../../../client/action/navigation';
-import { HTMLReactParserOptions } from 'html-react-parser';
 
 type ReplyLayoutProps = {
     userColor?: string;
@@ -134,8 +133,8 @@ export const Reply = as<'div', ReplyProps>(({ mx, room, timelineSet, eventId, ..
                 getContent={replyEvent?.getContent.bind(replyEvent) as GetContentCallback}
                 mediaAutoLoad={mediaAutoLoad}
                 urlPreview={false}
-                outlineAttachment={true}
-                hideAttachment={true}
+                outlineAttachment
+                hideAttachment
                 htmlReactParserOptions={htmlReactParserOptions}
             />)
         : fallbackBody;

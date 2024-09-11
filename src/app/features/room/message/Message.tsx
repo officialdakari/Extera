@@ -102,6 +102,7 @@ import { useLocation } from 'react-router-dom';
 import { saveFile } from '../../../utils/saveFile';
 import { getFileSrcUrl } from '../../../components/message/content/util';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
+import getCachedURL from '../../../utils/cache';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -1217,10 +1218,10 @@ export const Message = as<'div', MessageProps>(
             b.disabled = true;
             if (typeof b.dataset.id !== 'string') return;
             // @ts-ignore
-            await mx.sendEvent(room.roomId, 'ru.officialdakari.extera.button_click', {
+            await mx.sendEvent(room.roomId, 'xyz.extera.button_click', {
                 "m.relates_to": {
                     event_id: mEvent.getId(),
-                    rel_type: 'ru.officialdakari.extera.button_click'
+                    rel_type: 'xyz.extera.button_click'
                 },
                 button_id: b.dataset.id
             });
@@ -1228,6 +1229,8 @@ export const Message = as<'div', MessageProps>(
         };
 
         const footerJSX = null;
+
+        const [avatarUrl, setAvatarUrl] = useState<string | undefined>();
 
         const avatarJSX = !collapse && messageLayout !== 1 && (
             <AvatarBase>
@@ -1241,9 +1244,7 @@ export const Message = as<'div', MessageProps>(
                     <UserAvatar
                         userId={senderId}
                         src={
-                            senderAvatarMxc
-                                ? mx.mxcUrlToHttp(senderAvatarMxc, 48, 48, 'crop') ?? undefined
-                                : undefined
+                            avatarUrl
                         }
                         alt={senderDisplayName}
                         renderFallback={() => <Icon size={1} path={mdiAccount} />}
@@ -1252,11 +1253,22 @@ export const Message = as<'div', MessageProps>(
             </AvatarBase>
         );
 
+        useEffect(() => {
+            const url = senderAvatarMxc
+                ? mx.mxcUrlToHttp(senderAvatarMxc, 48, 48, 'crop') ?? undefined
+                : undefined;
+            if (url) {
+                getCachedURL(url).then((x) => {
+                    setAvatarUrl(x);
+                });
+            }
+        }, [mx, senderAvatarMxc]);
+
         const childrenRef = useRef<HTMLDivElement>(null);
 
-        const buttons: any[] | undefined = typeof content['ru.officialdakari.extera.buttons'] == 'object' &&
-            content['ru.officialdakari.extera.buttons'].filter &&
-            content['ru.officialdakari.extera.buttons'].filter(
+        const buttons: any[] | undefined = typeof content['xyz.extera.buttons'] == 'object' &&
+            content['xyz.extera.buttons'].filter &&
+            content['xyz.extera.buttons'].filter(
                 (x: any) => typeof x.id == 'string' && typeof x.name == 'string'
             );
 
