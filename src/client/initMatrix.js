@@ -36,7 +36,9 @@ class InitMatrix extends EventEmitter {
             localStorage: global.localStorage,
             dbName: 'web-sync-store',
         });
+        console.debug(`Starting up Database...`);
         await indexedDBStore.startup();
+        console.debug(`Started up Database...`);
         const secret = getSecret();
 
         this.matrixClient = sdk.createClient({
@@ -58,6 +60,7 @@ class InitMatrix extends EventEmitter {
 
         await this.matrixClient.startClient({
             lazyLoadMembers: true,
+            threadSupport: true,
         });
         this.matrixClient.setGlobalErrorOnUnknownDevices(false);
         this.matrixClient.setMaxListeners(50);
@@ -92,7 +95,10 @@ class InitMatrix extends EventEmitter {
                 console.log('STOPPED state');
             },
         };
-        this.matrixClient.on('sync', (state, prevState) => sync[state](prevState));
+        this.matrixClient.on('sync', (state, prevState) => {
+            sync[state](prevState);
+            console.debug(`OLD STATE: ${prevState} TO NEW STATE: ${state}`);
+        });
     }
 
     listenEvents() {
