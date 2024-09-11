@@ -45,6 +45,7 @@ import { useBackButton } from '../../hooks/useBackButton';
 import { VerificationBadge } from '../../components/verification-badge/VerificationBadge';
 import { Box } from 'folds';
 import { mdiChevronDown, mdiChevronRight, mdiClose, mdiShieldOutline } from '@mdi/js';
+import getCachedURL from '../../utils/cache';
 
 function ModerationTools({ roomId, userId }) {
     const mx = initMatrix.matrixClient;
@@ -356,8 +357,16 @@ function ProfileViewer() {
         const roomMember = room.getMember(userId);
         const username = roomMember ? getUsernameOfRoomMember(roomMember) : getUsername(userId);
         const avatarMxc = roomMember?.getMxcAvatarUrl?.() || mx.getUser(userId)?.avatarUrl;
-        const avatarUrl =
-            avatarMxc && avatarMxc !== 'null' ? mx.mxcUrlToHttp(avatarMxc, 80, 80, 'crop') : null;
+        const avatarHttp = avatarMxc && avatarMxc !== 'null' ? mx.mxcUrlToHttp(avatarMxc, 80, 80, 'crop') : null;
+        const [avatarUrl, setAvatarUrl] = useState();
+
+        useEffect(() => {
+            if (avatarHttp) {
+                getCachedURL(avatarHttp).then((x) => {
+                    setAvatarUrl(x);
+                });
+            }
+        }, [mx, avatarHttp, avatarMxc]);
 
         const powerLevel = roomMember?.powerLevel || 0;
         const myPowerLevel = room.getMember(mx.getUserId())?.powerLevel || 0;
@@ -366,12 +375,15 @@ function ProfileViewer() {
         const membership = roomState.getStateEvents('m.room.member', userId);
         const membershipContent = membership?.getContent() ?? {};
 
-        var bannerUrl;
-
-        console.log(membershipContent);
+        const [bannerUrl, setBannerUrl] = useState();
 
         if (typeof membershipContent[cons.EXTERA_BANNER_URL] === 'string' && membershipContent[cons.EXTERA_BANNER_URL].startsWith('mxc://')) {
-            bannerUrl = membershipContent[cons.EXTERA_BANNER_URL];
+            const bannerSrc = mx.mxcUrlToHttp(membershipContent[cons.EXTERA_BANNER_URL]);
+            useEffect(() => {
+                getCachedURL(bannerSrc).then((x) => {
+                    setBannerUrl(x);
+                });
+            }, [mx, bannerSrc]);
         }
 
         const canChangeRole =

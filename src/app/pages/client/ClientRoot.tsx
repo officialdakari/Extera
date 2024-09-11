@@ -20,14 +20,7 @@ import Draggable from 'react-draggable';
 import * as css from './ClientRoot.css';
 import { CallProvider } from '../../hooks/useCall';
 import { createModals, ModalsProvider } from '../../hooks/useModals';
-import Icon from '@mdi/react';
-import { mdiClose } from '@mdi/js';
 import { Modals } from '../../components/modal/Modal';
-import { usePermission } from '../../hooks/usePermission';
-import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
-import { Permissions } from '../../state/widgetPermissions';
-import { EventTimeline, EventType } from 'matrix-js-sdk';
-import { usePowerLevels, usePowerLevelsAPI, usePowerLevelsContext, useRoomsPowerLevels } from '../../hooks/usePowerLevels';
 
 function SystemEmojiFeature() {
     const [twitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');

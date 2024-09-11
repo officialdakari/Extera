@@ -8,57 +8,67 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getMxIdLocalPart } from '../../../utils/matrix';
 import { nameInitials } from '../../../utils/common';
 import { getText } from '../../../../lang';
+import getCachedURL from '../../../utils/cache';
 
 type UserProfile = {
-  avatar_url?: string;
-  displayname?: string;
+    avatar_url?: string;
+    displayname?: string;
 };
 export function UserTab() {
-  const mx = useMatrixClient();
-  const userId = mx.getUserId()!;
+    const mx = useMatrixClient();
+    const userId = mx.getUserId()!;
 
-  const [profile, setProfile] = useState<UserProfile>({});
-  const displayName = profile.displayname ?? getMxIdLocalPart(userId) ?? userId;
-  const avatarUrl = profile.avatar_url
-    ? mx.mxcUrlToHttp(profile.avatar_url, 96, 96, 'crop') ?? undefined
-    : undefined;
+    const [profile, setProfile] = useState<UserProfile>({});
+    const displayName = profile.displayname ?? getMxIdLocalPart(userId) ?? userId;
+    const avatarHttp = profile.avatar_url
+        ? mx.mxcUrlToHttp(profile.avatar_url, 96, 96, 'crop') ?? undefined
+        : undefined;
+    const [avatarUrl, setAvatarUrl] = useState<string | undefined>();
 
-  useEffect(() => {
-    const user = mx.getUser(userId);
-    const onAvatarChange: UserEventHandlerMap[UserEvent.AvatarUrl] = (event, myUser) => {
-      setProfile((cp) => ({
-        ...cp,
-        avatar_url: myUser.avatarUrl,
-      }));
-    };
-    const onDisplayNameChange: UserEventHandlerMap[UserEvent.DisplayName] = (event, myUser) => {
-      setProfile((cp) => ({
-        ...cp,
-        avatar_url: myUser.displayName,
-      }));
-    };
-    mx.getProfileInfo(userId).then((info) => setProfile(() => ({ ...info })));
-    user?.on(UserEvent.AvatarUrl, onAvatarChange);
-    user?.on(UserEvent.DisplayName, onDisplayNameChange);
-    return () => {
-      user?.removeListener(UserEvent.AvatarUrl, onAvatarChange);
-      user?.removeListener(UserEvent.DisplayName, onDisplayNameChange);
-    };
-  }, [mx, userId]);
+    useEffect(() => {
+        const user = mx.getUser(userId);
+        const onAvatarChange: UserEventHandlerMap[UserEvent.AvatarUrl] = (event, myUser) => {
+            setProfile((cp) => ({
+                ...cp,
+                avatar_url: myUser.avatarUrl,
+            }));
+        };
+        const onDisplayNameChange: UserEventHandlerMap[UserEvent.DisplayName] = (event, myUser) => {
+            setProfile((cp) => ({
+                ...cp,
+                avatar_url: myUser.displayName,
+            }));
+        };
+        mx.getProfileInfo(userId).then((info) => setProfile(() => ({ ...info })));
+        user?.on(UserEvent.AvatarUrl, onAvatarChange);
+        user?.on(UserEvent.DisplayName, onDisplayNameChange);
+        return () => {
+            user?.removeListener(UserEvent.AvatarUrl, onAvatarChange);
+            user?.removeListener(UserEvent.DisplayName, onDisplayNameChange);
+        };
+    }, [mx, userId]);
 
-  return (
-    <SidebarItem>
-      <SidebarItemTooltip tooltip={getText('sidebar.tooltip.users')}>
-        {(triggerRef) => (
-          <SidebarAvatar as="button" ref={triggerRef} onClick={() => openSettings()}>
-            <UserAvatar
-              userId={userId}
-              src={avatarUrl}
-              renderFallback={() => <Text size="H4">{nameInitials(displayName)}</Text>}
-            />
-          </SidebarAvatar>
-        )}
-      </SidebarItemTooltip>
-    </SidebarItem>
-  );
+    useEffect(() => {
+        if (avatarHttp) {
+            getCachedURL(avatarHttp).then((x) => {
+                setAvatarUrl(x);
+            });
+        }
+    }, [mx, avatarHttp]);
+
+    return (
+        <SidebarItem>
+            <SidebarItemTooltip tooltip={getText('sidebar.tooltip.users')}>
+                {(triggerRef) => (
+                    <SidebarAvatar as="button" ref={triggerRef} onClick={() => openSettings()}>
+                        <UserAvatar
+                            userId={userId}
+                            src={avatarUrl}
+                            renderFallback={() => <Text size="H4">{nameInitials(displayName)}</Text>}
+                        />
+                    </SidebarAvatar>
+                )}
+            </SidebarItemTooltip>
+        </SidebarItem>
+    );
 }
