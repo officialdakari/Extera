@@ -37,7 +37,10 @@ export function UserTab() {
                 avatar_url: myUser.displayName,
             }));
         };
-        mx.getProfileInfo(userId).then((info) => setProfile(() => ({ ...info })));
+        setProfile({
+            avatar_url: user?.avatarUrl,
+            displayname: user?.rawDisplayName
+        });
         user?.on(UserEvent.AvatarUrl, onAvatarChange);
         user?.on(UserEvent.DisplayName, onDisplayNameChange);
         return () => {
