@@ -29,8 +29,6 @@ function cacheFile(url: string, name: string): Promise<void> {
 
 export default function getCachedURL(url: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-        resolve(url);
-        return;
         const w = window as any;
         if (!w.cordova || w.cordova.platformId === 'browser') {
             console.error(`not cordova, returning directly`);

@@ -13,6 +13,7 @@ import './index.scss';
 import settings from './client/state/settings';
 
 import App from './app/pages/App';
+import getCachedURL from './app/utils/cache';
 
 document.body.classList.add(configClass, varsClass);
 if (navigator.serviceWorker) navigator.serviceWorker.register('/worker.js');
@@ -54,6 +55,8 @@ if (navigator.serviceWorker) {
         console.error("Error opening database: ", error);
     };
 }
+
+(window as any).getCachedURL = getCachedURL;
 
 const mountApp = () => {
     const rootContainer = document.getElementById('root');
