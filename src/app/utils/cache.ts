@@ -43,7 +43,7 @@ export default function getCachedURL(url: string): Promise<string> {
             resolve(nUrl);
             console.log(`Loading file from cache ${nUrl} ${url}`);
         }, (err: Error) => {
-            cacheFile(url, path);
+            cacheFile(url, name);
             console.error(`Failed to cache file!`, url, name, err);
             resolve(url);
         });
