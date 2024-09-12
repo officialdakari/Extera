@@ -8,7 +8,7 @@ function cacheFile(url: string, name: string): Promise<void> {
         const ft = new FileTransfer();
         ft.download(
             url,
-            `${cordova.file.cacheDirectory}/${name}`,
+            `${cordova.file.cacheDirectory}/${name}`.replaceAll('//', '/'),
             function () {
                 console.debug(`Downloaded!!!`);
                 resolve();
@@ -19,9 +19,7 @@ function cacheFile(url: string, name: string): Promise<void> {
             },
             false,
             {
-                headers: {
-                    'Authorization': mx ? `Bearer ${mx.getAccessToken()}` : undefined
-                }
+
             }
         );
     });
@@ -36,7 +34,7 @@ export default function getCachedURL(url: string): Promise<string> {
             return;
         }
         const name = md5(url);
-        const path = `${w.cordova.file.cacheDirectory}/${name}`;
+        const path = `${w.cordova.file.cacheDirectory}/${name}`.replaceAll('//', '/');
 
         w.resolveLocalFileSystemURL(path, (fileEntry: any) => {
             const nUrl = fileEntry.toURL();
