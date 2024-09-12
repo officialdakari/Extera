@@ -17,6 +17,7 @@ import getCachedURL from './app/utils/cache';
 
 document.body.classList.add(configClass, varsClass);
 if (navigator.serviceWorker) navigator.serviceWorker.register('/worker.js');
+if (navigator.serviceWorker) navigator.serviceWorker.register('/cacher.js');
 settings.applyTheme();
 
 if (navigator.serviceWorker) {

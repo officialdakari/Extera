@@ -36,6 +36,10 @@ const copyFiles = {
             src: 'public/res/android',
             dest: 'public/',
         },
+        {
+            src: 'public/cacher.js',
+            dest: ''
+        }
     ],
 };
 
