@@ -30,6 +30,7 @@ import IconButton from '../../atoms/button/IconButton';
 import Input from '../../atoms/input/Input';
 import Avatar from '../../atoms/avatar/Avatar';
 import Button from '../../atoms/button/Button';
+import { color, config, Button as FoldsButton, IconButton as FoldsIconButton, Header, Modal, Overlay, OverlayBackdrop, OverlayCenter } from 'folds';
 import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 import PowerLevelSelector from '../../molecules/power-level-selector/PowerLevelSelector';
 import Dialog from '../../molecules/dialog/Dialog';
@@ -40,16 +41,20 @@ import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getDMRoomFor } from '../../utils/matrix';
 import { EventTimeline } from 'matrix-js-sdk';
 import Banner from './Banner';
-import { getText } from '../../../lang';
+import { getText, translate } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { VerificationBadge } from '../../components/verification-badge/VerificationBadge';
 import { Box } from 'folds';
-import { mdiChevronDown, mdiChevronRight, mdiClose, mdiShieldOutline } from '@mdi/js';
+import { mdiAccountCancelOutline, mdiAccountMinusOutline, mdiChevronDown, mdiChevronRight, mdiClose, mdiShieldOutline } from '@mdi/js';
+import Icon from '@mdi/react';
+import FocusTrap from 'focus-trap-react';
 
 function ModerationTools({ roomId, userId }) {
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(roomId);
     const roomMember = room.getMember(userId);
+    const [open, setOpen] = useState(false);
+    const [ban, setBan] = useState(false);
 
     const myPowerLevel = room.getMember(mx.getUserId())?.powerLevel || 0;
     const powerLevel = roomMember?.powerLevel || 0;
@@ -63,22 +68,92 @@ function ModerationTools({ roomId, userId }) {
         powerLevel < myPowerLevel;
 
     const handleKick = (e) => {
-        e.preventDefault();
-        const kickReason = e.target.elements['kick-reason']?.value.trim();
-        roomActions.kick(roomId, userId, kickReason !== '' ? kickReason : undefined);
+        setBan(false);
+        setOpen(true);
     };
 
     const handleBan = (e) => {
+        setBan(true);
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleSubmit = (e) => {
         e.preventDefault();
-        const banReason = e.target.elements['ban-reason']?.value.trim();
-        roomActions.ban(roomId, userId, banReason !== '' ? banReason : undefined);
+        const reason = e.target.elements['reason']?.value.trim();
+        console.log(`!!! ${reason}`);
+        if (ban) {
+            roomActions.ban(roomId, userId, reason !== '' ? reason : undefined);
+        } else {
+            roomActions.kick(roomId, userId, reason !== '' ? reason : undefined);
+        }
+        setOpen(false);
     };
 
     // TODO seperate dialog for entering reason
 
     return (
-        <div className="moderation-tools">
-            {canIKick && (
+        <>
+            <Overlay open={open} backdrop={<OverlayBackdrop />}>
+                <OverlayCenter>
+                    <Modal variant="Surface" size='300'>
+                        <Header
+                            style={{
+                                padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
+                                borderBottomWidth: config.borderWidth.B300,
+                            }}
+                            variant="Surface"
+                            size="500"
+                        >
+                            <Box grow="Yes">
+                                <Text size="H4">
+                                    {
+                                        translate(
+                                            ban ? 'title.ban' : 'title.kick',
+                                            <b>{roomMember.rawDisplayName}</b>
+                                        )
+                                    }
+                                </Text>
+                            </Box>
+                            <FoldsIconButton size="300" onClick={handleClose} radii="300">
+                                <Icon size={1} path={mdiClose} />
+                            </FoldsIconButton>
+                        </Header>
+                        <Box
+                            as="form"
+                            style={{ padding: config.space.S400 }}
+                            direction="Column"
+                            gap="400"
+                            onSubmit={handleSubmit}
+                        >
+                            <Box direction="Column" gap="100">
+                                <Input name="reason" placeholder={getText(ban ? 'label.profile_viewer.ban_reason' : 'label.profile_viewer.kick_reason')} variant="Secondary" autoComplete='off' />
+                            </Box>
+                            <FoldsButton
+                                type="submit"
+                                variant="Critical"
+                            >
+                                {getText(ban ? 'btn.profile_viewer.ban' : 'btn.profile_viewer.kick')}
+                            </FoldsButton>
+                        </Box>
+                    </Modal>
+                </OverlayCenter>
+            </Overlay>
+            <div className="moderation-tools" style={{ borderColor: color.Surface.ContainerLine }}>
+                {canIKick && (
+                    <FoldsButton onClick={handleKick} variant='Critical' fill='None' before={<Icon size={1} path={mdiAccountMinusOutline} />}>
+                        {getText('btn.profile_viewer.kick')}
+                    </FoldsButton>
+                )}
+                {canIBan && (
+                    <FoldsButton onClick={handleBan} variant='Critical' fill='None' before={<Icon size={1} path={mdiAccountCancelOutline} />}>
+                        {getText('btn.profile_viewer.ban')}
+                    </FoldsButton>
+                )}
+                {/* {canIKick && (
                 <form onSubmit={handleKick}>
                     <Input label={getText('label.profile_viewer.kick_reason')} name="kick-reason" />
                     <Button type="submit">{getText('btn.profile_viewer.kick')}</Button>
@@ -89,8 +164,9 @@ function ModerationTools({ roomId, userId }) {
                     <Input label={getText('label.profile_viewer.ban_reason')} name="ban-reason" />
                     <Button type="submit">{getText('btn.profile_viewer.ban')}</Button>
                 </form>
-            )}
-        </div>
+            )} */}
+            </div>
+        </>
     );
 }
 ModerationTools.propTypes = {
@@ -439,8 +515,8 @@ function ProfileViewer() {
                     </div>
                 </div>
                 <Text>{statusMsg}</Text>
-                <ModerationTools roomId={roomId} userId={userId} />
                 <SessionInfo userId={userId} />
+                <ModerationTools roomId={roomId} userId={userId} />
                 {userId !== mx.getUserId() && (
                     <ProfileFooter roomId={roomId} userId={userId} onRequestClose={closeDialog} />
                 )}

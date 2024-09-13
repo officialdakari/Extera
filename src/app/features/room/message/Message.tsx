@@ -16,6 +16,7 @@ import {
     OverlayCenter,
     PopOut,
     RectCords,
+    Scroll,
     Spinner,
     Text,
     as,
@@ -613,7 +614,9 @@ export const MessageRecoverItem = as<
                                     <Icon size={1} path={mdiClose} />
                                 </IconButton>
                             </Header>
-                            {message}
+                            <Scroll>
+                                {message}
+                            </Scroll>
                         </Modal>
                     </FocusTrap>
                 </OverlayCenter>
@@ -1589,25 +1592,27 @@ export const Message = as<'div', MessageProps>(
                                                             </Text>
                                                         </MenuItem>
                                                     )}
-                                                    <MenuItem
-                                                        size="300"
-                                                        after={<Icon size={1} path={mdiArrowRight} />}
-                                                        radii="300"
-                                                        data-event-id={mEvent.getId()}
-                                                        onClick={() => {
-                                                            navigateRoom(room.roomId, mEvent.getId());
-                                                            closeMenu();
-                                                        }}
-                                                    >
-                                                        <Text
-                                                            className={css.MessageMenuItemText}
-                                                            as="span"
-                                                            size="T300"
-                                                            truncate
+                                                    {showGoTo && (
+                                                        <MenuItem
+                                                            size="300"
+                                                            after={<Icon size={1} path={mdiArrowRight} />}
+                                                            radii="300"
+                                                            data-event-id={mEvent.getId()}
+                                                            onClick={() => {
+                                                                navigateRoom(room.roomId, mEvent.getId());
+                                                                closeMenu();
+                                                            }}
                                                         >
-                                                            {getText('msg_menu.goto')}
-                                                        </Text>
-                                                    </MenuItem>
+                                                            <Text
+                                                                className={css.MessageMenuItemText}
+                                                                as="span"
+                                                                size="T300"
+                                                                truncate
+                                                            >
+                                                                {getText('msg_menu.goto')}
+                                                            </Text>
+                                                        </MenuItem>
+                                                    )}
                                                     <MessageReadReceiptItem
                                                         room={room}
                                                         eventId={mEvent.getId() ?? ''}

@@ -915,5 +915,7 @@
 	"change_password.title": "Новый пароль",
 	"change_password.old": "Введите старый пароль",
 	"msg_menu.download": "Скачать",
-	"msg_menu.goto": "Перейти"
+	"msg_menu.goto": "Перейти",
+	"title.ban": "Забанить {0}",
+	"title.kick": "Выгнать {0}"
 }

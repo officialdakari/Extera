@@ -25,6 +25,8 @@ export const EditorOptions = style([
     DefaultReset,
     {
         padding: config.space.S200,
+        justifyContent: 'end',
+        alignSelf: 'end',
     },
 ]);
 

@@ -1,110 +1,130 @@
 @use '../../partials/flex';
 @use '../../partials/dir';
+@use '../../partials/screen';
 
 .profile-viewer__dialog {
-  & .dialog__content__wrapper {
-    position: relative;
-  }
-  & .dialog__content-container {
-    padding-top: var(--sp-normal);
-    padding-bottom: 89px;
-    @include dir.side(padding, var(--sp-normal), var(--sp-normal));
-  }
+    & .dialog__content__wrapper {
+        position: relative;
+    }
+
+    & .dialog__content-container {
+        padding-top: var(--sp-normal);
+        padding-bottom: 89px;
+        @include dir.side(padding, var(--sp-normal), var(--sp-normal));
+    }
 }
 
 .profile-viewer {
-  &__user {
-    display: flex;
-    padding-bottom: var(--sp-normal);
+    &__user {
+        display: flex;
+        padding-bottom: var(--sp-normal);
 
-    &__info {
-      align-self: flex-end;
-      flex: 1;
-      min-width: 0;
+        &__info {
+            align-self: flex-end;
+            flex: 1;
+            min-width: 0;
 
-      margin: 0 var(--sp-normal);
+            margin: 0 var(--sp-normal);
 
-      & .text {
-        white-space: pre-wrap;
-        word-break: break-word;
-      }
+            & .text {
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+        }
+
+        &__role {
+            align-self: flex-end;
+
+            &>.text {
+                margin-bottom: var(--sp-ultra-tight);
+            }
+        }
     }
-    &__role {
-      align-self: flex-end;
-      & > .text {
-        margin-bottom: var(--sp-ultra-tight);
-      }
-    }
-  }
-  
-  & .session-info {
-    margin-top: var(--sp-normal);
-  }
 
-  &__buttons {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    
-    width: 100%;
-    padding: var(--sp-normal);
-    background-color: var(--bg-surface);
-    border-top: 1px solid var(--bg-surface-border);
-    display: flex;
+    & .session-info {
+        margin-top: var(--sp-normal);
+    }
 
-    & > *:nth-child(2n) {
-      margin: 0 var(--sp-normal)
+    &__buttons {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+
+        width: 100%;
+        padding: var(--sp-normal);
+        background-color: var(--bg-surface);
+        border-top: 1px solid var(--bg-surface-border);
+        display: flex;
+
+        &>*:nth-child(2n) {
+            margin: 0 var(--sp-normal)
+        }
+
+        &>*:last-child {
+            @include dir.side(margin, auto, 0);
+        }
     }
-    & > *:last-child {
-      @include dir.side(margin, auto, 0);
-    }
-  }
 }
 
 .profile-viewer__admin-tool {
-  .setting-tile {
-    margin-top: var(--sp-loose);
-  }
+    .setting-tile {
+        margin-top: var(--sp-loose);
+    }
 }
 
 .moderation-tools {
-  & > form {
-    margin: var(--sp-normal) 0;
-    display: flex;
-    align-items: flex-end;
-    & .input-container {
-      @extend .cp-fx__item-one;
-      @include dir.side(margin, 0, var(--sp-tight));
+    &>form {
+        margin: var(--sp-normal) 0;
+        display: flex;
+        align-items: flex-end;
+
+        & .input-container {
+            @extend .cp-fx__item-one;
+            @include dir.side(margin, 0, var(--sp-tight));
+        }
+
+        & button {
+            height: 46px;
+        }
     }
+
     & button {
-      height: 46px;
+        align-content: start;
+        justify-content: start;
+        width: 100%;
+        margin: var(--sp-ultra-tight) 0;
     }
-  }
+
+    border-radius: var(--bo-radius);
+    border-width: 1px;
+    border-style: solid;
 }
 
 .session-info {
-  box-shadow: var(--bs-surface-border);
-  border-radius: var(--bo-radius);
-  overflow: hidden;
+    box-shadow: var(--bs-surface-border);
+    border-radius: var(--bo-radius);
+    overflow: hidden;
 
-  & .context-menu__item button {
-    padding: var(--sp-extra-tight);
-    & .ic-raw {
-      @include dir.side(margin, 0, var(--sp-extra-tight));
-    }
-  }
-  
-  &__chips {
-    border-top: 1px solid var(--bg-surface-border);
-    padding: var(--sp-tight);
-    padding-top: var(--sp-ultra-tight);
+    & .context-menu__item button {
+        padding: var(--sp-extra-tight);
 
-    & > .text {
-      margin-top: var(--sp-extra-tight);
+        & .ic-raw {
+            @include dir.side(margin, 0, var(--sp-extra-tight));
+        }
     }
-    & .chip {
-      margin-top: var(--sp-extra-tight);
-      @include dir.side(margin, 0, var(--sp-extra-tight));
+
+    &__chips {
+        border-top: 1px solid var(--bg-surface-border);
+        padding: var(--sp-tight);
+        padding-top: var(--sp-ultra-tight);
+
+        &>.text {
+            margin-top: var(--sp-extra-tight);
+        }
+
+        & .chip {
+            margin-top: var(--sp-extra-tight);
+            @include dir.side(margin, 0, var(--sp-extra-tight));
+        }
     }
-  } 
 }

@@ -747,7 +747,13 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                                         aria-pressed={
                                                             !!emojiBoardTab
                                                         }
-                                                        onClick={() => setEmojiBoardTab(showStickerButton ? EmojiBoardTab.Sticker : EmojiBoardTab.Emoji)}
+                                                        onClick={() => {
+                                                            if (emojiBoardTab) {
+                                                                setEmojiBoardTab(undefined);
+                                                            } else {
+                                                                setEmojiBoardTab(showStickerButton ? EmojiBoardTab.Sticker : EmojiBoardTab.Emoji)
+                                                            }
+                                                        }}
                                                         //onMouseDown={dontHideKeyboard}
                                                         variant="SurfaceVariant"
                                                         size="300"

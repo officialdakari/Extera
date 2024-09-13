@@ -646,6 +646,8 @@
     "btn.profile_editor.save_name": "Save",
     "label.profile_viewer.kick_reason": "Kick reason",
     "label.profile_viewer.ban_reason": "Ban reason",
+    "title.ban": "Ban {0}",
+    "title.kick": "Kick {0}",
     "btn.profile_viewer.kick": "Kick",
     "btn.profile_viewer.ban": "Ban",
     "session_info.loading": "Loading sessions...",
