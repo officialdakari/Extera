@@ -914,5 +914,6 @@
 	"change_password.header": "Изменение пароля",
 	"change_password.title": "Новый пароль",
 	"change_password.old": "Введите старый пароль",
-	"msg_menu.download": "Скачать"
+	"msg_menu.download": "Скачать",
+	"msg_menu.goto": "Перейти"
 }

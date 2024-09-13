@@ -92,7 +92,7 @@ import { ImageViewer } from '../../../components/image-viewer';
 import { Image } from '../../../components/media';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
-import { mdiAccount, mdiAlertCircleOutline, mdiCheck, mdiCheckAll, mdiClose, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiDownload, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReply, mdiRestore, mdiTranslate } from '@mdi/js';
+import { mdiAccount, mdiAlertCircleOutline, mdiArrowRight, mdiCheck, mdiCheckAll, mdiClose, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiDownload, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReply, mdiRestore, mdiTranslate } from '@mdi/js';
 import { useBackButton } from '../../../hooks/useBackButton';
 import { translateContent } from '../../../utils/translation';
 import { getLocalVerification } from '../../../utils/getVerificationState';
@@ -1114,6 +1114,7 @@ export type MessageProps = {
     reply?: ReactNode;
     thread?: ReactNode;
     reactions?: ReactNode;
+    showGoTo?: boolean;
 };
 export const Message = as<'div', MessageProps>(
     (
@@ -1141,6 +1142,7 @@ export const Message = as<'div', MessageProps>(
             thread,
             reactions,
             children,
+            showGoTo,
             ...props
         },
         ref
@@ -1151,20 +1153,20 @@ export const Message = as<'div', MessageProps>(
         const [hover, setHover] = useState(false);
         const { hoverProps } = useHover({ onHoverChange: setHover });
         const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: setHover });
+        const { navigateRoom } = useRoomNavigate();
         const [tgRename] = useSetting(settingsAtom, 'extera_renameTgBot');
         const [menuAnchor, setMenuAnchor] = useState<RectCords>();
         const [emojiBoardAnchor, setEmojiBoardAnchor] = useState<RectCords>();
-        const loc = useLocation();
         const user = mx.getUser(senderId);
-
+        const localPart = getMxIdLocalPart(senderId);
         const content = mEvent.getContent();
 
         var senderDisplayName =
-            getMemberDisplayName(room, senderId) ?? user?.displayName ?? getMxIdLocalPart(senderId) ?? senderId;
+            getMemberDisplayName(room, senderId) ?? user?.displayName ?? localPart ?? senderId;
         var senderAvatarMxc = getMemberAvatarMxc(room, senderId);
 
         if (tgRename && room.name != 'Telegram bridge bot' && mEvent.getContent().msgtype != 'm.notice') {
-            if (senderDisplayName == 'Telegram bridge bot') {
+            if (['telegram', 'telegrambot'].includes(localPart!)) {
                 senderDisplayName = room.name;
                 senderAvatarMxc = room.getMxcAvatarUrl() ?? senderAvatarMxc;
             }
@@ -1587,6 +1589,25 @@ export const Message = as<'div', MessageProps>(
                                                             </Text>
                                                         </MenuItem>
                                                     )}
+                                                    <MenuItem
+                                                        size="300"
+                                                        after={<Icon size={1} path={mdiArrowRight} />}
+                                                        radii="300"
+                                                        data-event-id={mEvent.getId()}
+                                                        onClick={() => {
+                                                            navigateRoom(room.roomId, mEvent.getId());
+                                                            closeMenu();
+                                                        }}
+                                                    >
+                                                        <Text
+                                                            className={css.MessageMenuItemText}
+                                                            as="span"
+                                                            size="T300"
+                                                            truncate
+                                                        >
+                                                            {getText('msg_menu.goto')}
+                                                        </Text>
+                                                    </MenuItem>
                                                     <MessageReadReceiptItem
                                                         room={room}
                                                         eventId={mEvent.getId() ?? ''}

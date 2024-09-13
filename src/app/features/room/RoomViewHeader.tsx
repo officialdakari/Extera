@@ -497,6 +497,7 @@ export function RoomViewHeader({
                         onDiscussClick={(evt: any) => null}
                         onUserClick={(evt: any) => null}
                         onUsernameClick={(evt: any) => null}
+                        showGoTo
                     >
                         {mEvent.getType() == 'm.room.message' && <RenderMessageContent
                             displayName={mEvent.sender?.rawDisplayName || mEvent.sender?.userId || getText('generic.unknown')}
