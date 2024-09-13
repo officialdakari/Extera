@@ -447,7 +447,7 @@ function ProfileViewer() {
         console.log(membershipContent);
 
         if (typeof membershipContent[cons.EXTERA_BANNER_URL] === 'string' && membershipContent[cons.EXTERA_BANNER_URL].startsWith('mxc://')) {
-            bannerUrl = membershipContent[cons.EXTERA_BANNER_URL];
+            bannerUrl = mx.mxcUrlToHttp(membershipContent[cons.EXTERA_BANNER_URL]);
         }
 
         const canChangeRole =
