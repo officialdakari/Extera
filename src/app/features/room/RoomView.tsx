@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Box, Text, config } from 'folds';
 import { CallEvent, EventTimeline, EventType, MatrixCall, MatrixEvent, MatrixEventEvent, Room, RoomEvent } from 'matrix-js-sdk';
 
@@ -28,6 +28,7 @@ import { useModals } from '../../hooks/useModals';
 import { v4 } from 'uuid';
 import { generateConferenceID } from '../../../util/conferenceID';
 import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
+import wallpaperDB from '../../utils/wallpaper';
 
 export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?: string; threadRootId?: string; }) {
     const roomInputRef = useRef(null);
@@ -39,7 +40,6 @@ export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?
 
     const tombstoneEvent = useStateEvent(room, StateEvent.RoomTombstone);
     const powerLevels = usePowerLevelsContext();
-    const [wallpaperURL] = useSetting(settingsAtom, 'extera_wallpaper');
     const [newDesignInput] = useSetting(settingsAtom, 'newDesignInput');
     const { getPowerLevel, canSendEvent } = usePowerLevelsAPI(powerLevels);
     const myUserId = mx.getUserId();
@@ -47,14 +47,8 @@ export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?
         ? canSendEvent(EventType.RoomMessage, getPowerLevel(myUserId))
         : false;
     const taRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
+    const [style, setStyle] = useState<CSSProperties>({});
 
-    var style = {};
-    if (typeof wallpaperURL === 'string') {
-        style = {
-            backgroundImage: `url(${mx.mxcUrlToHttp(wallpaperURL)})`,
-            backgroundSize: 'cover'
-        };
-    }
     const [mxCall, setMxCall] = useState<MatrixCall | undefined>(undefined);
 
     const [callWindow, setCallWindow] = useRoomCall();
@@ -199,6 +193,15 @@ export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?
             mx.off(RoomEvent.Timeline, listener);
         };
     }, [mx]);
+
+    useEffect(() => {
+        wallpaperDB.getWallpaper().then((url) => {
+            setStyle({
+                backgroundImage: `url(${url})`,
+                backgroundSize: 'cover'
+            });
+        });
+    }, [wallpaperDB]);
 
     sendExteraProfile(roomId);
 

@@ -10,12 +10,16 @@ self.addEventListener('fetch', async (event) => {
     if (['/_matrix/client/v1/media', '/_matrix/client/v3/media', '/_matrix/media'].find(x => event.request.url.includes(x))) {
         // Open the cache
         event.respondWith(caches.open(cacheName).then((cache) => {
-            // Respond with the image from the cache or from the network
-            return cache.match(event.request).then((cachedResponse) => {
-                return cachedResponse || fetch(event.request.url).then((fetchedResponse) => {
-                    // Add the network response to the cache for future visits.
-                    // Note: we need to make a copy of the response to save it in
-                    // the cache and use the original as the request response.
+            // Go to the cache first
+            return cache.match(event.request.url).then((cachedResponse) => {
+                // Return a cached response if we have one
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+
+                // Otherwise, hit the network
+                return fetch(event.request).then((fetchedResponse) => {
+                    // Add the network response to the cache for later visits
                     cache.put(event.request, fetchedResponse.clone());
 
                     // Return the network response

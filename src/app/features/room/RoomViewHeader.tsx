@@ -245,7 +245,7 @@ export function RoomViewHeader({
     handleVideoCall
 }: RoomViewHeaderProps) {
     const navigate = useNavigate();
-    const {threadRootId} = useParams();
+    const { threadRootId } = useParams();
     const mx = useMatrixClient();
     const screenSize = useScreenSizeContext();
     const room = useRoom();
@@ -475,51 +475,55 @@ export function RoomViewHeader({
             <DefaultPlaceholder />
         ]);
         for (const eventId of pinned.slice(index, index + 10)) {
-            var mEvent: MatrixEvent = room.findEventById(eventId) ?? new MatrixEvent(await mx.fetchRoomEvent(room.roomId, eventId));
-            console.log(eventId, mEvent);
-            if (!mEvent) continue;
-            pinnedMessages.push(
-                <Message
-                    key={mEvent.getId()}
-                    data-message-id={mEvent.getId()}
-                    room={room}
-                    mEvent={mEvent}
-                    edit={false}
-                    canDelete={false}
-                    canSendReaction={false}
-                    collapse={false}
-                    highlight={false}
-                    messageSpacing={messageSpacing}
-                    messageLayout={messageLayout}
-                    onReactionToggle={(evt: any) => null}
-                    onReplyClick={(evt: any) => null}
-                    onDiscussClick={(evt: any) => null}
-                    onUserClick={(evt: any) => null}
-                    onUsernameClick={(evt: any) => null}
-                >
-                    {mEvent.getType() == 'm.room.message' && <RenderMessageContent
-                        displayName={mEvent.sender?.rawDisplayName || mEvent.sender?.userId || getText('generic.unknown')}
-                        msgType={mEvent.getContent().msgtype ?? ''}
-                        ts={mEvent.getTs()}
-                        edited={false}
-                        getContent={mEvent.getContent.bind(mEvent) as GetContentCallback}
-                        mediaAutoLoad={true}
-                        urlPreview={false}
-                        htmlReactParserOptions={htmlReactParserOptions}
-                    />}
-                    {mEvent.getType() == 'm.sticker' && <MSticker
-                        content={mEvent.getContent()}
-                        renderImageContent={(props) => (
-                            <ImageContent
-                                {...props}
-                                autoPlay={mediaAutoLoad}
-                                renderImage={(p) => <Image loading="lazy" />}
-                                renderViewer={(p) => <ImageViewer {...p} />}
-                            />
-                        )}
-                    />}
-                </Message>
-            );
+            try {
+                var mEvent: MatrixEvent = room.getTimelineForEvent(eventId)?.getEvents().find(x => x.getId() === eventId) ?? new MatrixEvent(await mx.fetchRoomEvent(room.roomId, eventId));
+                console.log(eventId, mEvent);
+                if (!mEvent) continue;
+                pinnedMessages.push(
+                    <Message
+                        key={mEvent.getId()}
+                        data-message-id={mEvent.getId()}
+                        room={room}
+                        mEvent={mEvent}
+                        edit={false}
+                        canDelete={false}
+                        canSendReaction={false}
+                        collapse={false}
+                        highlight={false}
+                        messageSpacing={messageSpacing}
+                        messageLayout={messageLayout}
+                        onReactionToggle={(evt: any) => null}
+                        onReplyClick={(evt: any) => null}
+                        onDiscussClick={(evt: any) => null}
+                        onUserClick={(evt: any) => null}
+                        onUsernameClick={(evt: any) => null}
+                    >
+                        {mEvent.getType() == 'm.room.message' && <RenderMessageContent
+                            displayName={mEvent.sender?.rawDisplayName || mEvent.sender?.userId || getText('generic.unknown')}
+                            msgType={mEvent.getContent().msgtype ?? ''}
+                            ts={mEvent.getTs()}
+                            edited={false}
+                            getContent={mEvent.getContent.bind(mEvent) as GetContentCallback}
+                            mediaAutoLoad={true}
+                            urlPreview={false}
+                            htmlReactParserOptions={htmlReactParserOptions}
+                        />}
+                        {mEvent.getType() == 'm.sticker' && <MSticker
+                            content={mEvent.getContent()}
+                            renderImageContent={(props) => (
+                                <ImageContent
+                                    {...props}
+                                    autoPlay={mediaAutoLoad}
+                                    renderImage={(p) => <Image loading="lazy" />}
+                                    renderViewer={(p) => <ImageViewer {...p} />}
+                                />
+                            )}
+                        />}
+                    </Message>
+                );
+            } catch (error) {
+                console.error(`Failed loading ${eventId}`, error);
+            }
         }
         setPinned(pinnedMessages);
         setLoadingPinList(false);

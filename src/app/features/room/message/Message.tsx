@@ -1155,11 +1155,12 @@ export const Message = as<'div', MessageProps>(
         const [menuAnchor, setMenuAnchor] = useState<RectCords>();
         const [emojiBoardAnchor, setEmojiBoardAnchor] = useState<RectCords>();
         const loc = useLocation();
+        const user = mx.getUser(senderId);
 
         const content = mEvent.getContent();
 
         var senderDisplayName =
-            getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
+            getMemberDisplayName(room, senderId) ?? user?.displayName ?? getMxIdLocalPart(senderId) ?? senderId;
         var senderAvatarMxc = getMemberAvatarMxc(room, senderId);
 
         if (tgRename && room.name != 'Telegram bridge bot' && mEvent.getContent().msgtype != 'm.notice') {
