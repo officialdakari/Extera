@@ -259,10 +259,10 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
                 name: Command.Hide,
                 description: getText('command.hide.desc'),
                 exe: async () => {
-                    const hideDataEvent = mx.getAccountData('ru.officialdakari.extera.hidden_chats');
+                    const hideDataEvent = mx.getAccountData('xyz.extera.hidden_chats');
                     const hidden_chats = hideDataEvent ? hideDataEvent.getContent().hidden_chats : {};
                     hidden_chats[room.roomId] = true;
-                    mx.setAccountData('ru.officialdakari.extera.hidden_chats', {
+                    mx.setAccountData('xyz.extera.hidden_chats', {
                         hidden_chats
                     });
                 }
@@ -271,10 +271,10 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
                 name: Command.UnHide,
                 description: getText('command.unhide.desc'),
                 exe: async () => {
-                    const hideDataEvent = mx.getAccountData('ru.officialdakari.extera.hidden_chats');
+                    const hideDataEvent = mx.getAccountData('xyz.extera.hidden_chats');
                     const hidden_chats = hideDataEvent ? hideDataEvent.getContent().hidden_chats : {};
                     hidden_chats[room.roomId] = false;
-                    mx.setAccountData('ru.officialdakari.extera.hidden_chats', {
+                    mx.setAccountData('xyz.extera.hidden_chats', {
                         hidden_chats
                     });
                 }

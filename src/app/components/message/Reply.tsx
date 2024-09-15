@@ -121,22 +121,27 @@ export const Reply = as<'div', ReplyProps>(({ mx, room, timelineSet, eventId, ..
             }),
         [mx, room, navigateRoom, navigateSpace]
     );
+
+    const hideReason = (replyEvent?.getContent()['space.0x1a8510f2.msc3368.tags'] ?? [])[0];
+
     const bodyJSX = body
         && replyEvent
         ? (replyEvent.getType() === 'm.sticker'
             ? getText('image.usage.sticker')
-            : <RenderMessageContent
-                displayName={replyEvent?.sender?.rawDisplayName || replyEvent?.sender?.userId || getText('generic.unknown')}
-                msgType={replyEvent?.getContent().msgtype ?? ''}
-                ts={replyEvent?.getTs()}
-                edited={false}
-                getContent={replyEvent?.getContent.bind(replyEvent) as GetContentCallback}
-                mediaAutoLoad={mediaAutoLoad}
-                urlPreview={false}
-                outlineAttachment
-                hideAttachment
-                htmlReactParserOptions={htmlReactParserOptions}
-            />)
+            : hideReason
+                ? <i>{getText(hideReason)}</i>
+                : <RenderMessageContent
+                    displayName={replyEvent?.sender?.rawDisplayName || replyEvent?.sender?.userId || getText('generic.unknown')}
+                    msgType={replyEvent?.getContent().msgtype ?? ''}
+                    ts={replyEvent?.getTs()}
+                    edited={false}
+                    getContent={replyEvent?.getContent.bind(replyEvent) as GetContentCallback}
+                    mediaAutoLoad={mediaAutoLoad}
+                    urlPreview={false}
+                    outlineAttachment
+                    hideAttachment
+                    htmlReactParserOptions={htmlReactParserOptions}
+                />)
         : fallbackBody;
 
     return (

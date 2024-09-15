@@ -9,7 +9,7 @@
 
     & .dialog__content-container {
         padding-top: var(--sp-normal);
-        padding-bottom: 89px;
+        padding-bottom: 50px;
         @include dir.side(padding, var(--sp-normal), var(--sp-normal));
     }
 }
@@ -87,6 +87,15 @@
             height: 46px;
         }
     }
+}
+
+.action-list {
+    margin-top: var(--sp-normal);
+    border-radius: var(--bo-radius);
+    border-width: 1px;
+    border-style: solid;
+    display: flex;
+    flex-direction: column;
 
     & button {
         align-content: start;
@@ -94,15 +103,13 @@
         width: 100%;
         margin: var(--sp-ultra-tight) 0;
     }
-
-    border-radius: var(--bo-radius);
-    border-width: 1px;
-    border-style: solid;
 }
 
 .session-info {
     box-shadow: var(--bs-surface-border);
     border-radius: var(--bo-radius);
+    border-width: 1px;
+    border-style: solid;
     overflow: hidden;
 
     & .context-menu__item button {

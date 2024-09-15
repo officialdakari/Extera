@@ -6,6 +6,7 @@ import { isMembershipChanged } from '../utils/room';
 import { useMatrixClient } from './useMatrixClient';
 import { mdiAccount, mdiAccountLock, mdiAccountLockOpen, mdiAccountPlus, mdiAccountRemove, mdiArrowRight, mdiAt } from '@mdi/js';
 import { getText, translate } from '../../lang';
+import cons from '../../client/state/cons';
 
 export type ParsedResult = {
     icon: string;
@@ -219,10 +220,12 @@ export const useMemberEventParser = (): MemberEventParser => {
             };
         }
 
-        if (content['ru.officialdakari.extera_banner'] !== prevContent['ru.officialdakari.extera_banner']) {
+        //@ts-ignore
+        if (content[cons.EXTERA_BANNER_URL] !== prevContent[cons.EXTERA_BANNER_URL]) {
             return {
                 icon: mdiAccount,
-                body: content['ru.officialdakari.extera_banner'] ? (
+                //@ts-ignore
+                body: content[cons.EXTERA_BANNER_URL] ? (
                     translate(
                         'membership.banner',
                         <b>{userName}</b>,

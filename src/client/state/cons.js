@@ -1,7 +1,7 @@
 const cons = {
     name: 'Extera',
     app_id: 'ru.officialdakari.extera',
-    version: '1.4',
+    version: '1.5',
     secretKey: {
         ACCESS_TOKEN: 'cinny_access_token',
         DEVICE_ID: 'cinny_device_id',
@@ -9,8 +9,8 @@ const cons = {
         BASE_URL: 'cinny_hs_base_url',
     },
     DEVICE_DISPLAY_NAME: 'Extera Chat',
-    IN_CINNY_SPACES: 'ru.officialdakari.extera.spaces',
-    EXTERA_BANNER_URL: 'ru.officialdakari.extera_banner',
+    IN_CINNY_SPACES: 'xyz.extera.spaces',
+    EXTERA_BANNER_URL: 'xyz.extera.banner_url',
     supportEventTypes: [
         'm.room.create',
         'm.room.message',

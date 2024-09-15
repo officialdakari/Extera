@@ -3,9 +3,10 @@ import { BlockType, MarkType } from './types';
 export const resetEditor = (editor: React.RefObject<HTMLTextAreaElement>) => {
     const e = editor.current;
     if (!e) return;
+    const wasInFocus = document.activeElement === e;
     e.value = '';
     e.blur();
-    e.focus();
+    if (wasInFocus) e.focus();
     e.rows = 1;
     e.style.height = `auto`;
 };

@@ -140,7 +140,7 @@ export const useOrphanSpaces = (
 };
 
 export const isHidden = (mx: MatrixClient, roomId: string) => {
-    const hideDataEvent = mx.getAccountData('ru.officialdakari.extera.hidden_chats');
+    const hideDataEvent = mx.getAccountData('xyz.extera.hidden_chats');
     const hidden_chats = hideDataEvent ? hideDataEvent.getContent().hidden_chats : {};
     return hidden_chats[roomId] ?? false;
 };

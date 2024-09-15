@@ -8,6 +8,7 @@ import inject from '@rollup/plugin-inject';
 import topLevelAwait from 'vite-plugin-top-level-await';
 import buildConfig from './build.config';
 import { readFileSync } from 'fs';
+import { VitePWA } from 'vite-plugin-pwa';
 
 const copyFiles = {
     targets: [
@@ -72,6 +73,20 @@ export default defineConfig({
         vanillaExtractPlugin(),
         wasm(),
         react(),
+        VitePWA({
+            srcDir: 'src',
+            filename: 'sw.ts',
+            strategies: 'injectManifest',
+            injectRegister: false,
+            manifest: false,
+            injectManifest: {
+                injectionPoint: undefined,
+            },
+            devOptions: {
+                enabled: true,
+                type: 'module'
+            }
+        })
     ],
     optimizeDeps: {
         esbuildOptions: {

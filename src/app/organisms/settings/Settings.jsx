@@ -111,7 +111,7 @@ function AppearanceSection() {
     const handleSetWallpaper = async () => {
         wallpaperInputRef.current?.click();
     };
-    
+
     useEffect(() => {
         wallpaperDB.getWallpaper().then(setWallpaperURL);
     }, [wallpaperDB]);
@@ -431,6 +431,13 @@ function ExteraSection() {
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.smooth_scroll.desc')}</Text>}
+                />
+                <SettingTile
+                    title={getText('settings.msc3382.title')}
+                    options={(
+                        <div style={{ opacity: 0.5 }}><Toggle disabled={true} /></div>
+                    )}
+                    content={<Text variant="b3">{getText('settings.msc3382.desc')}</Text>}
                 />
                 <SettingTile
                     title={getText('settings.rename_tg_bot.title')}

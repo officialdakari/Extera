@@ -29,8 +29,7 @@ import Chip from '../../atoms/chip/Chip';
 import IconButton from '../../atoms/button/IconButton';
 import Input from '../../atoms/input/Input';
 import Avatar from '../../atoms/avatar/Avatar';
-import Button from '../../atoms/button/Button';
-import { color, config, Button as FoldsButton, IconButton as FoldsIconButton, Header, Modal, Overlay, OverlayBackdrop, OverlayCenter } from 'folds';
+import { color, config, Button, IconButton as FoldsIconButton, Header, Modal, Overlay, OverlayBackdrop, OverlayCenter } from 'folds';
 import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 import PowerLevelSelector from '../../molecules/power-level-selector/PowerLevelSelector';
 import Dialog from '../../molecules/dialog/Dialog';
@@ -38,16 +37,15 @@ import Dialog from '../../molecules/dialog/Dialog';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
-import { getDMRoomFor } from '../../utils/matrix';
+import { getDMRoomFor, getMxIdLocalPart, getMxIdServer } from '../../utils/matrix';
 import { EventTimeline } from 'matrix-js-sdk';
 import Banner from './Banner';
 import { getText, translate } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { VerificationBadge } from '../../components/verification-badge/VerificationBadge';
 import { Box } from 'folds';
-import { mdiAccountCancelOutline, mdiAccountMinusOutline, mdiChevronDown, mdiChevronRight, mdiClose, mdiShieldOutline } from '@mdi/js';
+import { mdiAccountCancelOutline, mdiAccountMinusOutline, mdiAccountPlusOutline, mdiBlockHelper, mdiCheck, mdiChevronDown, mdiChevronRight, mdiClose, mdiMessageOutline, mdiPlusCircleOutline, mdiShieldOutline } from '@mdi/js';
 import Icon from '@mdi/react';
-import FocusTrap from 'focus-trap-react';
 
 function ModerationTools({ roomId, userId }) {
     const mx = initMatrix.matrixClient;
@@ -93,13 +91,11 @@ function ModerationTools({ roomId, userId }) {
         setOpen(false);
     };
 
-    // TODO seperate dialog for entering reason
-
     return (
         <>
             <Overlay open={open} backdrop={<OverlayBackdrop />}>
                 <OverlayCenter>
-                    <Modal variant="Surface" size='300'>
+                    <Modal variant="Surface" size='300' flexHeight>
                         <Header
                             style={{
                                 padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
@@ -113,7 +109,7 @@ function ModerationTools({ roomId, userId }) {
                                     {
                                         translate(
                                             ban ? 'title.ban' : 'title.kick',
-                                            <b>{roomMember.rawDisplayName}</b>
+                                            <b>{roomMember?.rawDisplayName ?? userId}</b>
                                         )
                                     }
                                 </Text>
@@ -132,40 +128,26 @@ function ModerationTools({ roomId, userId }) {
                             <Box direction="Column" gap="100">
                                 <Input name="reason" placeholder={getText(ban ? 'label.profile_viewer.ban_reason' : 'label.profile_viewer.kick_reason')} variant="Secondary" autoComplete='off' />
                             </Box>
-                            <FoldsButton
+                            <Button
                                 type="submit"
                                 variant="Critical"
                             >
                                 {getText(ban ? 'btn.profile_viewer.ban' : 'btn.profile_viewer.kick')}
-                            </FoldsButton>
+                            </Button>
                         </Box>
                     </Modal>
                 </OverlayCenter>
             </Overlay>
-            <div className="moderation-tools" style={{ borderColor: color.Surface.ContainerLine }}>
-                {canIKick && (
-                    <FoldsButton onClick={handleKick} variant='Critical' fill='None' before={<Icon size={1} path={mdiAccountMinusOutline} />}>
-                        {getText('btn.profile_viewer.kick')}
-                    </FoldsButton>
-                )}
-                {canIBan && (
-                    <FoldsButton onClick={handleBan} variant='Critical' fill='None' before={<Icon size={1} path={mdiAccountCancelOutline} />}>
-                        {getText('btn.profile_viewer.ban')}
-                    </FoldsButton>
-                )}
-                {/* {canIKick && (
-                <form onSubmit={handleKick}>
-                    <Input label={getText('label.profile_viewer.kick_reason')} name="kick-reason" />
-                    <Button type="submit">{getText('btn.profile_viewer.kick')}</Button>
-                </form>
+            {canIKick && (
+                <Button onClick={handleKick} variant='Critical' fill='None' before={<Icon size={1} path={mdiAccountMinusOutline} />}>
+                    {getText('btn.profile_viewer.kick')}
+                </Button>
             )}
             {canIBan && (
-                <form onSubmit={handleBan}>
-                    <Input label={getText('label.profile_viewer.ban_reason')} name="ban-reason" />
-                    <Button type="submit">{getText('btn.profile_viewer.ban')}</Button>
-                </form>
-            )} */}
-            </div>
+                <Button onClick={handleBan} variant='Critical' fill='None' before={<Icon size={1} path={mdiAccountCancelOutline} />}>
+                    {getText('btn.profile_viewer.ban')}
+                </Button>
+            )}
         </>
     );
 }
@@ -219,7 +201,7 @@ function SessionInfo({ userId }) {
     }
 
     return (
-        <div className="session-info">
+        <div className="session-info" style={{ borderColor: color.Surface.ContainerLine }}>
             <MenuItem
                 onClick={() => setIsVisible(!isVisible)}
                 iconSrc={isVisible ? mdiChevronDown : mdiChevronRight}
@@ -239,6 +221,7 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
     const [isCreatingDM, setIsCreatingDM] = useState(false);
     const [isIgnoring, setIsIgnoring] = useState(false);
     const [isUserIgnored, setIsUserIgnored] = useState(initMatrix.matrixClient.isUserIgnored(userId));
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const isMountedRef = useRef(true);
     const mx = initMatrix.matrixClient;
@@ -247,6 +230,10 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
     const member = room.getMember(userId);
     const isInvitable = member?.membership !== 'join' && member?.membership !== 'ban';
 
+    useEffect(() => {
+        mx.isSynapseAdministrator().then(setIsAdmin);
+    }, [mx]);
+
     const [isInviting, setIsInviting] = useState(false);
     const [isInvited, setIsInvited] = useState(member?.membership === 'invite');
 
@@ -254,6 +241,7 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
     const userPL = room.getMember(userId)?.powerLevel || 0;
     const canIKick =
         room.currentState.hasSufficientPowerLevelFor('kick', myPowerlevel) && userPL < myPowerlevel;
+    const canIForceJoin = getMxIdServer(userId) === getMxIdServer(mx.getUserId());
 
     const isBanned = member?.membership === 'ban';
 
@@ -326,25 +314,57 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
         }
     };
 
+    const forceJoin = async () => {
+        const token = mx.getAccessToken();
+        const baseUrl = mx.getHomeserverUrl();
+        if (!token) return console.error('no token');
+        const response = await fetch(`${baseUrl}/_synapse/admin/v1/join/${roomId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: userId
+            })
+        });
+        if (!response.ok) {
+            alert(`Failed to force-join`);
+        }
+    };
+
     return (
-        <div className="profile-viewer__buttons">
-            <Button variant="primary" onClick={openDM} disabled={isCreatingDM}>
-                {getText(isCreatingDM ? 'profile_footer.dm.creating' : 'btn.profile_footer.dm')}
-            </Button>
+        <>
+            {(isInvitable && canIForceJoin && room.canInvite(mx.getUserId()) && isAdmin) && (
+                <Button
+                    before={<Icon size={1} path={mdiPlusCircleOutline} />}
+                    variant='Success'
+                    fill='None'
+                    onClick={forceJoin}
+                >
+                    {getText('btn.profile_footer.force_join')}
+                </Button>
+            )}
+            {!isUserIgnored && (
+                <Button variant='Primary' fill='None' onClick={openDM} disabled={isCreatingDM} before={<Icon size={1} path={mdiMessageOutline} />}>
+                    {getText(isCreatingDM ? 'profile_footer.dm.creating' : 'btn.profile_footer.dm')}
+                </Button>
+            )}
             {isBanned && canIKick && (
-                <Button variant="positive" onClick={() => roomActions.unban(roomId, userId)}>
+                <Button before={<Icon size={1} path={mdiCheck} />} variant='Success' fill='None' onClick={() => roomActions.unban(roomId, userId)}>
                     {getText('btn.profile_footer.unban')}
                 </Button>
             )}
             {(isInvited ? canIKick : room.canInvite(mx.getUserId())) && isInvitable && (
-                <Button onClick={toggleInvite} disabled={isInviting}>
+                <Button variant='Primary' fill='None' before={<Icon size={1} path={mdiAccountPlusOutline} />} onClick={toggleInvite} disabled={isInviting}>
                     {isInvited
                         ? `${getText(isInviting ? 'btn.profile_footer.disinviting' : 'btn.profile_footer.disinvite')}`
                         : `${getText(isInviting ? 'btn.profile_footer.inviting' : 'btn.profile_footer.invite')}`}
                 </Button>
             )}
             <Button
-                variant={isUserIgnored ? 'positive' : 'danger'}
+                before={<Icon size={1} path={isUserIgnored ? mdiCheck : mdiBlockHelper} />}
+                variant={isUserIgnored ? 'Success' : 'Critical'}
+                fill='None'
                 onClick={toggleIgnore}
                 disabled={isIgnoring}
             >
@@ -352,7 +372,7 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
                     ? `${getText(isIgnoring ? 'btn.profile_footer.unignoring' : 'btn.profile_footer.unignore')}`
                     : `${getText(isIgnoring ? 'btn.profile_footer.ignoring' : 'btn.profile_footer.ignore')}`}
             </Button>
-        </div>
+        </>
     );
 }
 ProfileFooter.propTypes = {
@@ -447,7 +467,7 @@ function ProfileViewer() {
         console.log(membershipContent);
 
         if (typeof membershipContent[cons.EXTERA_BANNER_URL] === 'string' && membershipContent[cons.EXTERA_BANNER_URL].startsWith('mxc://')) {
-            bannerUrl = mx.mxcUrlToHttp(membershipContent[cons.EXTERA_BANNER_URL]);
+            bannerUrl = mx.mxcUrlToHttp(membershipContent[cons.EXTERA_BANNER_URL], false, false, false, false, true, true);
         }
 
         const canChangeRole =
@@ -508,7 +528,9 @@ function ProfileViewer() {
                         <Text variant="b3">{getText('profile_viewer.power_level')}</Text>
                         <Button
                             onClick={canChangeRole ? handlePowerSelector : null}
-                            iconSrc={canChangeRole ? mdiChevronDown : null}
+                            fill='Soft'
+                            variant='Secondary'
+                            before={canChangeRole ? <Icon size={1} path={mdiChevronDown} /> : null}
                         >
                             {`${getPowerLabel(powerLevel) || getText('generic.pl_member')} - ${powerLevel}`}
                         </Button>
@@ -516,10 +538,12 @@ function ProfileViewer() {
                 </div>
                 <Text>{statusMsg}</Text>
                 <SessionInfo userId={userId} />
-                <ModerationTools roomId={roomId} userId={userId} />
-                {userId !== mx.getUserId() && (
-                    <ProfileFooter roomId={roomId} userId={userId} onRequestClose={closeDialog} />
-                )}
+                <div class="action-list" style={{ borderColor: color.Surface.ContainerLine }}>
+                    {userId !== mx.getUserId() && (
+                        <ProfileFooter roomId={roomId} userId={userId} onRequestClose={closeDialog} />
+                    )}
+                    <ModerationTools roomId={roomId} userId={userId} />
+                </div>
             </div>
         );
     };

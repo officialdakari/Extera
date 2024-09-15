@@ -8,7 +8,6 @@ export const ReplyBend = style({
 export const Reply = style({
     marginBottom: toRem(1),
     minWidth: 0,
-    maxWidth: '100%',
     minHeight: config.lineHeight.T300,
     maxHeight: '600px',
     width: '100%',
@@ -17,7 +16,7 @@ export const Reply = style({
             cursor: 'pointer',
         },
     },
-    backgroundColor: color.Background.ContainerHover,
+    backgroundColor: color.Background.Container,
     padding: '5px',
     borderRadius: config.radii.R300,
     borderStyle: 'solid',

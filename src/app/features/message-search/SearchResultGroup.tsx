@@ -36,6 +36,7 @@ import { UserAvatar } from '../../components/user-avatar';
 import { getText, translate } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccount } from '@mdi/js';
+import HiddenContent from '../../components/hidden-content/HiddenContent';
 
 type SearchResultGroupProps = {
     room: Room;
@@ -95,18 +96,22 @@ export function SearchResultGroup({
                     return <RedactedContent reason={event.unsigned?.redacted_because.content.reason} />;
                 }
 
+                const hideReason = (event.content['space.0x1a8510f2.msc3368.tags'] ?? [])[0];
+
                 return (
-                    <RenderMessageContent
-                        displayName={displayName}
-                        msgType={event.content.msgtype ?? ''}
-                        ts={event.origin_server_ts}
-                        getContent={getContent}
-                        mediaAutoLoad={mediaAutoLoad}
-                        urlPreview={urlPreview}
-                        htmlReactParserOptions={htmlReactParserOptions}
-                        highlightRegex={highlightRegex}
-                        outlineAttachment
-                    />
+                    <HiddenContent reason={hideReason}>
+                        <RenderMessageContent
+                            displayName={displayName}
+                            msgType={event.content.msgtype ?? ''}
+                            ts={event.origin_server_ts}
+                            getContent={getContent}
+                            mediaAutoLoad={mediaAutoLoad}
+                            urlPreview={urlPreview}
+                            htmlReactParserOptions={htmlReactParserOptions}
+                            highlightRegex={highlightRegex}
+                            outlineAttachment
+                        />
+                    </HiddenContent>
                 );
             },
             [MessageEvent.Reaction]: (event, displayName, getContent) => {

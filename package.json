@@ -90,7 +90,8 @@
         "tippy.js": "6.3.7",
         "ua-parser-js": "1.0.35",
         "url": "0.11.3",
-        "uuid": "10.0.0"
+        "uuid": "10.0.0",
+        "vite-plugin-pwa": "0.20.5"
     },
     "devDependencies": {
         "@esbuild-plugins/node-globals-polyfill": "0.2.3",

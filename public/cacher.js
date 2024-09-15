@@ -1,33 +1,85 @@
-// Establish a cache name
 const cacheName = 'MediaCache';
 
 self.addEventListener('install', (event) => {
-    event.waitUntil(caches.open(cacheName));
+    event.waitUntil(caches.open(cacheName).then(() => {
+        console.log('Cache opened');
+    }).catch(error => {
+        console.error('Error opening cache:', error);
+    }));
 });
 
-self.addEventListener('fetch', async (event) => {
-    // Is this a request for an image?
-    if (['/_matrix/client/v1/media', '/_matrix/client/v3/media', '/_matrix/media'].find(x => event.request.url.includes(x))) {
-        // Open the cache
-        event.respondWith(caches.open(cacheName).then((cache) => {
-            // Go to the cache first
-            return cache.match(event.request.url).then((cachedResponse) => {
-                // Return a cached response if we have one
-                if (cachedResponse) {
-                    return cachedResponse;
+function fetchFromIndexedDB() {
+    return new Promise((resolve, reject) => {
+        const dbRequest = indexedDB.open("CinnyDB", 1);
+
+        dbRequest.onsuccess = function (event) {
+            const db = event.target.result;
+            const transaction = db.transaction("tokens", "readonly");
+            const store = transaction.objectStore("tokens");
+            const getRequest = store.get(1);
+
+            getRequest.onsuccess = function () {
+                if (getRequest.result) {
+                    resolve(getRequest.result);
+                } else {
+                    reject(new Error("No data found"));
                 }
+            };
 
-                // Otherwise, hit the network
-                return fetch(event.request).then((fetchedResponse) => {
-                    // Add the network response to the cache for later visits
-                    cache.put(event.request, fetchedResponse.clone());
+            getRequest.onerror = function (error) {
+                reject(error);
+            };
+        };
 
-                    // Return the network response
-                    return fetchedResponse;
+        dbRequest.onerror = function (error) {
+            reject(error);
+        };
+    });
+}
+
+self.addEventListener('fetch', (event) => {
+    // Check if the request is for an image
+    const isMediaRequest = [
+        '/_matrix/client/v1/media',
+        '/_matrix/client/v3/media',
+        '/_matrix/media'
+    ].some(url => event.request.url.includes(url));
+    console.debug(`SW !!! Got request to ${event.request.url} it is ${isMediaRequest ? 'Media' : 'not media'}`, event.request);
+    if (isMediaRequest) {
+        event.respondWith(
+            fetchFromIndexedDB().then(({ accessToken }) => {
+                return caches.open(cacheName).then((cache) => {
+                    // Try to get a cached response
+                    return cache.match(event.request).then((cachedResponse) => {
+                        if (cachedResponse) {
+                            console.log('Returning cached response for:', event.request.url);
+                            return cachedResponse;
+                        }
+
+                        console.debug(`SW !!! Got a media request ${event.request.url} New headers`, headers, accessToken);
+
+                        // Fetch from network and cache the response
+                        return fetch({
+                            ...event.request,
+                            headers: {
+                                ...event.request.headers,
+                                Authorization: `Bearer ${accessToken}`
+                            }
+                        }).then((fetchedResponse) => {
+                            if (fetchedResponse && fetchedResponse.ok) {
+                                cache.put(event.request, fetchedResponse.clone());
+                            }
+                            return fetchedResponse;
+                        }).catch(error => {
+                            console.error('Fetch error:', error);
+                            throw error;
+                        });
+                    });
                 });
-            });
-        }));
-    } else {
-        return;
+            }).catch(error => {
+                console.error('Error fetching from IndexedDB:', error);
+                throw error;
+            })
+        );
     }
 });

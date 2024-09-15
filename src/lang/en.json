@@ -917,5 +917,17 @@
     "change_password.title": "New password",
     "change_password.old": "Enter old password",
     "msg_menu.download": "Download",
-    "msg_menu.goto": "View"
+    "msg_menu.goto": "View",
+    "btn.profile_footer.force_join": "Add to room",
+    "settings.msc3382.title": "Inline attachments (MSC3382)",
+    "settings.msc3382.desc": "Send multiple attachments in one message",
+    "space.0x1a8510f2.msc3368.spoiler": "Spoiler",
+    "space.0x1a8510f2.msc3368.nsfw": "NSFW",
+    "space.0x1a8510f2.msc3368.health_risk": "Health risk",
+    "space.0x1a8510f2.msc3368.health_risk.flashing": "Flash warning",
+    "space.0x1a8510f2.msc3368.graphic": "Graphic warning",
+    "space.0x1a8510f2.msc3368.hidden": "Hidden content",
+    "hide_reason.none": "None",
+    "aria.set_hide_reason": "Set hide reason",
+    "hidden_content": "Click to view ({0})"
 }

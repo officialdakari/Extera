@@ -107,12 +107,14 @@ import { ReplyLayout } from '../../components/message';
 import { markAsRead } from '../../../client/action/notifications';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { getText } from '../../../lang';
-import { openHiddenRooms } from '../../../client/action/navigation';
+import { openHiddenRooms, openReusableContextMenu } from '../../../client/action/navigation';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 import Icon from '@mdi/react';
-import { mdiAt, mdiBell, mdiBellOff, mdiCheckAll, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiFile, mdiMicrophone, mdiPlusCircle, mdiPlusCircleOutline, mdiSend, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
+import { mdiAt, mdiBell, mdiBellOff, mdiCheckAll, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiEye, mdiEyeOff, mdiFile, mdiMicrophone, mdiPlusCircle, mdiPlusCircleOutline, mdiSend, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
 import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
 import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
+import { getEventCords } from '../../../util/common';
+import HideReasonSelector from '../../molecules/hide-reason-selector/HideReasonSelector';
 
 interface RoomInputProps {
     fileDropContainerRef: RefObject<HTMLElement>;
@@ -136,7 +138,9 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const [voiceMessages] = useSetting(settingsAtom, 'voiceMessages');
 
         const [msgContent, setMsgContent] = useState<IContent>();
+        const [hideReason, setHideReason] = useState<string | undefined>(undefined);
         const [replyDraft, setReplyDraft] = useAtom(roomIdToReplyDraftAtomFamily(roomId));
+        const [msgDraft, setMsgDraft] = useAtom(roomIdToMsgDraftAtomFamily(roomId));
         const [replyMention, setReplyMention] = useState(true);
         const [uploadBoard, setUploadBoard] = useState(true);
         const [selectedFiles, setSelectedFiles] = useAtom(roomIdToUploadItemsAtomFamily(roomId));
@@ -181,7 +185,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     encryptFiles.forEach((ef) => fileItems.push(ef));
                 } else {
                     safeFiles.forEach((f) =>
-                        fileItems.push({ file: f, originalFile: f, encInfo: undefined })
+                        fileItems.push({ file: f, originalFile: f, encInfo: undefined, hideReason: undefined })
                     );
                 }
                 setSelectedFiles({
@@ -256,6 +260,19 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 }
             }
         };
+
+        const handleHide = useCallback((evt?: MouseEvent) => {
+            openReusableContextMenu('bottom', getEventCords(evt as unknown as Event, 'button'), (closeMenu: () => void) => (
+                <HideReasonSelector
+                    value={hideReason}
+                    onSelect={(r?: string) => {
+                        closeMenu();
+                        setHideReason(r);
+                        console.debug(`Hide reason is now`, r);
+                    }}
+                />
+            ));
+        }, [hideReason, setHideReason]);
 
         const dontHideKeyboard = useCallback((evt?: MouseEvent) => {
             if (evt) {
@@ -342,7 +359,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 'm.mentions': {
                     user_ids,
                     room
-                }
+                },
             };
 
             if (replyDraft || !customHtmlEqualsPlainText(formattedBody, body)) {
@@ -373,9 +390,14 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 };
                 content['m.relates_to'].is_falling_back = false;
             }
+            
+            if (hideReason) {
+                console.log(`Hide reason is`, hideReason);
+                content['space.0x1a8510f2.msc3368.tags'] = [hideReason];
+            }
 
             return content;
-        }, [mx, room, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, threadRootId]);
+        }, [mx, room, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, threadRootId, hideReason]);
 
         const submit = useCallback(async () => {
             const content = getContent();
@@ -411,7 +433,9 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 sendTypingStatus(false);
                 resetEditor(textAreaRef);
                 setShowStickerButton(true);
+                setHideReason(undefined);
                 setMsgContent(undefined);
+                setMsgDraft('');
             }
         }, [msgContent]);
 
@@ -453,6 +477,13 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const readReceipt = useCallback(() => {
             markAsRead(roomId);
         }, [mx, roomId]);
+
+        const handleChange = useCallback(
+            (nt: string) => {
+                setMsgDraft(nt);
+            },
+            [setMsgDraft]
+        );
 
         const handleKeyDown: KeyboardEventHandler = useCallback(
             (evt) => {
@@ -549,6 +580,10 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             ta.selectionEnd = index + result.length;
             ta.selectionStart = index + result.length;
         };
+
+        useEffect(() => {
+            if (textAreaRef.current) textAreaRef.current.value = msgDraft;
+        }, [msgDraft]);
 
         return (
             <div ref={ref}>
@@ -648,6 +683,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     disabled={ar.isRecording}
                     placeholder={ar.isRecording ? getText('placeholder.room_input.voice') : getText(canRedact ? 'placeholder.room_input' : 'placeholder.room_input.be_careful')}
                     onKeyDown={handleKeyDown}
+                    onChange={handleChange}
                     onKeyUp={handleKeyUp}
                     onPaste={handlePaste}
                     top={
@@ -711,8 +747,8 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                         <>
                             {!ar.isRecording && (
                                 <>
-                                    <IconButton onMouseDown={dontHideKeyboard} onClick={readReceipt} variant="SurfaceVariant" size="300" radii="300">
-                                        <Icon size={1} path={mdiCheckAll} />
+                                    <IconButton onMouseDown={dontHideKeyboard} onClick={handleHide} variant="SurfaceVariant" size="300" radii="300">
+                                        <Icon size={1} path={hideReason ? mdiEyeOff : mdiEye} />
                                     </IconButton>
                                     <UseStateProvider initial={undefined}>
                                         {(emojiBoardTab: EmojiBoardTab | undefined, setEmojiBoardTab) => (

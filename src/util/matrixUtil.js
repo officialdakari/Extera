@@ -22,7 +22,7 @@ export function getUsername(userId) {
     const mx = initMatrix.matrixClient;
     const user = mx.getUser(userId);
     if (user === null) return userId;
-    let username = user.displayName;
+    let username = user.rawDisplayName;
     if (typeof username === 'undefined') {
         username = userId;
     }
@@ -30,7 +30,7 @@ export function getUsername(userId) {
 }
 
 export function getUsernameOfRoomMember(roomMember) {
-    return roomMember.name || roomMember.userId;
+    return roomMember.rawDisplayName || roomMember.userId;
 }
 
 export async function isRoomAliasAvailable(alias) {

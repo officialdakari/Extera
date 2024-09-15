@@ -20,17 +20,6 @@ export const getFileSrcUrl = async (
         const decryptedBlob = await decryptFile(encData, mimeType, encInfo);
         return URL.createObjectURL(decryptedBlob);
     }
-    if (httpUrl.includes('/_matrix/client/v1/media')) {
-        // // Authed media
-        // const res = await fetch(httpUrl, {
-        //     headers: {
-        //         Authorization: `Bearer ${mx?.getAccessToken()}`
-        //     }
-        // });
-        // const data = await res.blob();
-        // return URL.createObjectURL(data);
-        httpUrl += `${httpUrl.includes('?') ? '&' : '?'}access_token=${mx?.getAccessToken()}`;
-    }
     return httpUrl;
 };
 

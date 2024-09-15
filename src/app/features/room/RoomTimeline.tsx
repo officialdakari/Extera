@@ -118,6 +118,7 @@ import { getText, translate } from '../../../lang';
 import { mdiCheckAll, mdiChevronDown, mdiCodeBraces, mdiCodeBracesBox, mdiImageEdit, mdiMessageAlert, mdiPencilBox } from '@mdi/js';
 import Icon from '@mdi/react';
 import { ThreadPreview } from './message/ThreadPreview';
+import HiddenContent from '../../components/hidden-content/HiddenContent';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
     ({ position, className, ...props }, ref) => (
@@ -1084,6 +1085,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
                 const senderId = mEvent.getSender() ?? '';
                 const senderDisplayName =
                     getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
+                const hideReason = ((getContent() as any)['space.0x1a8510f2.msc3368.tags'] ?? [])[0];
 
                 // Кажется, я начинаю по-тихоньку разбираться в этом коде.
                 // Вообще кайф если это первый чужой код, в котором я смог разобраться
@@ -1163,17 +1165,19 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
                         {mEvent.isRedacted() ? (
                             <RedactedContent reason={mEvent.getUnsigned().redacted_because?.content.reason} />
                         ) : (
-                            <RenderMessageContent
-                                displayName={senderDisplayName}
-                                msgType={mEvent.getContent().msgtype ?? ''}
-                                ts={mEvent.getTs()}
-                                edited={!!editedEvent}
-                                getContent={getContent}
-                                mediaAutoLoad={mediaAutoLoad}
-                                urlPreview={showUrlPreview}
-                                htmlReactParserOptions={htmlReactParserOptions}
-                                outlineAttachment={messageLayout === 2}
-                            />
+                            <HiddenContent reason={hideReason}>
+                                <RenderMessageContent
+                                    displayName={senderDisplayName}
+                                    msgType={mEvent.getContent().msgtype ?? ''}
+                                    ts={mEvent.getTs()}
+                                    edited={!!editedEvent}
+                                    getContent={getContent}
+                                    mediaAutoLoad={mediaAutoLoad}
+                                    urlPreview={showUrlPreview}
+                                    htmlReactParserOptions={htmlReactParserOptions}
+                                    outlineAttachment={messageLayout === 2}
+                                />
+                            </HiddenContent>
                         )}
                     </Message>
                 );
@@ -1184,6 +1188,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
                 const hasReactions = reactions && reactions.length > 0;
                 const { replyEventId } = mEvent;
                 const highlighted = focusItem?.index === item && focusItem.highlight;
+                const hideReason = (mEvent.getContent()['space.0x1a8510f2.msc3368.tags'] ?? [])[0];
 
                 return (
                     <Message
@@ -1241,59 +1246,61 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
                             )
                         }
                     >
-                        <EncryptedContent mEvent={mEvent}>
-                            {() => {
-                                if (mEvent.isRedacted()) return <RedactedContent />;
-                                if (mEvent.getType() === MessageEvent.Sticker)
-                                    return (
-                                        <MSticker
-                                            content={mEvent.getContent()}
-                                            renderImageContent={(props) => (
-                                                <ImageContent
-                                                    {...props}
-                                                    autoPlay={mediaAutoLoad}
-                                                    renderImage={(p) => <Image {...p} loading="lazy" />}
-                                                    renderViewer={(p) => <ImageViewer {...p} />}
-                                                />
-                                            )}
-                                        />
-                                    );
-                                if (mEvent.getType() === MessageEvent.RoomMessage) {
-                                    const editedEvent = getEditedEvent(mEventId, mEvent, timelineSet);
-                                    const getContent = (() =>
-                                        editedEvent?.getContent()['m.new_content'] ??
-                                        mEvent.getContent()) as GetContentCallback;
+                        <HiddenContent reason={hideReason}>
+                            <EncryptedContent mEvent={mEvent}>
+                                {() => {
+                                    if (mEvent.isRedacted()) return <RedactedContent />;
+                                    if (mEvent.getType() === MessageEvent.Sticker)
+                                        return (
+                                            <MSticker
+                                                content={mEvent.getContent()}
+                                                renderImageContent={(props) => (
+                                                    <ImageContent
+                                                        {...props}
+                                                        autoPlay={mediaAutoLoad}
+                                                        renderImage={(p) => <Image {...p} loading="lazy" />}
+                                                        renderViewer={(p) => <ImageViewer {...p} />}
+                                                    />
+                                                )}
+                                            />
+                                        );
+                                    if (mEvent.getType() === MessageEvent.RoomMessage) {
+                                        const editedEvent = getEditedEvent(mEventId, mEvent, timelineSet);
+                                        const getContent = (() =>
+                                            editedEvent?.getContent()['m.new_content'] ??
+                                            mEvent.getContent()) as GetContentCallback;
 
-                                    const senderId = mEvent.getSender() ?? '';
-                                    const senderDisplayName =
-                                        getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
-                                    return (
-                                        <RenderMessageContent
-                                            displayName={senderDisplayName}
-                                            msgType={mEvent.getContent().msgtype ?? ''}
-                                            ts={mEvent.getTs()}
-                                            edited={!!editedEvent}
-                                            getContent={getContent}
-                                            mediaAutoLoad={mediaAutoLoad}
-                                            urlPreview={showUrlPreview}
-                                            htmlReactParserOptions={htmlReactParserOptions}
-                                            outlineAttachment={messageLayout === 2}
-                                        />
-                                    );
-                                }
-                                if (mEvent.getType() === MessageEvent.RoomMessageEncrypted)
+                                        const senderId = mEvent.getSender() ?? '';
+                                        const senderDisplayName =
+                                            getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
+                                        return (
+                                            <RenderMessageContent
+                                                displayName={senderDisplayName}
+                                                msgType={mEvent.getContent().msgtype ?? ''}
+                                                ts={mEvent.getTs()}
+                                                edited={!!editedEvent}
+                                                getContent={getContent}
+                                                mediaAutoLoad={mediaAutoLoad}
+                                                urlPreview={showUrlPreview}
+                                                htmlReactParserOptions={htmlReactParserOptions}
+                                                outlineAttachment={messageLayout === 2}
+                                            />
+                                        );
+                                    }
+                                    if (mEvent.getType() === MessageEvent.RoomMessageEncrypted)
+                                        return (
+                                            <Text>
+                                                <MessageNotDecryptedContent />
+                                            </Text>
+                                        );
                                     return (
                                         <Text>
-                                            <MessageNotDecryptedContent />
+                                            <MessageUnsupportedContent />
                                         </Text>
                                     );
-                                return (
-                                    <Text>
-                                        <MessageUnsupportedContent />
-                                    </Text>
-                                );
-                            }}
-                        </EncryptedContent>
+                                }}
+                            </EncryptedContent>
+                        </HiddenContent>
                     </Message>
                 );
             },

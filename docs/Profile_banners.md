@@ -6,16 +6,16 @@ It's content looks like this:
     "banner_url": "mxc://example.com/banner"
 }
 ```
-When user opens a room, Extera updates `m.room.member` with banner if it was not updated.
+When user opens a room, Extera updates `m.room.member` if it was not updated. All fields from `ru.officialdakari.extera_profile` is appended to `m.room.member`, but every key becomes `xyz.extera.$key`
 
 ### Getting user banner from m.room.member
-Extera adds custom field to `m.room.member` - `ru.officialdakari.extera_banner`.
+Extera adds custom field to `m.room.member` - `xyz.extera.banner_url`.
 So `m.room.member` content will look like that:
 ```json
 {
     "avatar_url": "mxc://officialdakari.ru/slemrxtUERwSCLINehUdKiZk",
     "displayname": "OfficialDakari",
     "membership": "join",
-    "ru.officialdakari.extera_banner": "mxc://officialdakari.ru/EXFmaeTEsbQMSHPPfFEaRlLr"
+    "xyz.extera.banner_url": "mxc://officialdakari.ru/EXFmaeTEsbQMSHPPfFEaRlLr"
 }
 ```

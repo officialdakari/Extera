@@ -51,13 +51,13 @@ const defaultSettings: Settings = {
 
     isPeopleDrawer: true,
     memberSortFilterIndex: 0,
-    enterForNewline: false,
+    enterForNewline: true,
     messageLayout: 0,
     messageSpacing: '400',
     hideMembershipEvents: false,
-    hideNickAvatarEvents: true,
+    hideNickAvatarEvents: false,
     mediaAutoLoad: true,
-    urlPreview: true,
+    urlPreview: false,
     encUrlPreview: false,
     showHiddenEvents: false,
 
@@ -73,7 +73,7 @@ const defaultSettings: Settings = {
     extera_status_message: `Hello! I am using ${cons.name}.`,
     extera_wallpaper: null,
     pushesEnabled: false,
-    newDesignInput: false,
+    newDesignInput: true,
     hideEmojiAdvert: false,
     replyFallbacks: false,
     voiceMessages: true

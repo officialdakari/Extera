@@ -917,5 +917,17 @@
 	"msg_menu.download": "Скачать",
 	"msg_menu.goto": "Перейти",
 	"title.ban": "Забанить {0}",
-	"title.kick": "Выгнать {0}"
+	"title.kick": "Выгнать {0}",
+	"btn.profile_footer.force_join": "Добавить",
+	"settings.msc3382.title": "Вложения MSC3382",
+	"settings.msc3382.desc": "Отправлять несколько вложений в одном сообщении",
+	"space.0x1a8510f2.msc3368.spoiler": "Спойлер",
+	"space.0x1a8510f2.msc3368.nsfw": "NSFW",
+	"space.0x1a8510f2.msc3368.health_risk": "Риск для здоровья",
+	"space.0x1a8510f2.msc3368.health_risk.flashing": "Мерцание",
+	"space.0x1a8510f2.msc3368.graphic": "Графика",
+	"space.0x1a8510f2.msc3368.hidden": "Скрытое содержимое",
+	"hide_reason.none": "Не скрывать",
+	"aria.set_hide_reason": "Причина скрытия",
+	"hidden_content": "Нажмите чтобы показать ({0})"
 }

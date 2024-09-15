@@ -14,50 +14,32 @@ import settings from './client/state/settings';
 
 import App from './app/pages/App';
 import getCachedURL from './app/utils/cache';
+import { trimTrailingSlash } from './app/utils/common';
 
 document.body.classList.add(configClass, varsClass);
 if (navigator.serviceWorker) navigator.serviceWorker.register('/worker.js');
 if (navigator.serviceWorker) navigator.serviceWorker.register('/cacher.js');
 settings.applyTheme();
 
-if (navigator.serviceWorker) {
-    const dbRequest = window.indexedDB.open("CinnyDB", 1);
+// Register Service Worker
+if ('serviceWorker' in navigator) {
+    const swUrl =
+        import.meta.env.MODE === 'production'
+            ? `${trimTrailingSlash(import.meta.env.BASE_URL)}/sw.js`
+            : `/dev-sw.js?dev-sw`;
 
-    dbRequest.onupgradeneeded = function (event: any) {
-        const db = event.target.result;
-        if (!db.objectStoreNames.contains("tokens")) {
-            db.createObjectStore("tokens", { keyPath: "id" });
+    navigator.serviceWorker.register(swUrl);
+    navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data?.type === 'token' && event.data?.responseKey) {
+            // Get the token for SW.
+            const token = localStorage.getItem('cinny_access_token') ?? undefined;
+            event.source!.postMessage({
+                responseKey: event.data.responseKey,
+                token,
+            });
         }
-    };
-
-    dbRequest.onsuccess = function (event: any) {
-        const db = event.target.result;
-        const transaction = db.transaction("tokens", "readwrite");
-        const store = transaction.objectStore("tokens");
-
-        const data = {
-            id: 1,
-            baseUrl: localStorage.cinny_hs_base_url,
-            accessToken: localStorage.cinny_access_token
-        };
-
-        store.put(data);
-
-        transaction.oncomplete = function () {
-            console.log("Data saved to IndexedDB.");
-        };
-
-        transaction.onerror = function (error: any) {
-            console.error("Transaction failed: ", error);
-        };
-    };
-
-    dbRequest.onerror = function (error) {
-        console.error("Error opening database: ", error);
-    };
+    });
 }
-
-(window as any).getCachedURL = getCachedURL;
 
 const mountApp = () => {
     const rootContainer = document.getElementById('root');

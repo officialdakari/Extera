@@ -7,7 +7,10 @@ import { TUploadContent } from '../../utils/matrix';
 import { getFileTypeIcon } from '../../utils/common';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
-import { mdiCheck, mdiClose, mdiFile } from '@mdi/js';
+import { mdiCheck, mdiClose, mdiEye, mdiEyeOff, mdiFile } from '@mdi/js';
+import { openReusableContextMenu } from '../../../client/action/navigation';
+import { getEventCords } from '../../../util/common';
+import HideReasonSelector from '../../molecules/hide-reason-selector/HideReasonSelector';
 
 type UploadCardRendererProps = {
     file: TUploadContent;
@@ -35,11 +38,7 @@ export function UploadCardRenderer({
         cancelUpload();
         onRemove(file);
     };
-    
-    console.log(file);
-    console.log(isEncrypted);
-    console.log(onRemove);
-    
+
     const icon = getFileTypeIcon(file?.type);
 
     return (
@@ -60,6 +59,7 @@ export function UploadCardRenderer({
                             <Text size="B300">{getText('btn.retry')}</Text>
                         </Chip>
                     )}
+
                     <IconButton
                         onClick={removeUpload}
                         aria-label={getText('aria.cancel_upload')}
@@ -88,7 +88,7 @@ export function UploadCardRenderer({
             }
         >
             <Text size="H6" truncate>
-                {typeof file?.name === 'string' ? file.name : file.localURL}
+                {file.name}
             </Text>
             {upload.status === UploadStatus.Success && (
                 <Icon style={{ color: color.Success.Main }} path={mdiCheck} size={1} />
