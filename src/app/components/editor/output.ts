@@ -36,24 +36,24 @@ export const toMatrixCustomHTML = (
 ): string => {
     const table: Record<string, string> = {};
     var str = parseBlockMD(
-        content.replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;')
-        .replaceAll(emojiRegexp, (match: string, shortcode: string, mxc: string) => {
-            const id = `{[${v4()}]}`;
-            table[id] = `<img data-mx-emoticon height="32" src="${mxc}" alt=":${shortcode}:" title=":${shortcode}:">`;
-            return id;
-        })
-        .replaceAll(userMentionRegexp, (match: string, mxId: string) => {
-            const id = `{[${v4()}]}`;
-            table[id] = `<a href="https://matrix.to/#/${mxId}">${getDisplayName(mxId)}</a>`;
-            return id;
-        })
-        .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => {
-            const oid = `{[${v4()}]}`;
-            table[oid] = `<a href="https://matrix.to/#/${id}">#${name}</a>`;
-            return oid;
-        })
-        .replaceAll(everyoneMentionRegexp, '@room'),
+        sanitizeText(content)
+            // TODO move that to markdown.ts
+            .replaceAll(emojiRegexp, (match: string, shortcode: string, mxc: string) => {
+                const id = `{[${v4()}]}`;
+                table[id] = `<img data-mx-emoticon height="32" src="${mxc}" alt=":${shortcode}:" title=":${shortcode}:">`;
+                return id;
+            })
+            .replaceAll(userMentionRegexp, (match: string, mxId: string) => {
+                const id = `{[${v4()}]}`;
+                table[id] = `<a href="https://matrix.to/#/${mxId}">${getDisplayName(mxId)}</a>`;
+                return id;
+            })
+            .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => {
+                const oid = `{[${v4()}]}`;
+                table[oid] = `<a href="https://matrix.to/#/${id}">#${name}</a>`;
+                return oid;
+            })
+            .replaceAll(everyoneMentionRegexp, '@room'),
         parseInlineMD
     );
     for (const key in table) {

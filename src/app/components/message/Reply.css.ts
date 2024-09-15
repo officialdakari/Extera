@@ -16,7 +16,7 @@ export const Reply = style({
             cursor: 'pointer',
         },
     },
-    backgroundColor: color.Background.Container,
+    backgroundColor: color.Background.ContainerHover,
     padding: '5px',
     borderRadius: config.radii.R300,
     borderStyle: 'solid',

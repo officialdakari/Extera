@@ -59,7 +59,7 @@ const BoldRule: InlineMDRule = {
         return `<strong data-md="${BOLD_MD_1}">${parse(g2)}</strong>`;
     },
 };
- 
+
 const ITALIC_MD_1 = '*';
 const ITALIC_PREFIX_1 = '(?<!\\\\)\\*';
 const ITALIC_NEG_LA_1 = '(?<!\\\\)(?!\\*)';
@@ -164,6 +164,17 @@ const EscapeRule: InlineMDRule = {
     }
 };
 
+const ESCAPE_REG_2 = /(<|>)/;
+const EscapeRule2: InlineMDRule = {
+    match: (text) => text.match(ESCAPE_REG_2),
+    html: (parse, match) => {
+        const [g] = match;
+        if (g === '<') return '&lt;';
+        else if (g === '>') return '&gt;';
+        else return '';
+    }
+};
+
 const runInlineRule: InlineRuleRunner = (parse, text, rule) => {
     const matchResult = rule.match(text);
     if (matchResult) {
@@ -218,6 +229,7 @@ export const parseInlineMD: InlineMDParser = (text) => {
     if (text === '') return text;
     let result: string | undefined;
     if (!result) result = runInlineRule(parseInlineMD, text, CodeRule);
+    if (!result) result = runInlineRule(parseInlineMD, text, EscapeRule2);
 
     if (!result) result = runInlineRules(parseInlineMD, text, LeveledRules);
 
@@ -278,6 +290,7 @@ const BlockQuoteRule: BlockMDRule = {
     match: (text) => text.match(BLOCKQUOTE_REG_1),
     html: (match, parseInline) => {
         const [blockquoteText] = match;
+        console.log(`blockquote`, match);
 
         const lines = blockquoteText
             .replace(BLOCKQUOTE_TRAILING_NEWLINE, '')
@@ -363,7 +376,7 @@ export const parseBlockMD: BlockMDParser = (text, parseInline) => {
     if (!result) result = runBlockRule(parseBlockMD, text, OrderedListRule, parseInline);
     if (!result) result = runBlockRule(parseBlockMD, text, UnorderedListRule, parseInline);
     if (!result) result = runBlockRule(parseBlockMD, text, HeadingRule, parseInline);
-    
+
 
     // replace \n with <br/> because want to preserve empty lines
     if (!result) {

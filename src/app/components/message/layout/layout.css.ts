@@ -150,7 +150,7 @@ export const BubbleContent = style({
 export const BubbleContentRightAligned = style([
     BubbleContent,
     {
-        backgroundColor: color.Surface.ContainerActive,
+        backgroundColor: color.Surface.ContainerLine,
     }
 ]);
 
