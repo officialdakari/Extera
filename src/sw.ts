@@ -39,9 +39,11 @@ function fetchConfig(token?: string): RequestInit | undefined {
 self.addEventListener('fetch', (event: FetchEvent) => {
     const { url, method } = event.request;
     if (method !== 'GET') return;
+    const isAuthedMedia = url.includes('/_matrix/client/v1/media/');
+    const isMedia = url.includes('/_matrix/media/');
     if (
-        !url.includes('/_matrix/client/v1/media/download') &&
-        !url.includes('/_matrix/client/v1/media/thumbnail')
+        !isAuthedMedia &&
+        !isMedia
     ) {
         return;
     }
@@ -56,12 +58,12 @@ self.addEventListener('fetch', (event: FetchEvent) => {
             let token: string | undefined;
             if (client) token = await askForAccessToken(client);
 
-            const res = await fetch(url, fetchConfig(token));
-            
+            const res = await fetch(url, isAuthedMedia ? fetchConfig(token) : undefined);
+
             if (res?.ok) {
                 await cache.put(url, res.clone());
             }
-            
+
             return res;
         })()
     );
