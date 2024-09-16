@@ -10,6 +10,7 @@ import Icon from '@mdi/react';
 const Button = React.forwardRef(({
     id, className, variant, iconSrc,
     type, onClick, children, disabled,
+    onMouseDown
 }, ref) => {
     const iconClass = (iconSrc === null) ? '' : `btn-${variant}--icon`;
     return (
@@ -18,6 +19,7 @@ const Button = React.forwardRef(({
             id={id === '' ? undefined : id}
             className={`${className ? `${className} ` : ''}btn-${variant} ${iconClass} noselect`}
             onMouseUp={(e) => blurOnBubbling(e, `.btn-${variant}`)}
+            onMouseDown={onMouseDown}
             onClick={onClick}
             // eslint-disable-next-line react/button-has-type
             type={type}

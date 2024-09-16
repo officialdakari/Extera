@@ -790,7 +790,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                                                 setEmojiBoardTab(showStickerButton ? EmojiBoardTab.Sticker : EmojiBoardTab.Emoji)
                                                             }
                                                         }}
-                                                        //onMouseDown={dontHideKeyboard}
+                                                        onMouseDown={dontHideKeyboard}
                                                         variant="SurfaceVariant"
                                                         size="300"
                                                         radii="300"

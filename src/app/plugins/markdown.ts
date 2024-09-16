@@ -155,7 +155,7 @@ const LinkRule: InlineMDRule = {
     },
 };
 
-const ESCAPE_REG_1 = /\\(\*|`|_)/;
+const ESCAPE_REG_1 = /\\(\*|`|_|>|&gt;)/;
 const EscapeRule: InlineMDRule = {
     match: (text) => text.match(ESCAPE_REG_1),
     html: (parse, match) => {
@@ -283,15 +283,15 @@ const CodeBlockRule: BlockMDRule = {
 };
 
 const BLOCKQUOTE_MD_1 = '>';
-const QUOTE_LINE_PREFIX = /^> */;
+const QUOTE_LINE_PREFIX = /^(&gt;|>)((&amp;|&)(#[a-f0-9]{6}))? */;
+const COLOR_PREFIX = /^(&gt;|>)(&amp;|&)(#[a-f0-9]{6})/;
 const BLOCKQUOTE_TRAILING_NEWLINE = /\n$/;
-const BLOCKQUOTE_REG_1 = /(^>.*\n?)+/m;
+const BLOCKQUOTE_REG_1 = /((^&gt;|^>)((&amp;|&)(#[a-f0-9]+))?.*\n?)+/m;
 const BlockQuoteRule: BlockMDRule = {
     match: (text) => text.match(BLOCKQUOTE_REG_1),
     html: (match, parseInline) => {
         const [blockquoteText] = match;
-        console.log(`blockquote`, match);
-
+        console.log(`!!! blockquote`, match);
         const lines = blockquoteText
             .replace(BLOCKQUOTE_TRAILING_NEWLINE, '')
             .split('\n')
@@ -301,7 +301,12 @@ const BlockQuoteRule: BlockMDRule = {
                 return `${line}<br/>`;
             })
             .join('');
-        return `<blockquote data-md="${BLOCKQUOTE_MD_1}">${lines}</blockquote>`;
+        const arr = blockquoteText.match(COLOR_PREFIX);
+        var color;
+        if (arr) {
+            if (typeof arr[3] === 'string') color = arr[3];
+        }
+        return `<blockquote data-md="${BLOCKQUOTE_MD_1}" ${color ? `data-blockquote-color="${color}"` : ''}>${lines}</blockquote>`;
     },
 };
 

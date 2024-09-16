@@ -87,6 +87,7 @@ export const getReactCustomHtmlParser = (
         replace: (domNode) => {
             if (domNode instanceof Element && 'name' in domNode) {
                 const { name, attribs, children, parent } = domNode;
+                if (name === 'blockquote') console.debug(`!!! ${name}`, domNode);
                 const props = attributesToProps(attribs);
 
                 if (name === 'h1') {
@@ -163,7 +164,7 @@ export const getReactCustomHtmlParser = (
 
                 if (name === 'blockquote') {
                     return (
-                        <Text {...props} size="Inherit" as="blockquote" className={css.BlockQuote} style={props['data-mx-color'] ? { borderColor: props['data-mx-color'] } : undefined}>
+                        <Text {...props} size="Inherit" as="blockquote" className={css.BlockQuote} style={props['data-blockquote-color'] ? { borderColor: props['data-blockquote-color'] } : undefined}>
                             {domToReact(children, opts)}
                         </Text>
                     );

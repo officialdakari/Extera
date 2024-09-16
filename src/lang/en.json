@@ -929,5 +929,8 @@
     "space.0x1a8510f2.msc3368.hidden": "Hidden content",
     "hide_reason.none": "None",
     "aria.set_hide_reason": "Set hide reason",
-    "hidden_content": "Click to view ({0})"
+    "hidden_content": "Click to view ({0})",
+    "go_link.title": "External content",
+    "go_link.desc": "Do you want to open external webpage?",
+    "go_link.yes": "Open"
 }

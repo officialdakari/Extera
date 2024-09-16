@@ -37,6 +37,8 @@ import { Permissions } from '../../state/widgetPermissions';
 import { randomNumberBetween } from '../../utils/common';
 import { removeNotifications, roomIdToHash } from '../../utils/notifications';
 import { markAsRead } from '../../../client/action/notifications';
+import cons from '../../../client/state/cons';
+import { getText } from '../../../lang';
 
 function FaviconUpdater() {
     const roomToUnread = useAtomValue(roomToUnreadAtom);
@@ -301,10 +303,10 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
 
     useEffect(() => {
         const clickHandler = async (ev: any) => {
+            const href = ev.target.getAttribute('data-mention-href') ?? ev.target.getAttribute('href');
+            if (typeof href !== 'string') return;
+            const url = parse(href as string);
             if (ev.target.tagName?.toLowerCase() === 'a' || ev.target.tagName?.toLowerCase() === 'span') {
-                const href = ev.target.getAttribute('data-mention-href') ?? ev.target.getAttribute('href');
-                if (!href) return;
-                const url = parse(href as string);
                 console.log(url);
                 if (url.hostname === 'matrix.to' && typeof url.hash === 'string' && url.hash.length > 3) {
                     ev.preventDefault();
@@ -329,6 +331,15 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                     } else if (type == '#') {
                         openJoinAlias(id);
                     }
+                    return;
+                }
+            }
+            if (ev.target.tagName?.toLowerCase() === 'a') {
+                if (!cons.trustedDomains.includes(url.host!) && !cons.trustedDomains.includes(url.hostname!)) {
+                    ev.preventDefault();
+                    if (await confirmDialog(getText('go_link.title'), `${getText('go_link.desc')}\n\n${href}`, getText('go_link.yes'), 'danger')) {
+                        window.open(href, '_blank');
+                    }
                 }
             }
         };
@@ -336,7 +347,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
         return () => {
             removeEventListener('click', clickHandler);
         };
-    }, []);
+    }, [roomId]);
 
     // todo refactor that shit
     // TODO means I will never do that
@@ -437,6 +448,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                     if (!event) return respond({ error: { message: 'No state event' } });
                     respond(event.getContent());
                 } else if (data.action === 'set_bot_options') {
+                    //@ts-ignore
                     mx?.sendStateEvent(data.room_id, 'm.room.bot.options', data.content)
                         .then(() => {
                             respond({ success: true });
@@ -469,6 +481,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                         join_rule: room.getJoinRule()
                     });
                 } else if (data.action === 'set_plumbing_state') {
+                    //@ts-ignore
                     mx?.sendStateEvent(data.room_id, 'm.room.plumbing', { status: data.status })
                         .then(() => {
                             respond({ success: true });
@@ -511,6 +524,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                     respond(widgetsEvents.map(s => s.getEffectiveEvent()));
                 } else if (data.action === 'set_widget') {
                     if (data.url) {
+                        //@ts-ignore
                         mx?.sendStateEvent(data.room_id, 'im.vector.modular.widgets', {
                             widget_id: data.widget_id,
                             type: data.type,
