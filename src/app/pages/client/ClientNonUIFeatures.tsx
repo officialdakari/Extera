@@ -39,6 +39,7 @@ import { removeNotifications, roomIdToHash } from '../../utils/notifications';
 import { markAsRead } from '../../../client/action/notifications';
 import cons from '../../../client/state/cons';
 import { getText } from '../../../lang';
+import useCordova from '../../hooks/cordova';
 
 function FaviconUpdater() {
     const roomToUnread = useAtomValue(roomToUnreadAtom);
@@ -605,7 +606,8 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
         };
     }, []);
 
-    const plugin = (window as any).cordova?.plugins?.notification?.local;
+    const cordova = useCordova();
+    const plugin = cordova?.plugins?.notification?.local;
     useEffect(() => {
         if (plugin) {
             const callback = (notification: any, eopts: any) => {
@@ -622,6 +624,16 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
             };
         }
     }, [plugin]);
+    
+    useEffect(() => {
+        if (!cordova) return;
+        const intentHandler = (intent: any) => {
+            console.log(`Got intent`, intent);
+        };
+        cordova.openwith.init(console.log, console.error);
+        cordova.openwith.addHandler(intentHandler);
+        
+    }, [cordova]);
 
     return (
         <>

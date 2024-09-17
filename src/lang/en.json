@@ -932,5 +932,6 @@
     "hidden_content": "Click to view ({0})",
     "go_link.title": "External content",
     "go_link.desc": "Do you want to open external webpage?",
-    "go_link.yes": "Open"
+    "go_link.yes": "Open",
+    "loading": "Loading..."
 }

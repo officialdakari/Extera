@@ -40,7 +40,7 @@ export const ReplyLayout = as<'div', ReplyLayoutProps>(
                 {username}
             </Box>
             <Box grow="Yes" className={css.ReplyContent}>
-                {children}
+                <div>{children}</div>
             </Box>
         </Box>
     )

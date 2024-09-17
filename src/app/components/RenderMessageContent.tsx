@@ -187,12 +187,14 @@ export function RenderMessageContent({
         return hideAttachment ? (
             <Box direction='Column'>
                 <b>{getText('m.image')}</b>
-                <RenderBody
-                    body={body}
-                    customBody={customBody}
-                    highlightRegex={highlightRegex}
-                    htmlReactParserOptions={htmlReactParserOptions}
-                />
+                <div>
+                    <RenderBody
+                        body={body}
+                        customBody={customBody}
+                        highlightRegex={highlightRegex}
+                        htmlReactParserOptions={htmlReactParserOptions}
+                    />
+                </div>
             </Box>
         ) : (
             <MImage
@@ -221,12 +223,14 @@ export function RenderMessageContent({
         return hideAttachment ? (
             <Box direction='Column'>
                 <b>{getText('m.video')}</b>
-                <RenderBody
-                    body={body}
-                    customBody={customBody}
-                    highlightRegex={highlightRegex}
-                    htmlReactParserOptions={htmlReactParserOptions}
-                />
+                <div>
+                    <RenderBody
+                        body={body}
+                        customBody={customBody}
+                        highlightRegex={highlightRegex}
+                        htmlReactParserOptions={htmlReactParserOptions}
+                    />
+                </div>
             </Box>
         ) : (
             <MVideo
@@ -270,12 +274,14 @@ export function RenderMessageContent({
         return hideAttachment ? (
             <Box direction='Column'>
                 <b>{getText('m.audio')}</b>
-                <RenderBody
-                    body={body}
-                    customBody={customBody}
-                    highlightRegex={highlightRegex}
-                    htmlReactParserOptions={htmlReactParserOptions}
-                />
+                <div>
+                    <RenderBody
+                        body={body}
+                        customBody={customBody}
+                        highlightRegex={highlightRegex}
+                        htmlReactParserOptions={htmlReactParserOptions}
+                    />
+                </div>
             </Box>
         ) : (
             <MAudio
@@ -305,12 +311,14 @@ export function RenderMessageContent({
         return hideAttachment ? (
             <Box direction='Column'>
                 <b>{getText('m.file')}</b>
-                <RenderBody
-                    body={body}
-                    customBody={customBody}
-                    highlightRegex={highlightRegex}
-                    htmlReactParserOptions={htmlReactParserOptions}
-                />
+                <div>
+                    <RenderBody
+                        body={body}
+                        customBody={customBody}
+                        highlightRegex={highlightRegex}
+                        htmlReactParserOptions={htmlReactParserOptions}
+                    />
+                </div>
             </Box>
         ) : renderFile();
     }
