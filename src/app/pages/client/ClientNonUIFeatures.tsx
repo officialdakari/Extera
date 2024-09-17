@@ -624,7 +624,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
             };
         }
     }, [plugin]);
-    
+
     useEffect(() => {
         if (!cordova) return;
         const intentHandler = (intent: any) => {
@@ -632,7 +632,6 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
         };
         cordova.openwith.init(console.log, console.error);
         cordova.openwith.addHandler(intentHandler);
-        
     }, [cordova]);
 
     return (

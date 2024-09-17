@@ -493,7 +493,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
     const [editId, setEditId] = useState<string>();
     const [hideTgAds] = useSetting(settingsAtom, 'extera_hideTgAds');
     const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
-    const [smoothScroll] = useSetting(settingsAtom, 'extera_ghostMode');
+    const [smoothScroll] = useSetting(settingsAtom, 'extera_smoothScroll');
     const { navigateRoom, navigateSpace } = useRoomNavigate();
     const roomToParents = useAtomValue(roomToParentsAtom);
     const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
