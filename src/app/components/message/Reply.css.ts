@@ -33,4 +33,5 @@ export const ReplyContent = style({
             opacity: config.opacity.P500,
         },
     },
+    overflow: 'hidden'
 });
