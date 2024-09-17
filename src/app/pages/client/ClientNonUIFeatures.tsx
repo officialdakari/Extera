@@ -625,14 +625,16 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
         }
     }, [plugin]);
 
+    const openwith = cordova ? cordova.openwith : null;
+
     useEffect(() => {
-        if (!cordova) return;
+        if (!cordova || !openwith) return;
         const intentHandler = (intent: any) => {
             console.log(`Got intent`, intent);
         };
-        cordova.openwith.init(console.log, console.error);
-        cordova.openwith.addHandler(intentHandler);
-    }, [cordova]);
+        openwith.init(console.log, console.error);
+        openwith.addHandler(intentHandler);
+    }, [cordova, openwith]);
 
     return (
         <>
