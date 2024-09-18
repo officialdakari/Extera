@@ -15,6 +15,8 @@ import './ShareMenu.scss';
 import RoomSelector from "../../molecules/room-selector/RoomSelector";
 import { roomToUnreadAtom } from "../../state/room/roomToUnread";
 import { roomToParentsAtom } from "../../state/room/roomToParents";
+import { confirmDialog } from "../../molecules/confirm-dialog/ConfirmDialog";
+import { getText } from "../../../lang";
 
 function useVisiblityToggle() {
     const [isOpen, setIsOpen] = useState(false);
@@ -85,6 +87,8 @@ function ShareMenu() {
 
     const openItem = async (roomId, type) => {
         requestClose();
+        const name = mx.getRoom(roomId)?.name;
+        if (!(await confirmDialog(getText('share.title'), getText('share.desc', name ?? roomId), getText('btn.share'), 'positive'))) return;
         const messages = [];
         for (const item of content) {
             var text;
@@ -115,7 +119,7 @@ function ShareMenu() {
                         reader.onloadend = () => {
                             resolve(reader.result);
                         };
-                    } 
+                    }
                 });
                 var mediaType = file.type.split('/')[0].toLowerCase();
                 if (!['audio', 'video', 'image'].includes(mediaType)) mediaType = 'file';

@@ -933,5 +933,8 @@
     "go_link.title": "External content",
     "go_link.desc": "Do you want to open external webpage?",
     "go_link.yes": "Open",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "share.title": "Share content",
+    "share.desc": "Are you sure to share content to {0}?",
+    "btn.share": "Send"
 }
