@@ -9,21 +9,23 @@ import EmojiVerification from '../emoji-verification/EmojiVerification';
 
 import ReusableDialog from '../../molecules/dialog/ReusableDialog';
 import HiddenRooms from '../hidden-rooms/HiddenRooms';
+import ShareMenu from '../share-menu/ShareMenu';
 
 function Dialogs() {
-  return (
-    <>
-      <ProfileViewer />
-      <CreateRoom />
-      <JoinAlias />
-      <SpaceAddExisting />
-      <Search />
-      <HiddenRooms />
-      <EmojiVerification />
+    return (
+        <>
+            <ProfileViewer />
+            <CreateRoom />
+            <JoinAlias />
+            <SpaceAddExisting />
+            <Search />
+            <HiddenRooms />
+            <ShareMenu />
+            <EmojiVerification />
 
-      <ReusableDialog />
-    </>
-  );
+            <ReusableDialog />
+        </>
+    );
 }
 
 export default Dialogs;

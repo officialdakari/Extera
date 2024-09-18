@@ -78,6 +78,13 @@ export function openHiddenRooms() {
     });
 }
 
+export function openShareMenu(content) {
+    appDispatcher.dispatch({
+        type: cons.actions.navigation.OPEN_SHARE_MENU,
+        content
+    });
+}
+
 export function openReusableContextMenu(placement, cords, render, afterClose) {
     appDispatcher.dispatch({
         type: cons.actions.navigation.OPEN_REUSABLE_CONTEXT_MENU,

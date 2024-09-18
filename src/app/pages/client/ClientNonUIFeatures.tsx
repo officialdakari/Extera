@@ -27,7 +27,7 @@ import { useSelectedRoom } from '../../hooks/router/useSelectedRoom';
 import { useInboxNotificationsSelected } from '../../hooks/router/useInbox';
 import { enablePush } from '../../../push';
 import { parse } from 'url';
-import { openJoinAlias, openProfileViewer } from '../../../client/action/navigation';
+import { openJoinAlias, openProfileViewer, openShareMenu } from '../../../client/action/navigation';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import initMatrix from '../../../client/initMatrix';
 import { usePowerLevels, usePowerLevelsAPI } from '../../hooks/usePowerLevels';
@@ -630,7 +630,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
     useEffect(() => {
         if (!cordova || !openwith) return;
         const intentHandler = (intent: any) => {
-            console.log(`Got intent`, intent);
+            openShareMenu(intent);
         };
         openwith.init(console.log, console.error);
         openwith.addHandler(intentHandler);

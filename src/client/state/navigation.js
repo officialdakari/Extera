@@ -65,6 +65,12 @@ class Navigation extends EventEmitter {
                     cons.events.navigation.HIDDEN_ROOMS_OPENED
                 );
             },
+            [cons.actions.navigation.OPEN_SHARE_MENU]: () => {
+                this.emit(
+                    cons.events.navigation.SHARE_MENU_OPENED,
+                    action.content
+                );
+            },
             [cons.actions.navigation.OPEN_REUSABLE_CONTEXT_MENU]: () => {
                 this.emit(
                     cons.events.navigation.REUSABLE_CONTEXT_MENU_OPENED,

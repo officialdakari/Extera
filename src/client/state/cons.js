@@ -50,6 +50,7 @@ const cons = {
             OPEN_EMOJI_VERIFICATION: 'OPEN_EMOJI_VERIFICATION',
             OPEN_NAVIGATION: 'OPEN_NAVIGATION',
             OPEN_HIDDEN_ROOMS: 'OPEN_HIDDEN_ROOMS',
+            OPEN_SHARE_MENU: 'OPEN_SHARE_MENU',
         },
         settings: {
             TOGGLE_SYSTEM_THEME: 'TOGGLE_SYSTEM_THEME',
@@ -75,6 +76,7 @@ const cons = {
             REUSABLE_DIALOG_OPENED: 'REUSABLE_DIALOG_OPENED',
             EMOJI_VERIFICATION_OPENED: 'EMOJI_VERIFICATION_OPENED',
             HIDDEN_ROOMS_OPENED: 'HIDDEN_ROOMS_OPENED',
+            SHARE_MENU_OPENED: 'SHARE_MENU_OPENED',
         },
         notifications: {
             NOTI_CHANGED: 'NOTI_CHANGED',

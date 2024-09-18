@@ -11,27 +11,29 @@ import ScrollView from "../../atoms/scroll/ScrollView";
 import navigation from "../../../client/state/navigation";
 import cons from "../../../client/state/cons";
 
-import './HiddenRooms.scss';
+import './ShareMenu.scss';
 import RoomSelector from "../../molecules/room-selector/RoomSelector";
 import { roomToUnreadAtom } from "../../state/room/roomToUnread";
 import { roomToParentsAtom } from "../../state/room/roomToParents";
 
 function useVisiblityToggle() {
     const [isOpen, setIsOpen] = useState(false);
+    const [content, setContent] = useState([]);
 
     useEffect(() => {
-        const handleHiddenRoomsOpen = () => {
+        const handleShareMenuOpen = (c) => {
+            setContent(c);
             setIsOpen(true);
         };
-        navigation.on(cons.events.navigation.HIDDEN_ROOMS_OPENED, handleHiddenRoomsOpen);
+        navigation.on(cons.events.navigation.HIDDEN_ROOMS_OPENED, handleShareMenuOpen);
         return () => {
-            navigation.removeListener(cons.events.navigation.HIDDEN_ROOMS_OPENED, handleHiddenRoomsOpen);
+            navigation.removeListener(cons.events.navigation.HIDDEN_ROOMS_OPENED, handleShareMenuOpen);
         };
     }, []);
 
     const requestClose = () => setIsOpen(false);
 
-    return [isOpen, requestClose];
+    return [isOpen, requestClose, content];
 }
 
 function mapRoomIds(roomIds, directs, roomIdToParents) {
@@ -59,9 +61,9 @@ function mapRoomIds(roomIds, directs, roomIdToParents) {
     });
 }
 
-function HiddenRooms() {
+function ShareMenu() {
     const [result, setResult] = useState(null);
-    const [isOpen, requestClose] = useVisiblityToggle();
+    const [isOpen, requestClose, content] = useVisiblityToggle();
     const mx = initMatrix.matrixClient;
     const { navigateRoom, navigateSpace } = useRoomNavigate();
     const mDirects = useAtomValue(mDirectAtom);
@@ -73,7 +75,7 @@ function HiddenRooms() {
     const handleAfterOpen = () => {
         setResult(
             mapRoomIds(
-                [...rooms, ...directs].filter((roomId) => isHidden(mx, roomId)),
+                [...rooms, ...directs],
                 directs,
                 roomToParents
             )
@@ -81,10 +83,55 @@ function HiddenRooms() {
         console.log(result);
     };
 
-    const openItem = (roomId, type) => {
-        if (type === 'space') navigateSpace(roomId);
-        else navigateRoom(roomId);
+    const openItem = async (roomId, type) => {
         requestClose();
+        const messages = [];
+        for (const item of content) {
+            var text;
+            var filename;
+            if (typeof item.text === 'string') {
+                text = item.text;
+            } else if (typeof item.name === 'string') {
+                filename = item.name;
+            }
+            if (['text', 'string', 'url'].includes(item.type)) {
+                messages.push({
+                    msgtype: 'm.text',
+                    body: item.data
+                });
+            } else {
+                const data = await new Promise(async (resolve, reject) => {
+                    if (item.fileUrl) {
+                        const fileEntry = await new Promise((resolve, reject) => {
+                            window.resolveLocalFileSystemURL(item.fileUrl, resolve);
+                        });
+                        const file = await new Promise((resolve, reject) => {
+                            fileEntry.file(resolve);
+                        });
+                        let reader = new FileReader();
+
+                        reader.readAsDataURL(file);
+                        reader.readAsArrayBuffer(file);
+                        reader.onloadend = () => {
+                            resolve(reader.result);
+                        };
+                    } 
+                });
+                var mediaType = file.type.split('/')[0].toLowerCase();
+                if (!['audio', 'video', 'image'].includes(mediaType)) mediaType = 'file';
+                mediaType = `m.${mediaType}`;
+                const upload = await mx.uploadContent(data);
+                messages.push({
+                    msgtype: mediaType,
+                    filename,
+                    body: text ?? filename,
+                    url: upload.content_uri
+                });
+            }
+        }
+        for (const content of messages) {
+            await mx.sendMessage(roomId, content);
+        }
     };
 
     const renderRoomSelector = (item) => {
@@ -110,16 +157,16 @@ function HiddenRooms() {
 
     return (
         <RawModal
-            className="hidden-rooms-dialog__modal dialog-modal"
+            className="share-menu-dialog__modal dialog-modal"
             isOpen={isOpen}
             onAfterOpen={handleAfterOpen}
             onRequestClose={requestClose}
             size="small"
         >
-            <div className="hidden-rooms-dialog">
-                <div className="hidden-rooms-dialog__content-wrapper">
+            <div className="share-menu-dialog">
+                <div className="share-menu-dialog__content-wrapper">
                     <ScrollView autoHide>
-                        <div className="hidden-rooms-dialog__content">
+                        <div className="share-menu-dialog__content">
                             {Array.isArray(result) && result.map(renderRoomSelector)}
                         </div>
                     </ScrollView>
@@ -129,4 +176,4 @@ function HiddenRooms() {
     );
 }
 
-export default HiddenRooms;
+export default ShareMenu;
