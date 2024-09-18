@@ -27,9 +27,9 @@ function useVisiblityToggle() {
             setContent(c);
             setIsOpen(true);
         };
-        navigation.on(cons.events.navigation.HIDDEN_ROOMS_OPENED, handleShareMenuOpen);
+        navigation.on(cons.events.navigation.SHARE_MENU_OPENED, handleShareMenuOpen);
         return () => {
-            navigation.removeListener(cons.events.navigation.HIDDEN_ROOMS_OPENED, handleShareMenuOpen);
+            navigation.removeListener(cons.events.navigation.SHARE_MENU_OPENED, handleShareMenuOpen);
         };
     }, []);
 
