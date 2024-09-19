@@ -630,7 +630,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
     useEffect(() => {
         if (!cordova || !openwith) return;
         const intentHandler = (intent: any) => {
-            openShareMenu(intent);
+            openShareMenu(intent.items);
         };
         openwith.init(console.log, console.error);
         openwith.addHandler(intentHandler);

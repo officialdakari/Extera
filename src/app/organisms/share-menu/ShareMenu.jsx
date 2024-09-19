@@ -114,7 +114,7 @@ function ShareMenu() {
                         });
                         let reader = new FileReader();
 
-                        reader.readAsDataURL(file);
+                        //reader.readAsDataURL(file);
                         reader.readAsArrayBuffer(file);
                         reader.onloadend = () => {
                             resolve(reader.result);
