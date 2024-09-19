@@ -946,5 +946,7 @@
     "btn.add_ignore_policy": "Add",
     "ignore_policies.tip": "Ignore a user if a regular expression matches their ID. Use carefully.",
     "title.new_ignore_policy": "New policy",
-    "syncing": "Syncing..."
+    "syncing": "Syncing...",
+    "settings.ignore_policies.title": "Use ignore policies",
+    "settings.ignore_policies.desc": "Use ignore policies instead of ignoring users"
 }

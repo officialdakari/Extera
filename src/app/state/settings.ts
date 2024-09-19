@@ -40,6 +40,7 @@ export interface Settings {
     hideEmojiAdvert: boolean;
     replyFallbacks: boolean;
     voiceMessages: boolean;
+    ignorePolicies: boolean;
 }
 
 const defaultSettings: Settings = {
@@ -76,7 +77,8 @@ const defaultSettings: Settings = {
     newDesignInput: true,
     hideEmojiAdvert: false,
     replyFallbacks: false,
-    voiceMessages: true
+    voiceMessages: true,
+    ignorePolicies: false
 };
 
 export const getSettings = () => {

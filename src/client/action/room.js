@@ -3,6 +3,8 @@ import appDispatcher from '../dispatcher';
 import cons from '../state/cons';
 import { getIdServer } from '../../util/matrixUtil';
 import { EventTimeline } from 'matrix-js-sdk';
+import { useSetting } from '../../app/state/hooks/settings';
+import { settingsAtom } from '../../app/state/settings';
 
 /**
  * https://github.com/matrix-org/matrix-react-sdk/blob/1e6c6e9d800890c732d60429449bc280de01a647/src/Rooms.js#L73
@@ -289,6 +291,11 @@ async function unban(roomId, userId) {
 }
 
 async function ignore(userIds) {
+    const [ignorePolicies] = useSetting(settingsAtom, 'ignorePolicies');
+    if (ignorePolicies) {
+        addIgnorePolicy(userIds.map(x => ({ type: 'exact', content: x })));
+        return;
+    }
     const mx = initMatrix.matrixClient;
 
     let ignoredUsers = mx.getIgnoredUsers().concat(userIds);
@@ -297,6 +304,11 @@ async function ignore(userIds) {
 }
 
 async function unignore(userIds) {
+    const [ignorePolicies] = useSetting(settingsAtom, 'ignorePolicies');
+    if (ignorePolicies) {
+        removeIgnorePolicy([roomActions.isIgnored(userId)]);
+        return;
+    }
     const mx = initMatrix.matrixClient;
 
     const ignoredUsers = mx.getIgnoredUsers();
@@ -340,9 +352,15 @@ function isIgnored(userId) {
     for (const policy of policies) {
         switch (policy.type) {
             case 'exact':
-                return policy.content === userId;
+                if (policy.content === userId)
+                    return policy;
+                else
+                    continue;
             case 'regex':
-                return new RegExp(policy.content, 'iu').test(userId);
+                if (new RegExp(policy.content, 'iu').test(userId))
+                    return policy;
+                else
+                    continue;
         }
     }
     return false;

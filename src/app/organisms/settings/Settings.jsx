@@ -55,6 +55,7 @@ import Icon from '@mdi/react';
 import FocusTrap from 'focus-trap-react';
 import getCachedURL from '../../utils/cache';
 import wallpaperDB from '../../utils/wallpaper';
+import { useAccountData } from '../../hooks/useAccountData';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
@@ -396,6 +397,7 @@ function ExteraSection() {
     const [enableCaptions, setEnableCaptions] = useSetting(settingsAtom, 'extera_enableCaptions');
     const [renameTgBot, setRenameTgBot] = useSetting(settingsAtom, 'extera_renameTgBot');
     const [smoothScroll, setSmoothScroll] = useSetting(settingsAtom, 'extera_smoothScroll');
+    const [ignorePolicies, setIgnorePolicies] = useSetting(settingsAtom, 'ignorePolicies');
     const [replyFallbacks, setReplyFallbacks] = useSetting(settingsAtom, 'replyFallbacks');
 
     return (
@@ -435,9 +437,20 @@ function ExteraSection() {
                 <SettingTile
                     title={getText('settings.msc3382.title')}
                     options={(
-                        <div style={{ opacity: 0.5 }}><Toggle disabled={true} /></div>
+                        <Toggle isActive={false} onToggle={() => null} disabled />
                     )}
                     content={<Text variant="b3">{getText('settings.msc3382.desc')}</Text>}
+                />
+                <SettingTile
+                    title={getText('settings.ignore_policies.title')}
+                    options={(
+                        <Toggle
+                            isActive={ignorePolicies}
+                            onToggle={() => setIgnorePolicies(!ignorePolicies)}
+                            disabled
+                        />
+                    )}
+                    content={<Text variant="b3">{getText('settings.ignore_policies.desc')}</Text>}
                 />
                 <SettingTile
                     title={getText('settings.rename_tg_bot.title')}
@@ -800,6 +813,7 @@ function useWindowToggle(setSelectedTab) {
 function Settings() {
     const [selectedTab, setSelectedTab] = useState(tabItems[0]);
     const [isOpen, requestClose] = useWindowToggle(setSelectedTab);
+    const exteraProfileEvent = useAccountData('ru.officialdakari.extera_profile');
 
     const mx = useMatrixClient();
 
@@ -813,14 +827,13 @@ function Settings() {
     const [bannerSrc, setBannerSrc] = useState('');
 
     useEffect(() => {
-        const exteraProfileEvent = mx.getAccountData('ru.officialdakari.extera_profile');
         const exteraProfile = exteraProfileEvent ? exteraProfileEvent.getContent() : {};
         console.log(exteraProfile);
         if (typeof exteraProfile.banner_url === 'string') {
             console.log(exteraProfile.banner_url);
             setBannerSrc(exteraProfile.banner_url);
         }
-    }, [mx]);
+    }, [mx, exteraProfileEvent]);
 
     const handleBannerChange = async (src) => {
         try {
@@ -871,7 +884,7 @@ function Settings() {
                     {
                         bannerSrc ?
                             <Banner noBorder={true} url={bannerSrc} onUpload={handleBannerChange} /> :
-                            <Banner noBorder={true} emptyBanner='black' onUpload={handleBannerChange} />
+                            <Banner noBorder={true} emptyBanner='transparent' onUpload={handleBannerChange} />
                     }
                     <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
                     <Tabs

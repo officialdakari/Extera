@@ -46,6 +46,9 @@ import { VerificationBadge } from '../../components/verification-badge/Verificat
 import { Box } from 'folds';
 import { mdiAccountCancelOutline, mdiAccountMinusOutline, mdiAccountPlusOutline, mdiBlockHelper, mdiCheck, mdiChevronDown, mdiChevronRight, mdiClose, mdiMessageOutline, mdiPlusCircleOutline, mdiShieldOutline } from '@mdi/js';
 import Icon from '@mdi/react';
+import { useSetting } from '../../state/hooks/settings';
+import { settingsAtom } from '../../state/settings';
+import { useAccountData } from '../../hooks/useAccountData';
 
 function ModerationTools({ roomId, userId }) {
     const mx = initMatrix.matrixClient;
@@ -220,8 +223,13 @@ SessionInfo.propTypes = {
 function ProfileFooter({ roomId, userId, onRequestClose }) {
     const [isCreatingDM, setIsCreatingDM] = useState(false);
     const [isIgnoring, setIsIgnoring] = useState(false);
-    const [isUserIgnored, setIsUserIgnored] = useState(initMatrix.matrixClient.isUserIgnored(userId));
+    const [ignorePolicies] = useSetting(settingsAtom, 'ignorePolicies');
+    const [isUserIgnored, setIsUserIgnored] = useState(ignorePolicies ? (roomActions.isIgnored(userId) ? true : false) : initMatrix.matrixClient.isUserIgnored(userId));
     const [isAdmin, setIsAdmin] = useState(false);
+    
+    if (ignorePolicies) {
+        useAccountData(cons.IGNORE_POLICIES);
+    }
 
     const isMountedRef = useRef(true);
     const mx = initMatrix.matrixClient;
@@ -279,7 +287,7 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
     };
 
     const toggleIgnore = async () => {
-        const isIgnored = mx.getIgnoredUsers().includes(userId);
+        const isIgnored = roomActions.isIgnored(userId) || mx.getIgnoredUsers().includes(userId);
 
         try {
             setIsIgnoring(true);

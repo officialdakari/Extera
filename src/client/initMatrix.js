@@ -5,6 +5,7 @@ import { logger } from 'matrix-js-sdk/lib/logger';
 
 import { getSecret } from './state/auth';
 import { cryptoCallbacks } from './state/secretStorageKeys';
+import { SlidingSync } from 'matrix-js-sdk/lib/sliding-sync';
 
 global.Olm = Olm;
 
@@ -53,7 +54,6 @@ class InitMatrix extends EventEmitter {
                 'm.sas.v1',
             ],
             fallbackICEServerAllowed: true,
-
         });
 
         global.initMatrix = this;
@@ -66,6 +66,7 @@ class InitMatrix extends EventEmitter {
         await this.matrixClient.startClient({
             lazyLoadMembers: true,
             threadSupport: true,
+            initialSyncLimit: 4
         });
         this.matrixClient.setGlobalErrorOnUnknownDevices(false);
         this.matrixClient.setMaxListeners(50);
