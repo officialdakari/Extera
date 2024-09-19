@@ -30,7 +30,7 @@ import ExportE2ERoomKeys from '../../molecules/import-export-e2e-room-keys/Expor
 import { ImagePackUser, ImagePackGlobal } from '../../molecules/image-pack/ImagePack';
 import GlobalNotification from '../../molecules/global-notification/GlobalNotification';
 import KeywordNotification from '../../molecules/global-notification/KeywordNotification';
-import IgnoreUserList from '../../molecules/global-notification/IgnoreUserList';
+import IgnoreUserList, { IgnorePolicyList } from '../../molecules/global-notification/IgnoreUserList';
 
 import ProfileEditor from '../profile-editor/ProfileEditor';
 import CrossSigning from './CrossSigning';
@@ -553,6 +553,7 @@ function NotificationsSection() {
             <GlobalNotification />
             <KeywordNotification />
             <IgnoreUserList />
+            <IgnorePolicyList />
         </>
     );
 }

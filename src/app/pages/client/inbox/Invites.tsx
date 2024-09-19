@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useId, useRef, useState } from 'react';
 import {
     Avatar,
     Box,
@@ -22,6 +22,7 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { allInvitesAtom } from '../../../state/room-list/inviteList';
 import { mDirectAtom } from '../../../state/mDirectList';
 import { SequenceCard } from '../../../components/sequence-card';
+import * as roomActions from '../../../../client/action/room';
 import {
     getDirectRoomAvatarUrl,
     getMemberDisplayName,
@@ -60,6 +61,8 @@ function InviteCard({ room, userId, direct, compact, onNavigate }: InviteCardPro
     const senderName = senderId
         ? getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId
         : undefined;
+    
+    if (roomActions.isIgnored(senderId)) return null;
 
     const topic = useRoomTopic(room);
 
@@ -81,11 +84,19 @@ function InviteCard({ room, userId, direct, compact, onNavigate }: InviteCardPro
     const [leaveState, leave] = useAsyncCallback<Record<string, never>, MatrixError, []>(
         useCallback(() => mx.leave(room.roomId), [mx, room])
     );
+    const [ignoreState, ignore] = useAsyncCallback<void, MatrixError, []>(
+        useCallback(async () => {
+            await mx.leave(room.roomId);
+            await roomActions.ignore([senderId]);            
+        }, [mx, room, senderId])
+    );
 
     const joining =
         joinState.status === AsyncStatus.Loading || joinState.status === AsyncStatus.Success;
     const leaving =
         leaveState.status === AsyncStatus.Loading || leaveState.status === AsyncStatus.Success;
+    const ignoring =
+        ignoreState.status === AsyncStatus.Loading || ignoreState.status === AsyncStatus.Success;
 
     return (
         <SequenceCard
@@ -96,8 +107,8 @@ function InviteCard({ room, userId, direct, compact, onNavigate }: InviteCardPro
         >
             <Box gap="200" alignItems="Baseline">
                 <Box grow="Yes">
-                    <Text size="T200" priority="300" truncate>
-                        {translate('inbox.invites.by', <b>{senderName}</b>)}
+                    <Text size="T200" priority="300">
+                        {translate('inbox.invites.by', <b>{senderName}</b>, senderId)}
                     </Text>
                 </Box>
                 <Box shrink="No">
@@ -169,10 +180,20 @@ function InviteCard({ room, userId, direct, compact, onNavigate }: InviteCardPro
                             size="300"
                             variant="Secondary"
                             fill="Soft"
-                            disabled={joining || leaving}
+                            disabled={joining || leaving || ignoring}
                             before={leaving ? <Spinner variant="Secondary" size="100" /> : undefined}
                         >
                             <Text size="B300">{getText('btn.decline')}</Text>
+                        </Button>
+                        <Button
+                            onClick={ignore}
+                            size="300"
+                            variant="Secondary"
+                            fill="Soft"
+                            disabled={joining || leaving || ignoring}
+                            before={ignoring ? <Spinner variant="Secondary" size="100" /> : undefined}
+                        >
+                            <Text size="B300">{getText('btn.decline_and_ignore')}</Text>
                         </Button>
                         <Button
                             onClick={join}
@@ -180,7 +201,7 @@ function InviteCard({ room, userId, direct, compact, onNavigate }: InviteCardPro
                             variant="Primary"
                             fill="Soft"
                             outlined
-                            disabled={joining || leaving}
+                            disabled={joining || leaving || ignoring}
                             before={joining ? <Spinner variant="Primary" fill="Soft" size="100" /> : undefined}
                         >
                             <Text size="B300">{getText('btn.accept')}</Text>

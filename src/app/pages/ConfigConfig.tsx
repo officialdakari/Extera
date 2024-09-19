@@ -9,7 +9,9 @@ export function ConfigConfigLoading() {
         <SplashScreen>
             <Box grow="Yes" direction="Column" gap="400" alignItems="Center" justifyContent="Center">
                 <Spinner variant="Secondary" size="600" />
-                <RandomFact />
+                <Text>
+                    {getText('loading')}
+                </Text>
             </Box>
         </SplashScreen>
     );

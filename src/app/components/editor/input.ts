@@ -20,6 +20,8 @@ export const domToEditorInput = (node: any, parent?: any, index?: number) => {
             final += `**${node.children.map((x: any, i: number) => domToEditorInput(x, node, i)).join('')}**`;
         } else if (node.name == 'code') {
             final += `\`${node.children.map((x: any, i: number) => domToEditorInput(x, node, i)).join('')}\``;
+        } else if (node.name == 'blockquote') {
+            final += `${node.children.map((x: any, i: number) => `> ${domToEditorInput(x, node, i).trim().split('\n').join('\n> ')}`).join('\n')}`;
         } else if (node.name == 'pre') {
             final += `\`\`${node.children.map((x: any, i: number) => domToEditorInput(x, node, i)).join('')}\`\``;
         } else if (node.name == 'del') {

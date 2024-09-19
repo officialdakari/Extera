@@ -119,6 +119,7 @@ import { mdiCheckAll, mdiChevronDown, mdiCodeBraces, mdiCodeBracesBox, mdiImageE
 import Icon from '@mdi/react';
 import { ThreadPreview } from './message/ThreadPreview';
 import HiddenContent from '../../components/hidden-content/HiddenContent';
+import { isIgnored } from '../../../client/action/room';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
     ({ position, className, ...props }, ref) => (
@@ -1101,9 +1102,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
                 }
 
                 if (hideMessage && hideTgAds) {
-                    return (
-                        <></>
-                    );
+                    return null;
                 }
 
                 return (
@@ -1687,6 +1686,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
             minuteDifference(prevEvent.getTs(), mEvent.getTs()) < 5;
 
         const eventJSX = reactionOrEditEvent(mEvent)
+            || isIgnored(mEvent.sender?.userId)
             ? null
             : renderMatrixEvent(
                 mEvent.getType(),

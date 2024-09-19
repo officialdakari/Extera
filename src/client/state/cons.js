@@ -1,7 +1,7 @@
 const cons = {
     name: 'Extera',
     app_id: 'ru.officialdakari.extera',
-    version: '1.5',
+    version: '1.6',
     secretKey: {
         ACCESS_TOKEN: 'cinny_access_token',
         DEVICE_ID: 'cinny_device_id',
@@ -10,6 +10,7 @@ const cons = {
     },
     DEVICE_DISPLAY_NAME: 'Extera Chat',
     IN_CINNY_SPACES: 'xyz.extera.spaces',
+    IGNORE_POLICIES: 'xyz.extera.mscxxxx.ignored_users',
     EXTERA_BANNER_URL: 'xyz.extera.banner_url',
     supportEventTypes: [
         'm.room.create',
@@ -93,7 +94,7 @@ const cons = {
             NOTIFICATION_SOUNDS_TOGGLED: 'NOTIFICATION_SOUNDS_TOGGLED',
         },
     },
-    ecs_base_url: 'https://extera-cloud-services.officialdakari.ru',
+    ecs_base_url: 'https://ecs.extera.xyz',
     scam_strings: [
         'verif',
         '✔️',

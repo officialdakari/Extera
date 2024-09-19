@@ -31,8 +31,8 @@ import { HTMLReactParserOptions } from 'html-react-parser';
 import { RenderBody } from '../RenderBody';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
-import { mdiAlert, mdiArrowDownBold, mdiArrowRight } from '@mdi/js';
-import { saveFile } from '../../../utils/saveFile';
+import { mdiAlert, mdiArrowDownBold, mdiArrowRight, mdiDownload } from '@mdi/js';
+import { saveFile, useDownloadStatus } from '../../../utils/saveFile';
 
 const renderErrorButton = (retry: () => void, text: string) => (
     <TooltipProvider
@@ -276,7 +276,7 @@ export function DownloadFile({ body, mimeType, url, info, encInfo, filename }: D
                     downloadState.status === AsyncStatus.Loading ? (
                         <Spinner fill="Soft" size="100" variant="Secondary" />
                     ) : (
-                        <Icon size={1} path={mdiArrowDownBold} />
+                        <Icon size={1} path={mdiDownload} />
                     )
                 }
             >

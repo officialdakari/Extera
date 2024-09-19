@@ -303,6 +303,51 @@ async function unignore(userIds) {
     await mx.setIgnoredUsers(ignoredUsers.filter((id) => !userIds.includes(id)));
 }
 
+function getIgnorePolicies() {
+    const mx = initMatrix.matrixClient;
+
+    const ev = mx.getAccountData(cons.IGNORE_POLICIES);
+    if (!ev) return [];
+    const content = ev.getContent();
+    return content.policies || [];
+}
+
+// ААААА КОНДИЦИИ ЛИТВИН НА КОНДИЦИЯХ УХХХ ПОШЛА ХОРОША
+// 19.09.2024 13:29 UTC // @officialdakari:extera.xyz //
+async function addIgnorePolicy(policiesToAdd) {
+    //                         ^^^^^^^^^^^^^
+    // оно называлось conditions
+    const mx = initMatrix.matrixClient;
+
+    const policies = [...getIgnorePolicies(), ...policiesToAdd];
+    await mx.setAccountData(cons.IGNORE_POLICIES, {
+        policies
+    });
+}
+
+async function removeIgnorePolicy(policiesToRemove) {
+    const mx = initMatrix.matrixClient;
+
+    const policies = getIgnorePolicies();
+    await mx.setAccountData(cons.IGNORE_POLICIES, {
+        policies: policies.filter(x => !policiesToRemove.find(y => y.content === x.content))
+    });
+}
+
+function isIgnored(userId) {
+    if (!userId) return false;
+    const policies = getIgnorePolicies();
+    for (const policy of policies) {
+        switch (policy.type) {
+            case 'exact':
+                return policy.content === userId;
+            case 'regex':
+                return new RegExp(policy.content, 'iu').test(userId);
+        }
+    }
+    return false;
+}
+
 async function setPowerLevel(roomId, userId, powerLevel) {
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(roomId);
@@ -346,5 +391,8 @@ export {
     ignore, unignore,
     setPowerLevel,
     setMyRoomNick, setMyRoomAvatar,
-    sendExteraProfile
+    sendExteraProfile,
+    addIgnorePolicy,
+    removeIgnorePolicy,
+    getIgnorePolicies, isIgnored
 };

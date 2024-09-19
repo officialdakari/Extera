@@ -16,15 +16,18 @@ type UserProfile = {
 export function UserTab() {
     const mx = useMatrixClient();
     const userId = mx.getUserId()!;
+    const user = mx.getUser(userId);
 
-    const [profile, setProfile] = useState<UserProfile>({});
+    const [profile, setProfile] = useState<UserProfile>({
+        avatar_url: user?.avatarUrl,
+        displayname: user?.rawDisplayName
+    });
     const displayName = profile.displayname ?? getMxIdLocalPart(userId) ?? userId;
     const avatarUrl = profile.avatar_url
         ? mx.mxcUrlToHttp(profile.avatar_url, 96, 96, 'crop') ?? undefined
         : undefined;
 
     useEffect(() => {
-        const user = mx.getUser(userId);
         const onAvatarChange: UserEventHandlerMap[UserEvent.AvatarUrl] = (event, myUser) => {
             setProfile((cp) => ({
                 ...cp,
@@ -37,10 +40,6 @@ export function UserTab() {
                 avatar_url: myUser.displayName,
             }));
         };
-        setProfile({
-            avatar_url: user?.avatarUrl,
-            displayname: user?.rawDisplayName
-        });
         user?.on(UserEvent.AvatarUrl, onAvatarChange);
         user?.on(UserEvent.DisplayName, onDisplayNameChange);
         return () => {
@@ -48,6 +47,10 @@ export function UserTab() {
             user?.removeListener(UserEvent.DisplayName, onDisplayNameChange);
         };
     }, [mx, userId]);
+    
+    useEffect(() => {
+    
+    }, [mx, user]);
 
     return (
         <SidebarItem>

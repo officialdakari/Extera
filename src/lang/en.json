@@ -127,8 +127,9 @@
     "inbox.invites.title": "Invites",
     "inbox.title": "Inbox",
     "inbox.notifications": "Notifications",
-    "inbox.invites.by": "Invited by {0}",
+    "inbox.invites.by": "Invited by {0} ({1})",
     "btn.decline": "Decline",
+    "btn.decline_and_ignore": "Ignore",
     "btn.accept": "Accept",
     "inbox.invites.dm": "Direct messages",
     "inbox.invites.space": "Spaces",
@@ -936,5 +937,14 @@
     "loading": "Loading...",
     "share.title": "Share content",
     "share.desc": "Are you sure to share content to {0}?",
-    "btn.share": "Send"
+    "btn.share": "Send",
+    "settings_header.ignored_users": "Ignored users",
+    "settings_header.ignore_policies": "Ignore policies",
+    "title.ignore_user": "Ignore user",
+    "ignore_user.tip": "Ignore a user if you don't want to receive their messages or invites.",
+    "btn.ignore": "Ignore",
+    "btn.add_ignore_policy": "Add",
+    "ignore_policies.tip": "Ignore a user if a regular expression matches their ID. Use carefully.",
+    "title.new_ignore_policy": "New policy",
+    "syncing": "Syncing..."
 }

@@ -56,6 +56,9 @@ class InitMatrix extends EventEmitter {
 
         });
 
+        global.initMatrix = this;
+        this.emit('client_ready');
+
         await indexedDBStore.startup();
 
         await this.matrixClient.initCrypto();
@@ -79,7 +82,6 @@ class InitMatrix extends EventEmitter {
             PREPARED: (prevState) => {
                 console.log('PREPARED state');
                 console.log('Previous state: ', prevState);
-                global.initMatrix = this;
                 if (prevState === null) {
                     this.emit('init_loading_finished');
                 }

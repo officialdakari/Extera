@@ -21,6 +21,8 @@ import * as css from './ClientRoot.css';
 import { CallProvider } from '../../hooks/useCall';
 import { createModals, ModalsProvider } from '../../hooks/useModals';
 import { Modals } from '../../components/modal/Modal';
+import { getText } from '../../../lang';
+import ClientAlert from './ClientAlert';
 
 function SystemEmojiFeature() {
     const [twitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
@@ -39,7 +41,9 @@ function ClientRootLoading() {
         <SplashScreen>
             <Box direction="Column" grow="Yes" alignItems="Center" justifyContent="Center" gap="400">
                 <Spinner variant="Secondary" size="600" />
-                <RandomFact />
+                <Text>
+                    {getText('loading')}
+                </Text>
             </Box>
         </SplashScreen>
     );
@@ -50,6 +54,7 @@ type ClientRootProps = {
 };
 export function ClientRoot({ children }: ClientRootProps) {
     const [loading, setLoading] = useState(true);
+    const [syncing, setSyncing] = useState(true);
     const { baseUrl } = getSecret();
 
     useEffect(() => {
@@ -57,15 +62,24 @@ export function ClientRoot({ children }: ClientRootProps) {
             initHotkeys();
             setLoading(false);
         };
-        initMatrix.once('init_loading_finished', handleStart);
+        const handleReady = () => {
+            setSyncing(false);
+        };
+        initMatrix.once('client_ready', handleStart);
+        initMatrix.once('init_loading_finished', handleReady);
         if (!initMatrix.matrixClient) initMatrix.init();
         return () => {
-            initMatrix.removeListener('init_loading_finished', handleStart);
+            initMatrix.removeListener('client_ready', handleStart);
+            initMatrix.removeListener('init_loading_finished', handleReady);
         };
     }, []);
 
     const callWindowState = useState<any>(null);
     const modals = createModals();
+    
+    useEffect(() => {
+    
+    }, [syncing, loading]);
 
     return (
         <SpecVersions baseUrl={baseUrl!}>
@@ -105,7 +119,11 @@ export function ClientRoot({ children }: ClientRootProps) {
                                                     </div>
                                                 </Draggable>
                                             )}
-
+                                            {syncing && (
+                                                <ClientAlert>
+                                                    {getText('syncing')}
+                                                </ClientAlert>
+                                            )}
                                             {children}
                                             <Windows />
                                             <Dialogs />

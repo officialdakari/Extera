@@ -124,7 +124,7 @@
 	"inbox.invites.title": "Приглашения",
 	"inbox.title": "Входящие",
 	"inbox.notifications": "Уведомления",
-	"inbox.invites.by": "Приглашён {0}",
+	"inbox.invites.by": "Приглашён {0} ({1})",
 	"btn.decline": "Отклонить",
 	"btn.accept": "Принять",
 	"inbox.invites.dm": "Личные сообщения",
@@ -936,5 +936,15 @@
 	"loading": "Загрузка...",
 	"share.title": "Поделиться контентом",
 	"share.desc": "Вы уверены что хотите отправить это в {0}?",
-	"btn.share": "Отправить"
+	"btn.share": "Отправить",
+	"btn.decline_and_ignore": "Игнорировать",
+	"settings_header.ignored_users": "Игнорируемые пользователи",
+	"settings_header.ignore_policies": "Правила игнорирования",
+	"title.ignore_user": "Игнорировать пользователя",
+	"ignore_user.tip": "Добавьте пользователя в игнорируемые, если не хотите видеть их сообщения и приглашения.",
+	"btn.ignore": "Добавить",
+	"btn.add_ignore_policy": "Добавить",
+	"ignore_policies.tip": "Игнорируйте пользователей с помощью регулярных выражений. Только для опытных пользователей, используйте с осторожностью.",
+	"title.new_ignore_policy": "Новое правило",
+	"syncing": "Синхронизация..."
 }

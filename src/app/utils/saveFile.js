@@ -1,6 +1,6 @@
 import FileSaver from "file-saver";
-import { v4 } from "uuid";
 import initMatrix from "../../client/initMatrix";
+import { useEffect, useState } from "react";
 
 if (window.cordova && typeof window.downloader !== 'undefined') {
     document.addEventListener('deviceready', () => {
@@ -12,10 +12,24 @@ if (window.cordova && typeof window.downloader !== 'undefined') {
     }, false);
 }
 
+const downloadStatus = {};
+
+export function useDownloadStatus(src) {
+    const [status, setStatus] = useState(downloadStatus[src]);
+    useEffect(() => {
+        setStatus(downloadStatus[src]);
+    }, [downloadStatus]);
+    return status;
+}
+
 export async function saveFile(src, name) {
     const mx = initMatrix.matrixClient;
+    const setState = (state) => {
+        downloadStatus[src] = state;
+    };
     if (!window.cordova || cordova.platformId === 'browser') {
-        return FileSaver.saveAs(src, name);
+        FileSaver.saveAs(src, name);
+        return;
     }
     console.log(`Saving file ${src} ${name}`);
 
@@ -29,6 +43,7 @@ export async function saveFile(src, name) {
         // Проверяем, является ли src blob URL
         if (src.startsWith('blob:')) {
             // Получаем blob из URL
+            setState('downloading');
             const response = await fetch(src);
             const blob = await response.blob();
 
@@ -43,6 +58,7 @@ export async function saveFile(src, name) {
                         file.createWriter(function (writer) {
                             writer.onwriteend = function () {
                                 console.debug(`Downloaded!!!`);
+                                setState('done');
                                 alert(`Saved to Download/${targetName}`);
                             };
                             writer.onerror = function (e) {
@@ -51,6 +67,7 @@ export async function saveFile(src, name) {
 
                             const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
                             writer.write(blob);
+                            setState('saving');
                         }, errorHandler);
                     }, errorHandler);
                 });
@@ -59,15 +76,18 @@ export async function saveFile(src, name) {
         } else if (typeof src === 'string') {
             // Оставляем существующий код для не-blob URL
             const ft = new FileTransfer();
+            setState('downloading');
             ft.download(
                 src,
                 `/storage/emulated/0/Download/${targetName}`,
                 function (entry) {
                     console.debug(`Downloaded!!!`);
                     alert(`Saved to Download/${targetName}`);
+                    setState('done');
                 },
                 function (error) {
                     console.error(error, `could not download !!! ${targetName}`);
+                    setState('error');
                 },
                 false,
                 {

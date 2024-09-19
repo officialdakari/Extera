@@ -40,10 +40,12 @@ self.addEventListener('fetch', (event: FetchEvent) => {
     const { url, method } = event.request;
     if (method !== 'GET') return;
     const isAuthedMedia = url.includes('/_matrix/client/v1/media/');
+    const shouldCache = url.includes('/_matrix/client/versions') || url.startsWith('https://ecs.extera.xyz/');
     const isMedia = url.includes('/_matrix/media/');
     if (
         !isAuthedMedia &&
-        !isMedia
+        !isMedia &&
+        !shouldCache
     ) {
         return;
     }
