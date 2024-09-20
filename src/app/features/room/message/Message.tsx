@@ -36,7 +36,7 @@ import React, {
 } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { useHover, useFocusWithin } from 'react-aria';
-import { EventTimeline, MatrixEvent, RelationType, Room, RoomEvent, TimelineEvents } from 'matrix-js-sdk';
+import { ClientEvent, EventStatus, EventTimeline, MatrixError, MatrixEvent, MatrixEventEvent, RelationType, Room, RoomEvent, TimelineEvents } from 'matrix-js-sdk';
 import { Relations } from 'matrix-js-sdk/lib/models/relations';
 import classNames from 'classnames';
 import {
@@ -93,7 +93,7 @@ import { ImageViewer } from '../../../components/image-viewer';
 import { Image } from '../../../components/media';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
-import { mdiAccount, mdiAlertCircleOutline, mdiArrowRight, mdiCheck, mdiCheckAll, mdiClose, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiDownload, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReply, mdiRestore, mdiTranslate } from '@mdi/js';
+import { mdiAccount, mdiAlertCircleOutline, mdiArrowRight, mdiCancel, mdiCheck, mdiCheckAll, mdiClose, mdiCloseCircle, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiDownload, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReload, mdiRepeat, mdiReply, mdiRestore, mdiTranslate } from '@mdi/js';
 import { useBackButton } from '../../../hooks/useBackButton';
 import { translateContent } from '../../../utils/translation';
 import { getLocalVerification } from '../../../utils/getVerificationState';
@@ -824,6 +824,72 @@ export const MessageCopyLinkItem = as<
     );
 });
 
+export const MessageCancelItem = as<
+    'button',
+    {
+        room: Room;
+        mEvent: MatrixEvent;
+        onClose?: () => void;
+    }
+>(({ room, mEvent, onClose, ...props }, ref) => {
+    const mx = useMatrixClient();
+
+    const onClick = () => {
+        mx.cancelPendingEvent(mEvent);
+        onClose?.();
+    };
+
+    return (
+        <Button
+            variant="Critical"
+            fill="None"
+            size="300"
+            after={<Icon size={1} path={mdiCloseCircle} />}
+            radii="300"
+            onClick={onClick}
+            {...props}
+            ref={ref}
+        >
+            <Text className={css.MessageMenuItemText} as="span" size="T300" truncate>
+                {getText('msg_menu.cancel')}
+            </Text>
+        </Button>
+    );
+});
+
+export const MessageRetryItem = as<
+    'button',
+    {
+        room: Room;
+        mEvent: MatrixEvent;
+        onClose?: () => void;
+    }
+>(({ room, mEvent, onClose, ...props }, ref) => {
+    const mx = useMatrixClient();
+
+    const onClick = () => {
+        mx.resendEvent(mEvent, room);
+        onClose?.();
+    };
+
+    return (
+        <Button
+            variant="Critical"
+            fill="None"
+            size="300"
+            after={<Icon size={1} path={mdiReload} />}
+            radii="300"
+            onClick={onClick}
+            {...props}
+            ref={ref}
+        >
+            <Text className={css.MessageMenuItemText} as="span" size="T300" truncate>
+                {getText('msg_menu.retry')}
+            </Text>
+        </Button>
+    );
+});
+
 export const MessageDeleteItem = as<
     'button',
     {
@@ -1360,27 +1426,29 @@ export const Message = as<'div', MessageProps>(
             });
         };
 
-        const [delivered, setDelivered] = useState(!mEvent.getId() || mEvent.getId()?.startsWith('$'));
+        const [status, setStatus] = useState(mEvent.status || EventStatus.SENT);
 
         useEffect(() => {
             const listener = (event: MatrixEvent) => {
                 if (event.getId() === mEvent.getId()) {
-                    setDelivered(true);
+                    setStatus(event.status!);
+                    console.log(event.status);
                 }
             };
 
-            if (!delivered) {
-                mx.on(RoomEvent.LocalEchoUpdated, listener);
-                return () => {
-                    mx.off(RoomEvent.LocalEchoUpdated, listener);
-                };
-            }
-        });
+            mx.on(RoomEvent.LocalEchoUpdated, listener);
+            return () => {
+                mx.off(RoomEvent.LocalEchoUpdated, listener);
+            };
+        }, [mx, mEvent]);
+
+        console.log(status);
 
         return (
             <MessageBase
-                className={classNames(delivered ? css.MessageBase : css.MessageBaseSending, className)}
+                className={classNames(status === EventStatus.SENT ? css.MessageBase : [EventStatus.ENCRYPTING, EventStatus.QUEUED, EventStatus.SENDING].includes(status!) ? css.MessageBaseSending : status === EventStatus.NOT_SENT ? css.MessageBaseFailed : css.MessageBase, className)}
                 tabIndex={0}
+                data-message-status={status}
                 space={messageSpacing}
                 collapse={collapse}
                 highlight={highlight}
@@ -1394,69 +1462,73 @@ export const Message = as<'div', MessageProps>(
                     <div className={css.MessageOptionsBase}>
                         <Menu className={css.MessageOptionsBar} variant="SurfaceVariant">
                             <Box gap="100">
-                                {canSendReaction && (
-                                    <PopOut
-                                        position="Bottom"
-                                        align={emojiBoardAnchor?.width === 0 ? 'Start' : 'End'}
-                                        offset={emojiBoardAnchor?.width === 0 ? 0 : undefined}
-                                        anchor={emojiBoardAnchor}
-                                        content={
-                                            <EmojiBoard
-                                                imagePackRooms={imagePackRooms ?? []}
-                                                returnFocusOnDeactivate={false}
-                                                allowTextCustomEmoji
-                                                onEmojiSelect={(key) => {
-                                                    onReactionToggle(mEvent.getId()!, key);
-                                                    setEmojiBoardAnchor(undefined);
-                                                }}
-                                                onCustomEmojiSelect={(mxc, shortcode) => {
-                                                    onReactionToggle(mEvent.getId()!, mxc, shortcode);
-                                                    setEmojiBoardAnchor(undefined);
-                                                }}
-                                                requestClose={() => {
-                                                    setEmojiBoardAnchor(undefined);
-                                                }}
-                                            />
-                                        }
-                                    >
+                                {status === EventStatus.SENT && (
+                                    <>
+                                        {canSendReaction && (
+                                            <PopOut
+                                                position="Bottom"
+                                                align={emojiBoardAnchor?.width === 0 ? 'Start' : 'End'}
+                                                offset={emojiBoardAnchor?.width === 0 ? 0 : undefined}
+                                                anchor={emojiBoardAnchor}
+                                                content={
+                                                    <EmojiBoard
+                                                        imagePackRooms={imagePackRooms ?? []}
+                                                        returnFocusOnDeactivate={false}
+                                                        allowTextCustomEmoji
+                                                        onEmojiSelect={(key) => {
+                                                            onReactionToggle(mEvent.getId()!, key);
+                                                            setEmojiBoardAnchor(undefined);
+                                                        }}
+                                                        onCustomEmojiSelect={(mxc, shortcode) => {
+                                                            onReactionToggle(mEvent.getId()!, mxc, shortcode);
+                                                            setEmojiBoardAnchor(undefined);
+                                                        }}
+                                                        requestClose={() => {
+                                                            setEmojiBoardAnchor(undefined);
+                                                        }}
+                                                    />
+                                                }
+                                            >
+                                                <IconButton
+                                                    onClick={handleOpenEmojiBoard}
+                                                    variant="SurfaceVariant"
+                                                    size="300"
+                                                    radii="300"
+                                                    aria-pressed={!!emojiBoardAnchor}
+                                                >
+                                                    <Icon size={1} path={mdiEmoticonPlus} />
+                                                </IconButton>
+                                            </PopOut>
+                                        )}
                                         <IconButton
-                                            onClick={handleOpenEmojiBoard}
+                                            onClick={onReplyClick}
+                                            data-event-id={mEvent.getId()}
                                             variant="SurfaceVariant"
                                             size="300"
                                             radii="300"
-                                            aria-pressed={!!emojiBoardAnchor}
                                         >
-                                            <Icon size={1} path={mdiEmoticonPlus} />
+                                            <Icon size={1} path={mdiReply} />
                                         </IconButton>
-                                    </PopOut>
-                                )}
-                                <IconButton
-                                    onClick={onReplyClick}
-                                    data-event-id={mEvent.getId()}
-                                    variant="SurfaceVariant"
-                                    size="300"
-                                    radii="300"
-                                >
-                                    <Icon size={1} path={mdiReply} />
-                                </IconButton>
-                                <IconButton
-                                    onClick={onDiscussClick}
-                                    data-event-id={mEvent.getId()}
-                                    variant="SurfaceVariant"
-                                    size="300"
-                                    radii="300"
-                                >
-                                    <Icon size={1} path={mdiMessage} />
-                                </IconButton>
-                                {canEditEvent(mx, mEvent) && onEditId && (
-                                    <IconButton
-                                        onClick={() => onEditId(mEvent.getId())}
-                                        variant="SurfaceVariant"
-                                        size="300"
-                                        radii="300"
-                                    >
-                                        <Icon size={1} path={mdiPencil} />
-                                    </IconButton>
+                                        <IconButton
+                                            onClick={onDiscussClick}
+                                            data-event-id={mEvent.getId()}
+                                            variant="SurfaceVariant"
+                                            size="300"
+                                            radii="300"
+                                        >
+                                            <Icon size={1} path={mdiMessage} />
+                                        </IconButton>
+                                        {canEditEvent(mx, mEvent) && onEditId && (
+                                            <IconButton
+                                                onClick={() => onEditId(mEvent.getId())}
+                                                variant="SurfaceVariant"
+                                                size="300"
+                                                radii="300"
+                                            >
+                                                <Icon size={1} path={mdiPencil} />
+                                            </IconButton>
+                                        )}
+                                    </>
                                 )}
                                 <PopOut
                                     anchor={menuAnchor}
@@ -1474,25 +1546,89 @@ export const Message = as<'div', MessageProps>(
                                             }}
                                         >
                                             <Menu>
-                                                {canSendReaction && (
-                                                    <MessageQuickReactions
-                                                        onReaction={(key, shortcode) => {
-                                                            onReactionToggle(mEvent.getId()!, key, shortcode);
-                                                            closeMenu();
-                                                        }}
-                                                    />
+                                                {(status !== EventStatus.SENT) && (
+                                                    <MenuItem
+                                                        size="300"
+                                                        radii="300"
+                                                    >
+                                                        <Text
+                                                            className={css.MessageMenuItemText}
+                                                            as="span"
+                                                            size="T300"
+                                                            truncate
+                                                        >
+                                                            {getText('loading')}
+                                                        </Text>
+                                                    </MenuItem>
                                                 )}
-                                                <div style={{ margin: '4px' }}>
-                                                    {new Date(mEvent.getTs()).toLocaleString()}
-                                                </div>
-                                                <Line size='300' />
-                                                <Box direction="Column" gap="100" className={css.MessageMenuGroup}>
-                                                    {mEvent.getType() == 'org.matrix.msc3381.poll.start' && mEvent.sender?.userId == (mx.getUserId() ?? '') && (
+                                                {status === EventStatus.SENT && (
+                                                    <>
+                                                        {canSendReaction && (
+                                                            <MessageQuickReactions
+                                                                onReaction={(key, shortcode) => {
+                                                                    onReactionToggle(mEvent.getId()!, key, shortcode);
+                                                                    closeMenu();
+                                                                }}
+                                                            />
+                                                        )}
+                                                        <div style={{ margin: '4px' }}>
+                                                            {new Date(mEvent.getTs()).toLocaleString()}
+                                                        </div>
+                                                        <Line size='300' />
+                                                    </>
+                                                )}
+                                                {status === EventStatus.SENT && (
+                                                    <Box direction="Column" gap="100" className={css.MessageMenuGroup}>
+                                                        {mEvent.getType() == 'org.matrix.msc3381.poll.start' && mEvent.sender?.userId == (mx.getUserId() ?? '') && (
+                                                            <MenuItem
+                                                                size="300"
+                                                                after={<Icon size={1} path={mdiCheck} />}
+                                                                radii="300"
+                                                                onClick={handleEndPoll}
+                                                            >
+                                                                <Text
+                                                                    className={css.MessageMenuItemText}
+                                                                    as="span"
+                                                                    size="T300"
+                                                                    truncate
+                                                                >
+                                                                    {getText('msg_menu.end_poll')}
+                                                                </Text>
+                                                            </MenuItem>
+                                                        )}
+                                                        {canSendReaction && (
+                                                            <MenuItem
+                                                                size="300"
+                                                                after={<Icon size={1} path={mdiEmoticonPlus} />}
+                                                                radii="300"
+                                                                onClick={handleAddReactions}
+                                                            >
+                                                                <Text
+                                                                    className={css.MessageMenuItemText}
+                                                                    as="span"
+                                                                    size="T300"
+                                                                    truncate
+                                                                >
+                                                                    {getText('msg_menu.add_reaction')}
+                                                                </Text>
+                                                            </MenuItem>
+                                                        )}
+                                                        {relations && (
+                                                            <MessageAllReactionItem
+                                                                room={room}
+                                                                relations={relations}
+                                                                onClose={closeMenu}
+                                                            />
+                                                        )}
                                                         <MenuItem
                                                             size="300"
-                                                            after={<Icon size={1} path={mdiCheck} />}
+                                                            after={<Icon size={1} path={mdiReply} />}
                                                             radii="300"
-                                                            onClick={handleEndPoll}
+                                                            data-event-id={mEvent.getId()}
+                                                            onClick={(evt: any) => {
+                                                                onReplyClick(evt);
+                                                                closeMenu();
+                                                            }}
                                                         >
                                                             <Text
                                                                 className={css.MessageMenuItemText}
@@ -1500,16 +1636,18 @@ export const Message = as<'div', MessageProps>(
                                                                 size="T300"
                                                                 truncate
                                                             >
-                                                                {getText('msg_menu.end_poll')}
+                                                                {getText('msg_menu.reply')}
                                                             </Text>
                                                         </MenuItem>
-                                                    )}
-                                                    {canSendReaction && (
                                                         <MenuItem
                                                             size="300"
-                                                            after={<Icon size={1} path={mdiEmoticonPlus} />}
+                                                            after={<Icon size={1} path={mdiMessage} />}
                                                             radii="300"
-                                                            onClick={handleAddReactions}
+                                                            data-event-id={mEvent.getId()}
+                                                            onClick={(evt: any) => {
+                                                                onDiscussClick?.(evt);
+                                                                closeMenu();
+                                                            }}
                                                         >
                                                             <Text
                                                                 className={css.MessageMenuItemText}
@@ -1517,121 +1655,76 @@ export const Message = as<'div', MessageProps>(
                                                                 size="T300"
                                                                 truncate
                                                             >
-                                                                {getText('msg_menu.add_reaction')}
+                                                                {getText('msg_menu.discuss')}
                                                             </Text>
                                                         </MenuItem>
-                                                    )}
-                                                    {relations && (
-                                                        <MessageAllReactionItem
+                                                        {
+                                                            typeof content.url === 'string' && content.msgtype && ['m.file', 'm.audio', 'm.image', 'm.video'].includes(content.msgtype) && (
+                                                                <MessageFileDownloadItem room={room} mEvent={mEvent} onClose={closeMenu} />
+                                                            )
+                                                        }
+                                                        {canEditEvent(mx, mEvent) && onEditId && (
+                                                            <MenuItem
+                                                                size="300"
+                                                                after={<Icon size={1} path={mdiPencil} />}
+                                                                radii="300"
+                                                                data-event-id={mEvent.getId()}
+                                                                onClick={() => {
+                                                                    onEditId(mEvent.getId());
+                                                                    closeMenu();
+                                                                }}
+                                                            >
+                                                                <Text
+                                                                    className={css.MessageMenuItemText}
+                                                                    as="span"
+                                                                    size="T300"
+                                                                    truncate
+                                                                >
+                                                                    {getText('msg_menu.edit')}
+                                                                </Text>
+                                                            </MenuItem>
+                                                        )}
+                                                        {showGoTo && (
+                                                            <MenuItem
+                                                                size="300"
+                                                                after={<Icon size={1} path={mdiArrowRight} />}
+                                                                radii="300"
+                                                                data-event-id={mEvent.getId()}
+                                                                onClick={() => {
+                                                                    navigateRoom(room.roomId, mEvent.getId());
+                                                                    closeMenu();
+                                                                }}
+                                                            >
+                                                                <Text
+                                                                    className={css.MessageMenuItemText}
+                                                                    as="span"
+                                                                    size="T300"
+                                                                    truncate
+                                                                >
+                                                                    {getText('msg_menu.goto')}
+                                                                </Text>
+                                                            </MenuItem>
+                                                        )}
+                                                        <MessageReadReceiptItem
                                                             room={room}
-                                                            relations={relations}
+                                                            eventId={mEvent.getId() ?? ''}
                                                             onClose={closeMenu}
                                                         />
-                                                    )}
-                                                    <MenuItem
-                                                        size="300"
-                                                        after={<Icon size={1} path={mdiReply} />}
-                                                        radii="300"
-                                                        data-event-id={mEvent.getId()}
-                                                        onClick={(evt: any) => {
-                                                            onReplyClick(evt);
-                                                            closeMenu();
-                                                        }}
-                                                    >
-                                                        <Text
-                                                            className={css.MessageMenuItemText}
-                                                            as="span"
-                                                            size="T300"
-                                                            truncate
-                                                        >
-                                                            {getText('msg_menu.reply')}
-                                                        </Text>
-                                                    </MenuItem>
-                                                    <MenuItem
-                                                        size="300"
-                                                        after={<Icon size={1} path={mdiMessage} />}
-                                                        radii="300"
-                                                        data-event-id={mEvent.getId()}
-                                                        onClick={(evt: any) => {
-                                                            onDiscussClick?.(evt);
-                                                            closeMenu();
-                                                        }}
-                                                    >
-                                                        <Text
-                                                            className={css.MessageMenuItemText}
-                                                            as="span"
-                                                            size="T300"
-                                                            truncate
-                                                        >
-                                                            {getText('msg_menu.discuss')}
-                                                        </Text>
-                                                    </MenuItem>
-                                                    {
-                                                        typeof content.url === 'string' && content.msgtype && ['m.file', 'm.audio', 'm.image', 'm.video'].includes(content.msgtype) && (
-                                                            <MessageFileDownloadItem room={room} mEvent={mEvent} onClose={closeMenu} />
-                                                        )
-                                                    }
-                                                    {canEditEvent(mx, mEvent) && onEditId && (
-                                                        <MenuItem
-                                                            size="300"
-                                                            after={<Icon size={1} path={mdiPencil} />}
-                                                            radii="300"
-                                                            data-event-id={mEvent.getId()}
-                                                            onClick={() => {
-                                                                onEditId(mEvent.getId());
-                                                                closeMenu();
-                                                            }}
-                                                        >
-                                                            <Text
-                                                                className={css.MessageMenuItemText}
-                                                                as="span"
-                                                                size="T300"
-                                                                truncate
-                                                            >
-                                                                {getText('msg_menu.edit')}
-                                                            </Text>
-                                                        </MenuItem>
-                                                    )}
-                                                    {showGoTo && (
-                                                        <MenuItem
-                                                            size="300"
-                                                            after={<Icon size={1} path={mdiArrowRight} />}
-                                                            radii="300"
-                                                            data-event-id={mEvent.getId()}
-                                                            onClick={() => {
-                                                                navigateRoom(room.roomId, mEvent.getId());
-                                                                closeMenu();
-                                                            }}
-                                                        >
-                                                            <Text
-                                                                className={css.MessageMenuItemText}
-                                                                as="span"
-                                                                size="T300"
-                                                                truncate
-                                                            >
-                                                                {getText('msg_menu.goto')}
-                                                            </Text>
-                                                        </MenuItem>
-                                                    )}
-                                                    <MessageReadReceiptItem
-                                                        room={room}
-                                                        eventId={mEvent.getId() ?? ''}
-                                                        onClose={closeMenu}
-                                                    />
-                                                    <MessageSourceCodeItem room={room} mEvent={mEvent} onClose={closeMenu} />
-                                                    {
-                                                        canPin && <MessagePinItem room={room} mEvent={mEvent} onClose={closeMenu} />
-                                                    }
-                                                    <MessageCopyLinkItem room={room} mEvent={mEvent} onClose={closeMenu} />
-                                                    {
-                                                        !mEvent.isRedacted() && <MessageTranslateItem room={room} mEvent={mEvent} onClose={closeMenu} />
-                                                    }
-                                                    {
-                                                        mEvent.isRedacted() && <MessageRecoverItem room={room} mEvent={mEvent} onClose={closeMenu} />
-                                                    }
-                                                </Box>
+                                                        <MessageSourceCodeItem room={room} mEvent={mEvent} onClose={closeMenu} />
+                                                        {
+                                                            canPin && <MessagePinItem room={room} mEvent={mEvent} onClose={closeMenu} />
+                                                        }
+                                                        <MessageCopyLinkItem room={room} mEvent={mEvent} onClose={closeMenu} />
+                                                        {
+                                                            !mEvent.isRedacted() && <MessageTranslateItem room={room} mEvent={mEvent} onClose={closeMenu} />
+                                                        }
+                                                        {
+                                                            mEvent.isRedacted() && <MessageRecoverItem room={room} mEvent={mEvent} onClose={closeMenu} />
+                                                        }
+                                                    </Box>
+                                                )}
                                                 {((!mEvent.isRedacted() && canDelete) ||
-                                                    mEvent.getSender() !== mx.getUserId()) && (
+                                                    mEvent.getSender() !== mx.getUserId()) && status === EventStatus.SENT && (
                                                         <>
                                                             <Line size="300" />
                                                             <Box direction="Column" gap="100" className={css.MessageMenuGroup}>
@@ -1652,6 +1745,24 @@ export const Message = as<'div', MessageProps>(
                                                             </Box>
                                                         </>
                                                     )}
+                                                {[EventStatus.ENCRYPTING, EventStatus.NOT_SENT, EventStatus.QUEUED].includes(status) && (
+                                                    <Box direction='Column' gap='100' className={css.MessageMenuGroup}>
+                                                        <MessageCancelItem
+                                                            room={room}
+                                                            mEvent={mEvent}
+                                                            onClose={closeMenu}
+                                                        />
+                                                    </Box>
+                                                )}
+                                                {(status === EventStatus.CANCELLED || status === EventStatus.NOT_SENT) && (
+                                                    <Box direction='Column' gap='100' className={css.MessageMenuGroup}>
+                                                        <MessageRetryItem
+                                                            room={room}
+                                                            mEvent={mEvent}
+                                                            onClose={closeMenu}
+                                                        />
+                                                    </Box>
+                                                )}
                                             </Menu>
                                         </FocusTrap>
                                     }

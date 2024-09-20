@@ -948,5 +948,6 @@
     "title.new_ignore_policy": "New policy",
     "syncing": "Syncing...",
     "settings.ignore_policies.title": "Use ignore policies",
-    "settings.ignore_policies.desc": "Use ignore policies instead of ignoring users"
+    "settings.ignore_policies.desc": "Use ignore policies instead of ignoring users",
+    "msg_menu.cancel": "Cancel"
 }

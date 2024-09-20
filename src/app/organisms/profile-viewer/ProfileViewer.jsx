@@ -446,15 +446,14 @@ function ProfileViewer() {
 
     const [avStyle, setAvStyle] = useState({});
     const [statusMsg, setStatusMsg] = useState('');
+    const user = mx.getUser(userId);
 
-    mx.getPresence(userId).then(({ presence, status_msg }) => {
-        setStatusMsg(status_msg);
-        setAvStyle(styles[presence] ?? styles.offline);
-    }).catch((error) => {
-        setStatusMsg('');
-        setAvStyle(styles.offline);
-        console.error(error);
-    });
+    useEffect(() => {
+        if (user) {
+            setStatusMsg(user.presenceStatusMsg);
+            setAvStyle(styles[user.presence] ?? styles.offline);
+        }
+    }, [mx, user]);
 
     const renderProfile = () => {
         const roomMember = room.getMember(userId);

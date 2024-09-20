@@ -127,10 +127,17 @@ async function sendExteraProfile(roomId) {
         const membershipContent = membership.getContent();
         const exteraProfileEvent = mx.getAccountData('ru.officialdakari.extera_profile');
         const exteraProfile = exteraProfileEvent ? exteraProfileEvent.getContent() : {};
-        await mx.sendStateEvent(roomId, 'm.room.member', {
-            ...membershipContent,
-            ...Object.fromEntries(Object.entries(exteraProfile).map(([k, v]) => [`xyz.extera.${k}`, v]))
-        }, mx.getUserId());
+        const newEntries = Object.fromEntries(Object.entries(exteraProfile).map(([k, v]) => [`xyz.extera.${k}`, v]));
+        for (const key of Object.keys(membershipContent).concat(Object.keys(newEntries))) {
+            if (newEntries[key] !== membershipContent[key]) {
+                await mx.sendStateEvent(roomId, 'm.room.member', {
+                    ...membershipContent,
+                    ...newEntries
+                }, mx.getUserId());
+                break;  
+            }
+        }
+        
     } catch (e) {
         console.error(e);
         throw new Error(e);

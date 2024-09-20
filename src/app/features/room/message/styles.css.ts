@@ -15,7 +15,7 @@ export const MessageBaseSending = style({
 export const MessageBaseFailed = style({
     position: 'relative',
     transition: 'linear',
-    color: 'red'
+    backgroundColor: '#e2221630'
 });
 
 export const MessageTimestamp = style({

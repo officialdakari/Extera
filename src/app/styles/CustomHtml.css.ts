@@ -65,12 +65,12 @@ export const Spoiler = recipe({
     base: [
         DefaultReset,
         {
-            padding: `0 ${config.space.S100}`,
-            backgroundColor: color.SurfaceVariant.ContainerLine,
-            borderRadius: config.radii.R300,
+            // padding: `0 ${config.space.S100}`,
+            // backgroundColor: color.SurfaceVariant.ContainerLine,
+            // borderRadius: config.radii.R300,
             selectors: {
                 '&[aria-pressed=true]': {
-                    color: 'transparent',
+                    filter: 'blur(4px)',
                 },
             },
         },
@@ -78,7 +78,7 @@ export const Spoiler = recipe({
     variants: {
         active: {
             true: {
-                color: 'transparent',
+                filter: 'blur(4px)',
             },
         },
     },
