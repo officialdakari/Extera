@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Scroll } from 'folds';
+import { Box, Scroll } from 'folds';
 
 import {
     Sidebar,
@@ -15,6 +15,7 @@ import { openCreateRoom, openSearch } from '../../../client/action/navigation';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiMagnify, mdiPlus } from '@mdi/js';
+import { Fab } from '@mui/material';
 
 export function SidebarNav() {
     const scrollRef = useRef<HTMLDivElement>(null);

@@ -23,6 +23,9 @@ import { createModals, ModalsProvider } from '../../hooks/useModals';
 import { Modals } from '../../components/modal/Modal';
 import { getText } from '../../../lang';
 import ClientAlert from './ClientAlert';
+import { Fab } from '@mui/material';
+import Icon from '@mdi/react';
+import { mdiPlus } from '@mdi/js';
 
 function SystemEmojiFeature() {
     const [twitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
@@ -76,10 +79,11 @@ export function ClientRoot({ children }: ClientRootProps) {
 
     const callWindowState = useState<any>(null);
     const modals = createModals();
-    
+
     useEffect(() => {
-    
+
     }, [syncing, loading]);
+
 
     return (
         <SpecVersions baseUrl={baseUrl!}>

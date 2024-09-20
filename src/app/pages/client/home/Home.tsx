@@ -13,7 +13,7 @@ import {
     config,
     toRem,
 } from 'folds';
-import { Icon as MDIcon } from '@mdi/react';
+import Icon, { Icon as MDIcon } from '@mdi/react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useAtom, useAtomValue } from 'jotai';
 import FocusTrap from 'focus-trap-react';
@@ -48,7 +48,10 @@ import { markAsRead } from '../../../../client/action/notifications';
 import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCategories';
 import { getText } from '../../../../lang';
 import { isHidden } from '../../../state/hooks/roomList';
-import { mdiCheckAll, mdiDotsVertical, mdiLinkVariant, mdiMagnify, mdiPlus, mdiPlusCircle, mdiPlusCircleOutline, mdiPound } from '@mdi/js';
+import { mdiAccountPlus, mdiCheckAll, mdiDotsVertical, mdiLinkVariant, mdiMagnify, mdiPencil, mdiPlus, mdiPlusCircle, mdiPlusCircleOutline, mdiPound, mdiPoundBoxOutline } from '@mdi/js';
+import { Fab } from '@mui/material';
+import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
+import FAB from '../../../components/fab/FAB';
 
 type HomeMenuProps = {
     requestClose: () => void;
@@ -177,6 +180,7 @@ function HomeEmpty() {
 const DEFAULT_CATEGORY_ID = makeNavCategoryId('home', 'room');
 export function Home() {
     const mx = useMatrixClient();
+    const screenSize = useScreenSize();
     useNavToActivePathMapper('home');
     const scrollRef = useRef<HTMLDivElement>(null);
     const rooms = useHomeRooms();
@@ -220,56 +224,58 @@ export function Home() {
             ) : (
                 <PageNavContent scrollRef={scrollRef}>
                     <Box direction="Column" gap="300">
-                        <NavCategory>
-                            <NavItem variant="Background" radii="400">
-                                <NavButton onClick={() => openCreateRoom()}>
-                                    <NavItemContent>
-                                        <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                                            <Avatar size="200" radii="400">
-                                                <MDIcon size={1} path={mdiPlusCircleOutline} />
-                                            </Avatar>
-                                            <Box as="span" grow="Yes">
-                                                <Text as="span" size="Inherit">
-                                                    {getText('home.new_room')}
-                                                </Text>
+                        {screenSize !== ScreenSize.Mobile && (
+                            <NavCategory>
+                                <NavItem variant="Background" radii="400">
+                                    <NavButton onClick={() => openCreateRoom()}>
+                                        <NavItemContent>
+                                            <Box as="span" grow="Yes" alignItems="Center" gap="200">
+                                                <Avatar size="200" radii="400">
+                                                    <MDIcon size={1} path={mdiPlusCircleOutline} />
+                                                </Avatar>
+                                                <Box as="span" grow="Yes">
+                                                    <Text as="span" size="Inherit">
+                                                        {getText('home.new_room')}
+                                                    </Text>
+                                                </Box>
                                             </Box>
-                                        </Box>
-                                    </NavItemContent>
-                                </NavButton>
-                            </NavItem>
-                            <NavItem variant="Background" radii="400">
-                                <NavButton onClick={() => openJoinAlias()}>
-                                    <NavItemContent>
-                                        <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                                            <Avatar size="200" radii="400">
-                                                <MDIcon size={1} path={mdiLinkVariant} />
-                                            </Avatar>
-                                            <Box as="span" grow="Yes">
-                                                <Text as="span" size="Inherit">
-                                                    {getText('home.join_via_address')}
-                                                </Text>
+                                        </NavItemContent>
+                                    </NavButton>
+                                </NavItem>
+                                <NavItem variant="Background" radii="400">
+                                    <NavButton onClick={() => openJoinAlias()}>
+                                        <NavItemContent>
+                                            <Box as="span" grow="Yes" alignItems="Center" gap="200">
+                                                <Avatar size="200" radii="400">
+                                                    <MDIcon size={1} path={mdiLinkVariant} />
+                                                </Avatar>
+                                                <Box as="span" grow="Yes">
+                                                    <Text as="span" size="Inherit">
+                                                        {getText('home.join_via_address')}
+                                                    </Text>
+                                                </Box>
                                             </Box>
-                                        </Box>
-                                    </NavItemContent>
-                                </NavButton>
-                            </NavItem>
-                            <NavItem variant="Background" radii="400" aria-selected={searchSelected}>
-                                <NavLink to={getHomeSearchPath()}>
-                                    <NavItemContent>
-                                        <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                                            <Avatar size="200" radii="400">
-                                                <MDIcon size={1} path={mdiMagnify} />
-                                            </Avatar>
-                                            <Box as="span" grow="Yes">
-                                                <Text as="span" size="Inherit">
-                                                    {getText('home.search_messages')}
-                                                </Text>
+                                        </NavItemContent>
+                                    </NavButton>
+                                </NavItem>
+                                <NavItem variant="Background" radii="400" aria-selected={searchSelected}>
+                                    <NavLink to={getHomeSearchPath()}>
+                                        <NavItemContent>
+                                            <Box as="span" grow="Yes" alignItems="Center" gap="200">
+                                                <Avatar size="200" radii="400">
+                                                    <MDIcon size={1} path={mdiMagnify} />
+                                                </Avatar>
+                                                <Box as="span" grow="Yes">
+                                                    <Text as="span" size="Inherit">
+                                                        {getText('home.search_messages')}
+                                                    </Text>
+                                                </Box>
                                             </Box>
-                                        </Box>
-                                    </NavItemContent>
-                                </NavLink>
-                            </NavItem>
-                        </NavCategory>
+                                        </NavItemContent>
+                                    </NavLink>
+                                </NavItem>
+                            </NavCategory>
+                        )}
                         <NavCategory>
                             <NavCategoryHeader>
                                 <RoomNavCategoryButton
@@ -313,6 +319,9 @@ export function Home() {
                         </NavCategory>
                     </Box>
                 </PageNavContent>
+            )}
+            {screenSize === ScreenSize.Mobile && (
+                <FAB />
             )}
         </PageNav>
     );

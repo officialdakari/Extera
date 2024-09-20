@@ -45,7 +45,9 @@ import { markAsRead } from '../../../../client/action/notifications';
 import { getText } from '../../../../lang';
 import { isHidden } from '../../../state/hooks/roomList';
 import Icon from '@mdi/react';
-import { mdiAt, mdiCheckAll, mdiDotsVertical, mdiPlusCircleOutline } from '@mdi/js';
+import { mdiAccountPlus, mdiAt, mdiCheckAll, mdiDotsVertical, mdiPencil, mdiPlus, mdiPlusCircleOutline } from '@mdi/js';
+import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
+import { Fab } from '@mui/material';
 
 type DirectMenuProps = {
     requestClose: () => void;
@@ -166,6 +168,7 @@ export function Direct() {
     const muteChanges = useAtomValue(muteChangesAtom);
     const mutedRooms = muteChanges.added;
     const roomToUnread = useAtomValue(roomToUnreadAtom);
+    const screenSize = useScreenSize();
 
     const selectedRoomId = useSelectedRoom();
     const noRoomToDisplay = directs.length === 0;
@@ -198,24 +201,26 @@ export function Direct() {
             ) : (
                 <PageNavContent scrollRef={scrollRef}>
                     <Box direction="Column" gap="300">
-                        <NavCategory>
-                            <NavItem variant="Background" radii="400">
-                                <NavButton onClick={() => openInviteUser()}>
-                                    <NavItemContent>
-                                        <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                                            <Avatar size="200" radii="400">
-                                                <Icon size={1} path={mdiPlusCircleOutline} />
-                                            </Avatar>
-                                            <Box as="span" grow="Yes">
-                                                <Text as="span" size="Inherit" truncate>
-                                                    {getText('direct_menu.new')}
-                                                </Text>
+                        {screenSize !== ScreenSize.Mobile && (
+                            <NavCategory>
+                                <NavItem variant="Background" radii="400">
+                                    <NavButton onClick={() => openInviteUser()}>
+                                        <NavItemContent>
+                                            <Box as="span" grow="Yes" alignItems="Center" gap="200">
+                                                <Avatar size="200" radii="400">
+                                                    <Icon size={1} path={mdiPlusCircleOutline} />
+                                                </Avatar>
+                                                <Box as="span" grow="Yes">
+                                                    <Text as="span" size="Inherit" truncate>
+                                                        {getText('direct_menu.new')}
+                                                    </Text>
+                                                </Box>
                                             </Box>
-                                        </Box>
-                                    </NavItemContent>
-                                </NavButton>
-                            </NavItem>
-                        </NavCategory>
+                                        </NavItemContent>
+                                    </NavButton>
+                                </NavItem>
+                            </NavCategory>
+                        )}
                         <NavCategory>
                             <NavCategoryHeader>
                                 <RoomNavCategoryButton
@@ -260,6 +265,13 @@ export function Direct() {
                         </NavCategory>
                     </Box>
                 </PageNavContent>
+            )}
+            {screenSize === ScreenSize.Mobile && (
+                <Box style={{ display: 'flex', zIndex: 50, position: 'absolute', bottom: '20px', right: '20px', width: 'inherit' }}>
+                    <Fab onClick={() => openInviteUser()} color='primary' aria-label='New chat'>
+                        <Icon path={mdiPencil} size={1} />
+                    </Fab>
+                </Box>
             )}
         </PageNav>
     );
