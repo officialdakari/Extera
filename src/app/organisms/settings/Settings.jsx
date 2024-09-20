@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './Settings.scss';
 
-// Holy shit this code will be worser than yandere simulator's :catstare:
 import '../profile-viewer/Banner.scss';
 
 import initMatrix from '../../../client/initMatrix';
@@ -17,8 +16,6 @@ import { usePermission } from '../../hooks/usePermission';
 
 import Text from '../../atoms/text/Text';
 import IconButton from '../../atoms/button/IconButton';
-import Button from '../../atoms/button/Button';
-import Toggle from '../../atoms/button/Toggle';
 import Tabs from '../../atoms/tabs/Tabs';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
 import SegmentedControls from '../../atoms/segmented-controls/SegmentedControls';
@@ -36,6 +33,8 @@ import ProfileEditor from '../profile-editor/ProfileEditor';
 import CrossSigning from './CrossSigning';
 import KeyBackup from './KeyBackup';
 import DeviceManage from './DeviceManage';
+
+import { Switch, Button } from '@mui/material';
 
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
@@ -124,9 +123,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.system_theme.title')}
                     options={(
-                        <Toggle
-                            isActive={settings.useSystemTheme}
-                            onToggle={() => { toggleSystemTheme(); updateState({}); }}
+                        <Switch
+                            checked={settings.useSystemTheme}
+                            onClick={() => { toggleSystemTheme(); updateState({}); }}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.system_theme.desc')}</Text>}
@@ -154,9 +153,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.twemoji.title')}
                     options={(
-                        <Toggle
-                            isActive={twitterEmoji}
-                            onToggle={() => setTwitterEmoji(!twitterEmoji)}
+                        <Switch
+                            checked={twitterEmoji}
+                            onClick={() => setTwitterEmoji(!twitterEmoji)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.twemoji.desc')}</Text>}
@@ -166,11 +165,12 @@ function AppearanceSection() {
                     options={(
                         <>
                             <Button
-                                variant='primary'
+                                variant='contained'
                                 onClick={handleSetWallpaper}
                             >{getText(wallpaperURL ? 'btn.settings.wallpaper.change' : 'btn.settings.wallpaper.add')}</Button>
                             {wallpaperURL && <>&nbsp;<Button
-                                variant='danger'
+                                variant='contained'
+                                color='error'
                                 onClick={handleDeleteWallpaper}
                             >{getText('btn.settings.wallpaper.delete')}</Button></>}
                             <input accept='image/*' onChange={uploadImage} type='file' ref={wallpaperInputRef} style={{ display: 'none' }} />
@@ -217,9 +217,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.enter_newline.title')}
                     options={(
-                        <Toggle
-                            isActive={enterForNewline}
-                            onToggle={() => setEnterForNewline(!enterForNewline)}
+                        <Switch
+                            checked={enterForNewline}
+                            onClick={() => setEnterForNewline(!enterForNewline)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.enter_newline.desc', isMacOS() ? KeySymbol.Command : 'Ctrl')}</Text>}
@@ -227,9 +227,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.voice_messages.title')}
                     options={(
-                        <Toggle
-                            isActive={voiceMessages}
-                            onToggle={() => setVoiceMessages(!voiceMessages)}
+                        <Switch
+                            checked={voiceMessages}
+                            onClick={() => setVoiceMessages(!voiceMessages)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.voice_messages.desc')}</Text>}
@@ -237,9 +237,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.new_design_input.title')}
                     options={(
-                        <Toggle
-                            isActive={newDesignInput}
-                            onToggle={() => setNewDesignInput(!newDesignInput)}
+                        <Switch
+                            checked={newDesignInput}
+                            onClick={() => setNewDesignInput(!newDesignInput)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.new_design_input.desc')}</Text>}
@@ -247,9 +247,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.md_formatting.title')}
                     options={(
-                        <Toggle
-                            isActive={isMarkdown}
-                            onToggle={() => setIsMarkdown(!isMarkdown)}
+                        <Switch
+                            checked={isMarkdown}
+                            onClick={() => setIsMarkdown(!isMarkdown)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.md_formatting.desc')}</Text>}
@@ -257,9 +257,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.hide_membership.title')}
                     options={(
-                        <Toggle
-                            isActive={hideMembershipEvents}
-                            onToggle={() => setHideMembershipEvents(!hideMembershipEvents)}
+                        <Switch
+                            checked={hideMembershipEvents}
+                            onClick={() => setHideMembershipEvents(!hideMembershipEvents)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.hide_membership.desc')}</Text>}
@@ -267,9 +267,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.hide_profile.title')}
                     options={(
-                        <Toggle
-                            isActive={hideNickAvatarEvents}
-                            onToggle={() => setHideNickAvatarEvents(!hideNickAvatarEvents)}
+                        <Switch
+                            checked={hideNickAvatarEvents}
+                            onClick={() => setHideNickAvatarEvents(!hideNickAvatarEvents)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.hide_profile.desc')}</Text>}
@@ -277,9 +277,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.no_media_autoload.title')}
                     options={(
-                        <Toggle
-                            isActive={!mediaAutoLoad}
-                            onToggle={() => setMediaAutoLoad(!mediaAutoLoad)}
+                        <Switch
+                            checked={!mediaAutoLoad}
+                            onClick={() => setMediaAutoLoad(!mediaAutoLoad)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.no_media_autoload.desc')}</Text>}
@@ -287,9 +287,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.url_preview.title')}
                     options={(
-                        <Toggle
-                            isActive={urlPreview}
-                            onToggle={() => setUrlPreview(!urlPreview)}
+                        <Switch
+                            checked={urlPreview}
+                            onClick={() => setUrlPreview(!urlPreview)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.url_preview.desc')}</Text>}
@@ -297,9 +297,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.url_preview_enc.title')}
                     options={(
-                        <Toggle
-                            isActive={encUrlPreview}
-                            onToggle={() => setEncUrlPreview(!encUrlPreview)}
+                        <Switch
+                            checked={encUrlPreview}
+                            onClick={() => setEncUrlPreview(!encUrlPreview)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.url_preview_enc.desc')}</Text>}
@@ -307,9 +307,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.hidden_events.title')}
                     options={(
-                        <Toggle
-                            isActive={showHiddenEvents}
-                            onToggle={() => setShowHiddenEvents(!showHiddenEvents)}
+                        <Switch
+                            checked={showHiddenEvents}
+                            onClick={() => setShowHiddenEvents(!showHiddenEvents)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.hidden_events.desc')}</Text>}
@@ -369,9 +369,9 @@ function PresenceSection() {
         <SettingTile
             title={getText('settings.ghost.title')}
             options={(
-                <Toggle
-                    isActive={ghostMode}
-                    onToggle={() => setGhostMode(!ghostMode)}
+                <Switch
+                    checked={ghostMode}
+                    onClick={() => setGhostMode(!ghostMode)}
                 />
             )}
             content={<Text variant="b3">{getText('settings.ghost.desc')}</Text>}
@@ -383,7 +383,7 @@ function PresenceSection() {
                     <Text variant="b3">{getText('settings.status_message.text')}</Text>
                     <form onSubmit={updateStatusMessage}>
                         <Input required name="statusInput" placeholder={statusMsg} />
-                        <Button variant="primary" type="submit">{getText('btn.status_message.set')}</Button>
+                        <Button variant="contained" type="submit">{getText('btn.status_message.set')}</Button>
                     </form>
                 </div>
             )}
@@ -407,9 +407,9 @@ function ExteraSection() {
                 <SettingTile
                     title={getText('settings.hide_ads.title')}
                     options={(
-                        <Toggle
-                            isActive={hideTgAds}
-                            onToggle={() => setHideTgAds(!hideTgAds)}
+                        <Switch
+                            checked={hideTgAds}
+                            onClick={() => setHideTgAds(!hideTgAds)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.hide_ads.desc')}</Text>}
@@ -417,9 +417,9 @@ function ExteraSection() {
                 <SettingTile
                     title={getText('settings.captions.title')}
                     options={(
-                        <Toggle
-                            isActive={enableCaptions}
-                            onToggle={() => setEnableCaptions(!enableCaptions)}
+                        <Switch
+                            checked={enableCaptions}
+                            onClick={() => setEnableCaptions(!enableCaptions)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.captions.desc')}</Text>}
@@ -427,9 +427,9 @@ function ExteraSection() {
                 <SettingTile
                     title={getText('settings.smooth_scroll.title')}
                     options={(
-                        <Toggle
-                            isActive={smoothScroll}
-                            onToggle={() => setSmoothScroll(!smoothScroll)}
+                        <Switch
+                            checked={smoothScroll}
+                            onClick={() => setSmoothScroll(!smoothScroll)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.smooth_scroll.desc')}</Text>}
@@ -437,27 +437,23 @@ function ExteraSection() {
                 <SettingTile
                     title={getText('settings.msc3382.title')}
                     options={(
-                        <Toggle isActive={false} onToggle={() => null} disabled />
+                        <Switch disabled />
                     )}
                     content={<Text variant="b3">{getText('settings.msc3382.desc')}</Text>}
                 />
                 <SettingTile
                     title={getText('settings.ignore_policies.title')}
                     options={(
-                        <Toggle
-                            isActive={ignorePolicies}
-                            onToggle={() => setIgnorePolicies(!ignorePolicies)}
-                            disabled
-                        />
+                        <Switch disabled />
                     )}
                     content={<Text variant="b3">{getText('settings.ignore_policies.desc')}</Text>}
                 />
                 <SettingTile
                     title={getText('settings.rename_tg_bot.title')}
                     options={(
-                        <Toggle
-                            isActive={renameTgBot}
-                            onToggle={() => setRenameTgBot(!renameTgBot)}
+                        <Switch
+                            checked={renameTgBot}
+                            onClick={() => setRenameTgBot(!renameTgBot)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.rename_tg_bot.desc')}</Text>}
@@ -465,9 +461,9 @@ function ExteraSection() {
                 <SettingTile
                     title={getText('settings.reply_fallbacks.title')}
                     options={(
-                        <Toggle
-                            isActive={replyFallbacks}
-                            onToggle={() => setReplyFallbacks(!replyFallbacks)}
+                        <Switch
+                            checked={replyFallbacks}
+                            onClick={() => setReplyFallbacks(!replyFallbacks)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.reply_fallbacks.desc')}</Text>}
@@ -501,9 +497,9 @@ function NotificationsSection() {
 
         if (permission) {
             return (
-                <Toggle
-                    isActive={settings._showNotifications}
-                    onToggle={() => {
+                <Switch
+                    checked={settings._showNotifications}
+                    onClick={() => {
                         toggleNotifications();
                         setPermission(window.Notification?.permission);
                         updateState({});
@@ -514,7 +510,7 @@ function NotificationsSection() {
 
         return (
             <Button
-                variant="primary"
+                variant="contained"
                 onClick={requestPermissions}
             >
                 {getText('btn.notifications.request_permission')}
@@ -546,9 +542,9 @@ function NotificationsSection() {
                 <SettingTile
                     title={getText('settings.notification_sound.title')}
                     options={(
-                        <Toggle
-                            isActive={settings.isNotificationSounds}
-                            onToggle={() => { toggleNotificationSounds(); updateState({}); }}
+                        <Switch
+                            checked={settings.isNotificationSounds}
+                            onClick={() => { toggleNotificationSounds(); updateState({}); }}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.notification_sound.desc')}</Text>}
@@ -556,9 +552,9 @@ function NotificationsSection() {
                 <SettingTile
                     title='Push Notifications'
                     options={(
-                        <Toggle
-                            isActive={pushes}
-                            onToggle={() => { togglePushes(); }}
+                        <Switch
+                            checked={pushes}
+                            onClick={() => { togglePushes(); }}
                         />
                     )}
                 />
@@ -664,7 +660,7 @@ function SecuritySection() {
                     <SettingTile
                         title={getText('settings.change_password.title')}
                         options={(
-                            <Button onClick={openChangePassword} variant='danger'>{getText('change_password.btn')}</Button>
+                            <Button onClick={openChangePassword} variant='contained' color='error'>{getText('change_password.btn')}</Button>
                         )}
                     />
                 </div>
@@ -868,10 +864,10 @@ function Settings() {
             title={<Text variant="s1" weight="medium" primary>{getText('settings.title')}</Text>}
             contentOptions={(
                 <>
-                    {bannerSrc && <Button variant='surface' iconSrc={mdiClose} onClick={handleBannerRemove}>
+                    {bannerSrc && <Button iconSrc={mdiClose} onClick={handleBannerRemove}>
                         {getText('btn.remove_banner')}
                     </Button>}
-                    <Button variant="danger" iconSrc={mdiArrowLeft} onClick={handleLogout}>
+                    <Button variant="outlined" color='error' iconSrc={mdiArrowLeft} onClick={handleLogout}>
                         {getText('btn.logout_session')}
                     </Button>
                     <IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />
