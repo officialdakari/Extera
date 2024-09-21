@@ -2,12 +2,10 @@ import React, { useCallback, useId, useRef, useState } from 'react';
 import {
     Avatar,
     Box,
-    Button,
     Overlay,
     OverlayBackdrop,
     OverlayCenter,
     Scroll,
-    Spinner,
     Text,
     color,
     config,
@@ -41,6 +39,7 @@ import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
 import { useRoomTopic } from '../../../hooks/useRoomMeta';
 import { getText, translate } from '../../../../lang';
 import { mdiMail } from '@mdi/js';
+import { Button, CircularProgress } from '@mui/material';
 
 const COMPACT_CARD_WIDTH = 548;
 
@@ -61,7 +60,7 @@ function InviteCard({ room, userId, direct, compact, onNavigate }: InviteCardPro
     const senderName = senderId
         ? getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId
         : undefined;
-    
+
     if (roomActions.isIgnored(senderId)) return null;
 
     const topic = useRoomTopic(room);
@@ -87,7 +86,7 @@ function InviteCard({ room, userId, direct, compact, onNavigate }: InviteCardPro
     const [ignoreState, ignore] = useAsyncCallback<void, MatrixError, []>(
         useCallback(async () => {
             await mx.leave(room.roomId);
-            await roomActions.ignore([senderId]);            
+            await roomActions.ignore([senderId]);
         }, [mx, room, senderId])
     );
 
@@ -177,34 +176,30 @@ function InviteCard({ room, userId, direct, compact, onNavigate }: InviteCardPro
                     <Box gap="200" shrink="No" alignItems="Center">
                         <Button
                             onClick={leave}
-                            size="300"
-                            variant="Secondary"
-                            fill="Soft"
+                            color="secondary"
+                            variant='outlined'
                             disabled={joining || leaving || ignoring}
-                            before={leaving ? <Spinner variant="Secondary" size="100" /> : undefined}
+                            startIcon={leaving ? <CircularProgress size='25px' /> : undefined}
                         >
-                            <Text size="B300">{getText('btn.decline')}</Text>
+                            {getText('btn.decline')}
                         </Button>
                         <Button
                             onClick={ignore}
-                            size="300"
-                            variant="Secondary"
-                            fill="Soft"
+                            color="error"
+                            variant='outlined'
                             disabled={joining || leaving || ignoring}
-                            before={ignoring ? <Spinner variant="Secondary" size="100" /> : undefined}
+                            startIcon={ignoring ? <CircularProgress size='25px' /> : undefined}
                         >
-                            <Text size="B300">{getText('btn.decline_and_ignore')}</Text>
+                            {getText('btn.decline_and_ignore')}
                         </Button>
                         <Button
                             onClick={join}
-                            size="300"
-                            variant="Primary"
-                            fill="Soft"
-                            outlined
+                            color="success"
+                            variant='contained'
                             disabled={joining || leaving || ignoring}
-                            before={joining ? <Spinner variant="Primary" fill="Soft" size="100" /> : undefined}
+                            startIcon={joining ? <CircularProgress size='25px' /> : undefined}
                         >
-                            <Text size="B300">{getText('btn.accept')}</Text>
+                            {getText('btn.accept')}
                         </Button>
                     </Box>
                 </Box>

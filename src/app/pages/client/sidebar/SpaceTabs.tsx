@@ -12,7 +12,6 @@ import React, {
 import { useNavigate } from 'react-router-dom';
 import {
     Box,
-    IconButton,
     Line,
     Menu,
     MenuItem,
@@ -91,6 +90,8 @@ import { copyToClipboard } from '../../../utils/dom';
 import { openInviteUser, openSpaceSettings } from '../../../../client/action/navigation';
 import { getText } from '../../../../lang';
 import { mdiAccount, mdiAccountPlus, mdiCheckAll, mdiChevronUp, mdiCog, mdiLink, mdiLinkVariant, mdiPin, mdiPlus, mdiTune } from '@mdi/js';
+import { IconButton } from '@mui/material';
+import { KeyboardArrowUp } from '@mui/icons-material';
 
 type SpaceMenuProps = {
     room: Room;
@@ -503,8 +504,8 @@ function OpenedSpaceFolder({ folder, onClose, children }: OpenedSpaceFolderProps
         >
             <SidebarFolderDropTarget ref={aboveTargetRef} position="Top" />
             <SidebarAvatar size="300">
-                <IconButton data-id={folder.id} size="300" variant="Background" onClick={onClose}>
-                    <MDIcon size={1} path={mdiChevronUp} />
+                <IconButton data-id={folder.id} color='default' onClick={onClose}>
+                    <KeyboardArrowUp />
                 </IconButton>
             </SidebarAvatar>
             {children}

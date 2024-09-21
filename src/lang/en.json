@@ -28,9 +28,10 @@
     "form.register.token_optional": "Registration token (Optional)",
     "form.register.email": "Email",
     "form.register.email_optional": "Email (Optional)",
-    "form.register.accept_tos_1": "I accept server ",
+    "form.register.accept_tos_1": "I accept ",
     "form.register.accept_tos_link": "Terms and Conditions",
     "form.register.accept_tos_2": ".",
+    "form.register.accept_tos": "I accept server Terms and Conditions.",
     "error.register.rate_limited": "Failed to register. Too many attempts, please try again later.",
     "error.register.forbidden": "Failed to register. This homeserver has disabled registration.",
     "error.register.invalid_request": "Failed to register. Your request data is invalid.",
@@ -216,6 +217,7 @@
     "msg.file.failed": "Failed to load file",
     "btn.open_file": "Open file",
     "btn.open_pdf": "Open PDF",
+    "btn.open_location": "View on map",
     "btn.retry_download": "Retry download ({0})",
     "btn.download_size": "Download ({0})",
     "btn.view": "View",
@@ -949,5 +951,6 @@
     "syncing": "Syncing...",
     "settings.ignore_policies.title": "Use ignore policies",
     "settings.ignore_policies.desc": "Use ignore policies instead of ignoring users",
-    "msg_menu.cancel": "Cancel"
+    "msg_menu.cancel": "Cancel",
+    "msg_menu.retry": "Retry"
 }

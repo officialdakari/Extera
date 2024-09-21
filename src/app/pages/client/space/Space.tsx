@@ -10,7 +10,6 @@ import { useAtom, useAtomValue } from 'jotai';
 import {
     Avatar,
     Box,
-    IconButton,
     Line,
     Menu,
     MenuItem,
@@ -22,7 +21,7 @@ import {
 } from 'folds';
 import { Icon as MDIcon } from '@mdi/react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { IJoinRuleEventContent, JoinRule, Room } from 'matrix-js-sdk';
+import { JoinRule, Room } from 'matrix-js-sdk';
 import FocusTrap from 'focus-trap-react';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { mDirectAtom } from '../../../state/mDirectList';
@@ -74,6 +73,11 @@ import { useStateEvent } from '../../../hooks/useStateEvent';
 import { StateEvent } from '../../../../types/matrix/room';
 import { getText } from '../../../../lang';
 import { mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiCog, mdiDotsVertical, mdiFlag, mdiFlagOutline, mdiLink, mdiLock, mdiMagnify } from '@mdi/js';
+import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
+import FAB from '../../../components/fab/FAB';
+import { RoomJoinRulesEventContent } from 'matrix-js-sdk/lib/types';
+import { IconButton } from '@mui/material';
+import { MoreVert } from '@mui/icons-material';
 
 type SpaceMenuProps = {
     room: Room;
@@ -207,7 +211,7 @@ function SpaceHeader() {
     const joinRules = useStateEvent(
         space,
         StateEvent.RoomJoinRules
-    )?.getContent<IJoinRuleEventContent>();
+    )?.getContent<RoomJoinRulesEventContent>();
 
     const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
         const cords = evt.currentTarget.getBoundingClientRect();
@@ -228,8 +232,8 @@ function SpaceHeader() {
                         </Text>
                     </Box>
                     <Box>
-                        <IconButton aria-pressed={!!menuAnchor} variant="Background" onClick={handleOpenMenu}>
-                            <MDIcon size={1} path={mdiDotsVertical} />
+                        <IconButton aria-pressed={!!menuAnchor} color='default' onClick={handleOpenMenu}>
+                            <MoreVert />
                         </IconButton>
                     </Box>
                 </Box>
@@ -262,6 +266,7 @@ function SpaceHeader() {
 
 export function Space() {
     const mx = useMatrixClient();
+    const screenSize = useScreenSize();
     const space = useSpace();
     useNavToActivePathMapper(space.roomId);
     const spaceIdOrAlias = getCanonicalAliasOrRoomId(mx, space.roomId);
@@ -413,6 +418,9 @@ export function Space() {
                     </NavCategory>
                 </Box>
             </PageNavContent>
+            {screenSize === ScreenSize.Mobile && (
+                <FAB />
+            )}
         </PageNav>
     );
 }

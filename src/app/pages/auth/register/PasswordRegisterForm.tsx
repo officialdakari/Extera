@@ -1,7 +1,5 @@
 import {
     Box,
-    Button,
-    Checkbox,
     Input,
     Overlay,
     OverlayBackdrop,
@@ -45,6 +43,7 @@ import { UIAFlowOverlay } from '../../../components/UIAFlowOverlay';
 import { RequestEmailTokenCallback, RequestEmailTokenResponse } from '../../../hooks/types';
 import { getText } from '../../../../lang';
 import cons from '../../../../client/state/cons';
+import { Button, Checkbox, FormControlLabel, TextField } from '@mui/material';
 
 export const SUPPORTED_REGISTER_STAGES = [
     AuthType.RegistrationToken,
@@ -260,15 +259,11 @@ export function PasswordRegisterForm({
         <>
             <Box as="form" onSubmit={handleSubmit} direction="Inherit" gap="400">
                 <Box direction="Column" gap="100">
-                    <Text as="label" size="L400" priority="300">
-                        {getText('form.login')}
-                    </Text>
-                    <Input
-                        variant="Background"
+                    <TextField
+                        variant='filled'
+                        name='usernameInput'
                         defaultValue={defaultUsername}
-                        name="usernameInput"
-                        size="500"
-                        outlined
+                        label={getText('form.username')}
                         required
                     />
                     {registerError?.errcode === RegisterError.UserTaken && (
@@ -285,17 +280,14 @@ export function PasswordRegisterForm({
                     {(match, doMatch, passRef, confPassRef) => (
                         <>
                             <Box direction="Column" gap="100">
-                                <Text as="label" size="L400" priority="300">
-                                    {getText('form.password')}
-                                </Text>
-                                <PasswordInput
-                                    ref={passRef}
+                                <TextField
+                                    variant='filled'
+                                    name='passwordInput'
+                                    type='password'
+                                    label={getText('form.password')}
                                     onChange={doMatch}
-                                    name="passwordInput"
-                                    variant="Background"
-                                    size="500"
-                                    outlined
                                     required
+                                    ref={passRef}
                                 />
                                 {registerError?.errcode === RegisterError.PasswordWeak && (
                                     <FieldError
@@ -315,18 +307,15 @@ export function PasswordRegisterForm({
                                 )}
                             </Box>
                             <Box direction="Column" gap="100">
-                                <Text as="label" size="L400" priority="300">
-                                    {getText("form.confirm_password")}
-                                </Text>
-                                <PasswordInput
-                                    ref={confPassRef}
-                                    onChange={doMatch}
-                                    name="confirmPasswordInput"
-                                    variant="Background"
-                                    size="500"
-                                    style={{ color: match ? undefined : color.Critical.Main }}
-                                    outlined
+                                <TextField
+                                    variant='filled'
+                                    name='confirmPasswordInput'
+                                    type='password'
+                                    label={getText('form.confirm_password')}
                                     required
+                                    onChange={doMatch}
+                                    color={match ? 'primary' : 'error'}
+                                    ref={confPassRef}
                                 />
                             </Box>
                         </>
@@ -334,48 +323,45 @@ export function PasswordRegisterForm({
                 </ConfirmPasswordMatch>
                 {hasStageInFlows(uiaFlows, AuthType.RegistrationToken) && (
                     <Box direction="Column" gap="100">
-                        <Text as="label" size="L400" priority="300">
-                            {requiredStageInFlows(uiaFlows, AuthType.RegistrationToken)
+                        <TextField
+                            variant='filled'
+                            name='tokenInput'
+                            defaultValue={defaultRegisterToken}
+                            required={requiredStageInFlows(uiaFlows, AuthType.Email)}
+                            label={requiredStageInFlows(uiaFlows, AuthType.RegistrationToken)
                                 ? getText('form.register.token')
                                 : getText('form.register.token_optional')}
-                        </Text>
-                        <Input
-                            variant="Background"
-                            defaultValue={defaultRegisterToken}
-                            name="tokenInput"
-                            size="500"
-                            required={requiredStageInFlows(uiaFlows, AuthType.RegistrationToken)}
-                            outlined
                         />
                     </Box>
                 )}
                 {hasStageInFlows(uiaFlows, AuthType.Email) && (
                     <Box direction="Column" gap="100">
-                        <Text as="label" size="L400" priority="300">
-                            {requiredStageInFlows(uiaFlows, AuthType.Email) ? getText('form.register.email') : getText('form.register.email_optional')}
-                        </Text>
-                        <Input
-                            variant="Background"
+                        <TextField
+                            variant='filled'
+                            name='emailInput'
+                            type='email'
                             defaultValue={defaultEmail}
-                            name="emailInput"
-                            type="email"
-                            size="500"
                             required={requiredStageInFlows(uiaFlows, AuthType.Email)}
-                            outlined
+                            label={requiredStageInFlows(uiaFlows, AuthType.Email) ? getText('form.register.email') : getText('form.register.email_optional')}
                         />
                     </Box>
                 )}
 
                 {hasStageInFlows(uiaFlows, AuthType.Terms) && termUrl && (
-                    <Box alignItems="Center" gap="200">
-                        <Checkbox name="termsInput" size="300" variant="Primary" required />
-                        <Text size="T300">
-                            {getText('form.register.accept_tos_1')}
-                            <a href={termUrl} target="_blank" rel="noreferrer">
-                                {getText('form.register.accept_tos_link')}
-                            </a>
-                            {getText('form.register.accept_tos_2')}
-                        </Text>
+                    <Box>
+                        <FormControlLabel
+                            required
+                            label={(
+                                <span>
+                                    {getText('form.register.accept_tos_1')}
+                                    <a href={termUrl} target="_blank" rel="noreferrer">
+                                        {getText('form.register.accept_tos_link')}
+                                    </a>
+                                    {getText('form.register.accept_tos_2')}
+                                </span>
+                            )}
+                            control={<Checkbox name='termsInput' />}
+                        />
                     </Box>
                 )}
                 {registerError?.errcode === RegisterError.RateLimited && (
@@ -391,10 +377,8 @@ export function PasswordRegisterForm({
                     <FieldError message={registerError.data.error ?? getText('error.register.unknown_reason')} />
                 )}
                 <span data-spacing-node />
-                <Button variant="Primary" size="500" type="submit">
-                    <Text as="span" size="B500">
-                        {getText('register.register_button')}
-                    </Text>
+                <Button variant='contained' type="submit">
+                    {getText('register.register_button')}
                 </Button>
             </Box>
             {registerState.status === AsyncStatus.Success &&

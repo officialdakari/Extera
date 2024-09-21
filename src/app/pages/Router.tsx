@@ -39,6 +39,7 @@ import {
     getOriginBaseUrl,
     getSpaceLobbyPath,
 } from './pathUtils';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ClientBindAtoms, ClientLayout, ClientRoot } from './client';
 import { Home, HomeRouteRoomProvider, HomeSearch } from './client/home';
 import { Direct, DirectRouteRoomProvider } from './client/direct';
@@ -55,6 +56,7 @@ import { ScreenSize } from '../hooks/useScreenSize';
 import { MobileFriendlyPageNav, MobileFriendlyClientNav } from './MobileFriendly';
 import { ClientInitStorageAtom } from './client/ClientInitStorageAtom';
 import { ClientNonUIFeatures } from './client/ClientNonUIFeatures';
+import AnimatedLayout from './AnimatedLayout';
 
 export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize) => {
     const { hashRouter } = clientConfig;

@@ -3,9 +3,7 @@ import React, { MouseEventHandler, useCallback, useEffect, useMemo, useRef, useS
 import {
     Avatar,
     Box,
-    Chip,
     Header,
-    IconButton,
     Scroll,
     Text,
     config,
@@ -71,6 +69,8 @@ import { UserAvatar } from '../../../components/user-avatar';
 import { EncryptedContent } from '../../../features/room/message';
 import { getText, translate } from '../../../../lang';
 import { mdiAccount, mdiCheck, mdiCheckAll, mdiChevronUp, mdiMessage } from '@mdi/js';
+import { Button, Chip, IconButton } from '@mui/material';
+import { Check, DoneAll, KeyboardArrowUp } from '@mui/icons-material';
 
 type RoomNotificationsGroup = {
     roomId: string;
@@ -349,7 +349,7 @@ function RoomNotificationsGroupComp({
         }
     );
 
-    const handleOpenClick: MouseEventHandler<HTMLButtonElement> = (evt) => {
+    const handleOpenClick: MouseEventHandler<HTMLElement> = (evt) => {
         const eventId = evt.currentTarget.getAttribute('data-event-id');
         if (!eventId) return;
         onOpen(room.roomId, eventId);
@@ -379,13 +379,11 @@ function RoomNotificationsGroupComp({
                 <Box shrink="No">
                     {unread && (
                         <Chip
-                            variant="Primary"
-                            radii="Pill"
+                            color='primary'
+                            variant='outlined'
                             onClick={handleMarkAsRead}
-                            before={<MDIcon size={0.6} path={mdiCheckAll} />}
-                        >
-                            <Text size="T200">{getText('notifications.mark_as_read')}</Text>
-                        </Chip>
+                            label={getText('notifications.mark_as_read')}
+                        />
                     )}
                 </Box>
             </Header>
@@ -440,11 +438,9 @@ function RoomNotificationsGroupComp({
                                         <Chip
                                             data-event-id={event.event_id}
                                             onClick={handleOpenClick}
-                                            variant="Secondary"
-                                            radii="400"
-                                        >
-                                            <Text size="T200">{getText('notifications.open_msg')}</Text>
-                                        </Chip>
+                                            color='secondary'
+                                            label={getText('notifications.open_msg')}
+                                        />
                                     </Box>
                                 </Box>
                                 {replyEventId && (
@@ -568,22 +564,20 @@ export function Notifications() {
                                     <Box gap="200">
                                         <Chip
                                             onClick={() => setOnlyHighlighted(false)}
-                                            variant={!onlyHighlight ? 'Success' : 'Surface'}
+                                            color={!onlyHighlight ? 'success' : 'default'}
                                             aria-pressed={!onlyHighlight}
-                                            before={!onlyHighlight && <MDIcon size={0.7} path={mdiCheck} />}
-                                            outlined
-                                        >
-                                            <Text size="T200">{getText('notifications.filter.all')}</Text>
-                                        </Chip>
+                                            icon={!onlyHighlight ? <Check /> : undefined}
+                                            variant='outlined'
+                                            label={getText('notifications.filter.all')}
+                                        />
                                         <Chip
                                             onClick={() => setOnlyHighlighted(true)}
-                                            variant={onlyHighlight ? 'Success' : 'Surface'}
+                                            color={onlyHighlight ? 'success' : 'default'}
                                             aria-pressed={onlyHighlight}
-                                            before={onlyHighlight && <MDIcon size={0.7} path={mdiCheck} />}
-                                            outlined
-                                        >
-                                            <Text size="T200">{getText('notifications.filter.highlighted')}</Text>
-                                        </Chip>
+                                            icon={onlyHighlight ? <Check /> : undefined}
+                                            variant='outlined'
+                                            label={getText('notifications.filter.highlighted')}
+                                        />
                                     </Box>
                                 </Box>
                                 <ScrollTopContainer
@@ -591,16 +585,15 @@ export function Notifications() {
                                     anchorRef={scrollTopAnchorRef}
                                     onVisibilityChange={handleScrollTopVisibility}
                                 >
-                                    <IconButton
+                                    <Button
                                         onClick={() => virtualizer.scrollToOffset(0)}
-                                        variant="SurfaceVariant"
-                                        radii="Pill"
-                                        outlined
-                                        size="300"
+                                        color='info'
+                                        variant='contained'
                                         aria-label={getText('scroll_to_top')}
+                                        endIcon={<KeyboardArrowUp />}
                                     >
-                                        <MDIcon size={1} path={mdiChevronUp} />
-                                    </IconButton>
+                                        {getText('scroll_to_top')}
+                                    </Button>
                                 </ScrollTopContainer>
                                 <div
                                     style={{

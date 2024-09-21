@@ -30,6 +30,7 @@ import { getReactCustomHtmlParser } from '../../../plugins/react-custom-html-par
 import { getText } from '../../../../lang';
 import { mdiAlert, mdiImage } from '@mdi/js';
 import Icon from '@mdi/react';
+import { Dialog, DialogTitle } from '@mui/material';
 
 type RenderViewerProps = {
     src: string;
@@ -111,29 +112,32 @@ export const ImageContent = as<'div', ImageContentProps>(
         return (
             <Box className={classNames(css.RelativeBase, className)} {...props} ref={ref}>
                 {srcState.status === AsyncStatus.Success && (
-                    <Overlay open={viewer} backdrop={<OverlayBackdrop />}>
-                        <OverlayCenter>
-                            <FocusTrap
-                                focusTrapOptions={{
-                                    initialFocus: false,
-                                    onDeactivate: () => setViewer(false),
-                                    clickOutsideDeactivates: true,
-                                }}
-                            >
-                                <Modal
-                                    className={css.ModalWide}
-                                    size="500"
-                                    onContextMenu={(evt: any) => evt.stopPropagation()}
-                                >
-                                    {renderViewer({
-                                        src: srcState.data,
-                                        alt: filename ?? body,
-                                        requestClose: () => setViewer(false),
-                                    })}
-                                </Modal>
-                            </FocusTrap>
-                        </OverlayCenter>
-                    </Overlay>
+                    // <Overlay open={viewer} backdrop={<OverlayBackdrop />}>
+                    //     <OverlayCenter>
+                    //         <FocusTrap
+                    //             focusTrapOptions={{
+                    //                 initialFocus: false,
+                    //                 onDeactivate: () => setViewer(false),
+                    //                 clickOutsideDeactivates: true,
+                    //             }}
+                    //         >
+                    //             <Modal
+                    //                 className={css.ModalWide}
+                    //                 size="500"
+                    //                 onContextMenu={(evt: any) => evt.stopPropagation()}
+                    //             >
+
+                    //             </Modal>
+                    //         </FocusTrap>
+                    //     </OverlayCenter>
+                    // </Overlay>
+                    <Dialog fullScreen open={viewer}>
+                        {renderViewer({
+                            alt: filename ?? body,
+                            src: srcState.data,
+                            requestClose: () => setViewer(false)
+                        })}
+                    </Dialog>
                 )}
                 {typeof blurHash === 'string' && !load && (
                     <BlurhashCanvas

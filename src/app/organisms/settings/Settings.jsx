@@ -34,7 +34,7 @@ import CrossSigning from './CrossSigning';
 import KeyBackup from './KeyBackup';
 import DeviceManage from './DeviceManage';
 
-import { Switch, Button } from '@mui/material';
+import { Switch, Button, ToggleButtonGroup, ToggleButton } from '@mui/material';
 
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
@@ -184,34 +184,52 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.msg_layout.title')}
                     content={
-                        <SegmentedControls
-                            selected={messageLayout}
-                            segments={[
-                                { text: getText('settings.msg_layout.modern') },
-                                { text: getText('settings.msg_layout.compact') },
-                                { text: getText('settings.msg_layout.bubble') },
-                            ]}
-                            onSelect={(index) => setMessageLayout(index)}
-                        />
+                        <ToggleButtonGroup
+                            exclusive
+                            value={messageLayout}
+                            onChange={(evt, value) => setMessageLayout(value)}
+                        >
+                            <ToggleButton value={0}>
+                                {getText('settings.msg_layout.modern')}
+                            </ToggleButton>
+                            <ToggleButton value={1}>
+                                {getText('settings.msg_layout.compact')}
+                            </ToggleButton>
+                            <ToggleButton value={2}>
+                                {getText('settings.msg_layout.bubble')}
+                            </ToggleButton>
+                        </ToggleButtonGroup>
                     }
                 />
                 <SettingTile
                     title={getText('settings.msg_spacing.title')}
                     content={
-                        <SegmentedControls
-                            selected={spacings.findIndex((s) => s === messageSpacing)}
-                            segments={[
-                                { text: 'No' },
-                                { text: 'XXS' },
-                                { text: 'XS' },
-                                { text: 'S' },
-                                { text: 'M' },
-                                { text: 'L' },
-                            ]}
-                            onSelect={(index) => {
-                                setMessageSpacing(spacings[index])
-                            }}
-                        />
+                        // <SegmentedControls
+                        //     selected={spacings.findIndex((s) => s === messageSpacing)}
+                        //     segments={[
+                        //         { text: 'No' },
+                        //         { text: 'XXS' },
+                        //         { text: 'XS' },
+                        //         { text: 'S' },
+                        //         { text: 'M' },
+                        //         { text: 'L' },
+                        //     ]}
+                        //     onSelect={(index) => {
+                        //         setMessageSpacing(spacings[index])
+                        //     }}
+                        // />
+                        <ToggleButtonGroup
+                            exclusive
+                            value={spacings.findIndex((s) => s === messageSpacing)}
+                            onChange={(evt, value) => setMessageSpacing(spacings[value])}
+                        >
+                            <ToggleButton value={0}>No</ToggleButton>
+                            <ToggleButton value={1}>XXS</ToggleButton>
+                            <ToggleButton value={2}>XS</ToggleButton>
+                            <ToggleButton value={3}>S</ToggleButton>
+                            <ToggleButton value={4}>M</ToggleButton>
+                            <ToggleButton value={5}>L</ToggleButton>
+                        </ToggleButtonGroup>
                     }
                 />
                 <SettingTile

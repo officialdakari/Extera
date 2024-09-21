@@ -1,35 +1,38 @@
 import { mdiPencil, mdiPlus } from '@mdi/js';
 import Icon from '@mdi/react';
-import { Fab, Zoom } from '@mui/material';
-import { Box, OverlayBackdrop } from 'folds';
+import { SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
+import { Add, ArrowForward, ArrowUpward, Edit, PersonAdd, PlusOne } from '@mui/icons-material';
 import React, { useState } from 'react';
-import { openCreateRoom } from '../../../client/action/navigation';
+import { openCreateRoom, openInviteUser, openJoinAlias } from '../../../client/action/navigation';
 
 import * as css from './FAB.css';
+import { getText } from '../../../lang';
 
 export default function FAB() {
-    const [maximized, setMaximized] = useState(false);
     return (
-        <Box alignItems='Center' direction='Column' display='Flex' gap='300' style={{ zIndex: 50, position: 'absolute', bottom: '20px', right: '20px', width: 'inherit' }}>
-            {maximized && (
-                <Zoom
-                    in
-                    timeout={300}
-                    unmountOnExit
-                >
-                    <Fab size='small' onClick={() => openCreateRoom()} color='default' aria-label='Create room'>
-                        <Icon path={mdiPlus} size={1} />
-                    </Fab>
-                </Zoom>
-            )}
-            {maximized && (
-                <div className={css.AbsoluteContainer}>
-                    <OverlayBackdrop />
-                </div>
-            )}
-            <Fab onClick={() => setMaximized(!maximized)} color='primary' aria-label='New chat'>
-                <Icon path={mdiPencil} size={1} />
-            </Fab>
-        </Box>
+        <SpeedDial
+            ariaLabel='new chat'
+            sx={{ position: 'absolute', bottom: 16, right: 16 }}
+            icon={<SpeedDialIcon icon={<Edit />} openIcon={<ArrowUpward />} />}
+        >
+            <SpeedDialAction
+                key='createRoom'
+                icon={<Add />}
+                tooltipTitle={getText('tooltip.new_room')}
+                onClick={() => openCreateRoom()}
+            />
+            <SpeedDialAction
+                key='createRoom'
+                icon={<ArrowForward />}
+                tooltipTitle={getText('tooltip.join_room')}
+                onClick={() => openJoinAlias()}
+            />
+            <SpeedDialAction
+                key='createRoom'
+                icon={<PersonAdd />}
+                tooltipTitle={getText('tooltip.new_dm')}
+                onClick={() => openInviteUser()}
+            />
+        </SpeedDial>
     );
 }

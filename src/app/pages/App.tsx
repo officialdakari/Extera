@@ -10,34 +10,42 @@ import { ConfigConfigError, ConfigConfigLoading } from './ConfigConfig';
 import { FeatureCheck } from './FeatureCheck';
 import { createRouter } from './Router';
 import { ScreenSizeProvider, useScreenSize } from '../hooks/useScreenSize';
+import { createTheme, ThemeProvider } from '@mui/material';
 
 const queryClient = new QueryClient();
 
 function App() {
+    const theme = createTheme({
+        palette: {
+            mode: 'dark'
+        }
+    });
     const screenSize = useScreenSize();
 
     return (
-        <ScreenSizeProvider value={screenSize}>
-            <FeatureCheck>
-                <ClientConfigLoader
-                    fallback={() => <ConfigConfigLoading />}
-                    error={(err, retry, ignore) => (
-                        <ConfigConfigError error={err} retry={retry} ignore={ignore} />
-                    )}
-                >
-                    {(clientConfig) => (
-                        <ClientConfigProvider value={clientConfig}>
-                            <QueryClientProvider client={queryClient}>
-                                <JotaiProvider>
-                                    <RouterProvider router={createRouter(clientConfig, screenSize)} />
-                                </JotaiProvider>
-                                <ReactQueryDevtools initialIsOpen={false} />
-                            </QueryClientProvider>
-                        </ClientConfigProvider>
-                    )}
-                </ClientConfigLoader>
-            </FeatureCheck>
-        </ScreenSizeProvider>
+        <ThemeProvider theme={theme}>
+            <ScreenSizeProvider value={screenSize}>
+                <FeatureCheck>
+                    <ClientConfigLoader
+                        fallback={() => <ConfigConfigLoading />}
+                        error={(err, retry, ignore) => (
+                            <ConfigConfigError error={err} retry={retry} ignore={ignore} />
+                        )}
+                    >
+                        {(clientConfig) => (
+                            <ClientConfigProvider value={clientConfig}>
+                                <QueryClientProvider client={queryClient}>
+                                    <JotaiProvider>
+                                        <RouterProvider router={createRouter(clientConfig, screenSize)} />
+                                    </JotaiProvider>
+                                    <ReactQueryDevtools initialIsOpen={false} />
+                                </QueryClientProvider>
+                            </ClientConfigProvider>
+                        )}
+                    </ClientConfigLoader>
+                </FeatureCheck>
+            </ScreenSizeProvider>
+        </ThemeProvider>
     );
 }
 

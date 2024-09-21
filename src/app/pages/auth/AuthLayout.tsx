@@ -141,9 +141,6 @@ export function AuthLayout() {
                     </Header>
                     <Box className={css.AuthCardContent} direction="Column">
                         <Box direction="Column" gap="100">
-                            <Text as="label" size="L400" priority="300">
-                                {getText('form.homeserver')}
-                            </Text>
                             <ServerPicker
                                 server={server}
                                 serverList={clientConfig.homeserverList ?? []}
