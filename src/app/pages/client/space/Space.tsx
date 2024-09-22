@@ -9,13 +9,7 @@ import React, {
 import { useAtom, useAtomValue } from 'jotai';
 import {
     Avatar,
-    Box,
-    Line,
-    Menu,
-    MenuItem,
-    PopOut,
     RectCords,
-    Text,
     config,
     toRem,
 } from 'folds';
@@ -76,14 +70,16 @@ import { mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiCog, mdiDotsVertical, mdi
 import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
 import FAB from '../../../components/fab/FAB';
 import { RoomJoinRulesEventContent } from 'matrix-js-sdk/lib/types';
-import { IconButton } from '@mui/material';
-import { MoreVert } from '@mui/icons-material';
+import { AppBar, Box, Button, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import { Add, DoneAll, MenuOpen, MoreVert, PersonAdd, Menu as MenuIcon, Share, ArrowBack, Flag, OutlinedFlag, Search, Settings } from '@mui/icons-material';
+import { useNavHidden } from '../../../hooks/useHideableNav';
 
 type SpaceMenuProps = {
     room: Room;
     requestClose: () => void;
+    anchorEl: HTMLElement | null;
 };
-const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClose }, ref) => {
+const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, anchorEl, requestClose }, ref) => {
     const mx = useMatrixClient();
     const { hashRouter } = useClientConfig();
     const roomToParents = useAtomValue(roomToParentsAtom);
@@ -120,85 +116,75 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
     };
 
     return (
-        <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
-            <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                <MenuItem
-                    onClick={handleMarkAsRead}
-                    size="300"
-                    after={<MDIcon size={1} path={mdiCheckAll} />}
-                    radii="300"
-                    disabled={!unread}
-                >
-                    <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                        {getText('chats.mark_as_read')}
-                    </Text>
-                </MenuItem>
-            </Box>
-            <Line variant="Surface" size="300" />
-            <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                <MenuItem
-                    onClick={handleInvite}
-                    variant="Primary"
-                    fill="None"
-                    size="300"
-                    after={<MDIcon size={1} path={mdiAccountPlus} />}
-                    radii="300"
-                    disabled={!canInvite}
-                >
-                    <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                        {getText('space.action.invite')}
-                    </Text>
-                </MenuItem>
-                <MenuItem
-                    onClick={handleCopyLink}
-                    size="300"
-                    after={<MDIcon size={1} path={mdiLink} />}
-                    radii="300"
-                >
-                    <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                        {getText('space.action.copy_link')}
-                    </Text>
-                </MenuItem>
-                <MenuItem
-                    onClick={handleRoomSettings}
-                    size="300"
-                    after={<MDIcon size={1} path={mdiCog} />}
-                    radii="300"
-                >
-                    <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                        {getText('space.action.settings')}
-                    </Text>
-                </MenuItem>
-            </Box>
-            <Line variant="Surface" size="300" />
-            <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                <UseStateProvider initial={false}>
-                    {(promptLeave, setPromptLeave) => (
-                        <>
-                            <MenuItem
-                                onClick={() => setPromptLeave(true)}
-                                variant="Critical"
-                                fill="None"
-                                size="300"
-                                after={<MDIcon size={1} path={mdiArrowLeft} />}
-                                radii="300"
-                                aria-pressed={promptLeave}
-                            >
-                                <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                                    {getText('space.action.leave')}
-                                </Text>
-                            </MenuItem>
-                            {promptLeave && (
-                                <LeaveSpacePrompt
-                                    roomId={room.roomId}
-                                    onDone={requestClose}
-                                    onCancel={() => setPromptLeave(false)}
-                                />
-                            )}
-                        </>
-                    )}
-                </UseStateProvider>
-            </Box>
+        <Menu open={!!anchorEl} onClose={requestClose} anchorEl={anchorEl} ref={ref}>
+            <MenuItem
+                onClick={handleMarkAsRead}
+                disabled={!unread}
+            >
+                <ListItemIcon>
+                    <DoneAll />
+                </ListItemIcon>
+                <ListItemText>
+                    {getText('chats.mark_as_read')}
+                </ListItemText>
+            </MenuItem>
+            <Divider />
+            <MenuItem
+                onClick={handleInvite}
+            >
+                <ListItemIcon>
+                    <PersonAdd />
+                </ListItemIcon>
+                <ListItemText>
+                    {getText('space.action.invite')}
+                </ListItemText>
+            </MenuItem>
+            <MenuItem
+                onClick={handleCopyLink}
+            >
+                <ListItemIcon>
+                    <Share />
+                </ListItemIcon>
+                <ListItemText>
+                    {getText('space.action.copy_link')}
+                </ListItemText>
+            </MenuItem>
+
+            <MenuItem
+                onClick={handleRoomSettings}
+            >
+                <ListItemIcon>
+                    <Settings />
+                </ListItemIcon>
+                <ListItemText>
+                    {getText('space.action.settings')}
+                </ListItemText>
+            </MenuItem>
+            <Divider />
+            <UseStateProvider initial={false}>
+                {(promptLeave, setPromptLeave) => (
+                    <>
+                        <MenuItem
+                            onClick={() => setPromptLeave(true)}
+                            aria-pressed={promptLeave}
+                        >
+                            <ListItemIcon color='error'>
+                                <ArrowBack />
+                            </ListItemIcon>
+                            <ListItemText>
+                                {getText('space.action.leave')}
+                            </ListItemText>
+                        </MenuItem>
+                        {promptLeave && (
+                            <LeaveSpacePrompt
+                                roomId={room.roomId}
+                                onDone={requestClose}
+                                onCancel={() => setPromptLeave(false)}
+                            />
+                        )}
+                    </>
+                )}
+            </UseStateProvider>
         </Menu>
     );
 });
@@ -206,61 +192,41 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
 function SpaceHeader() {
     const space = useSpace();
     const spaceName = useRoomName(space);
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
-
-    const joinRules = useStateEvent(
-        space,
-        StateEvent.RoomJoinRules
-    )?.getContent<RoomJoinRulesEventContent>();
+    const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
+    const [navHidden, setNavHidden] = useNavHidden();
 
     const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        const cords = evt.currentTarget.getBoundingClientRect();
         setMenuAnchor((currentState) => {
-            if (currentState) return undefined;
-            return cords;
+            if (currentState) return null;
+            return evt.currentTarget;
         });
     };
 
     return (
-        <>
-            <PageNavHeader>
-                <Box alignItems="Center" grow="Yes" gap="300">
-                    <Box grow="Yes" alignItems="Center" gap="100">
-                        {joinRules?.join_rule !== JoinRule.Public && <MDIcon size={0.7} path={mdiLock} />}
-                        <Text size="H4" truncate>
-                            {spaceName}
-                        </Text>
-                    </Box>
-                    <Box>
-                        <IconButton aria-pressed={!!menuAnchor} color='default' onClick={handleOpenMenu}>
-                            <MoreVert />
-                        </IconButton>
-                    </Box>
-                </Box>
-            </PageNavHeader>
-            {menuAnchor && (
-                <PopOut
-                    anchor={menuAnchor}
-                    position="Bottom"
-                    align="End"
-                    offset={6}
-                    content={
-                        <FocusTrap
-                            focusTrapOptions={{
-                                initialFocus: false,
-                                returnFocusOnDeactivate: false,
-                                onDeactivate: () => setMenuAnchor(undefined),
-                                clickOutsideDeactivates: true,
-                                isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                                isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                            }}
-                        >
-                            <SpaceMenu room={space} requestClose={() => setMenuAnchor(undefined)} />
-                        </FocusTrap>
-                    }
-                />
-            )}
-        </>
+        <Box sx={{ flexGrow: 0 }}>
+            <AppBar color='inherit' enableColorOnDark position='static'>
+                <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
+                    <IconButton
+                        size='large'
+                        color='inherit'
+                        onClick={() => setNavHidden(!navHidden)}
+                    >
+                        {navHidden ? <MenuIcon /> : <MenuOpen />}
+                    </IconButton>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                        {getText(spaceName)}
+                    </Typography>
+                    <IconButton
+                        size='large'
+                        color='inherit'
+                        onClick={handleOpenMenu}
+                    >
+                        <MoreVert />
+                    </IconButton>
+                    <SpaceMenu room={space} anchorEl={menuAnchor} requestClose={() => setMenuAnchor(null)} />
+                </Toolbar>
+            </AppBar>
+        </Box>
     );
 }
 
@@ -332,41 +298,31 @@ export function Space() {
         <PageNav>
             <SpaceHeader />
             <PageNavContent scrollRef={scrollRef}>
-                <Box direction="Column" gap="300">
-                    <NavCategory>
-                        <NavItem variant="Background" radii="400" aria-selected={lobbySelected}>
+                <Box flexDirection='column' gap='300'>
+                    <Box display='flex' flexDirection='column' gap='5px' width='100%'>
+                        <Button
+                            variant={lobbySelected ? 'contained' : 'outlined'}
+                            aria-selected={lobbySelected}
+                            fullWidth
+                            startIcon={lobbySelected ? <Flag /> : <OutlinedFlag />}
+                            color='inherit'
+                        >
                             <NavLink to={getSpaceLobbyPath(getCanonicalAliasOrRoomId(mx, space.roomId))}>
-                                <NavItemContent>
-                                    <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                                        <Avatar size="200" radii="400">
-                                            <MDIcon size={1} path={lobbySelected ? mdiFlag : mdiFlagOutline} />
-                                        </Avatar>
-                                        <Box as="span" grow="Yes">
-                                            <Text as="span" size="Inherit" truncate>
-                                                {getText('space.lobby')}
-                                            </Text>
-                                        </Box>
-                                    </Box>
-                                </NavItemContent>
+                                {getText('space.lobby')}
                             </NavLink>
-                        </NavItem>
-                        <NavItem variant="Background" radii="400" aria-selected={searchSelected}>
+                        </Button>
+                        <Button
+                            variant={searchSelected ? 'contained' : 'outlined'}
+                            aria-selected={searchSelected}
+                            fullWidth
+                            startIcon={<Search />}
+                            color='inherit'
+                        >
                             <NavLink to={getSpaceSearchPath(getCanonicalAliasOrRoomId(mx, space.roomId))}>
-                                <NavItemContent>
-                                    <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                                        <Avatar size="200" radii="400">
-                                            <MDIcon size={1} path={mdiMagnify} />
-                                        </Avatar>
-                                        <Box as="span" grow="Yes">
-                                            <Text as="span" size="Inherit" truncate>
-                                                {getText('home.search_messages')}
-                                            </Text>
-                                        </Box>
-                                    </Box>
-                                </NavItemContent>
+                                {getText('home.search_messages')}
                             </NavLink>
-                        </NavItem>
-                    </NavCategory>
+                        </Button>
+                    </Box>
                     <NavCategory
                         style={{
                             height: virtualizer.getTotalSize(),

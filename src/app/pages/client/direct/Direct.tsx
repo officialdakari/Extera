@@ -49,12 +49,11 @@ import { markAsRead } from '../../../../client/action/notifications';
 import { getText } from '../../../../lang';
 import { isHidden } from '../../../state/hooks/roomList';
 import Icon from '@mdi/react';
-import { mdiAccountPlus, mdiAt, mdiCheckAll, mdiDotsVertical, mdiPencil, mdiPlus, mdiPlusCircleOutline } from '@mdi/js';
+import { mdiAt } from '@mdi/js';
 import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
-import { Fab } from '@mui/material';
-import { Add, DoneAll, MoreVert, PersonAdd } from '@mui/icons-material';
+import { Add, DoneAll, MenuOpen, MoreVert, PersonAdd, Menu as MenuIcon } from '@mui/icons-material';
 import FAB from '../../../components/fab/FAB';
-import HideOnScroll from '../../../components/HideOnScroll';
+import { useNavHidden } from '../../../hooks/useHideableNav';
 
 type DirectMenuProps = {
     requestClose: () => void;
@@ -101,6 +100,7 @@ const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ open, anchorEl
 
 function DirectHeader() {
     const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
+    const [navHidden, setNavHidden] = useNavHidden();
 
     const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
         setMenuAnchor((prev) => (prev ? null : evt.currentTarget));
@@ -109,7 +109,14 @@ function DirectHeader() {
     return (
         <Box sx={{ flexGrow: 0 }}>
             <AppBar color='inherit' enableColorOnDark position='static'>
-                <Toolbar style={{ paddingLeft: 24, paddingRight: 12 }} variant='regular'>
+                <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
+                    <IconButton
+                        size='large'
+                        color='inherit'
+                        onClick={() => setNavHidden(!navHidden)}
+                    >
+                        {navHidden ? <MenuIcon /> : <MenuOpen />}
+                    </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         {getText('direct_menu.title')}
                     </Typography>

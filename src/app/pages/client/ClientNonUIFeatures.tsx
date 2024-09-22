@@ -336,7 +336,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                 }
             }
             if (ev.target.tagName?.toLowerCase() === 'a') {
-                if (!cons.trustedDomains.includes(url.host!) && !cons.trustedDomains.includes(url.hostname!)) {
+                if (url.host && !cons.trustedDomains.includes(url.host!) && !cons.trustedDomains.includes(url.hostname!)) {
                     ev.preventDefault();
                     if (await confirmDialog(getText('go_link.title'), `${getText('go_link.desc')}\n\n${href}`, getText('go_link.yes'), 'danger')) {
                         window.open(href, '_blank');
