@@ -11,6 +11,7 @@ import {
     ListItemText,
     Menu,
     MenuItem,
+    MenuList,
     Paper,
     Popper,
     Toolbar,
@@ -51,8 +52,9 @@ import Icon from '@mdi/react';
 import { mdiAccountPlus, mdiAt, mdiCheckAll, mdiDotsVertical, mdiPencil, mdiPlus, mdiPlusCircleOutline } from '@mdi/js';
 import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
 import { Fab } from '@mui/material';
-import { DoneAll } from '@mui/icons-material';
+import { Add, DoneAll, MoreVert, PersonAdd } from '@mui/icons-material';
 import FAB from '../../../components/fab/FAB';
+import HideOnScroll from '../../../components/HideOnScroll';
 
 type DirectMenuProps = {
     requestClose: () => void;
@@ -70,19 +72,30 @@ const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ open, anchorEl
         requestClose();
     };
 
+    const handleNewDM = () => {
+        openInviteUser();
+        requestClose();
+    };
+
     return (
-        <Paper sx={{ width: 320, maxWidth: '100%' }}>
-            <Menu anchorEl={anchorEl} open={open} onClose={requestClose} ref={ref}>
-                <MenuItem onClick={handleMarkAsRead} disabled={!unread}>
-                    <ListItemIcon>
-                        <DoneAll />
-                    </ListItemIcon>
-                    <ListItemText>
-                        {getText('chats.mark_as_read')}
-                    </ListItemText>
-                </MenuItem>
-            </Menu>
-        </Paper>
+        <Menu anchorEl={anchorEl} open={open} onClose={requestClose} ref={ref}>
+            <MenuItem onClick={handleMarkAsRead} style={{ minHeight: 'auto' }} disabled={!unread}>
+                <ListItemIcon>
+                    <DoneAll fontSize='small' />
+                </ListItemIcon>
+                <ListItemText>
+                    {getText('chats.mark_as_read')}
+                </ListItemText>
+            </MenuItem>
+            <MenuItem onClick={handleNewDM} style={{ minHeight: 'auto' }}>
+                <ListItemIcon>
+                    <PersonAdd fontSize='small' />
+                </ListItemIcon>
+                <ListItemText>
+                    {getText('direct_menu.new')}
+                </ListItemText>
+            </MenuItem>
+        </Menu>
     );
 });
 
@@ -94,19 +107,23 @@ function DirectHeader() {
     };
 
     return (
-        <>
-            <AppBar position='static'>
-                <Toolbar>
+        <Box sx={{ flexGrow: 0 }}>
+            <AppBar color='inherit' enableColorOnDark position='static'>
+                <Toolbar style={{ paddingLeft: 24, paddingRight: 12 }} variant='regular'>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         {getText('direct_menu.title')}
                     </Typography>
-                    <IconButton onClick={handleOpenMenu}>
-                        <Icon size={1} path={mdiDotsVertical} />
+                    <IconButton
+                        size='large'
+                        color='inherit'
+                        onClick={handleOpenMenu}
+                    >
+                        <MoreVert />
                     </IconButton>
+                    <DirectMenu anchorEl={menuAnchor} open={!!menuAnchor} requestClose={() => setMenuAnchor(null)} />
                 </Toolbar>
             </AppBar>
-            <DirectMenu anchorEl={menuAnchor} open={!!menuAnchor} requestClose={() => setMenuAnchor(null)} />
-        </>
+        </Box>
     );
 }
 
@@ -172,70 +189,41 @@ export function Direct() {
     return (
         <PageNav>
             <DirectHeader />
-            {!noRoomToDisplay ? (
+            {noRoomToDisplay ? (
                 <DirectEmpty />
             ) : (
                 <PageNavContent scrollRef={scrollRef}>
                     <Box display="flex" flexDirection="column" gap={3}>
-                        {screenSize !== ScreenSize.Mobile && (
-                            <NavCategory>
-                                <NavItem>
-                                    <NavButton onClick={() => openInviteUser()}>
-                                        <NavItemContent>
-                                            <Box display="flex" alignItems="center" gap={2}>
-                                                <Avatar>
-                                                    <Icon size={1} path={mdiPlusCircleOutline} />
-                                                </Avatar>
-                                                <Typography variant="body1">
-                                                    {getText('direct_menu.new')}
-                                                </Typography>
-                                            </Box>
-                                        </NavItemContent>
-                                    </NavButton>
-                                </NavItem>
-                            </NavCategory>
-                        )}
-                        <NavCategory>
-                            <NavCategoryHeader>
-                                <RoomNavCategoryButton
-                                    closed={closedCategories.has(DEFAULT_CATEGORY_ID)}
-                                    data-category-id={DEFAULT_CATEGORY_ID}
-                                    onClick={handleCategoryClick}
-                                >
-                                    {getText('direct_menu.chats')}
-                                </RoomNavCategoryButton>
-                            </NavCategoryHeader>
-                            <div
-                                style={{
-                                    position: 'relative',
-                                    height: virtualizer.getTotalSize(),
-                                }}
-                            >
-                                {virtualizer.getVirtualItems().map((vItem) => {
-                                    const roomId = sortedDirects[vItem.index];
-                                    const room = mx.getRoom(roomId);
-                                    if (!room) return null;
-                                    const selected = selectedRoomId === roomId;
+                        <div
+                            style={{
+                                position: 'relative',
+                                height: virtualizer.getTotalSize(),
+                            }}
+                        >
+                            {virtualizer.getVirtualItems().map((vItem) => {
+                                const roomId = sortedDirects[vItem.index];
+                                const room = mx.getRoom(roomId);
+                                if (!room) return null;
+                                const selected = selectedRoomId === roomId;
 
-                                    return (
-                                        <VirtualTile
-                                            virtualItem={vItem}
-                                            key={vItem.index}
-                                            ref={virtualizer.measureElement}
-                                        >
-                                            <RoomNavItem
-                                                room={room}
-                                                selected={selected}
-                                                showAvatar
-                                                direct
-                                                linkPath={getDirectRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
-                                                muted={mutedRooms.includes(roomId)}
-                                            />
-                                        </VirtualTile>
-                                    );
-                                })}
-                            </div>
-                        </NavCategory>
+                                return (
+                                    <VirtualTile
+                                        virtualItem={vItem}
+                                        key={vItem.index}
+                                        ref={virtualizer.measureElement}
+                                    >
+                                        <RoomNavItem
+                                            room={room}
+                                            selected={selected}
+                                            showAvatar
+                                            direct
+                                            linkPath={getDirectRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
+                                            muted={mutedRooms.includes(roomId)}
+                                        />
+                                    </VirtualTile>
+                                );
+                            })}
+                        </div>
                     </Box>
                 </PageNavContent>
             )}

@@ -43,6 +43,7 @@ import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccountPlus, mdiArrowLeft, mdiBellCancel, mdiCheckAll, mdiCog, mdiDotsVertical, mdiLinkVariant } from '@mdi/js';
 import cons from '../../../client/state/cons';
+import { Time } from '../../components/message';
 
 type RoomNavItemMenuProps = {
     room: Room;
@@ -256,7 +257,7 @@ export function RoomNavItem({
             <NavLink to={linkPath}>
                 <NavItemContent>
                     <Box as="span" style={{ marginTop: '5px', marginBottom: '5px' }} grow="Yes" alignItems="Center" gap="200">
-                        <Avatar style={avStyle} size="300" radii="400">
+                        <Avatar style={avStyle} size="400" radii="400">
                             {showAvatar ? (
                                 <RoomAvatar
                                     roomId={room.roomId}
@@ -279,23 +280,33 @@ export function RoomNavItem({
                             )}
                         </Avatar>
                         <Box as="span" grow="Yes" direction='Column'>
-                            <Text priority={unread ? '500' : '300'} as="span" size="Inherit" truncate>
-                                {room.name}
-                            </Text>
-                            <Text priority={unread ? '500' : '300'} as="span" size="B300" truncate>
-                                {lastMessage}
-                            </Text>
+                            <Box as="span" grow="Yes" direction='Row' justifyContent='SpaceBetween'>
+                                <Text priority={unread ? '500' : '300'} as="span" size="Inherit" truncate>
+                                    {room.name}
+                                </Text>
+                                {lastEvent && (
+                                    <Text priority={unread ? '500' : '300'} as="span" size="Inherit" truncate>
+                                        <Time ts={lastEvent.localTimestamp} compact />
+                                    </Text>
+                                )}
+                            </Box>
+                            <Box as="span" grow="Yes" direction='Row' justifyContent='SpaceBetween'>
+                                <Text priority={unread ? '500' : '300'} as="span" size="B300" truncate>
+                                    {lastMessage}
+                                </Text>
+                                {!optionsVisible && !unread && !selected && typingMember.length > 0 && (
+                                    <Badge size="300" variant="Secondary" fill="Soft" radii="Pill" outlined>
+                                        <TypingIndicator size="300" disableAnimation />
+                                    </Badge>
+                                )}
+                                {!optionsVisible && unread && (
+                                    <UnreadBadgeCenter>
+                                        <UnreadBadge highlight={unread.highlight > 0} count={unread.total} />
+                                    </UnreadBadgeCenter>
+                                )}
+                            </Box>
+
                         </Box>
-                        {!optionsVisible && !unread && !selected && typingMember.length > 0 && (
-                            <Badge size="300" variant="Secondary" fill="Soft" radii="Pill" outlined>
-                                <TypingIndicator size="300" disableAnimation />
-                            </Badge>
-                        )}
-                        {!optionsVisible && unread && (
-                            <UnreadBadgeCenter>
-                                <UnreadBadge highlight={unread.highlight > 0} count={unread.total} />
-                            </UnreadBadgeCenter>
-                        )}
                         {muted && !optionsVisible && (
                             <IconButton
                                 variant="Background"

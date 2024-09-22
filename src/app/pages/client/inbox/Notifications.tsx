@@ -69,7 +69,7 @@ import { UserAvatar } from '../../../components/user-avatar';
 import { EncryptedContent } from '../../../features/room/message';
 import { getText, translate } from '../../../../lang';
 import { mdiAccount, mdiCheck, mdiCheckAll, mdiChevronUp, mdiMessage } from '@mdi/js';
-import { Button, Chip, IconButton } from '@mui/material';
+import { Button, Chip, Fab, IconButton } from '@mui/material';
 import { Check, DoneAll, KeyboardArrowUp } from '@mui/icons-material';
 
 type RoomNotificationsGroup = {
@@ -585,15 +585,9 @@ export function Notifications() {
                                     anchorRef={scrollTopAnchorRef}
                                     onVisibilityChange={handleScrollTopVisibility}
                                 >
-                                    <Button
-                                        onClick={() => virtualizer.scrollToOffset(0)}
-                                        color='info'
-                                        variant='contained'
-                                        aria-label={getText('scroll_to_top')}
-                                        endIcon={<KeyboardArrowUp />}
-                                    >
-                                        {getText('scroll_to_top')}
-                                    </Button>
+                                    <Fab size='small' onClick={() => virtualizer.scrollToOffset(0)} aria-label={getText('scroll_to_top')}>
+                                        <KeyboardArrowUp />
+                                    </Fab>
                                 </ScrollTopContainer>
                                 <div
                                     style={{

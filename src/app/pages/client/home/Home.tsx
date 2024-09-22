@@ -7,12 +7,14 @@ import {
     IconButton,
     Menu,
     MenuItem,
-    PopOut,
-    RectCords,
-    Text,
-    config,
-    toRem,
-} from 'folds';
+    Popover,
+    Typography,
+    Divider,
+    AppBar,
+    Toolbar,
+    ListItemIcon,
+    ListItemText,
+} from '@mui/material';
 import Icon, { Icon as MDIcon } from '@mdi/react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useAtom, useAtomValue } from 'jotai';
@@ -48,15 +50,18 @@ import { markAsRead } from '../../../../client/action/notifications';
 import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCategories';
 import { getText } from '../../../../lang';
 import { isHidden } from '../../../state/hooks/roomList';
-import { mdiAccountPlus, mdiCheckAll, mdiDotsVertical, mdiLinkVariant, mdiMagnify, mdiPencil, mdiPlus, mdiPlusCircle, mdiPlusCircleOutline, mdiPound, mdiPoundBoxOutline } from '@mdi/js';
-import { Fab } from '@mui/material';
+import { mdiPound } from '@mdi/js';
 import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
 import FAB from '../../../components/fab/FAB';
+import { Add, ArrowForward, ArrowRight, DoneAll, KeyboardArrowRight, MoreVert, Menu as MenuIcon, MenuOpen } from '@mui/icons-material';
+import { useNavHidden } from '../../../hooks/useHideableNav';
 
 type HomeMenuProps = {
     requestClose: () => void;
+    anchorEl: HTMLElement | null;
 };
-const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ requestClose }, ref) => {
+
+const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ anchorEl, requestClose }, ref) => {
     const orphanRooms = useHomeRooms();
     const unread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
 
@@ -66,73 +71,85 @@ const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ requestClose }, re
         requestClose();
     };
 
+    const handleNewRoom = () => {
+        openCreateRoom();
+        requestClose();
+    };
+
+    const handleJoin = () => {
+        openJoinAlias();
+        requestClose();
+    };
+
     return (
-        <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
-            <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                <MenuItem
-                    onClick={handleMarkAsRead}
-                    size="300"
-                    after={<MDIcon size={1} path={mdiCheckAll} />}
-                    radii="300"
-                    aria-disabled={!unread}
-                >
-                    <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                        {getText('chats.mark_as_read')}
-                    </Text>
-                </MenuItem>
-            </Box>
+        <Menu anchorEl={anchorEl} onClose={requestClose} open={!!anchorEl} ref={ref}>
+            <MenuItem
+                onClick={handleMarkAsRead}
+                disabled={!unread}
+                style={{ minHeight: 'auto' }}
+            >
+                <ListItemIcon>
+                    <DoneAll fontSize='small' />
+                </ListItemIcon>
+                <ListItemText>{getText('chats.mark_as_read')}</ListItemText>
+            </MenuItem>
+            <MenuItem
+                onClick={handleNewRoom}
+                disabled={!unread}
+                style={{ minHeight: 'auto' }}
+            >
+                <ListItemIcon>
+                    <Add fontSize='small' />
+                </ListItemIcon>
+                <ListItemText>{getText('home.new_room')}</ListItemText>
+            </MenuItem>
+            <MenuItem
+                onClick={handleJoin}
+                disabled={!unread}
+                style={{ minHeight: 'auto' }}
+            >
+                <ListItemIcon>
+                    <ArrowForward fontSize='small' />
+                </ListItemIcon>
+                <ListItemText>{getText('home.join_via_address')}</ListItemText>
+            </MenuItem>
         </Menu>
     );
 });
 
 function HomeHeader() {
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
+    const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+    const [navHidden, setNavHidden] = useNavHidden();
 
     const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        const cords = evt.currentTarget.getBoundingClientRect();
-        setMenuAnchor((currentState) => {
-            if (currentState) return undefined;
-            return cords;
-        });
+        setMenuAnchor((currentState) => (currentState ? null : evt.currentTarget));
     };
 
     return (
-        <>
-            <PageNavHeader>
-                <Box alignItems="Center" grow="Yes" gap="300">
-                    <Box grow="Yes">
-                        <Text size="H4" truncate>
-                            {getText('home.title')}
-                        </Text>
-                    </Box>
-                    <Box>
-                        <IconButton aria-pressed={!!menuAnchor} variant="Background" onClick={handleOpenMenu}>
-                            <MDIcon size={1} path={mdiDotsVertical} />
-                        </IconButton>
-                    </Box>
-                </Box>
-            </PageNavHeader>
-            <PopOut
-                anchor={menuAnchor}
-                position="Bottom"
-                align="End"
-                offset={6}
-                content={
-                    <FocusTrap
-                        focusTrapOptions={{
-                            initialFocus: false,
-                            returnFocusOnDeactivate: false,
-                            onDeactivate: () => setMenuAnchor(undefined),
-                            clickOutsideDeactivates: true,
-                            isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                            isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                        }}
+        <Box sx={{ flexGrow: 0 }}>
+            <AppBar color='inherit' enableColorOnDark position='static'>
+                <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
+                    <IconButton
+                        size='large'
+                        color='inherit'
+                        onClick={() => setNavHidden(!navHidden)}
                     >
-                        <HomeMenu requestClose={() => setMenuAnchor(undefined)} />
-                    </FocusTrap>
-                }
-            />
-        </>
+                        {navHidden ? <MenuIcon /> : <MenuOpen />}
+                    </IconButton>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                        {getText('home.title')}
+                    </Typography>
+                    <IconButton
+                        size='large'
+                        color='inherit'
+                        onClick={handleOpenMenu}
+                    >
+                        <MoreVert />
+                    </IconButton>
+                    <HomeMenu anchorEl={menuAnchor} requestClose={() => setMenuAnchor(null)} />
+                </Toolbar>
+            </AppBar>
+        </Box>
     );
 }
 
@@ -144,31 +161,26 @@ function HomeEmpty() {
             <NavEmptyLayout
                 icon={<MDIcon size={1} path={mdiPound} />}
                 title={
-                    <Text size="H5" align="Center">
+                    <Typography variant="h5" align="center">
                         {getText('home.empty')}
-                    </Text>
+                    </Typography>
                 }
                 content={
-                    <Text size="T300" align="Center">
+                    <Typography variant="body2" align="center">
                         {getText('home.empty.2')}
-                    </Text>
+                    </Typography>
                 }
                 options={
                     <>
-                        <Button onClick={() => openCreateRoom()} variant="Secondary" size="300">
-                            <Text size="B300" truncate>
-                                {getText('home.empty.new')}
-                            </Text>
+                        <Button onClick={() => openCreateRoom()} variant="contained" size="small">
+                            {getText('home.empty.new')}
                         </Button>
                         <Button
                             onClick={() => navigate(getExplorePath())}
-                            variant="Secondary"
-                            fill="Soft"
-                            size="300"
+                            variant="outlined"
+                            size="small"
                         >
-                            <Text size="B300" truncate>
-                                {getText('home.empty.explore')}
-                            </Text>
+                            {getText('home.empty.explore')}
                         </Button>
                     </>
                 }
@@ -178,6 +190,7 @@ function HomeEmpty() {
 }
 
 const DEFAULT_CATEGORY_ID = makeNavCategoryId('home', 'room');
+
 export function Home() {
     const mx = useMatrixClient();
     const screenSize = useScreenSize();
@@ -223,100 +236,37 @@ export function Home() {
                 <HomeEmpty />
             ) : (
                 <PageNavContent scrollRef={scrollRef}>
-                    <Box direction="Column" gap="300">
-                        {screenSize !== ScreenSize.Mobile && (
-                            <NavCategory>
-                                <NavItem variant="Background" radii="400">
-                                    <NavButton onClick={() => openCreateRoom()}>
-                                        <NavItemContent>
-                                            <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                                                <Avatar size="200" radii="400">
-                                                    <MDIcon size={1} path={mdiPlusCircleOutline} />
-                                                </Avatar>
-                                                <Box as="span" grow="Yes">
-                                                    <Text as="span" size="Inherit">
-                                                        {getText('home.new_room')}
-                                                    </Text>
-                                                </Box>
-                                            </Box>
-                                        </NavItemContent>
-                                    </NavButton>
-                                </NavItem>
-                                <NavItem variant="Background" radii="400">
-                                    <NavButton onClick={() => openJoinAlias()}>
-                                        <NavItemContent>
-                                            <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                                                <Avatar size="200" radii="400">
-                                                    <MDIcon size={1} path={mdiLinkVariant} />
-                                                </Avatar>
-                                                <Box as="span" grow="Yes">
-                                                    <Text as="span" size="Inherit">
-                                                        {getText('home.join_via_address')}
-                                                    </Text>
-                                                </Box>
-                                            </Box>
-                                        </NavItemContent>
-                                    </NavButton>
-                                </NavItem>
-                                <NavItem variant="Background" radii="400" aria-selected={searchSelected}>
-                                    <NavLink to={getHomeSearchPath()}>
-                                        <NavItemContent>
-                                            <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                                                <Avatar size="200" radii="400">
-                                                    <MDIcon size={1} path={mdiMagnify} />
-                                                </Avatar>
-                                                <Box as="span" grow="Yes">
-                                                    <Text as="span" size="Inherit">
-                                                        {getText('home.search_messages')}
-                                                    </Text>
-                                                </Box>
-                                            </Box>
-                                        </NavItemContent>
-                                    </NavLink>
-                                </NavItem>
-                            </NavCategory>
-                        )}
-                        <NavCategory>
-                            <NavCategoryHeader>
-                                <RoomNavCategoryButton
-                                    closed={closedCategories.has(DEFAULT_CATEGORY_ID)}
-                                    data-category-id={DEFAULT_CATEGORY_ID}
-                                    onClick={handleCategoryClick}
-                                >
-                                    {getText('home.rooms')}
-                                </RoomNavCategoryButton>
-                            </NavCategoryHeader>
-                            <div
-                                style={{
-                                    position: 'relative',
-                                    height: virtualizer.getTotalSize(),
-                                }}
-                            >
-                                {virtualizer.getVirtualItems()
-                                    .map((vItem) => {
-                                        const roomId = sortedRooms[vItem.index];
-                                        const room = mx.getRoom(roomId);
-                                        if (!room) return null;
-                                        const selected = selectedRoomId === roomId;
+                    <Box display="flex" flexDirection="column" gap={2}>
+                        <div
+                            style={{
+                                position: 'relative',
+                                height: virtualizer.getTotalSize(),
+                            }}
+                        >
+                            {virtualizer.getVirtualItems()
+                                .map((vItem) => {
+                                    const roomId = sortedRooms[vItem.index];
+                                    const room = mx.getRoom(roomId);
+                                    if (!room) return null;
+                                    const selected = selectedRoomId === roomId;
 
-                                        return (
-                                            <VirtualTile
-                                                virtualItem={vItem}
-                                                key={vItem.index}
-                                                ref={virtualizer.measureElement}
-                                            >
-                                                <RoomNavItem
-                                                    room={room}
-                                                    selected={selected}
-                                                    showAvatar={true}
-                                                    linkPath={getHomeRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
-                                                    muted={mutedRooms.includes(roomId)}
-                                                />
-                                            </VirtualTile>
-                                        );
-                                    })}
-                            </div>
-                        </NavCategory>
+                                    return (
+                                        <VirtualTile
+                                            virtualItem={vItem}
+                                            key={vItem.index}
+                                            ref={virtualizer.measureElement}
+                                        >
+                                            <RoomNavItem
+                                                room={room}
+                                                selected={selected}
+                                                showAvatar={true}
+                                                linkPath={getHomeRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
+                                                muted={mutedRooms.includes(roomId)}
+                                            />
+                                        </VirtualTile>
+                                    );
+                                })}
+                        </div>
                     </Box>
                 </PageNavContent>
             )}

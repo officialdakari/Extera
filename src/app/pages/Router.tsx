@@ -57,6 +57,8 @@ import { MobileFriendlyPageNav, MobileFriendlyClientNav } from './MobileFriendly
 import { ClientInitStorageAtom } from './client/ClientInitStorageAtom';
 import { ClientNonUIFeatures } from './client/ClientNonUIFeatures';
 import AnimatedLayout from './AnimatedLayout';
+import CreateRoom from '../organisms/create-room/CreateRoom';
+import { useNavHidden } from '../hooks/useHideableNav';
 
 export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize) => {
     const { hashRouter } = clientConfig;
@@ -135,7 +137,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                     }
                 >
                     {mobile ? null : <Route index element={<WelcomePage />} />}
-                    <Route path={_CREATE_PATH} element={<p>create</p>} />
+                    <Route path={_CREATE_PATH} element={<CreateRoom />} />
                     <Route path={_JOIN_PATH} element={<p>join</p>} />
                     <Route path={_SEARCH_PATH} element={<HomeSearch />} />
                     <Route
