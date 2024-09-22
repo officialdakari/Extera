@@ -52,7 +52,7 @@
         "formik": "2.4.6",
         "framer-motion": "11.5.6",
         "html-dom-parser": "4.0.0",
-        "html-react-parser": "4.2.0",
+        "html-react-parser": "5.1.16",
         "immer": "9.0.16",
         "is-hotkey": "0.2.0",
         "jotai": "2.6.0",
