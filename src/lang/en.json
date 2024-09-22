@@ -949,5 +949,6 @@
     "syncing": "Syncing...",
     "settings.ignore_policies.title": "Use ignore policies",
     "settings.ignore_policies.desc": "Use ignore policies instead of ignoring users",
-    "msg_menu.cancel": "Cancel"
+    "msg_menu.cancel": "Cancel",
+    "btn.open_location": "View on map"
 }

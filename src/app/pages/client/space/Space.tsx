@@ -22,7 +22,7 @@ import {
 } from 'folds';
 import { Icon as MDIcon } from '@mdi/react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { IJoinRuleEventContent, JoinRule, Room } from 'matrix-js-sdk';
+import { JoinRule, Room } from 'matrix-js-sdk';
 import FocusTrap from 'focus-trap-react';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { mDirectAtom } from '../../../state/mDirectList';
@@ -74,6 +74,7 @@ import { useStateEvent } from '../../../hooks/useStateEvent';
 import { StateEvent } from '../../../../types/matrix/room';
 import { getText } from '../../../../lang';
 import { mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiCog, mdiDotsVertical, mdiFlag, mdiFlagOutline, mdiLink, mdiLock, mdiMagnify } from '@mdi/js';
+import { RoomJoinRulesEventContent } from 'matrix-js-sdk/lib/types';
 
 type SpaceMenuProps = {
     room: Room;
@@ -207,7 +208,7 @@ function SpaceHeader() {
     const joinRules = useStateEvent(
         space,
         StateEvent.RoomJoinRules
-    )?.getContent<IJoinRuleEventContent>();
+    )?.getContent<RoomJoinRulesEventContent>();
 
     const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
         const cords = evt.currentTarget.getBoundingClientRect();

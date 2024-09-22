@@ -6,7 +6,10 @@ import {
     createHashRouter,
     createRoutesFromElements,
     redirect,
+    useLocation,
 } from 'react-router-dom';
+
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 import { ClientConfig } from '../hooks/useClientConfig';
 import { AuthLayout, Login, Register, ResetPassword } from './auth';
@@ -55,6 +58,15 @@ import { ScreenSize } from '../hooks/useScreenSize';
 import { MobileFriendlyPageNav, MobileFriendlyClientNav } from './MobileFriendly';
 import { ClientInitStorageAtom } from './client/ClientInitStorageAtom';
 import { ClientNonUIFeatures } from './client/ClientNonUIFeatures';
+
+const routeVariants: Variants = {
+    initial: {
+        translateX: '30%'
+    },
+    final: {
+        translateX: '0%',
+    },
+};
 
 export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize) => {
     const { hashRouter } = clientConfig;
@@ -124,7 +136,9 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                         <PageRoot
                             nav={
                                 <MobileFriendlyPageNav path={HOME_PATH}>
-                                    <Home />
+                                    <motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants} layoutScroll>
+                                        <Home />
+                                    </motion.div>
                                 </MobileFriendlyPageNav>
                             }
                         >
@@ -140,7 +154,9 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                         path={_ROOM_PATH}
                         element={
                             <HomeRouteRoomProvider>
-                                <Room />
+                                <motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants} layoutScroll>
+                                    <Room />
+                                </motion.div>
                             </HomeRouteRoomProvider>
                         }
                     />
@@ -151,7 +167,9 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                         <PageRoot
                             nav={
                                 <MobileFriendlyPageNav path={DIRECT_PATH}>
-                                    <Direct />
+                                    <motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants} layoutScroll>
+                                        <Direct />
+                                    </motion.div>
                                 </MobileFriendlyPageNav>
                             }
                         >
@@ -165,7 +183,9 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                         path={_ROOM_PATH}
                         element={
                             <DirectRouteRoomProvider>
-                                <Room />
+                                <motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants}>
+                                    <Room />
+                                </motion.div>
                             </DirectRouteRoomProvider>
                         }
                     />
@@ -177,7 +197,9 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                             <PageRoot
                                 nav={
                                     <MobileFriendlyPageNav path={SPACE_PATH}>
-                                        <Space />
+                                        <motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants}>
+                                            <Space />
+                                        </motion.div>
                                     </MobileFriendlyPageNav>
                                 }
                             >
@@ -196,7 +218,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                                 }
                                 return null;
                             }}
-                            element={<WelcomePage />}
+                            element={<motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants}><WelcomePage /></motion.div>}
                         />
                     )}
                     <Route path={_LOBBY_PATH} element={<Lobby />} />
@@ -205,7 +227,9 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                         path={_ROOM_PATH}
                         element={
                             <SpaceRouteRoomProvider>
-                                <Room />
+                                <motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants}>
+                                    <Room />
+                                </motion.div>
                             </SpaceRouteRoomProvider>
                         }
                     />
@@ -216,7 +240,9 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                         <PageRoot
                             nav={
                                 <MobileFriendlyPageNav path={EXPLORE_PATH}>
-                                    <Explore />
+                                    <motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants}>
+                                        <Explore />
+                                    </motion.div>
                                 </MobileFriendlyPageNav>
                             }
                         >
@@ -228,11 +254,11 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                         <Route
                             index
                             loader={() => redirect(getExploreFeaturedPath())}
-                            element={<WelcomePage />}
+                            element={<motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants}><WelcomePage /></motion.div>}
                         />
                     )}
-                    <Route path={_FEATURED_PATH} element={<FeaturedRooms />} />
-                    <Route path={_SERVER_PATH} element={<PublicRooms />} />
+                    <Route path={_FEATURED_PATH} element={<motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants}><FeaturedRooms /></motion.div>} />
+                    <Route path={_SERVER_PATH} element={<motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants}><PublicRooms /></motion.div>} />
                 </Route>
                 <Route
                     path={INBOX_PATH}
@@ -240,7 +266,9 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                         <PageRoot
                             nav={
                                 <MobileFriendlyPageNav path={INBOX_PATH}>
-                                    <Inbox />
+                                    <motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants}>
+                                        <Inbox />
+                                    </motion.div>
                                 </MobileFriendlyPageNav>
                             }
                         >
@@ -252,11 +280,11 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                         <Route
                             index
                             loader={() => redirect(getInboxNotificationsPath())}
-                            element={<WelcomePage />}
+                            element={<motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants}><WelcomePage /></motion.div>}
                         />
                     )}
-                    <Route path={_NOTIFICATIONS_PATH} element={<Notifications />} />
-                    <Route path={_INVITES_PATH} element={<Invites />} />
+                    <Route path={_NOTIFICATIONS_PATH} element={<motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants}><Notifications /></motion.div>} />
+                    <Route path={_INVITES_PATH} element={<motion.div initial="initial" animate='final' style={{ display: 'flex', width: '100%' }} variants={routeVariants}><Invites /></motion.div>} />
                 </Route>
             </Route>
             <Route path="/*" element={<p>Page not found</p>} />

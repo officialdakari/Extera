@@ -10,6 +10,7 @@ import { ConfigConfigError, ConfigConfigLoading } from './ConfigConfig';
 import { FeatureCheck } from './FeatureCheck';
 import { createRouter } from './Router';
 import { ScreenSizeProvider, useScreenSize } from '../hooks/useScreenSize';
+import LocationProvider from '../utils/LocationProvider';
 
 const queryClient = new QueryClient();
 
@@ -29,7 +30,9 @@ function App() {
                         <ClientConfigProvider value={clientConfig}>
                             <QueryClientProvider client={queryClient}>
                                 <JotaiProvider>
-                                    <RouterProvider router={createRouter(clientConfig, screenSize)} />
+                                    <LocationProvider>
+                                        <RouterProvider router={createRouter(clientConfig, screenSize)} />
+                                    </LocationProvider>
                                 </JotaiProvider>
                                 <ReactQueryDevtools initialIsOpen={false} />
                             </QueryClientProvider>
