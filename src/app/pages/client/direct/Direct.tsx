@@ -1,18 +1,21 @@
 import React, { MouseEventHandler, forwardRef, useMemo, useRef, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import {
+    AppBar,
     Avatar,
     Box,
     Button,
     IconButton,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
     Menu,
     MenuItem,
-    PopOut,
-    RectCords,
-    Text,
-    config,
-    toRem,
-} from 'folds';
+    Paper,
+    Popper,
+    Toolbar,
+    Typography,
+} from '@mui/material';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import FocusTrap from 'focus-trap-react';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
@@ -48,11 +51,16 @@ import Icon from '@mdi/react';
 import { mdiAccountPlus, mdiAt, mdiCheckAll, mdiDotsVertical, mdiPencil, mdiPlus, mdiPlusCircleOutline } from '@mdi/js';
 import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
 import { Fab } from '@mui/material';
+import { DoneAll } from '@mui/icons-material';
+import FAB from '../../../components/fab/FAB';
 
 type DirectMenuProps = {
     requestClose: () => void;
+    open: boolean;
+    anchorEl: null | HTMLElement;
 };
-const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ requestClose }, ref) => {
+
+const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ open, anchorEl, requestClose }, ref) => {
     const orphanRooms = useDirectRooms();
     const unread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
 
@@ -63,71 +71,41 @@ const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ requestClose }
     };
 
     return (
-        <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
-            <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                <MenuItem
-                    onClick={handleMarkAsRead}
-                    size="300"
-                    after={<Icon size={1} path={mdiCheckAll} />}
-                    radii="300"
-                    aria-disabled={!unread}
-                >
-                    <Text style={{ flexGrow: 1 }} as="span" size="T300">
+        <Paper sx={{ width: 320, maxWidth: '100%' }}>
+            <Menu anchorEl={anchorEl} open={open} onClose={requestClose} ref={ref}>
+                <MenuItem onClick={handleMarkAsRead} disabled={!unread}>
+                    <ListItemIcon>
+                        <DoneAll />
+                    </ListItemIcon>
+                    <ListItemText>
                         {getText('chats.mark_as_read')}
-                    </Text>
+                    </ListItemText>
                 </MenuItem>
-            </Box>
-        </Menu>
+            </Menu>
+        </Paper>
     );
 });
 
 function DirectHeader() {
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
+    const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
     const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        const cords = evt.currentTarget.getBoundingClientRect();
-        setMenuAnchor((currentState) => {
-            if (currentState) return undefined;
-            return cords;
-        });
+        setMenuAnchor((prev) => (prev ? null : evt.currentTarget));
     };
 
     return (
         <>
-            <PageNavHeader>
-                <Box alignItems="Center" grow="Yes" gap="300">
-                    <Box grow="Yes">
-                        <Text size="H4" truncate>
-                            {getText('direct_menu.title')}
-                        </Text>
-                    </Box>
-                    <Box>
-                        <IconButton aria-pressed={!!menuAnchor} variant="Background" onClick={handleOpenMenu}>
-                            <Icon size={1} path={mdiDotsVertical} />
-                        </IconButton>
-                    </Box>
-                </Box>
-            </PageNavHeader>
-            <PopOut
-                anchor={menuAnchor}
-                position="Bottom"
-                align="End"
-                offset={6}
-                content={
-                    <FocusTrap
-                        focusTrapOptions={{
-                            initialFocus: false,
-                            returnFocusOnDeactivate: false,
-                            onDeactivate: () => setMenuAnchor(undefined),
-                            clickOutsideDeactivates: true,
-                            isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                            isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                        }}
-                    >
-                        <DirectMenu requestClose={() => setMenuAnchor(undefined)} />
-                    </FocusTrap>
-                }
-            />
+            <AppBar position='static'>
+                <Toolbar>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                        {getText('direct_menu.title')}
+                    </Typography>
+                    <IconButton onClick={handleOpenMenu}>
+                        <Icon size={1} path={mdiDotsVertical} />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+            <DirectMenu anchorEl={menuAnchor} open={!!menuAnchor} requestClose={() => setMenuAnchor(null)} />
         </>
     );
 }
@@ -138,20 +116,18 @@ function DirectEmpty() {
             <NavEmptyLayout
                 icon={<Icon size={1} path={mdiAt} />}
                 title={
-                    <Text size="H5" align="Center">
+                    <Typography variant="h5" align="center">
                         {getText('direct_menu.empty')}
-                    </Text>
+                    </Typography>
                 }
                 content={
-                    <Text size="T300" align="Center">
+                    <Typography variant="body2" align="center">
                         {getText('direct_menu.empty.2')}
-                    </Text>
+                    </Typography>
                 }
                 options={
-                    <Button variant="Secondary" size="300" onClick={() => openInviteUser()}>
-                        <Text size="B300" truncate>
-                            {getText('direct_menu.empty.start_new')}
-                        </Text>
+                    <Button variant="contained" onClick={() => openInviteUser()}>
+                        {getText('direct_menu.empty.start_new')}
                     </Button>
                 }
             />
@@ -196,25 +172,23 @@ export function Direct() {
     return (
         <PageNav>
             <DirectHeader />
-            {noRoomToDisplay ? (
+            {!noRoomToDisplay ? (
                 <DirectEmpty />
             ) : (
                 <PageNavContent scrollRef={scrollRef}>
-                    <Box direction="Column" gap="300">
+                    <Box display="flex" flexDirection="column" gap={3}>
                         {screenSize !== ScreenSize.Mobile && (
                             <NavCategory>
-                                <NavItem variant="Background" radii="400">
+                                <NavItem>
                                     <NavButton onClick={() => openInviteUser()}>
                                         <NavItemContent>
-                                            <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                                                <Avatar size="200" radii="400">
+                                            <Box display="flex" alignItems="center" gap={2}>
+                                                <Avatar>
                                                     <Icon size={1} path={mdiPlusCircleOutline} />
                                                 </Avatar>
-                                                <Box as="span" grow="Yes">
-                                                    <Text as="span" size="Inherit" truncate>
-                                                        {getText('direct_menu.new')}
-                                                    </Text>
-                                                </Box>
+                                                <Typography variant="body1">
+                                                    {getText('direct_menu.new')}
+                                                </Typography>
                                             </Box>
                                         </NavItemContent>
                                     </NavButton>
@@ -237,41 +211,36 @@ export function Direct() {
                                     height: virtualizer.getTotalSize(),
                                 }}
                             >
-                                {virtualizer.getVirtualItems()
-                                    .map((vItem) => {
-                                        const roomId = sortedDirects[vItem.index];
-                                        const room = mx.getRoom(roomId);
-                                        if (!room) return null;
-                                        const selected = selectedRoomId === roomId;
+                                {virtualizer.getVirtualItems().map((vItem) => {
+                                    const roomId = sortedDirects[vItem.index];
+                                    const room = mx.getRoom(roomId);
+                                    if (!room) return null;
+                                    const selected = selectedRoomId === roomId;
 
-                                        return (
-                                            <VirtualTile
-                                                virtualItem={vItem}
-                                                key={vItem.index}
-                                                ref={virtualizer.measureElement}
-                                            >
-                                                <RoomNavItem
-                                                    room={room}
-                                                    selected={selected}
-                                                    showAvatar
-                                                    direct
-                                                    linkPath={getDirectRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
-                                                    muted={mutedRooms.includes(roomId)}
-                                                />
-                                            </VirtualTile>
-                                        );
-                                    })}
+                                    return (
+                                        <VirtualTile
+                                            virtualItem={vItem}
+                                            key={vItem.index}
+                                            ref={virtualizer.measureElement}
+                                        >
+                                            <RoomNavItem
+                                                room={room}
+                                                selected={selected}
+                                                showAvatar
+                                                direct
+                                                linkPath={getDirectRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
+                                                muted={mutedRooms.includes(roomId)}
+                                            />
+                                        </VirtualTile>
+                                    );
+                                })}
                             </div>
                         </NavCategory>
                     </Box>
                 </PageNavContent>
             )}
             {screenSize === ScreenSize.Mobile && (
-                <Box style={{ display: 'flex', zIndex: 50, position: 'absolute', bottom: '20px', right: '20px', width: 'inherit' }}>
-                    <Fab onClick={() => openInviteUser()} color='primary' aria-label='New chat'>
-                        <Icon path={mdiPencil} size={1} />
-                    </Fab>
-                </Box>
+                <FAB />
             )}
         </PageNav>
     );
