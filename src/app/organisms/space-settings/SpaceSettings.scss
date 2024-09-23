@@ -7,7 +7,7 @@
 
   & .room-profile {
     padding: var(--sp-loose) var(--sp-extra-loose);
-  } 
+  }
 
   & .tabs__content {
     padding: 0 var(--sp-normal);
@@ -18,15 +18,15 @@
     @include dir.side(padding, var(--sp-normal), var(--sp-extra-tight));
   }
 }
-  
+
 .space-settings__card {
-  margin: var(--sp-normal) 0;
+  margin: var(--sp-normal);
   background-color: var(--bg-surface);
   border-radius: var(--bo-radius);
   box-shadow: var(--bs-surface-border);
   overflow: hidden;
 
-  & > .context-menu__header:first-child {
+  &>.context-menu__header:first-child {
     margin-top: 2px;
   }
 }

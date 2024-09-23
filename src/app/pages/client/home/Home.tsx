@@ -95,7 +95,6 @@ const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ anchorEl, requestC
             </MenuItem>
             <MenuItem
                 onClick={handleNewRoom}
-                disabled={!unread}
                 style={{ minHeight: 'auto' }}
             >
                 <ListItemIcon>
@@ -105,7 +104,6 @@ const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ anchorEl, requestC
             </MenuItem>
             <MenuItem
                 onClick={handleJoin}
-                disabled={!unread}
                 style={{ minHeight: 'auto' }}
             >
                 <ListItemIcon>
