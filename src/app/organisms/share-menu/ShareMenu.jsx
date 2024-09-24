@@ -159,6 +159,10 @@ function ShareMenu() {
 
     useBackButton(requestClose);
 
+    useEffect(() => {
+
+    }, [mx, rooms, directs, mDirects]);
+
     return (
         <RawModal
             className="share-menu-dialog__modal dialog-modal"

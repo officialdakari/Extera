@@ -26,13 +26,11 @@ import colorMXID from '../../../util/colorMXID';
 
 import Text from '../../atoms/text/Text';
 import Chip from '../../atoms/chip/Chip';
-import IconButton from '../../atoms/button/IconButton';
 import Input from '../../atoms/input/Input';
 import Avatar from '../../atoms/avatar/Avatar';
 import { color, config, Button, IconButton as FoldsIconButton, Header, Modal, Overlay, OverlayBackdrop, OverlayCenter } from 'folds';
 import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 import PowerLevelSelector from '../../molecules/power-level-selector/PowerLevelSelector';
-import Dialog from '../../molecules/dialog/Dialog';
 
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
@@ -49,6 +47,9 @@ import Icon from '@mdi/react';
 import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import { useAccountData } from '../../hooks/useAccountData';
+import { AppBar, Dialog, DialogContent, DialogTitle, IconButton, Toolbar, Typography } from '@mui/material';
+import { Close } from '@mui/icons-material';
+import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 
 function ModerationTools({ roomId, userId }) {
     const mx = initMatrix.matrixClient;
@@ -226,7 +227,7 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
     const [ignorePolicies] = useSetting(settingsAtom, 'ignorePolicies');
     const [isUserIgnored, setIsUserIgnored] = useState(ignorePolicies ? (roomActions.isIgnored(userId) ? true : false) : initMatrix.matrixClient.isUserIgnored(userId));
     const [isAdmin, setIsAdmin] = useState(false);
-    
+
     if (ignorePolicies) {
         useAccountData(cons.IGNORE_POLICIES);
     }
@@ -439,6 +440,7 @@ function useRerenderOnProfileChange(roomId, userId) {
 
 function ProfileViewer() {
     const [isOpen, roomId, userId, closeDialog, handleAfterClose] = useToggleDialog();
+    const screenSize = useScreenSize();
     useRerenderOnProfileChange(roomId, userId);
 
     const mx = initMatrix.matrixClient;
@@ -559,14 +561,25 @@ function ProfileViewer() {
 
     return (
         <Dialog
-            className="profile-viewer__dialog"
-            isOpen={isOpen}
-            title={userId}
-            onAfterClose={handleAfterClose}
-            onRequestClose={closeDialog}
-            contentOptions={<IconButton src={mdiClose} onClick={closeDialog} tooltip="Close" />}
+            fullScreen={screenSize === ScreenSize.Mobile}
+            open={isOpen}
+            onClose={closeDialog}
         >
-            {roomId ? renderProfile() : <div />}
+            <AppBar position='relative'>
+                <Toolbar>
+                    <Typography variant='h6' component='div' flexGrow={1}>
+                        {userId}
+                    </Typography>
+                    <IconButton
+                        onClick={closeDialog}
+                    >
+                        <Close />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+            <DialogContent dividers>
+                {roomId ? renderProfile() : <div />}
+            </DialogContent>
         </Dialog>
     );
 }
