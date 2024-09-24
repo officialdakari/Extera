@@ -952,5 +952,8 @@
     "settings.ignore_policies.title": "Use ignore policies",
     "settings.ignore_policies.desc": "Use ignore policies instead of ignoring users",
     "msg_menu.cancel": "Cancel",
-    "msg_menu.retry": "Retry"
+    "msg_menu.retry": "Retry",
+    "tooltip.new_dm": "Direct message",
+    "tooltip.join_room": "Join room",
+    "tooltip.new_room": "Create room"
 }
