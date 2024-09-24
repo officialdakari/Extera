@@ -183,6 +183,7 @@ function RoomPermissions({ roomId }) {
     useRoomStateUpdate(roomId);
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(roomId);
+    if (!room) return null;
     const pLEvent = room.currentState.getStateEvents('m.room.power_levels')[0];
     const permissions = pLEvent.getContent();
     const canChangePermission = room.currentState.maySendStateEvent('m.room.power_levels', mx.getUserId());

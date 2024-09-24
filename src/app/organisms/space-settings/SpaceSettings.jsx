@@ -130,13 +130,6 @@ function SpaceSettings() {
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(roomId);
 
-    const tabs = [
-        <GeneralSettings roomId={roomId} />,
-        <RoomMembers roomId={roomId} />,
-        <RoomEmojis roomId={roomId} />,
-        <RoomPermissions roomId={roomId} />
-    ];
-
     const handleTabChange = (event, tabItem) => {
         setSelectedTab(tabItem);
     };
@@ -145,7 +138,6 @@ function SpaceSettings() {
 
     return (
         <Dialog
-
             open={isOpen}
             onClose={requestClose}
             scroll='body'
@@ -197,7 +189,18 @@ function SpaceSettings() {
                         <Box
                             sx={{ maxWidth: '100%' }}
                         >
-                            {tabs[index]}
+                            {selectedTab === 0 && (
+                                <GeneralSettings roomId={roomId} />
+                            )}
+                            {selectedTab === 1 && (
+                                <RoomMembers roomId={roomId} />
+                            )}
+                            {selectedTab === 2 && (
+                                <RoomEmojis roomId={roomId} />
+                            )}
+                            {selectedTab === 3 && (
+                                <RoomPermissions roomId={roomId} />
+                            )}
                         </Box>
                     )}
                 </div>
