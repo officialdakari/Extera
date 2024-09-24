@@ -177,7 +177,7 @@ function SpaceSettings() {
                     ))}
                 </Tabs>
             </Box>
-            {tabItems.map((tabItem, index) => (
+            {isOpen && tabItems.map((tabItem, index) => (
                 <div
                     role='tabpanel'
                     hidden={selectedTab !== index}
