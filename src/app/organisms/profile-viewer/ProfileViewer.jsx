@@ -8,13 +8,6 @@ import navigation from '../../../client/state/navigation';
 import { openReusableContextMenu } from '../../../client/action/navigation';
 import * as roomActions from '../../../client/action/room';
 
-// TODO: Define that shit globally, do not ^C ^V from RoomNavItem.tsx
-const styles = {
-    'online': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#079d16', borderRadius: '50%' },
-    'offline': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#737373', borderRadius: '50%' },
-    'unavailable': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#b9a12d', borderRadius: '50%' }
-};
-
 import {
     getUsername,
     getUsernameOfRoomMember,
@@ -24,11 +17,8 @@ import {
 import { getEventCords } from '../../../util/common';
 import colorMXID from '../../../util/colorMXID';
 
-import Text from '../../atoms/text/Text';
-import Chip from '../../atoms/chip/Chip';
-import Input from '../../atoms/input/Input';
 import Avatar from '../../atoms/avatar/Avatar';
-import { color, config, Button, IconButton as FoldsIconButton, Header, Modal, Overlay, OverlayBackdrop, OverlayCenter } from 'folds';
+import { color, config, Header, Modal, Overlay, OverlayBackdrop, OverlayCenter } from 'folds';
 import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 import PowerLevelSelector from '../../molecules/power-level-selector/PowerLevelSelector';
 
@@ -47,9 +37,21 @@ import Icon from '@mdi/react';
 import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import { useAccountData } from '../../hooks/useAccountData';
-import { AppBar, Dialog, DialogContent, DialogTitle, IconButton, Toolbar, Typography } from '@mui/material';
-import { Close } from '@mui/icons-material';
+import { Accordion, AccordionDetails, AccordionSummary, AppBar, Button, ButtonGroup, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, TextField, Toolbar, Typography, useTheme } from '@mui/material';
+import { AddCircleOutline, BlockOutlined, Check, Close, ExpandMore, KeyboardArrowDown, MessageOutlined, PersonAddDisabledOutlined, PersonAddOutlined, PersonOff, PersonRemoveOutlined } from '@mui/icons-material';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
+import styled from '@emotion/styled';
+import { LoadingButton } from '@mui/lab';
+
+const StyledToolbar = styled(Toolbar)(({ theme }) => ({
+    alignItems: 'flex-start',
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(2),
+    // Override media queries injected by theme.mixins.toolbar
+    '@media all': {
+        minHeight: 128,
+    },
+}));
 
 function ModerationTools({ roomId, userId }) {
     const mx = initMatrix.matrixClient;
@@ -57,6 +59,7 @@ function ModerationTools({ roomId, userId }) {
     const roomMember = room.getMember(userId);
     const [open, setOpen] = useState(false);
     const [ban, setBan] = useState(false);
+    const theme = useTheme();
 
     const myPowerLevel = room.getMember(mx.getUserId())?.powerLevel || 0;
     const powerLevel = roomMember?.powerLevel || 0;
@@ -97,58 +100,54 @@ function ModerationTools({ roomId, userId }) {
 
     return (
         <>
-            <Overlay open={open} backdrop={<OverlayBackdrop />}>
-                <OverlayCenter>
-                    <Modal variant="Surface" size='300' flexHeight>
-                        <Header
-                            style={{
-                                padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
-                                borderBottomWidth: config.borderWidth.B300,
-                            }}
-                            variant="Surface"
-                            size="500"
-                        >
-                            <Box grow="Yes">
-                                <Text size="H4">
-                                    {
-                                        translate(
-                                            ban ? 'title.ban' : 'title.kick',
-                                            <b>{roomMember?.rawDisplayName ?? userId}</b>
-                                        )
-                                    }
-                                </Text>
-                            </Box>
-                            <FoldsIconButton size="300" onClick={handleClose} radii="300">
-                                <Icon size={1} path={mdiClose} />
-                            </FoldsIconButton>
-                        </Header>
-                        <Box
-                            as="form"
-                            style={{ padding: config.space.S400 }}
-                            direction="Column"
-                            gap="400"
-                            onSubmit={handleSubmit}
-                        >
-                            <Box direction="Column" gap="100">
-                                <Input name="reason" placeholder={getText(ban ? 'label.profile_viewer.ban_reason' : 'label.profile_viewer.kick_reason')} variant="Secondary" autoComplete='off' />
-                            </Box>
-                            <Button
-                                type="submit"
-                                variant="Critical"
-                            >
-                                {getText(ban ? 'btn.profile_viewer.ban' : 'btn.profile_viewer.kick')}
-                            </Button>
-                        </Box>
-                    </Modal>
-                </OverlayCenter>
-            </Overlay>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: handleSubmit
+                }}
+            >
+                <DialogTitle>
+                    {
+                        translate(
+                            ban ? 'title.ban' : 'title.kick',
+                            <b>{roomMember?.rawDisplayName ?? userId}</b>
+                        )
+                    }
+                </DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label={getText(ban ? 'label.profile_viewer.ban_reason' : 'label.profile_viewer.kick_reason')}
+                        autoFocus
+                        required
+                        name='reason'
+                        fullWidth
+                        variant='outlined'
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>{getText('btn.cancel')}</Button>
+                    <Button type='submit'>{getText(ban ? 'btn.profile_viewer.ban' : 'btn.profile_viewer.kick')}</Button>
+                </DialogActions>
+            </Dialog>
             {canIKick && (
-                <Button onClick={handleKick} variant='Critical' fill='None' before={<Icon size={1} path={mdiAccountMinusOutline} />}>
+                <Button
+                    onClick={handleKick}
+                    color='error'
+                    startIcon={<PersonRemoveOutlined />}
+                    sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
+                >
                     {getText('btn.profile_viewer.kick')}
                 </Button>
             )}
             {canIBan && (
-                <Button onClick={handleBan} variant='Critical' fill='None' before={<Icon size={1} path={mdiAccountCancelOutline} />}>
+                <Button
+                    onClick={handleBan}
+                    color='error'
+                    startIcon={<PersonOff />}
+                    sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
+                >
                     {getText('btn.profile_viewer.ban')}
                 </Button>
             )}
@@ -162,7 +161,6 @@ ModerationTools.propTypes = {
 
 function SessionInfo({ userId }) {
     const [devices, setDevices] = useState(null);
-    const [isVisible, setIsVisible] = useState(false);
     const mx = initMatrix.matrixClient;
 
     useEffect(() => {
@@ -187,33 +185,35 @@ function SessionInfo({ userId }) {
     }, [userId]);
 
     function renderSessionChips() {
-        if (!isVisible) return null;
         return (
-            <div className="session-info__chips">
-                {devices === null && <Text variant="b2">{getText('session_info.loading')}</Text>}
-                {devices?.length === 0 && <Text variant="b2">{getText('session_info.none')}</Text>}
+            <>
+                {devices === null && <Typography variant='subtitle1'>{getText('session_info.loading')}</Typography>}
+                {devices?.length === 0 && <Typography variant='subtitle1'>{getText('session_info.none')}</Typography>}
                 {devices !== null &&
                     devices.map((device) => (
-                        <Chip
-                            key={device.deviceId}
-                            iconSrc={mdiShieldOutline}
-                            text={device.getDisplayName() || device.deviceId}
-                        />
+                        <ListItem key={device.deviceId}>
+                            <ListItemText sx={{ userSelect: 'text' }}>
+                                {device.getDisplayName() || device.deviceId}
+                            </ListItemText>
+                        </ListItem>
                     ))}
-            </div>
+            </>
         );
     }
 
     return (
-        <div className="session-info" style={{ borderColor: color.Surface.ContainerLine }}>
-            <MenuItem
-                onClick={() => setIsVisible(!isVisible)}
-                iconSrc={isVisible ? mdiChevronDown : mdiChevronRight}
+        <Accordion>
+            <AccordionSummary
+                expandIcon={<ExpandMore />}
             >
-                <Text variant="b2">{getText('session_info.item', devices?.length ?? 0)}</Text>
-            </MenuItem>
-            {renderSessionChips()}
-        </div>
+                {getText('session_info.item', devices?.length ?? 0)}
+            </AccordionSummary>
+            <AccordionDetails>
+                <List>
+                    {renderSessionChips()}
+                </List>
+            </AccordionDetails>
+        </Accordion>
     );
 }
 
@@ -341,46 +341,73 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
         }
     };
 
+    const theme = useTheme();
+
     return (
         <>
             {(isInvitable && canIForceJoin && room.canInvite(mx.getUserId()) && isAdmin) && (
                 <Button
-                    before={<Icon size={1} path={mdiPlusCircleOutline} />}
-                    variant='Success'
-                    fill='None'
                     onClick={forceJoin}
+                    sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
+                    startIcon={<AddCircleOutline />}
+                    key='forceJoin'
                 >
                     {getText('btn.profile_footer.force_join')}
                 </Button>
             )}
-            {!isUserIgnored && (
-                <Button variant='Primary' fill='None' onClick={openDM} disabled={isCreatingDM} before={<Icon size={1} path={mdiMessageOutline} />}>
-                    {getText(isCreatingDM ? 'profile_footer.dm.creating' : 'btn.profile_footer.dm')}
-                </Button>
-            )}
-            {isBanned && canIKick && (
-                <Button before={<Icon size={1} path={mdiCheck} />} variant='Success' fill='None' onClick={() => roomActions.unban(roomId, userId)}>
-                    {getText('btn.profile_footer.unban')}
-                </Button>
-            )}
             {(isInvited ? canIKick : room.canInvite(mx.getUserId())) && isInvitable && (
-                <Button variant='Primary' fill='None' before={<Icon size={1} path={mdiAccountPlusOutline} />} onClick={toggleInvite} disabled={isInviting}>
+                <LoadingButton
+                    key='invite'
+                    sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
+                    onClick={toggleInvite}
+                    loading={isInviting}
+                    startIcon={isInvited ? (
+                        <PersonAddDisabledOutlined />
+                    ) : (
+                        <PersonAddOutlined />
+                    )}
+                >
                     {isInvited
                         ? `${getText(isInviting ? 'btn.profile_footer.disinviting' : 'btn.profile_footer.disinvite')}`
                         : `${getText(isInviting ? 'btn.profile_footer.inviting' : 'btn.profile_footer.invite')}`}
-                </Button>
+                </LoadingButton>
             )}
-            <Button
-                before={<Icon size={1} path={isUserIgnored ? mdiCheck : mdiBlockHelper} />}
-                variant={isUserIgnored ? 'Success' : 'Critical'}
-                fill='None'
+            {!isUserIgnored && (
+                <LoadingButton
+                    loading={isCreatingDM}
+                    key='dm'
+                    onClick={openDM}
+                    startIcon={<MessageOutlined />}
+                    sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
+                >
+                    {getText(isCreatingDM ? 'profile_footer.dm.creating' : 'btn.profile_footer.dm')}
+                </LoadingButton>
+            )}
+            <LoadingButton
+                loading={isIgnoring}
+                key='ignore'
                 onClick={toggleIgnore}
-                disabled={isIgnoring}
+                startIcon={isUserIgnored ? (
+                    <Check />
+                ) : (
+                    <BlockOutlined />
+                )}
+                sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
+                color='error'
             >
                 {isUserIgnored
                     ? `${getText(isIgnoring ? 'btn.profile_footer.unignoring' : 'btn.profile_footer.unignore')}`
                     : `${getText(isIgnoring ? 'btn.profile_footer.ignoring' : 'btn.profile_footer.ignore')}`}
-            </Button>
+            </LoadingButton>
+            {isBanned && canIKick && (
+                <LoadingButton
+                    sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
+                    onClick={() => roomActions.unban(roomId, userId)}
+                    startIcon={<Check />}
+                >
+                    {getText('btn.profile_footer.unban')}
+                </LoadingButton>
+            )}
         </>
     );
 }
@@ -453,7 +480,7 @@ function ProfileViewer() {
     useEffect(() => {
         if (user) {
             setStatusMsg(user.presenceStatusMsg);
-            setAvStyle(styles[user.presence] ?? styles.offline);
+            setAvStyle(cons.avatarStyles[user.presence] ?? cons.avatarStyles.offline);
         }
     }, [mx, user]);
 
@@ -506,53 +533,85 @@ function ProfileViewer() {
             }
         };
 
-        const handlePowerSelector = (e) => {
-            openReusableContextMenu('bottom', getEventCords(e, '.btn-surface'), (closeMenu) => (
-                <PowerLevelSelector
-                    value={powerLevel}
-                    max={myPowerLevel}
-                    onSelect={(pl) => {
-                        closeMenu();
-                        handleChangePowerLevel(pl);
-                    }}
-                />
-            ));
-        };
+        const theme = useTheme();
 
         return (
             <div className="profile-viewer">
-                {bannerUrl && <Banner noBorder={true} url={bannerUrl} />}
-                <div className="profile-viewer__user">
-                    <Avatar style={avStyle} imageSrc={avatarUrl} text={username} bgColor={colorMXID(userId)} size="large" />
-                    <div className="profile-viewer__user__info">
-                        <Box direction='Row'>
-                            <Text variant="s1" weight="medium">
-                                {username}
-                            </Text>
-                            <VerificationBadge userId={userId} userName={username} />
-                        </Box>
-                        <Text variant="b2">{userId}</Text>
-                    </div>
-                    <div className="profile-viewer__user__role">
-                        <Text variant="b3">{getText('profile_viewer.power_level')}</Text>
-                        <Button
-                            onClick={canChangeRole ? handlePowerSelector : null}
-                            fill='Soft'
-                            variant='Secondary'
-                            before={canChangeRole ? <Icon size={1} path={mdiChevronDown} /> : null}
+                <Box grow='Yes'>
+                    <AppBar position='static'>
+                        <StyledToolbar>
+                            <Box as='div' grow='Yes' style={{ alignSelf: 'flex-end' }}>
+                                <div className="profile-viewer__user">
+                                    <Avatar style={avStyle} imageSrc={avatarUrl} text={username} bgColor={colorMXID(userId)} size="large" />
+                                    <div className="profile-viewer__user__info">
+                                        <Box direction='Row'>
+                                            <Typography style={{ userSelect: 'all' }} variant='h6' component='span'>
+                                                {username}
+                                            </Typography>
+                                            <VerificationBadge userId={userId} userName={username} />
+                                        </Box>
+                                        <Typography sx={{ userSelect: 'text' }} variant="caption">{userId}</Typography>
+                                    </div>
+                                    {/* <div className="profile-viewer__user__role">
+                                        <Button
+                                            onClick={canChangeRole ? handlePowerSelector : null}
+                                            color='inherit'
+                                            variant='contained'
+                                            startIcon={canChangeRole ? <KeyboardArrowDown /> : null}
+                                        >
+                                            {`${getPowerLabel(powerLevel) || getText('generic.pl_member')} - ${powerLevel}`}
+                                        </Button>
+                                    </div> */}
+                                </div>
+                            </Box>
+                            <IconButton
+                                onClick={closeDialog}
+                                size='large'
+                                edge='end'
+                            >
+                                <Close />
+                            </IconButton>
+                        </StyledToolbar>
+                    </AppBar>
+                </Box>
+                <DialogContent>
+                    <Typography sx={{ userSelect: 'text' }} variant='body1'>{statusMsg}</Typography>
+                    <SessionInfo userId={userId} />
+                    <Accordion>
+                        <AccordionSummary
+                            expandIcon={<ExpandMore />}
+                            disabled={!canChangeRole}
                         >
                             {`${getPowerLabel(powerLevel) || getText('generic.pl_member')} - ${powerLevel}`}
-                        </Button>
+                        </AccordionSummary>
+                        {canChangeRole && (
+                            <AccordionDetails>
+                                <PowerLevelSelector
+                                    value={powerLevel}
+                                    max={myPowerLevel}
+                                    onSelect={(pl) => {
+                                        closeMenu();
+                                        handleChangePowerLevel(pl);
+                                    }}
+                                />
+                            </AccordionDetails>
+                        )}
+                    </Accordion>
+                    <div style={{ width: '100%', marginTop: theme.spacing(2), marginBottom: theme.spacing(2) }}>
+                        {userId !== mx.getUserId() && (
+                            <ProfileFooter roomId={roomId} userId={userId} onRequestClose={closeDialog} />
+                        )}
+                        {userId !== mx.getUserId() && (
+                            <ModerationTools roomId={roomId} userId={userId} />
+                        )}
                     </div>
-                </div>
-                <Text>{statusMsg}</Text>
-                <SessionInfo userId={userId} />
-                <div class="action-list" style={{ borderColor: color.Surface.ContainerLine }}>
-                    {userId !== mx.getUserId() && (
-                        <ProfileFooter roomId={roomId} userId={userId} onRequestClose={closeDialog} />
-                    )}
-                    <ModerationTools roomId={roomId} userId={userId} />
-                </div>
+                    {/* <div class="action-list" style={{ borderColor: color.Surface.ContainerLine }}>
+                        {userId !== mx.getUserId() && (
+                            <ProfileFooter roomId={roomId} userId={userId} onRequestClose={closeDialog} />
+                        )}
+                        <ModerationTools roomId={roomId} userId={userId} />
+                    </div> */}
+                </DialogContent>
             </div>
         );
     };
@@ -561,25 +620,11 @@ function ProfileViewer() {
 
     return (
         <Dialog
-            fullScreen={screenSize === ScreenSize.Mobile}
+            //fullScreen={screenSize === ScreenSize.Mobile}
             open={isOpen}
             onClose={closeDialog}
         >
-            <AppBar position='relative'>
-                <Toolbar>
-                    <Typography variant='h6' component='div' flexGrow={1}>
-                        {userId}
-                    </Typography>
-                    <IconButton
-                        onClick={closeDialog}
-                    >
-                        <Close />
-                    </IconButton>
-                </Toolbar>
-            </AppBar>
-            <DialogContent dividers>
-                {roomId ? renderProfile() : <div />}
-            </DialogContent>
+            {roomId ? renderProfile() : <div />}
         </Dialog>
     );
 }

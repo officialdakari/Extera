@@ -15,9 +15,13 @@
 }
 
 .profile-viewer {
+    min-width: 60vh;
+
     &__user {
         display: flex;
-        padding-bottom: var(--sp-normal);
+        padding-bottom: var(--sp-loose);
+        padding-top: var(--sp-loose);
+        flex-grow: 1;
 
         &__info {
             align-self: flex-end;
@@ -69,69 +73,5 @@
 .profile-viewer__admin-tool {
     .setting-tile {
         margin-top: var(--sp-loose);
-    }
-}
-
-.moderation-tools {
-    &>form {
-        margin: var(--sp-normal) 0;
-        display: flex;
-        align-items: flex-end;
-
-        & .input-container {
-            @extend .cp-fx__item-one;
-            @include dir.side(margin, 0, var(--sp-tight));
-        }
-
-        & button {
-            height: 46px;
-        }
-    }
-}
-
-.action-list {
-    margin-top: var(--sp-normal);
-    border-radius: var(--bo-radius);
-    border-width: 1px;
-    border-style: solid;
-    display: flex;
-    flex-direction: column;
-
-    & button {
-        align-content: start;
-        justify-content: start;
-        width: 100%;
-        margin: var(--sp-ultra-tight) 0;
-    }
-}
-
-.session-info {
-    box-shadow: var(--bs-surface-border);
-    border-radius: var(--bo-radius);
-    border-width: 1px;
-    border-style: solid;
-    overflow: hidden;
-
-    & .context-menu__item button {
-        padding: var(--sp-extra-tight);
-
-        & .ic-raw {
-            @include dir.side(margin, 0, var(--sp-extra-tight));
-        }
-    }
-
-    &__chips {
-        border-top: 1px solid var(--bg-surface-border);
-        padding: var(--sp-tight);
-        padding-top: var(--sp-ultra-tight);
-
-        &>.text {
-            margin-top: var(--sp-extra-tight);
-        }
-
-        & .chip {
-            margin-top: var(--sp-extra-tight);
-            @include dir.side(margin, 0, var(--sp-extra-tight));
-        }
     }
 }

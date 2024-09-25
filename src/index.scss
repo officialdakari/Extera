@@ -7,7 +7,12 @@
     font-display: swap;
 }
 
+.user-select {
+    user-select: all !important;
+}
+
 :root {
+    // user-select: none;
     /* background color | --bg-[background type]: value */
     --bg-surface: #ffffff;
     --bg-surface-transparent: #ffffff00;
@@ -463,4 +468,3 @@ audio:not([controls]) {
     justify-content: center;
     align-items: center;
 }
-
