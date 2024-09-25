@@ -14,7 +14,7 @@ import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { mdiChevronDown, mdiClose, mdiPlus, mdiPound, mdiStarFourPoints } from '@mdi/js';
-import { Autocomplete, Dialog, IconButton, Toolbar, Typography } from '@mui/material';
+import { Alert, Autocomplete, Dialog, IconButton, Switch, TextField, Toolbar, Typography } from '@mui/material';
 import { Close } from '@mui/icons-material';
 
 function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
@@ -121,95 +121,54 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
         'create_room.join_rule.restricted',
         'create_room.join_rule.public'
     ].map(s => getText(s));
-    const handleJoinRule = (evt) => {
-        openReusableContextMenu('bottom', getEventCords(evt, '.btn-surface'), (closeMenu) => (
-            <>
-                <MenuHeader>{getText('create_room.join_rule')}</MenuHeader>
-                {joinRules.map((rule) => (
-                    <MenuItem
-                        key={rule}
-                        variant={rule === joinRule ? 'positive' : 'surface'}
-                        iconSrc={
-                            isSpace ? mdiStarFourPoints : mdiPound
-                        }
-                        onClick={() => {
-                            closeMenu();
-                            setJoinRule(rule);
-                        }}
-                        disabled={!parentId && rule === 'restricted'}
-                    >
-                        {joinRuleText[joinRules.indexOf(rule)]}
-                    </MenuItem>
-                ))}
-            </>
-        ));
+
+    const handleJoinRule = (evt, rule) => {
+        setJoinRule(rule);
     };
 
     return (
         <div className="create-room">
             <form className="create-room__form" onSubmit={handleSubmit}>
-                <SettingTile
-                    title={getText('create_room.join_rule.title')}
-                    options={
-                        <Button onClick={handleJoinRule} iconSrc={mdiChevronDown}>
-                            {joinRuleShortText[joinRules.indexOf(joinRule)]}
-                        </Button>
-                    }
-                    content={
-                        <Text variant="b3">
-                            {
-                                getText(
-                                    'create_room.join_rule.tip',
-                                    getText(
-                                        isSpace ? 'create_room.join_rule.tip.space' : 'create_room.join_rule.tip.room'
-                                    )
-                                )
-                            }
-                        </Text>
-                    }
-                />
                 <Autocomplete
                     disablePortal
                     options={
                         joinRules
                     }
                     getOptionLabel={(option) => joinRuleShortText[joinRules.indexOf(option)]}
-
+                    renderInput={(params) => <TextField {...params} label={getText(
+                        'create_room.join_rule.tip',
+                        getText(
+                            isSpace ? 'create_room.join_rule.tip.space' : 'create_room.join_rule.tip.room'
+                        )
+                    )} />}
+                    onChange={handleJoinRule}
                 />
                 {joinRule === 'public' && (
-                    <div>
-                        <Text className="create-room__address__label" variant="b2">
-                            {getText(isSpace ? 'create_room.address.space' : 'create_room.address.room')}
-                        </Text>
-                        <div className="create-room__address">
-                            <Text variant="b1">#</Text>
-                            <Input
-                                value={addressValue}
-                                onChange={validateAddress}
-                                state={isValidAddress === false ? 'error' : 'normal'}
-                                forwardRef={addressRef}
-                                placeholder="my_address"
-                                required
-                            />
-                            <Text variant="b1">{`:${userHs}`}</Text>
-                        </div>
-                        {isValidAddress === false && (
-                            <Text className="create-room__address__tip" variant="b3">
-                                <span
-                                    style={{ color: 'var(--bg-danger)' }}
-                                >{getText('error.create_room.address_in_use', `#${addressValue}:${userHs}`)}</span>
-                            </Text>
+                    <>
+                        <TextField
+                            required
+                            color={isValidAddress ? 'primary' : 'error'}
+                            placeholder='my_address'
+                            label={getText(isSpace ? 'create_room.address.space' : 'create_room.address.room')}
+                            value={addressValue}
+                            onChange={validateAddress}
+                            ref={addressRef}
+                        />
+                        {!isValidAddress && (
+                            <Alert severity='error' variant='outlined'>
+                                {getText('error.create_room.address_in_use', `#${addressValue}:${userHs}`)}
+                            </Alert>
                         )}
-                    </div>
+                    </>
                 )}
                 {!isSpace && joinRule !== 'public' && (
                     <SettingTile
                         title={getText('create_room.encrypt.title')}
-                        options={<Toggle isActive={isEncrypted} onToggle={setIsEncrypted} />}
+                        options={<Switch checked={isEncrypted} onClick={() => setIsEncrypted(!isEncrypted)} />}
                         content={
-                            <Text variant="b3">
+                            <Typography variant='subtitle1'>
                                 {getText('create_room.encrypt.desc')}
-                            </Text>
+                            </Typography>
                         }
                     />
                 )}
@@ -231,7 +190,7 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                         />
                     }
                     content={
-                        <Text variant="b3">{getText('create_room.your_pl.desc')}</Text>
+                        <Typography variant='subtitle1'>{getText('create_room.your_pl.desc')}</Typography>
                     }
                 />
                 <Input name="topic" minHeight={174} resizable label={getText('create_room.topic')} />
