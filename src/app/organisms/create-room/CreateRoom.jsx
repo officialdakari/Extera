@@ -10,21 +10,12 @@ import * as roomActions from '../../../client/action/room';
 import { isRoomAliasAvailable, getIdServer } from '../../../util/matrixUtil';
 import { getEventCords } from '../../../util/common';
 
-import Text from '../../atoms/text/Text';
-import Button from '../../atoms/button/Button';
-import Toggle from '../../atoms/button/Toggle';
-import IconButton from '../../atoms/button/IconButton';
-import { MenuHeader, MenuItem } from '../../atoms/context-menu/ContextMenu';
-import Input from '../../atoms/input/Input';
-import Spinner from '../../atoms/spinner/Spinner';
-import SegmentControl from '../../atoms/segmented-controls/SegmentedControls';
-import Dialog from '../../molecules/dialog/Dialog';
-import SettingTile from '../../molecules/setting-tile/SettingTile';
-
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { mdiChevronDown, mdiClose, mdiPlus, mdiPound, mdiStarFourPoints } from '@mdi/js';
+import { Autocomplete, Dialog, IconButton, Toolbar, Typography } from '@mui/material';
+import { Close } from '@mui/icons-material';
 
 function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
     const [joinRule, setJoinRule] = useState(parentId ? 'restricted' : 'invite');
@@ -177,6 +168,14 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                         </Text>
                     }
                 />
+                <Autocomplete
+                    disablePortal
+                    options={
+                        joinRules
+                    }
+                    getOptionLabel={(option) => joinRuleShortText[joinRules.indexOf(option)]}
+
+                />
                 {joinRule === 'public' && (
                     <div>
                         <Text className="create-room__address__label" variant="b2">
@@ -302,18 +301,24 @@ function CreateRoom() {
 
     return (
         <Dialog
-            isOpen={create !== null}
-            title={
-                <Text variant="s1" weight="medium" primary>
-                    {parentId ? room.name : getText('home.title')}
-                    <span style={{ color: 'var(--tc-surface-low)' }}>
-                        {getText('create.title', getText(isSpace ? 'create.title.space' : 'create.title.room'))}
-                    </span>
-                </Text>
-            }
-            contentOptions={<IconButton src={mdiClose} onClick={onRequestClose} tooltip="Close" />}
+            open={create !== null}
             onRequestClose={onRequestClose}
         >
+            <AppBar position='relative'>
+                <Toolbar>
+                    <Typography variant='h6' component='div' flexGrow={1}>
+                        {parentId ? room.name : getText('home.title')}
+                        <span style={{ color: 'var(--tc-surface-low)' }}>
+                            {getText('create.title', getText(isSpace ? 'create.title.space' : 'create.title.room'))}
+                        </span>
+                    </Typography>
+                    <IconButton
+                        onClick={onRequestClose}
+                    >
+                        <Close />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
             {create ? (
                 <CreateRoomContent isSpace={isSpace} parentId={parentId} onRequestClose={onRequestClose} />
             ) : (

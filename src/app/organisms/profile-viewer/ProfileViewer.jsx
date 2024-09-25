@@ -605,12 +605,6 @@ function ProfileViewer() {
                             <ModerationTools roomId={roomId} userId={userId} />
                         )}
                     </div>
-                    {/* <div class="action-list" style={{ borderColor: color.Surface.ContainerLine }}>
-                        {userId !== mx.getUserId() && (
-                            <ProfileFooter roomId={roomId} userId={userId} onRequestClose={closeDialog} />
-                        )}
-                        <ModerationTools roomId={roomId} userId={userId} />
-                    </div> */}
                 </DialogContent>
             </div>
         );
@@ -623,6 +617,7 @@ function ProfileViewer() {
             //fullScreen={screenSize === ScreenSize.Mobile}
             open={isOpen}
             onClose={closeDialog}
+
         >
             {roomId ? renderProfile() : <div />}
         </Dialog>
