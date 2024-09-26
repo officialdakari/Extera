@@ -15,7 +15,7 @@ import { openCreateRoom, openSearch } from '../../../client/action/navigation';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiMagnify, mdiPlus } from '@mdi/js';
-import { Backdrop, Drawer, Fab, Grow, Slide } from '@mui/material';
+import { Backdrop, Drawer, Fab, Grow, List, Slide, SwipeableDrawer } from '@mui/material';
 import { useNavHidden } from '../../hooks/useHideableNav';
 import { motion, Variants } from 'framer-motion';
 
@@ -38,11 +38,16 @@ export function SidebarNav() {
     const onClose = () => setNavHidden(true);
 
     return (
-        <Drawer
+        <SwipeableDrawer
             open={!navHidden}
             onClose={onClose}
+            onOpen={() => setNavHidden(false)}
         >
-            <Sidebar style={{ height: '100%' }}>
+            <List>
+                <HomeTab />
+                <DirectTab />
+            </List>
+            {/* <Sidebar style={{ height: '100%' }}>
                 <SidebarContent
                     scrollable={
                         <Scroll ref={scrollRef} variant="Background" size="0">
@@ -96,7 +101,7 @@ export function SidebarNav() {
                         </>
                     }
                 />
-            </Sidebar>
-        </Drawer>
+            </Sidebar> */}
+        </SwipeableDrawer>
     );
 }

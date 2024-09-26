@@ -1,6 +1,6 @@
 import React, { MouseEventHandler, forwardRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Menu, MenuItem, PopOut, RectCords, Text, config, toRem } from 'folds';
+import { Box, config, toRem } from 'folds';
 import { useAtomValue } from 'jotai';
 import FocusTrap from 'focus-trap-react';
 import { useOrphanRooms } from '../../../state/hooks/roomList';
@@ -26,11 +26,14 @@ import { useHomeRooms } from '../home/useHomeRooms';
 import { markAsRead } from '../../../../client/action/notifications';
 import { getText } from '../../../../lang';
 import { mdiCheckAll, mdiHome, mdiHomeOutline } from '@mdi/js';
+import { Badge, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip } from '@mui/material';
+import { DoneAll, Home } from '@mui/icons-material';
 
 type HomeMenuProps = {
     requestClose: () => void;
+    anchorEl: HTMLElement | null;
 };
-const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ requestClose }, ref) => {
+const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ requestClose, anchorEl }, ref) => {
     const orphanRooms = useHomeRooms();
     const unread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
 
@@ -41,20 +44,18 @@ const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ requestClose }, re
     };
 
     return (
-        <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
-            <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                <MenuItem
-                    onClick={handleMarkAsRead}
-                    size="300"
-                    after={<Icon size={1} path={mdiCheckAll} />}
-                    radii="300"
-                    aria-disabled={!unread}
-                >
-                    <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                        {getText('chats.mark_as_read')}
-                    </Text>
-                </MenuItem>
-            </Box>
+        <Menu ref={ref} open={!!anchorEl} anchorEl={anchorEl}>
+            <MenuItem
+                onClick={handleMarkAsRead}
+                disabled={!unread}
+            >
+                <ListItemIcon>
+                    <DoneAll />
+                </ListItemIcon>
+                <ListItemText>
+                    {getText('chats.mark_as_read')}
+                </ListItemText>
+            </MenuItem>
         </Menu>
     );
 });
@@ -70,9 +71,9 @@ export function HomeTab() {
     const orphanRooms = useOrphanRooms(mx, allRoomsAtom, mDirects, roomToParents);
     const homeUnread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
     const homeSelected = useHomeSelected();
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
+    const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
-    const handleHomeClick = () => {
+    const handleHomeClick: MouseEventHandler<HTMLAnchorElement> = () => {
         const activePath = navToActivePath.get('home');
         if (activePath && screenSize !== ScreenSize.Mobile) {
             navigate(joinPathComponent(activePath));
@@ -82,56 +83,46 @@ export function HomeTab() {
         navigate(getHomePath());
     };
 
-    const handleContextMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
+    const handleContextMenu: MouseEventHandler<HTMLAnchorElement> = (evt) => {
         evt.preventDefault();
-        const cords = evt.currentTarget.getBoundingClientRect();
-        setMenuAnchor((currentState) => {
-            if (currentState) return undefined;
-            return cords;
-        });
+        setMenuAnchor(evt.currentTarget);
     };
 
     return (
-        <SidebarItem active={homeSelected}>
-            <SidebarItemTooltip tooltip={getText('home.title')}>
-                {(triggerRef) => (
-                    <SidebarAvatar
-                        as="button"
-                        ref={triggerRef}
-                        outlined
-                        onClick={handleHomeClick}
-                        onContextMenu={handleContextMenu}
-                    >
-                        <MDIcon size={1} path={homeSelected ? mdiHome : mdiHomeOutline} />
-                    </SidebarAvatar>
-                )}
-            </SidebarItemTooltip>
-            {homeUnread && (
-                <SidebarItemBadge hasCount={homeUnread.total > 0}>
-                    <UnreadBadge highlight={homeUnread.highlight > 0} count={homeUnread.total} />
-                </SidebarItemBadge>
-            )}
-            {menuAnchor && (
-                <PopOut
-                    anchor={menuAnchor}
-                    position="Right"
-                    align="Start"
-                    content={
-                        <FocusTrap
-                            focusTrapOptions={{
-                                initialFocus: false,
-                                returnFocusOnDeactivate: false,
-                                onDeactivate: () => setMenuAnchor(undefined),
-                                clickOutsideDeactivates: true,
-                                isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                                isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                            }}
-                        >
-                            <HomeMenu requestClose={() => setMenuAnchor(undefined)} />
-                        </FocusTrap>
-                    }
-                />
-            )}
-        </SidebarItem>
+        <>
+            <ListItemButton
+                selected={homeSelected}
+                onClick={handleHomeClick}
+                onContextMenu={handleContextMenu}
+            >
+                <ListItemIcon>
+                    <Badge badgeContent={homeUnread?.total} max={99} color={homeUnread?.highlight ? 'error' : 'primary'}>
+                        <Home />
+                    </Badge>
+                </ListItemIcon>
+                <ListItemText>
+                    {getText('home.title')}
+                </ListItemText>
+            </ListItemButton>
+            <HomeMenu requestClose={() => setMenuAnchor(null)} anchorEl={menuAnchor} />
+        </>
+        // <SidebarItem active={homeSelected}>
+        //     <Tooltip title={getText('home.title')}>
+        //         <SidebarAvatar
+        //             as="button"
+        //             outlined
+        //             onClick={handleHomeClick}
+        //             onContextMenu={handleContextMenu}
+        //         >
+        //             <MDIcon size={1} path={homeSelected ? mdiHome : mdiHomeOutline} />
+        //         </SidebarAvatar>
+        //     </Tooltip>
+        //     {homeUnread && (
+        //         <SidebarItemBadge hasCount={homeUnread.total > 0}>
+        //             <UnreadBadge highlight={homeUnread.highlight > 0} count={homeUnread.total} />
+        //         </SidebarItemBadge>
+        //     )}
+        //     <HomeMenu requestClose={() => setMenuAnchor(null)} anchorEl={menuAnchor} />
+        // </SidebarItem>
     );
 }
