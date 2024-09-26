@@ -5,7 +5,6 @@ import './CreateRoom.scss';
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
-import { openReusableContextMenu } from '../../../client/action/navigation';
 import * as roomActions from '../../../client/action/room';
 import { isRoomAliasAvailable, getIdServer } from '../../../util/matrixUtil';
 import { getEventCords } from '../../../util/common';
@@ -13,9 +12,9 @@ import { getEventCords } from '../../../util/common';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
-import { mdiChevronDown, mdiClose, mdiPlus, mdiPound, mdiStarFourPoints } from '@mdi/js';
-import { Alert, Autocomplete, Dialog, IconButton, Switch, TextField, Toolbar, Typography } from '@mui/material';
-import { Close } from '@mui/icons-material';
+import { Alert, AppBar, Autocomplete, Box, Button, CircularProgress, Dialog, IconButton, Switch, TextField, Toolbar, Typography } from '@mui/material';
+import { Add, Close } from '@mui/icons-material';
+import SettingTile from '../../molecules/setting-tile/SettingTile';
 
 function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
     const [joinRule, setJoinRule] = useState(parentId ? 'restricted' : 'invite');
@@ -116,11 +115,18 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
         'create_room.join_rule.short.restricted',
         'create_room.join_rule.short.public'
     ].map(s => getText(s));
+
     const joinRuleText = [
         'create_room.join_rule.private',
         'create_room.join_rule.restricted',
         'create_room.join_rule.public'
     ].map(s => getText(s));
+
+    const pls = [
+        'create_room.your_pl.admin',
+        'create_room.your_pl.founder',
+        'create_room.your_pl.goku'
+    ];
 
     const handleJoinRule = (evt, rule) => {
         setJoinRule(rule);
@@ -166,7 +172,7 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                         title={getText('create_room.encrypt.title')}
                         options={<Switch checked={isEncrypted} onClick={() => setIsEncrypted(!isEncrypted)} />}
                         content={
-                            <Typography variant='subtitle1'>
+                            <Typography variant='caption'>
                                 {getText('create_room.encrypt.desc')}
                             </Typography>
                         }
@@ -175,46 +181,41 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                 <SettingTile
                     title={getText('create_room.your_pl.title')}
                     options={
-                        <SegmentControl
-                            selected={roleIndex}
-                            segments={
-                                [
-                                    'create_room.your_pl.admin',
-                                    'create_room.your_pl.founder',
-                                    'create_room.your_pl.goku'
-                                ].map(
-                                    s => ({ text: getText(s) })
-                                )
-                            }
-                            onSelect={setRoleIndex}
+                        <Autocomplete
+                            renderInput={(props) => <TextField {...props} />}
+                            options={pls}
+                            onChange={(evt, v) => setRoleIndex(pls.indexOf(v))}
+                            getOptionLabel={(l) => getText(l)}
+                            value={getText(pls[roleIndex])}
                         />
                     }
                     content={
-                        <Typography variant='subtitle1'>{getText('create_room.your_pl.desc')}</Typography>
+                        <Typography variant='caption'>{getText('create_room.your_pl.desc')}</Typography>
                     }
                 />
-                <Input name="topic" minHeight={174} resizable label={getText('create_room.topic')} />
-                <div className="create-room__name-wrapper">
-                    <Input name="name" label={getText('create_room.name', getText(isSpace ? 'create_room.name.space' : 'create_room.name.room'))} required />
+                <Box display='flex' flexDirection='column' gap='10px'>
+                    <TextField fullWidth multiline name="topic" label={getText('create_room.topic')} />
+                    <TextField fullWidth name="name" label={getText('create_room.name', getText(isSpace ? 'create_room.name.space' : 'create_room.name.room'))} required />
                     <Button
                         disabled={isValidAddress === false || isCreatingRoom}
-                        iconSrc={mdiPlus}
+                        startIcon={<Add />}
                         type="submit"
-                        variant="primary"
+                        variant="contained"
+                        color='primary'
                     >
                         {getText('btn.create_room')}
                     </Button>
-                </div>
+                </Box>
                 {isCreatingRoom && (
                     <div className="create-room__loading">
-                        <Spinner size="small" />
-                        <Text>{getText('create_room.creating')}</Text>
+                        <CircularProgress />
+                        <Typography variant='body1'>{getText('create_room.creating')}</Typography>
                     </div>
                 )}
                 {typeof creatingError === 'string' && (
-                    <Text className="create-room__error" variant="b3">
+                    <Alert color='error'>
                         {creatingError}
-                    </Text>
+                    </Alert>
                 )}
             </form>
         </div>
