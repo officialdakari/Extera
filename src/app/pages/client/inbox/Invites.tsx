@@ -39,7 +39,8 @@ import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
 import { useRoomTopic } from '../../../hooks/useRoomMeta';
 import { getText, translate } from '../../../../lang';
 import { mdiMail } from '@mdi/js';
-import { Button, CircularProgress } from '@mui/material';
+import { AppBar, Button, CircularProgress, IconButton, Toolbar, Typography } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
 
 const COMPACT_CARD_WIDTH = 548;
 
@@ -241,14 +242,18 @@ export function Invites() {
 
     return (
         <Page>
-            <PageHeader>
-                <Box grow="Yes" justifyContent="Center" alignItems="Center" gap="200">
-                    <MDIcon size={1} path={mdiMail} />
-                    <Text size="H3">
+            <AppBar color='inherit' enableColorOnDark position='static'>
+                <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
+                    <IconButton
+                        onClick={() => history.back()}
+                    >
+                        <ArrowBack />
+                    </IconButton>
+                    <Typography component='div' variant='h6' flexGrow={1}>
                         {getText('inbox.invites.title')}
-                    </Text>
-                </Box>
-            </PageHeader>
+                    </Typography>
+                </Toolbar>
+            </AppBar>
             <Box grow="Yes">
                 <Scroll hideTrack visibility="Hover">
                     <PageContent>

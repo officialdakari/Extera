@@ -8,12 +8,18 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getMxIdLocalPart } from '../../../utils/matrix';
 import { nameInitials } from '../../../utils/common';
 import { getText } from '../../../../lang';
+import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 
 type UserProfile = {
     avatar_url?: string;
     displayname?: string;
 };
-export function UserTab() {
+
+type UserTabProps = {
+    onClose?: () => void;
+};
+
+export function UserTab({ onClose }: UserTabProps) {
     const mx = useMatrixClient();
     const userId = mx.getUserId()!;
     const [user, setUser] = useState(mx.getUser(userId));
@@ -62,19 +68,25 @@ export function UserTab() {
             : undefined);
     }, [mx, userId, user, profile]);
 
+    const handleOpenSettings = () => {
+        openSettings();
+        onClose?.();
+    };
+
     return (
-        <SidebarItem>
-            <SidebarItemTooltip tooltip={getText('sidebar.tooltip.users')}>
-                {(triggerRef) => (
-                    <SidebarAvatar as="button" ref={triggerRef} onClick={() => openSettings()}>
-                        <UserAvatar
-                            userId={userId}
-                            src={avatarUrl}
-                            renderFallback={() => <Text size="H4">{nameInitials(displayName)}</Text>}
-                        />
-                    </SidebarAvatar>
-                )}
-            </SidebarItemTooltip>
-        </SidebarItem>
+        <ListItemButton onClick={() => handleOpenSettings()}>
+            <ListItemIcon>
+                <SidebarAvatar>
+                    <UserAvatar
+                        userId={userId}
+                        src={avatarUrl}
+                        renderFallback={() => <Text size="H4">{nameInitials(displayName)}</Text>}
+                    />
+                </SidebarAvatar>
+            </ListItemIcon>
+            <ListItemText>
+                {displayName}
+            </ListItemText>
+        </ListItemButton>
     );
 }

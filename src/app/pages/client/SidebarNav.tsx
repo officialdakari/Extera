@@ -15,7 +15,7 @@ import { openCreateRoom, openSearch } from '../../../client/action/navigation';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiMagnify, mdiPlus } from '@mdi/js';
-import { Backdrop, Drawer, Fab, Grow, List, Slide, SwipeableDrawer } from '@mui/material';
+import { Backdrop, Divider, Drawer, Fab, Grow, List, Slide, SwipeableDrawer } from '@mui/material';
 import { useNavHidden } from '../../hooks/useHideableNav';
 import { motion, Variants } from 'framer-motion';
 
@@ -42,11 +42,33 @@ export function SidebarNav() {
             open={!navHidden}
             onClose={onClose}
             onOpen={() => setNavHidden(false)}
+            ref={scrollRef}
         >
-            <List>
-                <HomeTab />
-                <DirectTab />
-            </List>
+            <nav>
+                <List>
+                    <UserTab onClose={onClose} />
+                </List>
+            </nav>
+            <Divider />
+            <nav aria-label='Default tabs'>
+                <List>
+                    <HomeTab />
+                    <DirectTab />
+                </List>
+            </nav>
+            <Divider />
+            <nav aria-label='Spaces'>
+                <List>
+                    <SpaceTabs scrollRef={scrollRef} />
+                </List>
+            </nav>
+            <Divider />
+            <nav aria-label='Personal'>
+                <List>
+                    <ExploreTab />
+                    <InboxTab />
+                </List>
+            </nav>
             {/* <Sidebar style={{ height: '100%' }}>
                 <SidebarContent
                     scrollable={

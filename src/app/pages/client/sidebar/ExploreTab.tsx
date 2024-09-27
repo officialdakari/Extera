@@ -17,6 +17,8 @@ import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { useNavToActivePathAtom } from '../../../state/hooks/navToActivePath';
 import { getText } from '../../../../lang';
 import { mdiCompass, mdiCompassOutline } from '@mdi/js';
+import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { Explore } from '@mui/icons-material';
 
 export function ExploreTab() {
     const mx = useMatrixClient();
@@ -53,14 +55,25 @@ export function ExploreTab() {
     };
 
     return (
-        <SidebarItem active={exploreSelected}>
-            <SidebarItemTooltip tooltip={getText('explore.title')}>
-                {(triggerRef) => (
-                    <SidebarAvatar as="button" ref={triggerRef} outlined onClick={handleExploreClick}>
-                        <MDIcon size={1} path={exploreSelected ? mdiCompass : mdiCompassOutline} />
-                    </SidebarAvatar>
-                )}
-            </SidebarItemTooltip>
-        </SidebarItem>
+        <ListItemButton
+            selected={exploreSelected}
+            onClick={handleExploreClick}
+        >
+            <ListItemIcon>
+                <Explore />
+            </ListItemIcon>
+            <ListItemText>
+                {getText('explore.title')}
+            </ListItemText>
+        </ListItemButton>
+        // <SidebarItem active={exploreSelected}>
+        //     <SidebarItemTooltip tooltip={getText('explore.title')}>
+        //         {(triggerRef) => (
+        //             <SidebarAvatar as="button" ref={triggerRef} outlined onClick={handleExploreClick}>
+        //                 <MDIcon size={1} path={exploreSelected ? mdiCompass : mdiCompassOutline} />
+        //             </SidebarAvatar>
+        //         )}
+        //     </SidebarItemTooltip>
+        // </SidebarItem>
     );
 }

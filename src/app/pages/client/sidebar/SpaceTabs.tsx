@@ -12,13 +12,8 @@ import React, {
 import { useNavigate } from 'react-router-dom';
 import {
     Box,
-    Line,
-    Menu,
-    MenuItem,
-    PopOut,
-    RectCords,
-    Text,
     config,
+    Text,
     toRem,
 } from 'folds';
 import { Icon as MDIcon } from '@mdi/react';
@@ -89,17 +84,18 @@ import { markAsRead } from '../../../../client/action/notifications';
 import { copyToClipboard } from '../../../utils/dom';
 import { openInviteUser, openSpaceSettings } from '../../../../client/action/navigation';
 import { getText } from '../../../../lang';
-import { mdiAccount, mdiAccountPlus, mdiCheckAll, mdiChevronUp, mdiCog, mdiLink, mdiLinkVariant, mdiPin, mdiPlus, mdiTune } from '@mdi/js';
-import { IconButton } from '@mui/material';
-import { KeyboardArrowUp } from '@mui/icons-material';
+import { mdiAccount, mdiAccountPlus, mdiCheckAll, mdiChevronUp, mdiCog, mdiLink, mdiLinkVariant, mdiPin, mdiPinOff, mdiPlus, mdiTune } from '@mdi/js';
+import { Badge, Collapse, Divider, IconButton, Link, List, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, SvgIcon } from '@mui/material';
+import { DoneAll, ExpandLess, ExpandMore, KeyboardArrowUp, PersonAdd, Settings, Link as LinkIcon } from '@mui/icons-material';
 
 type SpaceMenuProps = {
     room: Room;
     requestClose: () => void;
     onUnpin?: (roomId: string) => void;
+    anchorEl: HTMLElement | null;
 };
 const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(
-    ({ room, requestClose, onUnpin }, ref) => {
+    ({ room, requestClose, onUnpin, anchorEl }, ref) => {
         const mx = useMatrixClient();
         const { hashRouter } = useClientConfig();
         const roomToParents = useAtomValue(roomToParentsAtom);
@@ -125,8 +121,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(
         };
 
         const handleCopyLink = () => {
-            const spacePath = getSpacePath(getCanonicalAliasOrRoomId(mx, room.roomId));
-            copyToClipboard(withOriginBaseUrl(getOriginBaseUrl(hashRouter), spacePath));
+            copyToClipboard(`https://matrix.to/#/${getCanonicalAliasOrRoomId(mx, room.roomId)}`);
             requestClose();
         };
 
@@ -141,68 +136,60 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(
         };
 
         return (
-            <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
-                <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                    <MenuItem
-                        onClick={handleMarkAsRead}
-                        size="300"
-                        after={<MDIcon size={1} path={mdiCheckAll} />}
-                        radii="300"
-                        disabled={!unread}
-                    >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                            {getText('chats.mark_as_read')}
-                        </Text>
+            <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={requestClose} ref={ref}>
+                <MenuItem
+                    disabled={!unread}
+                    onClick={handleMarkAsRead}
+                >
+                    <ListItemIcon>
+                        <DoneAll />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('chats.mark_as_read')}
+                    </ListItemText>
+                </MenuItem>
+                {onUnpin && (
+                    <MenuItem onClick={handleUnpin}>
+                        <ListItemIcon>
+                            <SvgIcon>{mdiPinOff}</SvgIcon>
+                        </ListItemIcon>
+                        <ListItemText>
+                            {getText('btn.unpin')}
+                        </ListItemText>
                     </MenuItem>
-                    {onUnpin && (
-                        <MenuItem
-                            size="300"
-                            radii="300"
-                            onClick={handleUnpin}
-                            after={<MDIcon size={1} path={mdiPin} />}
-                        >
-                            <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                                {getText('btn.unpin')}
-                            </Text>
-                        </MenuItem>
-                    )}
-                </Box>
-                <Line variant="Surface" size="300" />
-                <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                    <MenuItem
-                        onClick={handleInvite}
-                        variant="Primary"
-                        fill="None"
-                        size="300"
-                        after={<MDIcon size={1} path={mdiAccountPlus} />}
-                        radii="300"
-                        disabled={!canInvite}
-                    >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                            {getText('space.action.invite')}
-                        </Text>
-                    </MenuItem>
-                    <MenuItem
-                        onClick={handleCopyLink}
-                        size="300"
-                        after={<MDIcon size={1} path={mdiLinkVariant} />}
-                        radii="300"
-                    >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                            {getText('space.action.copy_link')}
-                        </Text>
-                    </MenuItem>
-                    <MenuItem
-                        onClick={handleRoomSettings}
-                        size="300"
-                        after={<MDIcon size={1} path={mdiCog} />}
-                        radii="300"
-                    >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                            {getText('space.action.settings')}
-                        </Text>
-                    </MenuItem>
-                </Box>
+                )}
+                <Divider />
+                <MenuItem
+                    onClick={handleInvite}
+                    disabled={!canInvite}
+                >
+                    <ListItemIcon>
+                        <PersonAdd />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('space.action.invite')}
+                    </ListItemText>
+                </MenuItem>
+                <MenuItem
+                    onClick={handleCopyLink}
+                >
+                    <ListItemIcon>
+                        <LinkIcon />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('space.action.copy_link')}
+                    </ListItemText>
+                </MenuItem>
+                <MenuItem
+                    onClick={handleRoomSettings}
+                >
+                    <ListItemIcon>
+                        <Settings />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('space.action.settings')}
+                    </ListItemText>
+                </MenuItem>
             </Menu>
         );
     }
@@ -402,122 +389,131 @@ function SpaceTab({
     const dropState = useDropTarget(spaceDraggable, targetRef);
     const dropType = dropState?.type;
 
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
+    const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
-    const handleContextMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
+    const handleContextMenu: MouseEventHandler<HTMLAnchorElement> = (evt) => {
         evt.preventDefault();
-        const cords = evt.currentTarget.getBoundingClientRect();
-        setMenuAnchor((currentState) => {
-            if (currentState) return undefined;
-            return cords;
-        });
+        setMenuAnchor(evt.currentTarget);
     };
 
     return (
-        <RoomUnreadProvider roomId={space.roomId}>
-            {(unread) => (
-                <SidebarItem
-                    active={selected}
-                    ref={targetRef}
-                    aria-disabled={disabled}
-                    data-drop-child={dropType === 'make-child'}
-                    data-drop-above={dropType === 'reorder-above'}
-                    data-drop-below={dropType === 'reorder-below'}
-                    data-inside-folder={!!folder}
-                >
-                    <SidebarItemTooltip tooltip={disabled ? undefined : space.name}>
-                        {(triggerRef) => (
-                            <SidebarAvatar
-                                as="button"
-                                data-id={space.roomId}
-                                ref={triggerRef}
-                                size={folder ? '300' : '400'}
-                                onClick={onClick}
-                                onContextMenu={handleContextMenu}
-                            >
-                                <RoomAvatar
-                                    roomId={space.roomId}
-                                    src={space.getAvatarUrl(mx.baseUrl, 96, 96, 'crop') ?? undefined}
-                                    alt={space.name}
-                                    renderFallback={() => (
-                                        <Text size={folder ? 'H6' : 'H4'}>{nameInitials(space.name, 2)}</Text>
-                                    )}
-                                />
-                            </SidebarAvatar>
-                        )}
-                    </SidebarItemTooltip>
-                    {unread && (
-                        <SidebarItemBadge hasCount={unread.total > 0}>
-                            <UnreadBadge highlight={unread.highlight > 0} count={unread.total} />
-                        </SidebarItemBadge>
-                    )}
-                    {menuAnchor && (
-                        <PopOut
-                            anchor={menuAnchor}
-                            position="Right"
-                            align="Start"
-                            content={
-                                <FocusTrap
-                                    focusTrapOptions={{
-                                        initialFocus: false,
-                                        returnFocusOnDeactivate: false,
-                                        onDeactivate: () => setMenuAnchor(undefined),
-                                        clickOutsideDeactivates: true,
-                                        isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                                        isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                                    }}
+        <>
+            <RoomUnreadProvider roomId={space.roomId}>
+                {(unread) => (
+                    <ListItemButton
+                        selected={selected}
+                        ref={targetRef}
+                        aria-disabled={disabled}
+                        data-drop-child={dropType === 'make-child'}
+                        data-drop-above={dropType === 'reorder-above'}
+                        data-drop-below={dropType === 'reorder-below'}
+                        data-id={space.roomId}
+                        data-inside-folder={!!folder}
+                        onContextMenu={(evt) => handleContextMenu(evt as any)}
+                        onClick={(evt) => onClick(evt as any)}
+                    >
+                        <ListItemIcon>
+                            <Badge badgeContent={unread?.total} max={99}>
+                                <SidebarAvatar
+                                    as="button"
+                                    size={folder ? '300' : '400'}
+                                    onClick={onClick}
+                                    onContextMenu={handleContextMenu}
                                 >
-                                    <SpaceMenu
-                                        room={space}
-                                        requestClose={() => setMenuAnchor(undefined)}
-                                        onUnpin={onUnpin}
+                                    <RoomAvatar
+                                        roomId={space.roomId}
+                                        src={space.getAvatarUrl(mx.baseUrl, 96, 96, 'crop') ?? undefined}
+                                        alt={space.name}
+                                        renderFallback={() => (
+                                            <Text size={folder ? 'H6' : 'H4'}>{nameInitials(space.name, 2)}</Text>
+                                        )}
                                     />
-                                </FocusTrap>
-                            }
-                        />
-                    )}
-                </SidebarItem>
-            )}
-        </RoomUnreadProvider>
+                                </SidebarAvatar>
+                            </Badge>
+                        </ListItemIcon>
+                        <ListItemText>
+                            {space.name}
+                        </ListItemText>
+                    </ListItemButton>
+                )}
+            </RoomUnreadProvider>
+            <SpaceMenu
+                room={space}
+                requestClose={() => setMenuAnchor(null)}
+                anchorEl={menuAnchor}
+                onUnpin={onUnpin}
+            />
+        </>
     );
 }
 
 type OpenedSpaceFolderProps = {
     folder: ISidebarFolder;
-    onClose: MouseEventHandler<HTMLButtonElement>;
     children?: ReactNode;
 };
-function OpenedSpaceFolder({ folder, onClose, children }: OpenedSpaceFolderProps) {
+function SpaceFolder({ folder, children }: OpenedSpaceFolderProps) {
+    const mx = useMatrixClient();
     const aboveTargetRef = useRef<HTMLDivElement>(null);
     const belowTargetRef = useRef<HTMLDivElement>(null);
+    const [open, setOpen] = useState(false);
 
     const spaceDraggable: SidebarDraggable = useMemo(() => ({ folder, open: true }), [folder]);
 
     const orderAbove = useDropTargetInstruction(spaceDraggable, aboveTargetRef, 'reorder-above');
     const orderBelow = useDropTargetInstruction(spaceDraggable, belowTargetRef, 'reorder-below');
 
+    const tooltipName =
+        folder.name ?? folder.content.map((i) => mx.getRoom(i)?.name ?? '').join(', ') ?? 'Unnamed';
+
     return (
-        <SidebarFolder
-            state="Open"
-            data-drop-above={orderAbove === 'reorder-above'}
-            data-drop-below={orderBelow === 'reorder-below'}
-        >
-            <SidebarFolderDropTarget ref={aboveTargetRef} position="Top" />
-            <SidebarAvatar size="300">
-                <IconButton data-id={folder.id} color='default' onClick={onClose}>
-                    <KeyboardArrowUp />
-                </IconButton>
-            </SidebarAvatar>
-            {children}
-            <SidebarFolderDropTarget ref={belowTargetRef} position="Bottom" />
-        </SidebarFolder>
+        <>
+            <ListItemButton
+                data-drop-above={orderAbove === 'reorder-above'}
+                data-drop-below={orderBelow === 'reorder-below'}
+                data-id={folder.id}
+                onClick={() => setOpen(!open)}
+            >
+                <ListItemIcon>
+                    <SidebarFolder>
+                        {folder.content.map((sId) => {
+                            const space = mx.getRoom(sId);
+                            if (!space) return null;
+
+                            return (
+                                <SidebarAvatar key={sId} size="200" radii="300">
+                                    <RoomAvatar
+                                        roomId={space.roomId}
+                                        src={space.getAvatarUrl(mx.baseUrl, 96, 96, 'crop') ?? undefined}
+                                        alt={space.name}
+                                        renderFallback={() => (
+                                            <Text size="Inherit">
+                                                <b>{nameInitials(space.name, 2)}</b>
+                                            </Text>
+                                        )}
+                                    />
+                                </SidebarAvatar>
+                            );
+                        })}
+                    </SidebarFolder>
+                </ListItemIcon>
+                <ListItemText>
+                    {tooltipName}
+                </ListItemText>
+                {open ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+            <Collapse in={open} timeout='auto' unmountOnExit>
+                <List component='div' disablePadding>
+                    {children}
+                </List>
+            </Collapse>
+        </>
     );
 }
 
 type ClosedSpaceFolderProps = {
     folder: ISidebarFolder;
     selected: boolean;
-    onOpen: MouseEventHandler<HTMLButtonElement>;
+    onOpen: MouseEventHandler<HTMLAnchorElement>;
     onDragging: (dragItem?: SidebarDraggable) => void;
     disabled?: boolean;
 };
@@ -542,17 +538,18 @@ function ClosedSpaceFolder({
     return (
         <RoomsUnreadProvider rooms={folder.content}>
             {(unread) => (
-                <SidebarItem
-                    active={selected}
+                <ListItemButton
+                    selected={selected}
                     ref={handlerRef}
-                    aria-disabled={disabled}
                     data-drop-child={dropType === 'make-child'}
                     data-drop-above={dropType === 'reorder-above'}
                     data-drop-below={dropType === 'reorder-below'}
+                    data-id={folder.id}
+                    onClick={(evt) => onOpen(evt as any)}
                 >
-                    <SidebarItemTooltip tooltip={disabled ? undefined : tooltipName}>
-                        {(tooltipRef) => (
-                            <SidebarFolder data-id={folder.id} as="button" ref={tooltipRef} onClick={onOpen}>
+                    <ListItemIcon>
+                        <Badge max={99} badgeContent={unread?.total}>
+                            <SidebarFolder>
                                 {folder.content.map((sId) => {
                                     const space = mx.getRoom(sId);
                                     if (!space) return null;
@@ -573,14 +570,13 @@ function ClosedSpaceFolder({
                                     );
                                 })}
                             </SidebarFolder>
-                        )}
-                    </SidebarItemTooltip>
-                    {unread && (
-                        <SidebarItemBadge hasCount={unread.total > 0}>
-                            <UnreadBadge highlight={unread.highlight > 0} count={unread.total} />
-                        </SidebarItemBadge>
-                    )}
-                </SidebarItem>
+                        </Badge>
+                    </ListItemIcon>
+                    <ListItemText>
+                        {tooltipName}
+                    </ListItemText>
+                    <ExpandMore />
+                </ListItemButton>
             )}
         </RoomsUnreadProvider>
     );
@@ -754,7 +750,7 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
         navigate(getSpaceLobbyPath(getCanonicalAliasOrRoomId(mx, targetSpaceId)));
     };
 
-    const handleFolderToggle: MouseEventHandler<HTMLButtonElement> = (evt) => {
+    const handleFolderToggle: MouseEventHandler<HTMLAnchorElement> = (evt) => {
         const target = evt.currentTarget;
         const targetFolderId = target.getAttribute('data-id');
         if (!targetFolderId) return;
@@ -780,67 +776,49 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
     if (sidebarItems.length === 0) return null;
     return (
         <>
-            <SidebarStackSeparator />
-            <SidebarStack>
-                {sidebarItems.map((item) => {
-                    if (typeof item === 'object') {
-                        if (openedFolder.has(item.id)) {
-                            return (
-                                <OpenedSpaceFolder key={item.id} folder={item} onClose={handleFolderToggle}>
-                                    {item.content.map((sId) => {
-                                        const space = mx.getRoom(sId);
-                                        if (!space) return null;
-                                        return (
-                                            <SpaceTab
-                                                key={space.roomId}
-                                                space={space}
-                                                selected={space.roomId === selectedSpaceId}
-                                                onClick={handleSpaceClick}
-                                                folder={item}
-                                                onDragging={setDraggingItem}
-                                                disabled={
-                                                    typeof draggingItem === 'object'
-                                                        ? draggingItem.spaceId === space.roomId
-                                                        : false
-                                                }
-                                                onUnpin={orphanSpaces.includes(space.roomId) ? undefined : handleUnpin}
-                                            />
-                                        );
-                                    })}
-                                </OpenedSpaceFolder>
-                            );
-                        }
-
-                        return (
-                            <ClosedSpaceFolder
-                                key={item.id}
-                                folder={item}
-                                selected={!!selectedSpaceId && item.content.includes(selectedSpaceId)}
-                                onOpen={handleFolderToggle}
-                                onDragging={setDraggingItem}
-                                disabled={
-                                    typeof draggingItem === 'object' ? draggingItem.folder.id === item.id : false
-                                }
-                            />
-                        );
-                    }
-
-                    const space = mx.getRoom(item);
-                    if (!space) return null;
-
+            {sidebarItems.map((item) => {
+                if (typeof item === 'object') {
                     return (
-                        <SpaceTab
-                            key={space.roomId}
-                            space={space}
-                            selected={space.roomId === selectedSpaceId}
-                            onClick={handleSpaceClick}
-                            onDragging={setDraggingItem}
-                            disabled={typeof draggingItem === 'string' ? draggingItem === space.roomId : false}
-                            onUnpin={orphanSpaces.includes(space.roomId) ? undefined : handleUnpin}
-                        />
+                        <SpaceFolder key={item.id} folder={item}>
+                            {item.content.map((sId) => {
+                                const space = mx.getRoom(sId);
+                                if (!space) return null;
+                                return (
+                                    <SpaceTab
+                                        key={space.roomId}
+                                        space={space}
+                                        selected={space.roomId === selectedSpaceId}
+                                        onClick={handleSpaceClick}
+                                        folder={item}
+                                        onDragging={setDraggingItem}
+                                        disabled={
+                                            typeof draggingItem === 'object'
+                                                ? draggingItem.spaceId === space.roomId
+                                                : false
+                                        }
+                                        onUnpin={orphanSpaces.includes(space.roomId) ? undefined : handleUnpin}
+                                    />
+                                );
+                            })}
+                        </SpaceFolder>
                     );
-                })}
-            </SidebarStack>
+                }
+
+                const space = mx.getRoom(item);
+                if (!space) return null;
+
+                return (
+                    <SpaceTab
+                        key={space.roomId}
+                        space={space}
+                        selected={space.roomId === selectedSpaceId}
+                        onClick={handleSpaceClick}
+                        onDragging={setDraggingItem}
+                        disabled={typeof draggingItem === 'string' ? draggingItem === space.roomId : false}
+                        onUnpin={orphanSpaces.includes(space.roomId) ? undefined : handleUnpin}
+                    />
+                );
+            })}
         </>
     );
 }

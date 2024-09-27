@@ -37,6 +37,9 @@ import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiClose, mdiPlus, mdiServerNetwork, mdiServerNetworkOutline, mdiStar, mdiStarOutline } from '@mdi/js';
+import { AppBar, Toolbar, Typography } from '@mui/material';
+import { useNavHidden } from '../../../hooks/useHideableNav';
+import { Menu } from '@mui/icons-material';
 
 export function AddServer() {
     const mx = useMatrixClient();
@@ -165,18 +168,22 @@ export function Explore() {
 
     const featuredSelected = useExploreFeaturedSelected();
     const selectedServer = useExploreServer();
+    const [, setNavHidden] = useNavHidden();
 
     return (
         <PageNav>
-            <PageNavHeader>
-                <Box grow="Yes" gap="300">
-                    <Box grow="Yes">
-                        <Text size="H4" truncate>
-                            {getText('explore.title')}
-                        </Text>
-                    </Box>
-                </Box>
-            </PageNavHeader>
+            <AppBar color='inherit' enableColorOnDark position='static'>
+                <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
+                    <IconButton
+                        onClick={() => setNavHidden(false)}
+                    >
+                        <Menu />
+                    </IconButton>
+                    <Typography component='div' variant='h6' flexGrow={1}>
+                        {getText('explore.title')}
+                    </Typography>
+                </Toolbar>
+            </AppBar>
 
             <PageNavContent>
                 <Box direction="Column" gap="300">

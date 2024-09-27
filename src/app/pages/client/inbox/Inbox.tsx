@@ -14,6 +14,9 @@ import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMappe
 import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page';
 import { getText } from '../../../../lang';
 import { mdiEmail, mdiEmailOutline, mdiMail, mdiMailboxOutline, mdiMessageAlert, mdiMessageAlertOutline } from '@mdi/js';
+import { AppBar, IconButton, Toolbar, Typography } from '@mui/material';
+import { ArrowBack, Menu } from '@mui/icons-material';
+import { useNavHidden } from '../../../hooks/useHideableNav';
 
 function InvitesNavItem() {
     const invitesSelected = useInboxInvitesSelected();
@@ -49,18 +52,22 @@ function InvitesNavItem() {
 export function Inbox() {
     useNavToActivePathMapper('inbox');
     const notificationsSelected = useInboxNotificationsSelected();
+    const [navHidden, setNavHidden] = useNavHidden();
 
     return (
         <PageNav>
-            <PageNavHeader>
-                <Box grow="Yes" gap="300">
-                    <Box grow="Yes">
-                        <Text size="H4" truncate>
-                            {getText('inbox.title')}
-                        </Text>
-                    </Box>
-                </Box>
-            </PageNavHeader>
+            <AppBar color='inherit' enableColorOnDark position='static'>
+                <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
+                    <IconButton
+                        onClick={() => setNavHidden(false)}
+                    >
+                        <Menu />
+                    </IconButton>
+                    <Typography component='div' variant='h6' flexGrow={1}>
+                        {getText('inbox.title')}
+                    </Typography>
+                </Toolbar>
+            </AppBar>
 
             <PageNavContent>
                 <Box direction="Column" gap="300">

@@ -45,6 +45,9 @@ export const getCanonicalAliasRoomId = (mx: MatrixClient, alias: string): string
 export const getCanonicalAliasOrRoomId = (mx: MatrixClient, roomId: string): string =>
     mx.getRoom(roomId)?.getCanonicalAlias() || roomId;
 
+export const getRoomNameOrId = (mx: MatrixClient, roomId: string): string =>
+    mx.getRoom(roomId)?.name || roomId;
+
 export const getImageInfo = (img: HTMLImageElement, fileOrBlob: File | Blob): IImageInfo => {
     const info: IImageInfo = {};
     info.w = img.width;

@@ -69,8 +69,8 @@ import { UserAvatar } from '../../../components/user-avatar';
 import { EncryptedContent } from '../../../features/room/message';
 import { getText, translate } from '../../../../lang';
 import { mdiAccount, mdiCheck, mdiCheckAll, mdiChevronUp, mdiMessage } from '@mdi/js';
-import { Button, Chip, Fab, IconButton } from '@mui/material';
-import { Check, DoneAll, KeyboardArrowUp } from '@mui/icons-material';
+import { AppBar, Button, Chip, Fab, IconButton, Toolbar, Typography } from '@mui/material';
+import { ArrowBack, Check, DoneAll, KeyboardArrowUp } from '@mui/icons-material';
 
 type RoomNotificationsGroup = {
     roomId: string;
@@ -544,14 +544,18 @@ export function Notifications() {
 
     return (
         <Page>
-            <PageHeader>
-                <Box grow="Yes" justifyContent="Center" alignItems="Center" gap="200">
-                    <MDIcon size={1} path={mdiMessage} />
-                    <Text size="H3">
+            <AppBar color='inherit' enableColorOnDark position='static'>
+                <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
+                    <IconButton
+                        onClick={() => history.back()}
+                    >
+                        <ArrowBack />
+                    </IconButton>
+                    <Typography component='div' variant='h6' flexGrow={1}>
                         {getText('notifications.title')}
-                    </Text>
-                </Box>
-            </PageHeader>
+                    </Typography>
+                </Toolbar>
+            </AppBar>
 
             <Box style={{ position: 'relative' }} grow="Yes">
                 <Scroll ref={scrollRef} hideTrack visibility="Hover">
