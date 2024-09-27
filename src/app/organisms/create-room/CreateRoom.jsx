@@ -15,6 +15,7 @@ import { useBackButton } from '../../hooks/useBackButton';
 import { Alert, AppBar, Autocomplete, Box, Button, CircularProgress, Dialog, IconButton, Switch, TextField, Toolbar, Typography } from '@mui/material';
 import { Add, Close } from '@mui/icons-material';
 import SettingTile from '../../molecules/setting-tile/SettingTile';
+import { LoadingButton } from '@mui/lab';
 
 function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
     const [joinRule, setJoinRule] = useState(parentId ? 'restricted' : 'invite');
@@ -196,22 +197,17 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                 <Box display='flex' flexDirection='column' gap='10px'>
                     <TextField fullWidth multiline name="topic" label={getText('create_room.topic')} />
                     <TextField fullWidth name="name" label={getText('create_room.name', getText(isSpace ? 'create_room.name.space' : 'create_room.name.room'))} required />
-                    <Button
+                    <LoadingButton
                         disabled={isValidAddress === false || isCreatingRoom}
                         startIcon={<Add />}
                         type="submit"
                         variant="contained"
                         color='primary'
+                        loading={isCreatingRoom}
                     >
                         {getText('btn.create_room')}
-                    </Button>
+                    </LoadingButton>
                 </Box>
-                {isCreatingRoom && (
-                    <div className="create-room__loading">
-                        <CircularProgress />
-                        <Typography variant='body1'>{getText('create_room.creating')}</Typography>
-                    </div>
-                )}
                 {typeof creatingError === 'string' && (
                     <Alert color='error'>
                         {creatingError}
