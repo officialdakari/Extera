@@ -25,7 +25,7 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
     const { navigateRoom, navigateSpace } = useRoomNavigate();
 
     const [isValidAddress, setIsValidAddress] = useState(null);
-    const [addressValue, setAddressValue] = useState(undefined);
+    const [addressValue, setAddressValue] = useState('');
     const [roleIndex, setRoleIndex] = useState(0);
 
     const addressRef = useRef(null);
@@ -91,9 +91,10 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
     };
 
     const validateAddress = (e) => {
-        const myAddress = e.target.value;
+        const myAddress = e.currentTarget.value;
+        console.log(myAddress, addressRef.current.value);
         setIsValidAddress(null);
-        setAddressValue(e.target.value);
+        setAddressValue(e.currentTarget.value);
         setCreatingError(null);
 
         setTimeout(async () => {
@@ -101,7 +102,7 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
             const roomAlias = addressRef.current.value;
             if (roomAlias === '') return;
             const roomAddress = `#${roomAlias}:${userHs}`;
-
+            console.log(roomAddress);
             if (await isRoomAliasAvailable(roomAddress)) {
                 setIsValidAddress(true);
             } else {
@@ -154,12 +155,14 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                     <>
                         <TextField
                             required
+                            fullWidth
                             color={isValidAddress ? 'primary' : 'error'}
                             placeholder='my_address'
                             label={getText(isSpace ? 'create_room.address.space' : 'create_room.address.room')}
                             value={addressValue}
                             onChange={validateAddress}
-                            ref={addressRef}
+                            inputRef={addressRef}
+                            margin='normal'
                         />
                         {!isValidAddress && (
                             <Alert severity='error' variant='outlined'>

@@ -7,18 +7,16 @@ import * as roomActions from '../../../client/action/room';
 import { hasDevices } from '../../../util/matrixUtil';
 
 import Text from '../../atoms/text/Text';
-import Button from '../../atoms/button/Button';
-import IconButton from '../../atoms/button/IconButton';
-import Spinner from '../../atoms/spinner/Spinner';
-import Input from '../../atoms/input/Input';
-import PopupWindow from '../../molecules/popup-window/PopupWindow';
 import RoomTile from '../../molecules/room-tile/RoomTile';
 
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
-import { getDMRoomFor } from '../../utils/matrix';
+import { getDMRoomFor, getRoomNameOrId } from '../../utils/matrix';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { mdiAccount, mdiClose } from '@mdi/js';
+import { AppBar, Button, CircularProgress, Dialog, DialogContent, Divider, IconButton, LinearProgress, TextField, Toolbar, Typography } from '@mui/material';
+import { Close } from '@mui/icons-material';
+import { SearchContainer, SearchIcon, SearchIconWrapper, SearchInputBase } from '../../atoms/search/Search';
 
 function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
     const [isSearching, updateIsSearching] = useState(false);
@@ -154,16 +152,14 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
     function renderUserList() {
         const renderOptions = (userId) => {
             const messageJSX = (message, isPositive) => (
-                <Text variant="b2">
-                    <span style={{ color: isPositive ? 'var(--bg-positive)' : 'var(--bg-negative)' }}>
-                        {message}
-                    </span>
-                </Text>
+                <Typography color={isPositive ? 'primary' : 'error'} variant='body2'>
+                    {message}
+                </Typography>
             );
 
             if (mx.getUserId() === userId) return null;
             if (procUsers.has(userId)) {
-                return <Spinner size="small" />;
+                return <CircularProgress />;
             }
             if (createdDM.has(userId)) {
                 // eslint-disable-next-line max-len
@@ -197,11 +193,11 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
                 }
             }
             return typeof roomId === 'string' ? (
-                <Button onClick={() => inviteToRoom(userId)} variant="primary">
+                <Button onClick={() => inviteToRoom(userId)} variant='contained' color="primary">
                     {getText('btn.invite')}
                 </Button>
             ) : (
-                <Button onClick={() => createDM(userId)} variant="primary">
+                <Button onClick={() => createDM(userId)} variant='contained' color="primary">
                     {getText('btn.dm')}
                 </Button>
             );
@@ -209,9 +205,9 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
         const renderError = (userId) => {
             if (!procUserError.has(userId)) return null;
             return (
-                <Text variant="b2">
-                    <span style={{ color: 'var(--bg-danger)' }}>{procUserError.get(userId)}</span>
-                </Text>
+                <Typography color='error'>
+                    {procUserError.get(userId)}
+                </Typography>
             );
         };
 
@@ -252,44 +248,106 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
     useBackButton(onRequestClose);
 
     return (
-        <PopupWindow
-            isOpen={isOpen}
-            title={typeof roomId === 'string' ? getText('invite.title', mx.getRoom(roomId).name) : getText('invite.dm')}
-            contentOptions={<IconButton src={mdiClose} onClick={onRequestClose} tooltip="Close" />}
-            onRequestClose={onRequestClose}
+        <Dialog
+            open={isOpen}
+            onClose={onRequestClose}
         >
-            <div className="invite-user">
+            <AppBar position='relative'>
+                <Toolbar>
+                    <Typography
+                        variant='h6'
+                        component='div'
+                        flexGrow={1}
+                    >
+                        {
+                            typeof roomId === 'string'
+                                ? getText('invite.title', getRoomNameOrId(roomId))
+                                : getText('invite.dm')
+                        }
+                    </Typography>
+                    <IconButton
+                        onClick={onRequestClose}
+                    >
+                        <Close />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+            <DialogContent>
                 <form
-                    className="invite-user__form"
                     onSubmit={(e) => {
                         e.preventDefault();
                         searchUser(usernameRef.current.value);
                     }}
                 >
-                    <Input value={searchTerm} forwardRef={usernameRef} label={getText('label.name_or_id')} />
-                    <Button disabled={isSearching} iconSrc={mdiAccount} variant="primary" type="submit">
+                    <SearchContainer>
+                        <SearchIconWrapper>
+                            <SearchIcon />
+                        </SearchIconWrapper>
+                        <SearchInputBase
+                            placeholder={getText('label.name_or_id')}
+                            inputProps={{ 'aria-label': 'search' }}
+                            inputRef={usernameRef}
+                        />
+                    </SearchContainer>
+                    {/* <TextField
+                        value={searchTerm}
+                        inputRef={usernameRef}
+                        label={getText('label.name_or_id')}
+                    />
+                    <LoadingButton
+                        loading={isSearching}
+                        type='submit'
+                        variant='contained'
+                    >
                         {getText('btn.invite.search')}
-                    </Button>
+                    </LoadingButton> */}
                 </form>
-                <div className="invite-user__search-status">
+                <div className="invite-user__content">
                     {typeof searchQuery.username !== 'undefined' && isSearching && (
-                        <div className="flex--center">
-                            <Spinner size="small" />
-                            <Text variant="b2">{getText('invite.searching', searchQuery.username)}</Text>
-                        </div>
+                        <LinearProgress />
                     )}
-                    {typeof searchQuery.username !== 'undefined' && !isSearching && (
-                        <Text variant="b2">{getText('invite.result', searchQuery.username)}</Text>
-                    )}
-                    {searchQuery.error && (
-                        <Text className="invite-user__search-error" variant="b2">
-                            {searchQuery.error}
-                        </Text>
-                    )}
+                    {users.length !== 0 && renderUserList()}
                 </div>
-                {users.length !== 0 && <div className="invite-user__content">{renderUserList()}</div>}
-            </div>
-        </PopupWindow>
+            </DialogContent>
+        </Dialog>
+        // <PopupWindow
+        //     isOpen={isOpen}
+        //     title={typeof roomId === 'string' ? getText('invite.title', mx.getRoom(roomId).name) : getText('invite.dm')}
+        //     contentOptions={<IconButton src={mdiClose} onClick={onRequestClose} tooltip="Close" />}
+        //     onRequestClose={onRequestClose}
+        // >
+        //     <div className="invite-user">
+        //         <form
+        //             className="invite-user__form"
+        //             onSubmit={(e) => {
+        //                 e.preventDefault();
+        //                 searchUser(usernameRef.current.value);
+        //             }}
+        //         >
+        //             <Input value={searchTerm} forwardRef={usernameRef} label={getText('label.name_or_id')} />
+        //             <Button disabled={isSearching} iconSrc={mdiAccount} variant="primary" type="submit">
+        //                 {getText('btn.invite.search')}
+        //             </Button>
+        //         </form>
+        //         <div className="invite-user__search-status">
+        //             {typeof searchQuery.username !== 'undefined' && isSearching && (
+        //                 <div className="flex--center">
+        //                     <Spinner size="small" />
+        //                     <Text variant="b2">{getText('invite.searching', searchQuery.username)}</Text>
+        //                 </div>
+        //             )}
+        //             {typeof searchQuery.username !== 'undefined' && !isSearching && (
+        //                 <Text variant="b2">{getText('invite.result', searchQuery.username)}</Text>
+        //             )}
+        //             {searchQuery.error && (
+        //                 <Text className="invite-user__search-error" variant="b2">
+        //                     {searchQuery.error}
+        //                 </Text>
+        //             )}
+        //         </div>
+        //         {users.length !== 0 && <div className="invite-user__content">{renderUserList()}</div>}
+        //     </div>
+        // </PopupWindow>
     );
 }
 

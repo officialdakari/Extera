@@ -134,6 +134,14 @@ function HomeHeader() {
                     >
                         {navHidden ? <MenuIcon /> : <MenuOpen />}
                     </IconButton>
+                    {/* <SearchContainer sx={{ flexGrow: 1 }}>
+                        <SearchIconWrapper>
+                            <SearchIcon />
+                        </SearchIconWrapper>
+                        <SearchInputBase
+                            placeholder='Search...'
+                        />
+                    </SearchContainer> */}
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         {getText('home.title')}
                     </Typography>

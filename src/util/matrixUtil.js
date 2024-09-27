@@ -36,9 +36,11 @@ export function getUsernameOfRoomMember(roomMember) {
 export async function isRoomAliasAvailable(alias) {
     try {
         const result = await initMatrix.matrixClient.getRoomIdForAlias(alias);
+        console.log(result);
         if (result.room_id) return false;
         return false;
     } catch (e) {
+        console.error(e);
         if (e.errcode === 'M_NOT_FOUND') return true;
         return false;
     }
