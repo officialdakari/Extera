@@ -129,7 +129,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                     element={
                         <PageRoot
                             nav={
-                                <MobileFriendlyPageNav path={HOME_PATH}>
+                                <MobileFriendlyPageNav path={SEARCH_PATH}>
                                     <SearchTab />
                                 </MobileFriendlyPageNav>
                             }
