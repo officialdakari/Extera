@@ -28,6 +28,7 @@ import {
     _ROOM_PATH,
     _SEARCH_PATH,
     _SERVER_PATH,
+    SEARCH_PATH,
 } from './paths';
 import { isAuthenticated } from '../../client/state/auth';
 import {
@@ -59,6 +60,7 @@ import { ClientNonUIFeatures } from './client/ClientNonUIFeatures';
 import AnimatedLayout from './AnimatedLayout';
 import CreateRoom from '../organisms/create-room/CreateRoom';
 import { useNavHidden } from '../hooks/useHideableNav';
+import SearchTab from './client/sidebar/SearchTab';
 
 export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize) => {
     const { hashRouter } = clientConfig;
@@ -122,6 +124,22 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                     </ClientRoot>
                 }
             >
+                <Route
+                    path={SEARCH_PATH}
+                    element={
+                        <PageRoot
+                            nav={
+                                <MobileFriendlyPageNav path={HOME_PATH}>
+                                    <SearchTab />
+                                </MobileFriendlyPageNav>
+                            }
+                        >
+                            <Outlet />
+                        </PageRoot>
+                    }
+                >
+                    {mobile ? null : <Route index element={<WelcomePage />} />}
+                </Route>
                 <Route
                     path={HOME_PATH}
                     element={

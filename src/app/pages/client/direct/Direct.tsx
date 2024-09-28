@@ -54,6 +54,7 @@ import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
 import { Add, DoneAll, MenuOpen, MoreVert, PersonAdd, Menu as MenuIcon } from '@mui/icons-material';
 import FAB from '../../../components/fab/FAB';
 import { useNavHidden } from '../../../hooks/useHideableNav';
+import SearchBar from '../SearchBar';
 
 type DirectMenuProps = {
     requestClose: () => void;
@@ -117,9 +118,7 @@ function DirectHeader() {
                     >
                         {navHidden ? <MenuIcon /> : <MenuOpen />}
                     </IconButton>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        {getText('direct_menu.title')}
-                    </Typography>
+                    <SearchBar />
                     <IconButton
                         size='large'
                         color='inherit'

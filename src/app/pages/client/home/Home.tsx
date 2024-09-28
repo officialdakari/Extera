@@ -55,6 +55,7 @@ import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
 import FAB from '../../../components/fab/FAB';
 import { Add, ArrowForward, ArrowRight, DoneAll, KeyboardArrowRight, MoreVert, Menu as MenuIcon, MenuOpen } from '@mui/icons-material';
 import { useNavHidden } from '../../../hooks/useHideableNav';
+import SearchBar from '../SearchBar';
 
 type HomeMenuProps = {
     requestClose: () => void;
@@ -134,17 +135,7 @@ function HomeHeader() {
                     >
                         {navHidden ? <MenuIcon /> : <MenuOpen />}
                     </IconButton>
-                    {/* <SearchContainer sx={{ flexGrow: 1 }}>
-                        <SearchIconWrapper>
-                            <SearchIcon />
-                        </SearchIconWrapper>
-                        <SearchInputBase
-                            placeholder='Search...'
-                        />
-                    </SearchContainer> */}
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        {getText('home.title')}
-                    </Typography>
+                    <SearchBar />
                     <IconButton
                         size='large'
                         color='inherit'

@@ -15,6 +15,9 @@
 }
 
 .profile-viewer {
+    &__box {
+        align-self: flex-end;
+    }
 
     &__user {
         display: flex;

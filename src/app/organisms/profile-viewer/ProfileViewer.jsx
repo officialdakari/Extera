@@ -538,9 +538,17 @@ function ProfileViewer() {
         return (
             <div className="profile-viewer">
                 <Box grow='Yes'>
-                    <AppBar position='static'>
+                    <AppBar
+                        position='static'
+                        sx={bannerUrl && {
+                            background: `url(${bannerUrl}), #00000060`,
+                            backgroundRepeat: 'no-repeat',
+                            backgroundSize: 'cover',
+                            backgroundBlendMode: 'darken'
+                        }}
+                    >
                         <StyledToolbar>
-                            <Box as='div' grow='Yes' style={{ alignSelf: 'flex-end' }}>
+                            <Box as='div' grow='Yes' className='profile-viewer__box'>
                                 <div className="profile-viewer__user">
                                     <Avatar style={avStyle} imageSrc={avatarUrl} text={username} bgColor={colorMXID(userId)} size="large" />
                                     <div className="profile-viewer__user__info">

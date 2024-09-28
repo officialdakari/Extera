@@ -955,5 +955,9 @@
 	"form.register.accept_tos": "Принимаю Условия использования сервера.",
 	"tooltip.new_dm": "Личное сообщение",
 	"tooltip.join_room": "Войти в комнату",
-	"tooltip.new_room": "Создать комнату"
+	"tooltip.new_room": "Создать комнату",
+	"search": "Поиск...",
+	"search.tab.messages": "Сообщения",
+	"search.tab.chats": "Чаты",
+	"search.tab.users": "Пользователи"
 }

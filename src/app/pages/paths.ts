@@ -47,6 +47,8 @@ export const DIRECT_PATH = '/direct/';
 export const DIRECT_CREATE_PATH = `/direct/${_CREATE_PATH}`;
 export const DIRECT_ROOM_PATH = `/direct/${_ROOM_PATH}`;
 
+export const SEARCH_PATH = '/search/';
+
 export const SPACE_PATH = '/:spaceIdOrAlias/';
 export const SPACE_LOBBY_PATH = `/:spaceIdOrAlias/${_LOBBY_PATH}`;
 export const SPACE_SEARCH_PATH = `/:spaceIdOrAlias/${_SEARCH_PATH}`;

@@ -8,6 +8,7 @@ import Text from '../../atoms/text/Text';
 import Avatar from '../../atoms/avatar/Avatar';
 import NotificationBadge from '../../atoms/badge/NotificationBadge';
 import { blurOnBubbling } from '../../atoms/button/script';
+import { Badge } from '@mui/material';
 
 function RoomSelectorWrapper({
     isSelected,
@@ -75,14 +76,16 @@ function RoomSelector({
             isUnread={isUnread}
             content={
                 <>
-                    <Avatar
-                        text={name}
-                        bgColor={colorMXID(roomId)}
-                        imageSrc={imageSrc}
-                        iconColor="var(--ic-surface-low)"
-                        iconSrc={iconSrc}
-                        size="small"
-                    />
+                    <Badge color={isAlert ? 'error' : 'primary'} badgeContent={notificationCount} max={99}>
+                        <Avatar
+                            text={name}
+                            bgColor={colorMXID(roomId)}
+                            imageSrc={imageSrc}
+                            iconColor="var(--ic-surface-low)"
+                            iconSrc={iconSrc}
+                            size="medium"
+                        />
+                    </Badge>
                     <Text variant="b1" weight={isUnread ? 'medium' : 'normal'}>
                         {name}
                         {parentName && (
@@ -92,12 +95,6 @@ function RoomSelector({
                             </Text>
                         )}
                     </Text>
-                    {isUnread && (
-                        <NotificationBadge
-                            alert={isAlert}
-                            content={notificationCount !== 0 ? notificationCount : null}
-                        />
-                    )}
                 </>
             }
             options={options}
