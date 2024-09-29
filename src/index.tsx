@@ -15,6 +15,7 @@ import settings from './client/state/settings';
 import App from './app/pages/App';
 import getCachedURL from './app/utils/cache';
 import { trimTrailingSlash } from './app/utils/common';
+import cons from './client/state/cons';
 
 document.body.classList.add(configClass, varsClass);
 settings.applyTheme();
@@ -30,7 +31,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.addEventListener('message', (event) => {
         if (event.data?.type === 'token' && event.data?.responseKey) {
             // Get the token for SW.
-            const token = localStorage.getItem('cinny_access_token') ?? undefined;
+            const token = localStorage.getItem(cons.secretKey.ACCESS_TOKEN) ?? undefined;
             event.source!.postMessage({
                 responseKey: event.data.responseKey,
                 token,

@@ -13,7 +13,7 @@ self.addEventListener('install', (event) => {
 export type { };
 declare const self: ServiceWorkerGlobalScope;
 
-async function askForAccessToken(client: Client): Promise<string | undefined> {
+function askForAccessToken(client: Client): Promise<string | undefined> {
     return new Promise((resolve) => {
         const responseKey = Math.random().toString(36);
         const listener = (event: ExtendableMessageEvent) => {
@@ -60,7 +60,7 @@ self.addEventListener('fetch', (event: FetchEvent) => {
             let token: string | undefined;
             if (client) token = await askForAccessToken(client);
 
-            const res = await fetch(url, isAuthedMedia ? fetchConfig(token) : undefined);
+            const res = await fetch(url, (isAuthedMedia || isMedia) ? fetchConfig(token) : undefined);
 
             if (res?.ok) {
                 await cache.put(url, res.clone());
