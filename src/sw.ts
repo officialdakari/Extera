@@ -38,13 +38,9 @@ function fetchConfig(token?: string): RequestInit | undefined {
 
 self.addEventListener('fetch', (event: FetchEvent) => {
     const { url, method } = event.request;
-    self.clients.get(event.clientId).then(client => {
-        client?.postMessage({
-            log: `Handling ${method} ${url}`
-        });
-    });
+    console.log(event.request);
     if (method !== 'GET') return;
-    const isAuthedMedia = url.includes('/_matrix/client/v1/media/');
+    const isAuthedMedia = url.includes('/_matrix/client/v1/media/download') || url.includes('/_matrix/client/v1/media/thumbnail');
     const shouldCache = url.includes('/_matrix/client/versions');
     const isMedia = url.includes('/_matrix/media/');
     if (

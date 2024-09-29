@@ -11,11 +11,10 @@
         "openAsDefault": false,
         "spaces": [],
         "rooms": [
-            "#extera:officialdakari.ru",
-            "#basement:officialdakari.ru"
+            "#extera:extera.xyz"
         ],
         "servers": [
-            "officialdakari.ru",
+            "extera.xyz",
             "matrix.org",
             "matrixrooms.info"
         ]
