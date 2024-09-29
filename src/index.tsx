@@ -17,8 +17,6 @@ import getCachedURL from './app/utils/cache';
 import { trimTrailingSlash } from './app/utils/common';
 
 document.body.classList.add(configClass, varsClass);
-if (navigator.serviceWorker) navigator.serviceWorker.register('/worker.js');
-if (navigator.serviceWorker) navigator.serviceWorker.register('/cacher.js');
 settings.applyTheme();
 
 // Register Service Worker
