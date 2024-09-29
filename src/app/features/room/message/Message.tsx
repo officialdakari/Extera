@@ -1434,7 +1434,7 @@ export const Message = as<'div', MessageProps>(
         useEffect(() => {
             const listener = (event: MatrixEvent) => {
                 if (event.getId() === mEvent.getId()) {
-                    setStatus(event.status!);
+                    setStatus(mEvent.status || EventStatus.SENT);
                     console.log(event.status);
                 }
             };

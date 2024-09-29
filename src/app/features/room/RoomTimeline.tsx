@@ -1804,13 +1804,13 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
 
         const newDividerJSX =
             newDivider && eventJSX && mEvent.getSender() !== mx.getUserId() ? (
-                <MessageBase space={messageSpacing}>
-                    <TimelineDivider style={{ color: color.Success.Main }} variant="Inherit">
-                        <Badge as="span" size="500" variant="Success" fill="Solid" radii="300">
-                            <Text size="L400">{getText('timeline.new_messages_divider')}</Text>
-                        </Badge>
-                    </TimelineDivider>
-                </MessageBase>
+                <Divider>
+                    <Chip
+                        size='small'
+                        color='error'
+                        label={getText('timeline.new_messages_divider')}
+                    />
+                </Divider>
             ) : null;
 
         var dayDividerText: string = '';
@@ -1823,7 +1823,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
                 <Divider>
                     <Chip
                         label={dayDividerText}
-                        variant='filled'
+                        size='small'
                     />
                 </Divider>
             ) : null;
