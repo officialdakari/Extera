@@ -40,7 +40,7 @@ self.addEventListener('fetch', (event: FetchEvent) => {
     const { url, method } = event.request;
     if (method !== 'GET') return;
     const isAuthedMedia = url.includes('/_matrix/client/v1/media/');
-    const shouldCache = url.includes('/_matrix/client/versions') || url.startsWith('https://ecs.extera.xyz/');
+    const shouldCache = url.includes('/_matrix/client/versions');
     const isMedia = url.includes('/_matrix/media/');
     if (
         !isAuthedMedia &&
@@ -49,6 +49,11 @@ self.addEventListener('fetch', (event: FetchEvent) => {
     ) {
         return;
     }
+    self.clients.get(event.clientId).then(client => {
+        client?.postMessage({
+            log: `Handling ${method} ${url}`
+        });
+    });
     event.respondWith(
         (async (): Promise<Response> => {
             const cache = await caches.open(cacheName);
@@ -60,7 +65,7 @@ self.addEventListener('fetch', (event: FetchEvent) => {
             let token: string | undefined;
             if (client) token = await askForAccessToken(client);
 
-            const res = await fetch(url, (isAuthedMedia || isMedia) ? fetchConfig(token) : undefined);
+            const res = await fetch(url, fetchConfig(token));
 
             if (res?.ok) {
                 await cache.put(url, res.clone());

@@ -36,6 +36,8 @@ if ('serviceWorker' in navigator) {
                 responseKey: event.data.responseKey,
                 token,
             });
+        } else if (typeof event.data?.log === 'string') {
+            console.log(event.data?.log);
         }
     });
 }
