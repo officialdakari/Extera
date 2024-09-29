@@ -261,7 +261,7 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
                     >
                         {
                             typeof roomId === 'string'
-                                ? getText('invite.title', getRoomNameOrId(roomId))
+                                ? getText('invite.title', getRoomNameOrId(mx, roomId))
                                 : getText('invite.dm')
                         }
                     </Typography>
