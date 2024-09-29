@@ -6,7 +6,7 @@ export const TimelineFloat = recipe({
     DefaultReset,
     {
       position: 'absolute',
-      left: '50%',
+      right: '10px',
       transform: 'translateX(-50%)',
       zIndex: 1,
       minWidth: 'max-content',

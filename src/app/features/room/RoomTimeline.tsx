@@ -34,7 +34,6 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import {
     Badge,
     Box,
-    Chip,
     ContainerColor,
     Line,
     Scroll,
@@ -124,13 +123,15 @@ import { ThreadPreview } from './message/ThreadPreview';
 import HiddenContent from '../../components/hidden-content/HiddenContent';
 import { isIgnored } from '../../../client/action/room';
 import { v4 } from 'uuid';
+import { Chip, Divider, Fab } from '@mui/material';
+import { ArrowUpward, DoneAll, KeyboardArrowDown } from '@mui/icons-material';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
     ({ position, className, ...props }, ref) => (
         <Box
             className={classNames(css.TimelineFloat({ position }), className)}
-            justifyContent="Center"
-            alignItems="Center"
+            justifyContent="End"
+            alignItems="End"
             gap="200"
             {...props}
             ref={ref}
@@ -1812,21 +1813,19 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
                 </MessageBase>
             ) : null;
 
+        var dayDividerText: string = '';
+        if (today(mEvent.getTs())) dayDividerText = getText('timeline.today_divider');
+        if (yesterday(mEvent.getTs())) dayDividerText = getText('timeline.yesterday_divider');
+        dayDividerText = timeDayMonthYear(mEvent.getTs());
+
         const dayDividerJSX =
             dayDivider && eventJSX ? (
-                <MessageBase space={messageSpacing}>
-                    <TimelineDivider variant="Surface">
-                        <Badge as="span" size="500" variant="Secondary" fill="None" radii="300">
-                            <Text size="L400">
-                                {(() => {
-                                    if (today(mEvent.getTs())) return getText('timeline.today_divider');
-                                    if (yesterday(mEvent.getTs())) return getText('timeline.yesterday_divider');
-                                    return timeDayMonthYear(mEvent.getTs());
-                                })()}
-                            </Text>
-                        </Badge>
-                    </TimelineDivider>
-                </MessageBase>
+                <Divider>
+                    <Chip
+                        label={dayDividerText}
+                        variant='filled'
+                    />
+                </Divider>
             ) : null;
 
         if (eventJSX && (newDividerJSX || dayDividerJSX)) {
@@ -1849,25 +1848,20 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
         <Box grow="Yes" style={{ position: 'relative' }}>
             {unreadInfo?.readUptoEventId && !unreadInfo?.inLiveTimeline && (
                 <TimelineFloat position="Top">
-                    <Chip
-                        variant="Primary"
-                        radii="Pill"
-                        outlined
-                        before={<Icon size={0.7} path={mdiMessageAlert} />}
+                    <Fab
+                        size='small'
+                        aria-label={getText('btn.timeline.jump_to_unread')}
                         onClick={handleJumpToUnread}
                     >
-                        <Text size="L400">{getText('btn.timeline.jump_to_unread')}</Text>
-                    </Chip>
-
-                    <Chip
-                        variant="SurfaceVariant"
-                        radii="Pill"
-                        outlined
-                        before={<Icon size={0.7} path={mdiCheckAll} />}
+                        <ArrowUpward />
+                    </Fab>
+                    <Fab
+                        size='small'
+                        aria-label={getText('btn.timeline.mark_as_read')}
                         onClick={handleMarkAsRead}
                     >
-                        <Text size="L400">{getText('btn.timeline.mark_as_read')}</Text>
-                    </Chip>
+                        <DoneAll />
+                    </Fab>
                 </TimelineFloat>
             )}
             <Scroll ref={scrollRef} visibility="Hover">
@@ -1926,15 +1920,13 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef, threadR
             </Scroll>
             {!atBottom && (
                 <TimelineFloat position="Bottom">
-                    <Chip
-                        variant="SurfaceVariant"
-                        radii="Pill"
-                        outlined
-                        before={<Icon size={0.7} path={mdiChevronDown} />}
+                    <Fab
+                        size='small'
+                        aria-label={getText('btn.timeline.jump_to_latest')}
                         onClick={handleJumpToLatest}
                     >
-                        <Text size="L400">{getText('btn.timeline.jump_to_latest')}</Text>
-                    </Chip>
+                        <KeyboardArrowDown />
+                    </Fab>
                 </TimelineFloat>
             )}
         </Box>
