@@ -38,6 +38,11 @@ function fetchConfig(token?: string): RequestInit | undefined {
 
 self.addEventListener('fetch', (event: FetchEvent) => {
     const { url, method } = event.request;
+    self.clients.get(event.clientId).then(client => {
+        client?.postMessage({
+            log: `Handling ${method} ${url}`
+        });
+    });
     if (method !== 'GET') return;
     const isAuthedMedia = url.includes('/_matrix/client/v1/media/');
     const shouldCache = url.includes('/_matrix/client/versions');
@@ -49,11 +54,6 @@ self.addEventListener('fetch', (event: FetchEvent) => {
     ) {
         return;
     }
-    self.clients.get(event.clientId).then(client => {
-        client?.postMessage({
-            log: `Handling ${method} ${url}`
-        });
-    });
     event.respondWith(
         (async (): Promise<Response> => {
             const cache = await caches.open(cacheName);
