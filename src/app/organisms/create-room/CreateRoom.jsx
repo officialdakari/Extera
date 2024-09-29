@@ -190,7 +190,7 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                             options={pls}
                             onChange={(evt, v) => setRoleIndex(pls.indexOf(v))}
                             getOptionLabel={(l) => getText(l)}
-                            value={getText(pls[roleIndex])}
+                            value={pls[roleIndex]}
                         />
                     }
                     content={
