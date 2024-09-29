@@ -73,7 +73,6 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
     const [isVideoMuted, setVideoMuted] = useState(false);
 
     const handleHang = useCallback(() => {
-        console.debug(`hanging up`, call);
         if (call) {
             call.hangup(CallErrorCode.UserHangup, false);
             for (const feed of call.getLocalFeeds()) {
@@ -84,7 +83,6 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
 
     const handleMute = useCallback(async () => {
         if (!call) {
-            console.debug('No call, dont handling mute');
             return;
         }
 
@@ -96,7 +94,6 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
 
     const handleVideoMute = useCallback(async () => {
         if (!call) {
-            console.debug('No call, dont handling mute');
             return;
         }
 
@@ -133,8 +130,6 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
         await call.answer(true, true);
     }, []);
 
-    console.debug(`Rerendering RoomCall`);
-
     call.on(CallEvent.FeedsChanged, (feeds: CallFeed[]) => {
         feeds.forEach(feed => {
             const remoteStream = feed.stream;
@@ -149,7 +144,6 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
                     }, 1000);
                 }
             } else {
-                console.debug(`REMOTE FEED!!!`, feed);
                 if (feed.hasAudioTrack) {
                     if (audioRef.current) {
                         audioRef.current.srcObject = remoteStream;
@@ -162,8 +156,6 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
                         if (recipientVideoRef.current) {
                             recipientVideoRef.current.srcObject = remoteStream;
                             recipientVideoRef.current.play().catch(console.error);
-                        } else {
-                            console.error(`NO RECIPIENT VIDEO REF!!!!!!! CRITICAL ERROR`);
                         }
                     }, 1000);
                 }

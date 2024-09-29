@@ -1,5 +1,5 @@
 import React, { RefObject, useEffect, useMemo, useRef } from 'react';
-import { Text, Box, config, Spinner, IconButton, Line, toRem } from 'folds';
+import { Text, Box, config, toRem } from 'folds';
 import { useAtomValue } from 'jotai';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -26,6 +26,8 @@ import { VirtualTile } from '../../components/virtualizer';
 import { getText, translate } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiAlertCircleOutline, mdiChevronUp, mdiMessageOutline } from '@mdi/js';
+import { CircularProgress, Divider, Fab, IconButton, LinearProgress } from '@mui/material';
+import { KeyboardArrowUp } from '@mui/icons-material';
 
 const useSearchPathSearchParams = (searchParams: URLSearchParams): _SearchPathSearchParams =>
     useMemo(
@@ -45,6 +47,8 @@ type MessageSearchProps = {
     rooms: string[];
     senders?: string[];
     scrollRef: RefObject<HTMLDivElement>;
+    searchRef?: RefObject<HTMLInputElement>;
+    mSearchParams?: MessageSearchParams;
 };
 export function MessageSearch({
     defaultRoomsFilterName,
@@ -52,13 +56,15 @@ export function MessageSearch({
     rooms,
     senders,
     scrollRef,
+    searchRef,
+    mSearchParams
 }: MessageSearchProps) {
     const mx = useMatrixClient();
     const mDirects = useAtomValue(mDirectAtom);
     const allRooms = useRooms(mx, allRoomsAtom, mDirects);
     const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
     const [urlPreview] = useSetting(settingsAtom, 'urlPreview');
-    const searchInputRef = useRef<HTMLInputElement>(null);
+    const searchInputRef = searchRef ?? useRef<HTMLInputElement>(null);
     const scrollTopAnchorRef = useRef<HTMLDivElement>(null);
     const [searchParams, setSearchParams] = useSearchParams();
     const searchPathSearchParams = useSearchPathSearchParams(searchParams);
@@ -85,12 +91,12 @@ export function MessageSearch({
         const defaultRooms = isGlobal ? undefined : rooms;
 
         return {
-            term: searchPathSearchParams.term,
-            order: searchPathSearchParams.order ?? SearchOrderBy.Recent,
-            rooms: searchParamRooms ?? defaultRooms,
-            senders: searchParamsSenders ?? senders,
+            term: mSearchParams?.term ?? searchPathSearchParams.term,
+            order: searchPathSearchParams.order ?? mSearchParams?.order ?? SearchOrderBy.Recent,
+            rooms: searchParamRooms ?? mSearchParams?.rooms ?? defaultRooms,
+            senders: searchParamsSenders ?? mSearchParams?.senders ?? senders,
         };
-    }, [searchPathSearchParams, searchParamRooms, searchParamsSenders, rooms, senders]);
+    }, [searchPathSearchParams, searchParamRooms, searchParamsSenders, rooms, senders, mSearchParams]);
 
     const searchMessages = useMessageSearch(msgSearchParams);
 
@@ -190,25 +196,20 @@ export function MessageSearch({
     return (
         <Box direction="Column" gap="700">
             <ScrollTopContainer scrollRef={scrollRef} anchorRef={scrollTopAnchorRef}>
-                <IconButton
-                    onClick={() => virtualizer.scrollToOffset(0)}
-                    variant="SurfaceVariant"
-                    radii="Pill"
-                    outlined
-                    size="300"
-                    aria-label={getText('aria.scroll_to_top')}
-                >
-                    <Icon size={0.8} path={mdiChevronUp} />
-                </IconButton>
+                <Fab size='small' onClick={() => virtualizer.scrollToOffset(0)} aria-label={getText('scroll_to_top')}>
+                    <KeyboardArrowUp />
+                </Fab>
             </ScrollTopContainer>
             <Box ref={scrollTopAnchorRef} direction="Column" gap="300">
-                <SearchInput
-                    active={!!msgSearchParams.term}
-                    loading={status === 'pending'}
-                    searchInputRef={searchInputRef}
-                    onSearch={handleSearch}
-                    onReset={handleSearchClear}
-                />
+                {!searchRef && (
+                    <SearchInput
+                        active={!!msgSearchParams.term}
+                        loading={status === 'pending'}
+                        searchInputRef={searchInputRef}
+                        onSearch={handleSearch}
+                        onReset={handleSearchClear}
+                    />
+                )}
                 <SearchFilters
                     defaultRoomsFilterName={defaultRoomsFilterName}
                     allowGlobal={allowGlobal}
@@ -261,18 +262,14 @@ export function MessageSearch({
 
             {((msgSearchParams.term && status === 'pending') ||
                 (groups.length > 0 && vItems.length === 0)) && (
-                    <Box direction="Column" gap="100">
-                        {[...Array(8).keys()].map((key) => (
-                            <SequenceCard variant="SurfaceVariant" key={key} style={{ minHeight: toRem(80) }} />
-                        ))}
-                    </Box>
+                    <LinearProgress />
                 )}
 
             {vItems.length > 0 && (
                 <Box direction="Column" gap="300">
                     <Box direction="Column" gap="200">
                         <Text size="H5">{getText('generic.results', msgSearchParams.term)}</Text>
-                        <Line size="300" variant="Surface" />
+                        <Divider />
                     </Box>
                     <div
                         style={{
@@ -307,7 +304,7 @@ export function MessageSearch({
                     </div>
                     {isFetchingNextPage && (
                         <Box justifyContent="Center" alignItems="Center">
-                            <Spinner size="600" variant="Secondary" />
+                            <CircularProgress />
                         </Box>
                     )}
                 </Box>

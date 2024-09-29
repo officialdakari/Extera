@@ -155,11 +155,13 @@ export const BubbleContentRightAligned = style([
 ]);
 
 export const BubbleAfter = style({
-    color: color.SurfaceVariant.OnContainer,
-    whiteSpace: 'nowrap',
-    fontSize: 'small',
-    alignSelf: 'flex-end',
-    marginLeft: 'auto',
+    position: 'relative',
+    //top: '.375rem',
+    bottom: 'auto !important',
+    float: 'right',
+    lineHeight: 1.35,
+    marginLeft: '.4375rem',
+    //marginRight: '-0.375rem'
 });
 
 

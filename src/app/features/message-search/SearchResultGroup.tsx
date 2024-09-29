@@ -166,7 +166,7 @@ export function SearchResultGroup({
 
     return (
         <Box direction="Column" gap="200">
-            <Header size="300">
+            <Box>
                 <Box gap="200" grow="Yes">
                     <Avatar size="200" radii="300">
                         <RoomAvatar
@@ -182,7 +182,7 @@ export function SearchResultGroup({
                         {room.name}
                     </Text>
                 </Box>
-            </Header>
+            </Box>
             <Box direction="Column" gap="100">
                 {items.map((item) => {
                     const { event } = item;

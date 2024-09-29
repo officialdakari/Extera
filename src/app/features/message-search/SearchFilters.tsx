@@ -8,20 +8,12 @@ import React, {
 } from 'react';
 import {
     Box,
-    Chip,
     Text,
-    Line,
     config,
-    PopOut,
-    Menu,
-    MenuItem,
-    Header,
     toRem,
     Scroll,
-    Button,
-    Input,
-    Badge,
     RectCords,
+    Avatar,
 } from 'folds';
 import { JoinRule, SearchOrderBy } from 'matrix-js-sdk';
 import FocusTrap from 'focus-trap-react';
@@ -39,74 +31,52 @@ import { VirtualTile } from '../../components/virtualizer';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiCheck, mdiClose, mdiMessageLockOutline, mdiMessageOutline, mdiPlusCircleOutline, mdiSort } from '@mdi/js';
+import { Button, Chip, Divider, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
+import { SearchContainer, SearchIcon, SearchIconWrapper, SearchInputBase } from '../../atoms/search/Search';
+import { RoomAvatar } from '../../components/room-avatar';
+import { nameInitials } from '../../utils/common';
 
 type OrderButtonProps = {
     order?: string;
     onChange: (order?: string) => void;
 };
 function OrderButton({ order, onChange }: OrderButtonProps) {
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
+    const [menuAnchor, setMenuAnchor] = useState<Element | null>(null);
     const rankOrder = order === SearchOrderBy.Rank;
 
     const setOrder = (o?: string) => {
-        setMenuAnchor(undefined);
+        setMenuAnchor(null);
         onChange(o);
     };
     const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        setMenuAnchor(evt.currentTarget.getBoundingClientRect());
+        setMenuAnchor(evt.currentTarget);
     };
 
     return (
-        <PopOut
-            anchor={menuAnchor}
-            align="End"
-            position="Bottom"
-            content={
-                <FocusTrap
-                    focusTrapOptions={{
-                        initialFocus: false,
-                        onDeactivate: () => setMenuAnchor(undefined),
-                        clickOutsideDeactivates: true,
-                    }}
-                >
-                    <Menu variant="Surface">
-                        <Header size="300" variant="Surface" style={{ padding: `0 ${config.space.S300}` }}>
-                            <Text size="L400">{getText('generic.sort_by')}</Text>
-                        </Header>
-                        <Line variant="Surface" size="300" />
-                        <div style={{ padding: config.space.S100 }}>
-                            <MenuItem
-                                onClick={() => setOrder()}
-                                variant="Surface"
-                                size="300"
-                                radii="300"
-                                aria-pressed={!rankOrder}
-                            >
-                                <Text size="T300">{getText('sort.recent')}</Text>
-                            </MenuItem>
-                            <MenuItem
-                                onClick={() => setOrder(SearchOrderBy.Rank)}
-                                variant="Surface"
-                                size="300"
-                                radii="300"
-                                aria-pressed={rankOrder}
-                            >
-                                <Text size="T300">{getText('sort.relevance')}</Text>
-                            </MenuItem>
-                        </div>
-                    </Menu>
-                </FocusTrap>
-            }
-        >
+        <>
             <Chip
-                variant="SurfaceVariant"
-                radii="Pill"
-                after={<Icon size={0.8} path={mdiSort} />}
                 onClick={handleOpenMenu}
+                label={getText(rankOrder ? 'sort.relevance' : 'sort.recent')}
+                component='button'
+            />
+            <Menu
+                anchorEl={menuAnchor}
+                open={!!menuAnchor}
             >
-                {<Text size="T200">{getText(rankOrder ? 'sort.relevance' : 'sort.recent')}</Text>}
-            </Chip>
-        </PopOut>
+                <MenuItem
+                    selected={!rankOrder}
+                    onClick={() => setOrder()}
+                >
+                    <ListItemText>{getText('sort.recent')}</ListItemText>
+                </MenuItem>
+                <MenuItem
+                    selected={rankOrder}
+                    onClick={() => setOrder(SearchOrderBy.Rank)}
+                >
+                    <ListItemText>{getText('sort.relevance')}</ListItemText>
+                </MenuItem>
+            </Menu>
+        </>
     );
 }
 
@@ -128,7 +98,7 @@ type SelectRoomButtonProps = {
 function SelectRoomButton({ roomList, selectedRooms, onChange }: SelectRoomButtonProps) {
     const mx = useMatrixClient();
     const scrollRef = useRef<HTMLDivElement>(null);
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
+    const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
     const [localSelected, setLocalSelected] = useState(selectedRooms);
 
     const getRoomNameStr: SearchItemStrGetter<string> = useCallback(
@@ -174,12 +144,12 @@ function SelectRoomButton({ roomList, selectedRooms, onChange }: SelectRoomButto
     };
 
     const handleSave = () => {
-        setMenuAnchor(undefined);
+        setMenuAnchor(null);
         onChange(localSelected);
     };
 
     const handleDeselectAll = () => {
-        setMenuAnchor(undefined);
+        setMenuAnchor(null);
         onChange(undefined);
     };
 
@@ -189,141 +159,111 @@ function SelectRoomButton({ roomList, selectedRooms, onChange }: SelectRoomButto
     }, [menuAnchor, selectedRooms, resetSearch]);
 
     const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        setMenuAnchor(evt.currentTarget.getBoundingClientRect());
+        setMenuAnchor(evt.currentTarget);
     };
 
     return (
-        <PopOut
-            anchor={menuAnchor}
-            align="Center"
-            position="Bottom"
-            content={
-                <FocusTrap
-                    focusTrapOptions={{
-                        initialFocus: false,
-                        onDeactivate: () => setMenuAnchor(undefined),
-                        clickOutsideDeactivates: true,
-                    }}
-                >
-                    <Menu variant="Surface" style={{ width: toRem(250) }}>
-                        <Box direction="Column" style={{ maxHeight: toRem(450), maxWidth: toRem(300) }}>
-                            <Box
-                                shrink="No"
-                                direction="Column"
-                                gap="100"
-                                style={{ padding: config.space.S200, paddingBottom: 0 }}
-                            >
-                                <Text size="L400">{getText('form.search.query')}</Text>
-                                <Input
-                                    onChange={handleSearchChange}
-                                    size="300"
-                                    radii="300"
-                                    after={
-                                        searchResult && searchResult.items.length > 0 ? (
-                                            <Badge variant="Secondary" size="400" radii="Pill">
-                                                <Text size="L400">{searchResult.items.length}</Text>
-                                            </Badge>
-                                        ) : null
-                                    }
-                                />
-                            </Box>
-                            <Scroll ref={scrollRef} size="300" hideTrack>
-                                <Box
-                                    direction="Column"
-                                    gap="100"
-                                    style={{
-                                        padding: config.space.S200,
-                                        paddingRight: 0,
-                                    }}
-                                >
-                                    {!searchResult && <Text size="L400">{getText('rooms')}</Text>}
-                                    {searchResult && <Text size="L400">{getText('generic.results.room', searchResult.query)}</Text>}
-                                    {searchResult && searchResult.items.length === 0 && (
-                                        <Text style={{ padding: config.space.S400 }} size="T300" align="Center">
-                                            {getText('generic.no_matches')}
-                                        </Text>
-                                    )}
-                                    <div
-                                        style={{
-                                            position: 'relative',
-                                            height: virtualizer.getTotalSize(),
-                                        }}
-                                    >
-                                        {vItems.map((vItem) => {
-                                            const roomId = rooms[vItem.index];
-                                            const room = mx.getRoom(roomId);
-                                            if (!room) return null;
-                                            const selected = localSelected?.includes(roomId);
+        <>
+            <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
+                <SearchContainer>
+                    <SearchIconWrapper>
+                        <SearchIcon />
+                    </SearchIconWrapper>
+                    <SearchInputBase
+                        placeholder={getText('search')}
+                        onChange={handleSearchChange}
+                    />
+                </SearchContainer>
+                <Divider />
+                <Scroll ref={scrollRef} size="300" hideTrack>
+                    <Box
+                        direction="Column"
+                        gap="100"
+                        style={{
+                            padding: config.space.S200,
+                            paddingRight: 0,
+                        }}
+                    >
+                        {!searchResult && <Text size="L400">{getText('rooms')}</Text>}
+                        {searchResult && <Text size="L400">{getText('generic.results.room', searchResult.query)}</Text>}
+                        {searchResult && searchResult.items.length === 0 && (
+                            <Text style={{ padding: config.space.S400 }} size="T300" align="Center">
+                                {getText('generic.no_matches')}
+                            </Text>
+                        )}
+                        <div
+                            style={{
+                                position: 'relative',
+                                height: virtualizer.getTotalSize(),
+                            }}
+                        >
+                            {vItems.map((vItem) => {
+                                const roomId = rooms[vItem.index];
+                                const room = mx.getRoom(roomId);
+                                if (!room) return null;
+                                const selected = localSelected?.includes(roomId);
+                                const avatarSrc = room.getAvatarUrl(mx.getHomeserverUrl(), 96, 96, 'scale', false) || undefined;
 
-                                            return (
-                                                <VirtualTile
-                                                    virtualItem={vItem}
-                                                    style={{ paddingBottom: config.space.S100 }}
-                                                    ref={virtualizer.measureElement}
-                                                    key={vItem.index}
-                                                >
-                                                    <MenuItem
-                                                        data-room-id={roomId}
-                                                        onClick={handleRoomClick}
-                                                        variant={selected ? 'Success' : 'Surface'}
-                                                        size="300"
-                                                        radii="300"
-                                                        aria-pressed={selected}
-                                                        before={
-                                                            <Icon
-                                                                size={0.8}
-                                                                path={
-                                                                    room.getJoinRule() !== JoinRule.Public ?
-                                                                        mdiMessageLockOutline :
-                                                                        mdiMessageOutline
-                                                                }
-                                                            />
-                                                        }
-                                                    >
-                                                        <Text truncate size="T300">
-                                                            {room.name}
-                                                        </Text>
-                                                    </MenuItem>
-                                                </VirtualTile>
-                                            );
-                                        })}
-                                    </div>
-                                </Box>
-                            </Scroll>
-                            <Line variant="Surface" size="300" />
-                            <Box shrink="No" direction="Column" gap="100" style={{ padding: config.space.S200 }}>
-                                <Button size="300" variant="Secondary" radii="300" onClick={handleSave}>
-                                    {localSelected && localSelected.length > 0 ? (
-                                        <Text size="B300">{getText('btn.save.2', localSelected.length)}</Text>
-                                    ) : (
-                                        <Text size="B300">{getText('btn.save')}</Text>
-                                    )}
-                                </Button>
-                                <Button
-                                    size="300"
-                                    radii="300"
-                                    variant="Secondary"
-                                    fill="Soft"
-                                    onClick={handleDeselectAll}
-                                    disabled={!localSelected || localSelected.length === 0}
-                                >
-                                    <Text size="B300">{getText('btn.deselect_all')}</Text>
-                                </Button>
-                            </Box>
-                        </Box>
-                    </Menu>
-                </FocusTrap>
-            }
-        >
+                                return (
+                                    <VirtualTile
+                                        virtualItem={vItem}
+                                        style={{ width: '100%' }}
+                                        ref={virtualizer.measureElement}
+                                        key={vItem.index}
+                                    >
+                                        <ListItemButton
+                                            data-room-id={roomId}
+                                            onClick={handleRoomClick}
+                                            selected={selected}
+                                            component='button'
+                                            sx={{ width: '100%' }}
+                                        >
+                                            <ListItemIcon>
+                                                <Avatar size='300'>
+                                                    <RoomAvatar
+                                                        roomId={room.roomId}
+                                                        key={room.roomId}
+                                                        renderFallback={() => <Text>{nameInitials(room.name)}</Text>}
+                                                        src={avatarSrc}
+                                                    />
+                                                </Avatar>
+                                            </ListItemIcon>
+                                            <ListItemText>
+                                                <Typography component='div' variant='body1'>
+                                                    {room.name}
+                                                </Typography>
+                                            </ListItemText>
+                                        </ListItemButton>
+                                    </VirtualTile>
+                                );
+                            })}
+                        </div>
+                    </Box>
+                </Scroll>
+                <Divider />
+                <Box shrink="No" direction="Column" gap="100" style={{ padding: config.space.S200 }}>
+                    <Button variant='contained' onClick={handleSave}>
+                        {localSelected && localSelected.length > 0 ? (
+                            <Text size="B300">{getText('btn.save.2', localSelected.length)}</Text>
+                        ) : (
+                            <Text size="B300">{getText('btn.save')}</Text>
+                        )}
+                    </Button>
+                    <Button
+                        variant='outlined'
+                        onClick={handleDeselectAll}
+                        disabled={!localSelected || localSelected.length === 0}
+                    >
+                        <Text size="B300">{getText('btn.deselect_all')}</Text>
+                    </Button>
+                </Box>
+            </Menu>
             <Chip
                 onClick={handleOpenMenu}
-                variant="SurfaceVariant"
-                radii="Pill"
-                before={<Icon size={0.8} path={mdiPlusCircleOutline} />}
-            >
-                <Text size="T200">{getText('search_filters.select_rooms')}</Text>
-            </Chip>
-        </PopOut>
+                label={getText('search_filters.select_rooms')}
+                component='button'
+            />
+        </>
     );
 }
 
@@ -353,34 +293,22 @@ export function SearchFilters({
 
     return (
         <Box direction="Column" gap="100">
-            <Text size="L400">Filter</Text>
             <Box gap="200" wrap="Wrap">
                 <Chip
-                    variant={!global ? 'Success' : 'Surface'}
+                    variant={!global ? 'filled' : 'outlined'}
                     aria-pressed={!global}
-                    before={!global && <Icon size={0.8} path={mdiCheck} />}
-                    outlined
                     onClick={() => onGlobalChange()}
-                >
-                    <Text size="T200">{defaultRoomsFilterName}</Text>
-                </Chip>
+                    label={defaultRoomsFilterName}
+                />
                 {allowGlobal && (
                     <Chip
-                        variant={global ? 'Success' : 'Surface'}
+                        variant={global ? 'filled' : 'outlined'}
                         aria-pressed={global}
-                        before={global && <Icon size={0.8} path={mdiCheck} />}
-                        outlined
+                        label={getText('search_filters.global')}
                         onClick={() => onGlobalChange(true)}
-                    >
-                        <Text size="T200">{getText('search_filters.global')}</Text>
-                    </Chip>
+                    />
                 )}
-                <Line
-                    style={{ margin: `${config.space.S100} 0` }}
-                    direction="Vertical"
-                    variant="Surface"
-                    size="300"
-                />
+                <Divider orientation='vertical' />
                 {selectedRooms?.map((roomId) => {
                     const room = mx.getRoom(roomId);
                     if (!room) return null;
@@ -388,23 +316,11 @@ export function SearchFilters({
                     return (
                         <Chip
                             key={roomId}
-                            variant="Success"
+                            variant="filled"
+                            color='success'
                             onClick={() => onSelectedRoomsChange(selectedRooms.filter((rId) => rId !== roomId))}
-                            radii="Pill"
-                            before={
-                                <Icon
-                                    size={0.8}
-                                    path={
-                                        room.getJoinRule() !== JoinRule.Public ?
-                                                                        mdiMessageLockOutline :
-                                                                        mdiMessageOutline
-                                    }
-                                />
-                            }
-                            after={<Icon size={0.8} path={mdiClose} />}
-                        >
-                            <Text size="T200">{room.name}</Text>
-                        </Chip>
+                            label={room.name}
+                        />
                     );
                 })}
                 <SelectRoomButton

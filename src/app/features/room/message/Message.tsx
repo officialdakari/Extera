@@ -1241,6 +1241,9 @@ export const Message = as<'div', MessageProps>(
             }
         }
 
+        const childrenRef = useRef<HTMLDivElement>(null);
+        const maxWidthStyle = mEvent.getType() === 'm.sticker' || (!['m.text', 'm.notice'].includes(mEvent.getContent().msgtype ?? '')) ? { maxWidth: `${childrenRef.current?.clientWidth}px` } : undefined;
+
         const headerJSX = !collapse && (
             <Box
                 gap="300"
@@ -1248,23 +1251,25 @@ export const Message = as<'div', MessageProps>(
                 justifyContent="SpaceBetween"
                 alignItems="Baseline"
                 grow="Yes"
+                style={maxWidthStyle}
             >
                 {(messageLayout !== 2 || senderId !== userId) && (
-                    <Username
-                        as="button"
-                        style={{ color: colorMXID(senderId) }}
-                        data-user-id={senderId}
-                        onContextMenu={onUserClick}
-                        onClick={onUsernameClick}
-                    >
-                        <Text as="span" size={messageLayout === 2 ? 'T300' : 'T400'} truncate>
-                            <b>{senderDisplayName}</b>
-
+                    <Box shrink='Yes' grow='No'>
+                        <Username
+                            as="button"
+                            style={{ color: colorMXID(senderId) }}
+                            data-user-id={senderId}
+                            onContextMenu={onUserClick}
+                            onClick={onUsernameClick}
+                        >
+                            <Text as="span" size={messageLayout === 2 ? 'T300' : 'T400'} truncate>
+                                <b>{senderDisplayName}</b>
+                            </Text>
                             {mEvent.sender?.userId && <VerificationBadge userId={mEvent.sender?.userId} userName={senderDisplayName} />}
-                        </Text>
-                    </Username>
+                        </Username>
+                    </Box>
                 )}
-                <Box shrink="No" gap="100">
+                <Box shrink="No" grow='No' gap="100">
                     {messageLayout === 2 && senderId !== userId && (
                         <Time className={css.MessageTimestamp} ts={mEvent.getTs()} compact={true} />
                     )}
@@ -1324,8 +1329,6 @@ export const Message = as<'div', MessageProps>(
             </AvatarBase>
         );
 
-        const childrenRef = useRef<HTMLDivElement>(null);
-
         const buttons: any[] | undefined = typeof content['xyz.extera.buttons'] == 'object' &&
             content['xyz.extera.buttons'].filter &&
             content['xyz.extera.buttons'].filter(
@@ -1334,7 +1337,7 @@ export const Message = as<'div', MessageProps>(
 
         const msgContentJSX = (
             <Box direction="Column" alignSelf="Start" style={{ maxWidth: '100%' }}>
-                <span style={mEvent.getType() === 'm.sticker' || (!['m.text', 'm.notice'].includes(mEvent.getContent().msgtype ?? '')) ? { maxWidth: `${childrenRef.current?.clientWidth}px` } : undefined}>
+                <span style={maxWidthStyle}>
                     {reply}
                 </span>
                 {edit && onEditId ? (

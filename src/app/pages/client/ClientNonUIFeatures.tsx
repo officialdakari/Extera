@@ -388,8 +388,6 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                     return perms[key];
                 };
 
-                console.debug('!!!!', data);
-
                 if (data.api === 'fromWidget') {
                     if (data.action === 'supported_api_versions') {
                         respond({

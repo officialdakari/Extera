@@ -70,9 +70,10 @@ export const getImageInfo = (img: HTMLImageElement, fileOrBlob: File | Blob): II
 
 export const searchRoom = (mx: MatrixClient, term: string): Room[] => {
     const rooms: Room[] = [];
+    term = term.toLowerCase();
     for (const room of mx.getRooms()) {
-        const topic = getRoomTopic(mx, room) || '';
-        if (room.name.includes(term) || term.includes(room.name)
+        const topic = getRoomTopic(mx, room)?.toLowerCase() || '';
+        if (room.name.toLowerCase().includes(term) || term.includes(room.name.toLowerCase())
             || (topic && (topic?.includes(term) || term.includes(topic)))) {
             rooms.push(room);
         }

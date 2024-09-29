@@ -12,15 +12,13 @@ type ThreadPreviewProps = {
     onClick?: () => void;
 };
 export function ThreadPreview({ mEvent, room, onClick }: ThreadPreviewProps) {
-    return null;
     const mx = useMatrixClient();
     const eventId = mEvent.getId();
-    console.debug(`!!!!`, eventId);
     if (!eventId) return null;
     const [showButton, setShowButton] = useState(false);
     const [messageCount, setMessageCount] = useState(0);
-    const update = useCallback(async () => {
-        const thread = room.getThreads().find((thread) => thread.rootEvent?.getId() === mEvent.getId())
+    const update = useCallback(() => {
+        const thread = room.findThreadForEvent(mEvent);
         const count = thread?.liveTimeline?.getEvents().length;
         if (!count) {
             setShowButton(false);
@@ -31,11 +29,11 @@ export function ThreadPreview({ mEvent, room, onClick }: ThreadPreviewProps) {
     }, [mx, mEvent, room, setShowButton, setMessageCount]);
 
     useEffect(() => {
-        update().catch(console.error);
+        update();
     }, [update]);
     return showButton && (
         <Button
-            fill='Soft'
+            fill='None'
             variant='Secondary'
             style={{ textAlign: 'end' }}
             size='300'
