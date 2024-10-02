@@ -12,13 +12,14 @@ import { createRouter } from './Router';
 import { ScreenSizeProvider, useScreenSize } from '../hooks/useScreenSize';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { NavContextProvider } from '../hooks/useHideableNav';
+import settings from '../../client/state/settings';
 
 const queryClient = new QueryClient();
 
 function App() {
     const theme = createTheme({
         palette: {
-            mode: 'dark'
+            mode: settings.getThemeIndex() === 2 ? 'dark' : 'light'
         }
     });
     const screenSize = useScreenSize();

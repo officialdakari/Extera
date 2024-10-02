@@ -8,54 +8,61 @@ import { RoomSummaryLoader } from '../../components/RoomSummaryLoader';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { allRoomsAtom } from '../../state/room-list/roomList';
+import { AppBar, IconButton, Menu, Toolbar, Typography } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
 
 type JoinBeforeNavigateProps = { roomIdOrAlias: string };
 export function JoinBeforeNavigate({ roomIdOrAlias }: JoinBeforeNavigateProps) {
-  const mx = useMatrixClient();
-  const allRooms = useAtomValue(allRoomsAtom);
-  const { navigateRoom, navigateSpace } = useRoomNavigate();
+    const mx = useMatrixClient();
+    const allRooms = useAtomValue(allRoomsAtom);
+    const { navigateRoom, navigateSpace } = useRoomNavigate();
 
-  const handleView = (roomId: string) => {
-    if (mx.getRoom(roomId)?.isSpaceRoom()) {
-      navigateSpace(roomId);
-      return;
-    }
-    navigateRoom(roomId);
-  };
+    const handleView = (roomId: string) => {
+        if (mx.getRoom(roomId)?.isSpaceRoom()) {
+            navigateSpace(roomId);
+            return;
+        }
+        navigateRoom(roomId);
+    };
 
-  return (
-    <Page>
-      <PageHeader>
-        <Box grow="Yes" justifyContent="Center" alignItems="Center" gap="200">
-          <Text size="H3" truncate>
-            {roomIdOrAlias}
-          </Text>
-        </Box>
-      </PageHeader>
-      <Box grow="Yes">
-        <Scroll hideTrack visibility="Hover" size="0">
-          <Box style={{ height: '100%' }} grow="Yes" alignItems="Center" justifyContent="Center">
-            <RoomSummaryLoader roomIdOrAlias={roomIdOrAlias}>
-              {(summary) => (
-                <RoomCard
-                  style={{ maxWidth: toRem(364), width: '100%' }}
-                  roomIdOrAlias={roomIdOrAlias}
-                  allRooms={allRooms}
-                  avatarUrl={summary?.avatar_url}
-                  name={summary?.name}
-                  topic={summary?.topic}
-                  memberCount={summary?.num_joined_members}
-                  roomType={summary?.room_type}
-                  renderTopicViewer={(name, topic, requestClose) => (
-                    <RoomTopicViewer name={name} topic={topic} requestClose={requestClose} />
-                  )}
-                  onView={handleView}
-                />
-              )}
-            </RoomSummaryLoader>
-          </Box>
-        </Scroll>
-      </Box>
-    </Page>
-  );
+    return (
+        <Page>
+            <AppBar position='static' color='info'>
+                <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
+                    <IconButton
+                        onClick={() => history.back()}
+                    >
+                        <ArrowBack />
+                    </IconButton>
+                    <Typography component='div' variant='h6' flexGrow={1}>
+                        {roomIdOrAlias}
+                    </Typography>
+                </Toolbar>
+            </AppBar>
+            <Box grow="Yes">
+                <Scroll hideTrack visibility="Hover" size="0">
+                    <Box style={{ height: '100%' }} grow="Yes" alignItems="Center" justifyContent="Center">
+                        <RoomSummaryLoader roomIdOrAlias={roomIdOrAlias}>
+                            {(summary) => (
+                                <RoomCard
+                                    style={{ maxWidth: toRem(364), width: '100%' }}
+                                    roomIdOrAlias={roomIdOrAlias}
+                                    allRooms={allRooms}
+                                    avatarUrl={summary?.avatar_url}
+                                    name={summary?.name}
+                                    topic={summary?.topic}
+                                    memberCount={summary?.num_joined_members}
+                                    roomType={summary?.room_type}
+                                    renderTopicViewer={(name, topic, requestClose) => (
+                                        <RoomTopicViewer name={name} topic={topic} requestClose={requestClose} />
+                                    )}
+                                    onView={handleView}
+                                />
+                            )}
+                        </RoomSummaryLoader>
+                    </Box>
+                </Scroll>
+            </Box>
+        </Page>
+    );
 }

@@ -86,6 +86,7 @@ class Navigation extends EventEmitter {
                     action.title,
                     action.render,
                     action.afterClose,
+                    action.props,
                 );
             },
             [cons.actions.navigation.OPEN_EMOJI_VERIFICATION]: () => {

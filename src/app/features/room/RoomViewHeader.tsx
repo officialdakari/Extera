@@ -638,11 +638,11 @@ export function RoomViewHeader({
                                                     open={viewTopic}
                                                     onClose={() => setViewTopic(false)}
                                                 >
-                                                    <DialogContent>
-                                                        <DialogContentText>
-                                                            {topic}
-                                                        </DialogContentText>
-                                                    </DialogContent>
+                                                    <RoomTopicViewer
+                                                        name={name}
+                                                        topic={topic ?? statusMessage}
+                                                        requestClose={() => setViewTopic(false)}
+                                                    />
                                                 </Dialog>
                                                 <Text
                                                     as="button"

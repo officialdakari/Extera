@@ -101,12 +101,13 @@ export function openNavigation() {
     });
 }
 
-export function openReusableDialog(title, render, afterClose) {
+export function openReusableDialog(title, render, afterClose, props) {
     appDispatcher.dispatch({
         type: cons.actions.navigation.OPEN_REUSABLE_DIALOG,
         title,
         render,
         afterClose,
+        props
     });
 }
 

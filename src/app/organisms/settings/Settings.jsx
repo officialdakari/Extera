@@ -7,7 +7,6 @@ import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import settings from '../../../client/state/settings';
 import navigation from '../../../client/state/navigation';
-import { Button as FoldsButton, IconButton as FoldsIconButton, Text as FoldsText } from 'folds';
 import {
     toggleSystemTheme,
     toggleNotifications, toggleNotificationSounds,
@@ -34,7 +33,7 @@ import CrossSigning from './CrossSigning';
 import KeyBackup from './KeyBackup';
 import DeviceManage from './DeviceManage';
 
-import { Switch, Button, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { Switch, Button, ToggleButtonGroup, ToggleButton, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog } from '@mui/material';
 
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
@@ -43,7 +42,7 @@ import { settingsAtom } from '../../state/settings';
 import { isMacOS } from '../../utils/user-agent';
 import { KeySymbol } from '../../utils/key-symbol';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
-import { Box, config, Dialog, Header, Input, Overlay, OverlayBackdrop, OverlayCenter } from 'folds';
+import { Box, config, Header } from 'folds';
 import Banner from '../profile-editor/Banner';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
@@ -131,24 +130,14 @@ function AppearanceSection() {
                     content={<Text variant="b3">{getText('settings.system_theme.desc')}</Text>}
                 />
                 <SettingTile
-                    title="Theme"
-                    content={(
-                        <SegmentedControls
-                            selected={settings.useSystemTheme ? -1 : settings.getThemeIndex()}
-                            segments={[
-                                { text: 'Light' },
-                                { text: 'Silver' },
-                                { text: 'Dark' },
-                                { text: 'Butter' },
-                                { text: 'Purple Dark' },
-                            ]}
-                            onSelect={(index) => {
-                                if (settings.useSystemTheme) toggleSystemTheme();
-                                settings.setTheme(index);
-                                updateState({});
-                            }}
+                    title={getText('settings.dark_theme.title')}
+                    options={(
+                        <Switch
+                            checked={settings.getThemeIndex() === 2}
+                            onClick={() => { settings.setTheme(settings.getThemeIndex() === 2 ? 0 : 2); updateState({}); }}
                         />
                     )}
+                    content={<Text variant="b3">{getText('settings.dark_theme.desc')}</Text>}
                 />
                 <SettingTile
                     title={getText('settings.twemoji.title')}
@@ -359,14 +348,10 @@ function PresenceSection() {
         <SettingTile
             title={getText('settings.presence.title')}
             content={(
-                <SegmentedControls
-                    selected={status}
-                    segments={[
-                        { text: getText('settings.status.online') },
-                        { text: getText('settings.status.offline') },
-                        { text: getText('settings.status.unavailable') }
-                    ]}
-                    onSelect={(index) => {
+                <ToggleButtonGroup
+                    exclusive
+                    value={status}
+                    onChange={(evt, index) => {
                         const statuses = [
                             'online', 'offline', 'unavailable'
                         ];
@@ -381,7 +366,46 @@ function PresenceSection() {
                         });
                         setStatus(index);
                     }}
-                />
+                >
+                    <ToggleButton
+                        value={0}
+                    >
+                        {getText('settings.status.online')}
+                    </ToggleButton>
+                    <ToggleButton
+                        value={1}
+                    >
+                        {getText('settings.status.offline')}
+                    </ToggleButton>
+                    <ToggleButton
+                        value={2}
+                    >
+                        {getText('settings.status.unavailable')}
+                    </ToggleButton>
+                </ToggleButtonGroup>
+                // <SegmentedControls
+                //     selected={status}
+                //     segments={[
+                //         { text: getText('settings.status.online') },
+                //         { text: getText('settings.status.offline') },
+                //         { text: getText('settings.status.unavailable') }
+                //     ]}
+                //     onSelect={(index) => {
+                //         const statuses = [
+                //             'online', 'offline', 'unavailable'
+                //         ];
+                //         mx.setSyncPresence(statuses[index]);
+                //         mx.setPresence({
+                //             presence: statuses[index],
+                //             status_msg: index != 1 ? statusMsg : undefined
+                //         }).then(() => {
+                //             console.log('Presence updated');
+                //         }).catch(err => {
+                //             console.error('Could not update presence: ', err);
+                //         });
+                //         setStatus(index);
+                //     }}
+                // />
             )}
         />
         <SettingTile
@@ -400,7 +424,7 @@ function PresenceSection() {
                 <div className='settings-presence__status'>
                     <Text variant="b3">{getText('settings.status_message.text')}</Text>
                     <form onSubmit={updateStatusMessage}>
-                        <Input required name="statusInput" placeholder={statusMsg} />
+                        <TextField required name="statusInput" defaultValue={statusMsg} />
                         <Button variant="contained" type="submit">{getText('btn.status_message.set')}</Button>
                     </form>
                 </div>
@@ -620,53 +644,33 @@ function SecuritySection() {
 
     return (
         <>
-            <Overlay open={open} backdrop={<OverlayBackdrop />}>
-                <OverlayCenter>
-                    <FocusTrap
-                        focusTrapOptions={{
-                            initialFocus: false,
-                            onDeactivate: handleClose,
-                            clickOutsideDeactivates: true,
-                        }}
-                    >
-                        <Dialog variant="Surface">
-                            <Header
-                                style={{
-                                    padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
-                                    borderBottomWidth: config.borderWidth.B300,
-                                }}
-                                variant="Surface"
-                                size="500"
-                            >
-                                <Box grow="Yes">
-                                    <Text size="H4">{getText('change_password.header')}</Text>
-                                </Box>
-                                <FoldsIconButton size="300" onClick={handleClose} radii="300">
-                                    <Icon size={1} path={mdiClose} />
-                                </FoldsIconButton>
-                            </Header>
-                            <Box
-                                as="form"
-                                style={{ padding: config.space.S400 }}
-                                direction="Column"
-                                gap="400"
-                                onSubmit={changePassword}
-                            >
-                                <Box direction="Column" gap="100">
-                                    <Input name="passwordInput" placeholder={getText('change_password.title')} type='password' variant="Secondary" autoComplete='off' />
-                                </Box>
-                                <FoldsButton
-                                    type="submit"
-                                    variant="Critical"
-                                    disabled={disableBtn}
-                                >
-                                    {getText('change_password.btn')}
-                                </FoldsButton>
-                            </Box>
-                        </Dialog>
-                    </FocusTrap>
-                </OverlayCenter>
-            </Overlay>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: changePassword,
+                }}
+            >
+                <DialogTitle>
+                    {getText('change_password.header')}
+                </DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        required
+                        margin='dense'
+                        name='passwordInput'
+                        label={getText('change_password.title')}
+                        fullWidth
+                        type='password'
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color='primary'>{getText('btn.cancel')}</Button>
+                    <Button type='submit' color='error'>{getText('change_password.btn')}</Button>
+                </DialogActions>
+            </Dialog>
             <div className="settings-security">
                 <div className="settings-security__card">
                     <MenuHeader>{getText('settings.cross_signing.header')}</MenuHeader>
