@@ -7,7 +7,6 @@ import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
 
 import Text from '../../atoms/text/Text';
-import Tabs from '../../atoms/tabs/Tabs';
 import { MenuHeader, MenuItem } from '../../atoms/context-menu/ContextMenu';
 import RoomProfile from '../../molecules/room-profile/RoomProfile';
 import RoomNotification from '../../molecules/room-notification/RoomNotification';
@@ -25,9 +24,10 @@ import { getText, translate } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { mdiAccount, mdiArrowLeft, mdiClose, mdiCog, mdiEmoticon, mdiLock, mdiShield } from '@mdi/js';
 import Icon from '@mdi/react';
-import { AppBar, Dialog, IconButton } from '@mui/material';
+import { AppBar, Box, Dialog, IconButton, List, ListSubheader, Tab, Tabs, useTheme } from '@mui/material';
 import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
 import { Close } from '@mui/icons-material';
+import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -70,11 +70,11 @@ function GeneralSettings({ roomId }) {
     const room = mx.getRoom(roomId);
 
     return (
-        <div className="room-settings__card">
+        <>
             <RoomNotification roomId={roomId} />
             <RoomVisibility roomId={roomId} />
             <RoomAliases roomId={roomId} />
-        </div>
+        </>
     );
 }
 
@@ -85,14 +85,10 @@ GeneralSettings.propTypes = {
 function SecuritySettings({ roomId }) {
     return (
         <>
-            <div className="room-settings__card">
-                <MenuHeader>{getText('room_settings.menuheader.encryption')}</MenuHeader>
-                <RoomEncryption roomId={roomId} />
-            </div>
-            <div className="room-settings__card">
-                <MenuHeader>{getText('room_settings.menuheader.history')}</MenuHeader>
-                <RoomHistoryVisibility roomId={roomId} />
-            </div>
+            <ListSubheader>{getText('room_settings.menuheader.encryption')}</ListSubheader>
+            <RoomEncryption roomId={roomId} />
+            <ListSubheader>{getText('room_settings.menuheader.history')}</ListSubheader>
+            <RoomHistoryVisibility roomId={roomId} />
         </>
     );
 }
@@ -120,12 +116,21 @@ function useWindowToggle(setSelectedTab) {
     return [window, requestClose];
 }
 
+function a11yProps(index) {
+    return {
+        id: `simple-tab-${index}`,
+        'aria-controls': `simple-tabpanel-${index}`,
+    };
+}
+
 function RoomSettings() {
-    const [selectedTab, setSelectedTab] = useState(tabItems[0]);
+    const [selectedTab, setSelectedTab] = useState(0);
     const [window, requestClose] = useWindowToggle(setSelectedTab);
     const isOpen = window !== null;
     const roomId = window?.roomId;
     const room = initMatrix.matrixClient.getRoom(roomId);
+    const screenSize = useScreenSize();
+    const theme = useTheme();
 
     const handleTabChange = (tabItem) => {
         setSelectedTab(tabItem);
@@ -135,8 +140,10 @@ function RoomSettings() {
 
     return (
         <Dialog
+            fullScreen={screenSize === ScreenSize.Mobile}
             open={isOpen}
             onClose={requestClose}
+            scroll='paper'
         >
             {isOpen && (
                 <AppBar position='relative'>
@@ -153,20 +160,29 @@ function RoomSettings() {
                 </AppBar>
             )}
             {isOpen && (
-                <div className="room-settings__content">
-
-                    <Tabs
-                        items={tabItems}
-                        defaultSelected={tabItems.findIndex((tab) => tab.text === selectedTab.text)}
-                        onSelect={handleTabChange}
-                    />
-                    <div className="room-settings__cards-wrapper">
-                        {selectedTab.text === tabText.GENERAL && <GeneralSettings roomId={roomId} />}
-                        {selectedTab.text === tabText.MEMBERS && <RoomMembers roomId={roomId} />}
-                        {selectedTab.text === tabText.EMOJIS && <RoomEmojis roomId={roomId} />}
-                        {selectedTab.text === tabText.PERMISSIONS && <RoomPermissions roomId={roomId} />}
-                        {selectedTab.text === tabText.SECURITY && <SecuritySettings roomId={roomId} />}
-                    </div>
+                <div className="room-settings__content" style={{ backgroundColor: theme.palette.background.paper }}>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                        <Tabs value={selectedTab} onChange={handleTabChange}>
+                            <Tab label={tabItems[0].text} onClick={() => handleTabChange(0)} {...a11yProps(0)} />
+                            <Tab label={tabItems[1].text} onClick={() => handleTabChange(1)} {...a11yProps(1)} />
+                            <Tab label={tabItems[2].text} onClick={() => handleTabChange(2)} {...a11yProps(2)} />
+                            <Tab label={tabItems[3].text} onClick={() => handleTabChange(3)} {...a11yProps(3)} />
+                            <Tab label={tabItems[4].text} onClick={() => handleTabChange(4)} {...a11yProps(4)} />
+                        </Tabs>
+                    </Box>
+                    <List
+                        sx={{
+                            bgcolor: 'background.paper'
+                        }}
+                    >
+                        <div className="room-settings__cards-wrapper">
+                            {selectedTab === 0 && <GeneralSettings roomId={roomId} />}
+                            {selectedTab === 1 && <RoomMembers roomId={roomId} />}
+                            {selectedTab === 2 && <RoomEmojis roomId={roomId} />}
+                            {selectedTab === 3 && <RoomPermissions roomId={roomId} />}
+                            {selectedTab === 4 && <SecuritySettings roomId={roomId} />}
+                        </div>
+                    </List>
                 </div>
             )}
         </Dialog>

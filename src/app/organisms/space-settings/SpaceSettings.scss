@@ -1,10 +1,6 @@
 @use '../../partials/dir.scss';
 
 .space-settings {
-    & .pw {
-        background-color: var(--bg-surface-low);
-    }
-
     & .room-profile {
         padding: var(--sp-loose) var(--sp-extra-loose);
     }
@@ -21,8 +17,6 @@
 
 .space-settings__card {
     margin: var(--sp-normal);
-    border-radius: var(--bo-radius);
-    box-shadow: var(--bs-surface-border);
     overflow: hidden;
 }
 

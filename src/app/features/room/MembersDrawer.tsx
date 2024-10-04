@@ -11,20 +11,10 @@ import {
     Avatar,
     Badge,
     Box,
-    Chip,
     ContainerColor,
     Header,
-    IconButton,
-    Input,
-    Menu,
-    MenuItem,
-    PopOut,
-    RectCords,
     Scroll,
-    Spinner,
     Text,
-    Tooltip,
-    TooltipProvider,
     config,
 } from 'folds';
 import { Room, RoomMember } from 'matrix-js-sdk';
@@ -60,6 +50,8 @@ import { mdiAccount, mdiChevronUp, mdiClose, mdiFilterOutline, mdiMagnify, mdiSo
 import Icon from '@mdi/react';
 import cons from '../../../client/state/cons';
 import { VerificationBadge } from '../../components/verification-badge/VerificationBadge';
+import { AppBar, Chip, ListItemText, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import { Filter } from '@mui/icons-material';
 
 export const MembershipFilters = {
     filterJoined: (m: RoomMember) => m.membership === Membership.Join,
@@ -289,7 +281,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
 
     return (
         <Box className={css.MembersDrawer} shrink="No" direction="Column">
-            <Header className={css.MembersDrawerHeader} variant="Background" size="600">
+            {/* <Header className={css.MembersDrawerHeader} variant="Background" size="600">
                 <Box grow="Yes" alignItems="Center" gap="200">
                     <Box grow="Yes" alignItems="Center" gap="200">
                         <Text title={getText('generic.member_count', room.getJoinedMemberCount())} size="H5" truncate>
@@ -319,68 +311,104 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                         </TooltipProvider>
                     </Box>
                 </Box>
-            </Header>
+            </Header> */}
+            <AppBar position='relative'>
+                <Toolbar>
+                    <Typography>
+                        {getText('generic.member_count', millify(room.getJoinedMemberCount()))}
+                    </Typography>
+                </Toolbar>
+            </AppBar>
             <Box className={css.MemberDrawerContentBase} grow="Yes">
                 <Scroll ref={scrollRef} variant="Background" size="300" visibility="Hover" hideTrack>
                     <Box className={css.MemberDrawerContent} direction="Column" gap="200">
                         <Box ref={scrollTopAnchorRef} className={css.DrawerGroup} direction="Column" gap="200">
                             <Box alignItems="Center" justifyContent="SpaceBetween" gap="200">
-                                <UseStateProvider initial={undefined}>
-                                    {(anchor: RectCords | undefined, setAnchor) => (
-                                        <PopOut
-                                            anchor={anchor}
-                                            position="Bottom"
-                                            align="Start"
-                                            offset={4}
-                                            content={
-                                                <FocusTrap
-                                                    focusTrapOptions={{
-                                                        initialFocus: false,
-                                                        onDeactivate: () => setAnchor(undefined),
-                                                        clickOutsideDeactivates: true,
-                                                        isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                                                        isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                                                    }}
-                                                >
-                                                    <Menu style={{ padding: config.space.S100 }}>
-                                                        {membershipFilterMenu.map((menuItem, index) => (
-                                                            <MenuItem
-                                                                key={menuItem.name}
-                                                                variant={
-                                                                    menuItem.name === membershipFilter.name
-                                                                        ? menuItem.color
-                                                                        : 'Surface'
-                                                                }
-                                                                aria-pressed={menuItem.name === membershipFilter.name}
-                                                                size="300"
-                                                                radii="300"
-                                                                onClick={() => {
-                                                                    setMembershipFilterIndex(index);
-                                                                    setAnchor(undefined);
-                                                                }}
-                                                            >
-                                                                <Text size="T300">{menuItem.name}</Text>
-                                                            </MenuItem>
-                                                        ))}
-                                                    </Menu>
-                                                </FocusTrap>
-                                            }
-                                        >
+                                <UseStateProvider initial={null}>
+                                    {(anchor: HTMLElement | null, setAnchor) => (
+                                        <>
+                                            <Menu onClose={() => setAnchor(null)} anchorEl={anchor} open={!!anchor}>
+                                                {membershipFilterMenu.map((menuItem, index) =>
+                                                    <MenuItem
+                                                        key={menuItem.name}
+                                                        aria-pressed={menuItem.name === membershipFilter.name}
+                                                        onClick={() => {
+                                                            setMembershipFilterIndex(index);
+                                                            setAnchor(null);
+                                                        }}
+                                                    >
+                                                        <ListItemText>
+                                                            {menuItem.name}
+                                                        </ListItemText>
+                                                    </MenuItem>
+                                                )}
+                                            </Menu>
                                             <Chip
+                                                component='button'
                                                 onClick={
                                                     ((evt) =>
                                                         setAnchor(
-                                                            evt.currentTarget.getBoundingClientRect()
+                                                            evt.currentTarget
                                                         )) as MouseEventHandler<HTMLButtonElement>
                                                 }
-                                                variant={membershipFilter.color}
-                                                size="400"
-                                                radii="300"
-                                                before={<Icon size={1} path={mdiFilterOutline} />}
-                                            >
-                                                <Text size="T200">{membershipFilter.name}</Text>
-                                            </Chip>
-                                        </PopOut>
+                                                icon={<Filter />}
+                                                label={membershipFilter.name}
+                                            />
+                                        </>
+                                        // <PopOut
+                                        //     anchor={anchor}
+                                        //     position="Bottom"
+                                        //     align="Start"
+                                        //     offset={4}
+                                        //     content={
+                                        //         <FocusTrap
+                                        //             focusTrapOptions={{
+                                        //                 initialFocus: false,
+                                        //                 onDeactivate: () => setAnchor(undefined),
+                                        //                 clickOutsideDeactivates: true,
+                                        //                 isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
+                                        //                 isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
+                                        //             }}
+                                        //         >
+                                        //             <Menu style={{ padding: config.space.S100 }}>
+                                        //                 {membershipFilterMenu.map((menuItem, index) => (
+                                        //                     <MenuItem
+                                        //                         key={menuItem.name}
+                                        //                         variant={
+                                        //                             menuItem.name === membershipFilter.name
+                                        //                                 ? menuItem.color
+                                        //                                 : 'Surface'
+                                        //                         }
+                                        //                         aria-pressed={menuItem.name === membershipFilter.name}
+                                        //                         size="300"
+                                        //                         radii="300"
+                                        //                         onClick={() => {
+                                        //                             setMembershipFilterIndex(index);
+                                        //                             setAnchor(undefined);
+                                        //                         }}
+                                        //                     >
+                                        //                         <Text size="T300">{menuItem.name}</Text>
+                                        //                     </MenuItem>
+                                        //                 ))}
+                                        //             </Menu>
+                                        //         </FocusTrap>
+                                        //     }
+                                        // >
+                                        //     <Chip
+                                        //         onClick={
+                                        //             ((evt) =>
+                                        //                 setAnchor(
+                                        //                     evt.currentTarget.getBoundingClientRect()
+                                        //                 )) as MouseEventHandler<HTMLButtonElement>
+                                        //         }
+                                        //         variant={membershipFilter.color}
+                                        //         size="400"
+                                        //         radii="300"
+                                        //         before={<Icon size={1} path={mdiFilterOutline} />}
+                                        //     >
+                                        //         <Text size="T200">{membershipFilter.name}</Text>
+                                        //     </Chip>
+                                        // </PopOut>
                                     )}
                                 </UseStateProvider>
                                 <UseStateProvider initial={undefined}>

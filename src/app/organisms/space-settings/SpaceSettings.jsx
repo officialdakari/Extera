@@ -21,9 +21,10 @@ import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { getText, translate } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { mdiAccount, mdiArrowLeft, mdiClose, mdiCog, mdiEmoticon, mdiShield } from '@mdi/js';
-import { AppBar, Box, Dialog, DialogContent, DialogTitle, IconButton, styled, Tab, Tabs, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, Dialog, DialogContent, DialogTitle, IconButton, styled, Tab, Tabs, Toolbar, Typography, useTheme } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
+import { useScreenSize } from '../../hooks/useScreenSize';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -103,6 +104,8 @@ function SpaceSettings() {
     const [window, requestClose] = useWindowToggle(setSelectedTab);
     const isOpen = window !== null;
     const roomId = window?.roomId;
+    const theme = useTheme();
+    const screenSize = useScreenSize();
 
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(roomId);
@@ -117,7 +120,7 @@ function SpaceSettings() {
         <Dialog
             open={isOpen}
             onClose={requestClose}
-            scroll='body'
+            scroll='paper'
         >
             <AppBar sx={{ position: 'relative' }}>
                 <ProminientToolbar>
@@ -138,7 +141,7 @@ function SpaceSettings() {
                 </ProminientToolbar>
             </AppBar>
             <Box
-                sx={{ borderBottom: 1, borderColor: 'divider' }}
+                sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}
             >
                 <Tabs
                     orientation='horizontal'
@@ -157,7 +160,7 @@ function SpaceSettings() {
                     hidden={selectedTab !== index}
                     id={`vertical-tabpanel-${index}`}
                     aria-labelledby={`vertical-tab-${index}`}
-                    style={{ maxWidth: '100%', flexGrow: 1 }}
+                    style={{ maxWidth: '100%', flexGrow: 1, backgroundColor: theme.palette.background.paper }}
                 >
                     {selectedTab === index && (
                         <Box
@@ -180,38 +183,6 @@ function SpaceSettings() {
                 </div>
             ))}
         </Dialog>
-        // <PopupWindow
-        //     isOpen={isOpen}
-        //     className="space-settings"
-        //     title={
-        //         <Text variant="s1" weight="medium" primary>
-        //             {translate(
-        //                 'space_settings.title',
-        //                 room?.name,
-        //                 getText('space_settings.title.1')
-        //             )}
-        //         </Text>
-        //     }
-        //     contentOptions={<IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />}
-        //     onRequestClose={requestClose}
-        // >
-        //     {isOpen && (
-        //         <div className="space-settings__content">
-        //             <RoomProfile roomId={roomId} />
-        //             <Tabs
-        //                 items={tabItems}
-        //                 defaultSelected={tabItems.findIndex((tab) => tab.text === selectedTab.text)}
-        //                 onSelect={handleTabChange}
-        //             />
-        //             <div className="space-settings__cards-wrapper">
-        //                 {selectedTab.text === tabText.GENERAL && <GeneralSettings roomId={roomId} />}
-        //                 {selectedTab.text === tabText.MEMBERS && <RoomMembers roomId={roomId} />}
-        //                 {selectedTab.text === tabText.EMOJIS && <RoomEmojis roomId={roomId} />}
-        //                 {selectedTab.text === tabText.PERMISSIONS && <RoomPermissions roomId={roomId} />}
-        //             </div>
-        //         </div>
-        //     )}
-        // </PopupWindow>
     );
 }
 
