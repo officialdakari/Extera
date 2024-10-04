@@ -8,8 +8,10 @@ import { getText } from '../../../lang';
 export default function SyncStateAlert() {
     const mx = useMatrixClient();
     const [syncState, setSyncState] = useState<SyncState | null>(mx.getSyncState());
+    const [loading, setLoading] = useState(true);
 
     const onStateChange = (ss: SyncState) => {
+        if (ss === SyncState.Prepared) setLoading(false);
         setSyncState(ss);
     };
 
@@ -20,9 +22,15 @@ export default function SyncStateAlert() {
         };
     });
 
-    return syncState && syncState !== SyncState.Prepared && syncState !== SyncState.Syncing && (
-        <Alert severity={syncState === SyncState.Error ? 'error' : 'info'}>
-            {getText(`sync_state.${syncState}`)}
+    return loading ? (
+        <Alert severity={'info'}>
+            {getText(`syncing`)}
         </Alert>
+    ) : (
+        syncState && syncState !== SyncState.Prepared && syncState !== SyncState.Syncing && (
+            <Alert severity={syncState === SyncState.Error ? 'error' : 'info'}>
+                {getText(`sync_state.${syncState}`)}
+            </Alert>
+        )
     );
 }

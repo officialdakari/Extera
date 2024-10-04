@@ -54,6 +54,7 @@ import wallpaperDB from '../../utils/wallpaper';
 import { useAccountData } from '../../hooks/useAccountData';
 import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
 import { Close, HideImage, Image, Logout } from '@mui/icons-material';
+import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
@@ -832,6 +833,7 @@ function Settings() {
     const [selectedTab, setSelectedTab] = useState(tabItems[0]);
     const [isOpen, requestClose] = useWindowToggle(setSelectedTab);
     const exteraProfileEvent = useAccountData('ru.officialdakari.extera_profile');
+    const screenSize = useScreenSize();
 
     const mx = useMatrixClient();
 
@@ -894,6 +896,7 @@ function Settings() {
             //     </>
             // )}
             onClose={requestClose}
+            fullScreen={screenSize === ScreenSize.Mobile}
         >
             {isOpen && (
                 <AppBar position='relative'>
