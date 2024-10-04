@@ -56,6 +56,7 @@ import FAB from '../../../components/fab/FAB';
 import { Add, ArrowForward, ArrowRight, DoneAll, KeyboardArrowRight, MoreVert, Menu as MenuIcon, MenuOpen } from '@mui/icons-material';
 import { useNavHidden } from '../../../hooks/useHideableNav';
 import SearchBar from '../SearchBar';
+import SyncStateAlert from '../SyncStateAlert';
 
 type HomeMenuProps = {
     requestClose: () => void;
@@ -229,6 +230,7 @@ export function Home() {
     return (
         <PageNav>
             <HomeHeader />
+            <SyncStateAlert />
             {noRoomToDisplay ? (
                 <HomeEmpty />
             ) : (

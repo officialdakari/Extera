@@ -959,5 +959,10 @@
     "msg_menu.retry": "Retry",
     "tooltip.new_dm": "Direct message",
     "tooltip.join_room": "Join room",
-    "tooltip.new_room": "Create room"
+    "tooltip.new_room": "Create room",
+    "sync_state.ERROR": "Can't connect to server",
+    "sync_state.CATCHUP": "Syncing with server...",
+    "sync_state.RECONNECTING": "Connection lost. Reconnecting...",
+    "room_visibility": "Room visibility",
+    "room_aliases": "Room aliases"
 }

@@ -4,11 +4,11 @@ import './RoomVisibility.scss';
 
 import initMatrix from '../../../client/initMatrix';
 
-import Text from '../../atoms/text/Text';
-import RadioButton from '../../atoms/button/RadioButton';
-import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 import { getText } from '../../../lang';
 import { mdiEarth, mdiLock, mdiLockOff, mdiLockOpenOutline, mdiLockOutline, mdiPound, mdiStarFourPoints } from '@mdi/js';
+import { Accordion, AccordionDetails, AccordionSummary, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Radio, RadioGroup } from '@mui/material';
+import { Check, ExpandMore } from '@mui/icons-material';
+import Icon from '@mdi/react';
 
 const visibility = {
     INVITE: 'invite',
@@ -90,24 +90,39 @@ function RoomVisibility({ roomId }) {
     }];
 
     return (
-        <div className="room-visibility">
-            {
-                items.map((item) => (
-                    <MenuItem
-                        variant={activeType === item.type ? 'positive' : 'surface'}
-                        key={item.type}
-                        iconSrc={item.iconSrc}
-                        onClick={() => setVisibility(item)}
-                        disabled={(!canChange || item.unsupported)}
-                    >
-                        <Text varient="b1">
-                            <span>{item.text}</span>
-                            <RadioButton isActive={activeType === item.type} />
-                        </Text>
-                    </MenuItem>
-                ))
-            }
-        </div>
+        <Accordion>
+            <AccordionSummary
+                expandIcon={<ExpandMore />}
+            >
+                {getText('room_visibility')}
+            </AccordionSummary>
+            <AccordionDetails>
+                <List>
+                    <RadioGroup>
+                        {
+                            items.map((item) => (
+                                <ListItem
+                                    key={item.type}
+                                    dense
+                                >
+                                    <ListItemIcon>
+                                        <Icon size={1} path={item.iconSrc} />
+                                    </ListItemIcon>
+                                    <ListItemText>
+                                        {item.text}
+                                    </ListItemText>
+                                    <Radio
+                                        onClick={() => setVisibility(item)}
+                                        disabled={(!canChange || item.unsupported)}
+                                        checked={activeType === item.type}
+                                    />
+                                </ListItem>
+                            ))
+                        }
+                    </RadioGroup>
+                </List>
+            </AccordionDetails>
+        </Accordion>
     );
 }
 

@@ -22,10 +22,10 @@ function PeopleSelector({ avatarSrc, name, color, peopleRole, onClick, avStyle, 
                         {name} {verificationBadge}
                     </Text>
                     {status && (
-                    <Text className="people-selector__status" variant="b3">
-                        {status}
-                    </Text>
-                )}
+                        <Text className="people-selector__status" variant="b3">
+                            {status}
+                        </Text>
+                    )}
                 </div>
                 {peopleRole !== null && (
                     <Text className="people-selector__role" variant="b3">

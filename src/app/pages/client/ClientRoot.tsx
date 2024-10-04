@@ -22,7 +22,6 @@ import { CallProvider } from '../../hooks/useCall';
 import { createModals, ModalsProvider } from '../../hooks/useModals';
 import { Modals } from '../../components/modal/Modal';
 import { getText } from '../../../lang';
-import ClientAlert from './ClientAlert';
 import { Fab } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiPlus } from '@mdi/js';
@@ -122,11 +121,6 @@ export function ClientRoot({ children }: ClientRootProps) {
                                                         </Modal>
                                                     </div>
                                                 </Draggable>
-                                            )}
-                                            {syncing && (
-                                                <ClientAlert>
-                                                    {getText('syncing')}
-                                                </ClientAlert>
                                             )}
                                             {children}
                                             <Windows />

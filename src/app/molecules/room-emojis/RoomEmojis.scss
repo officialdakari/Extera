@@ -1,29 +1,29 @@
 .room-emojis {
-  .image-pack,
-  .room-emojis__add-pack,
-  .room-emojis__empty {
-    margin: var(--sp-normal) 0;
-    background-color: var(--bg-surface);
-    border-radius: var(--bo-radius);
-    box-shadow: var(--bs-surface-border);
-    overflow: hidden;
-  
-    & > .context-menu__header:first-child {
-      margin-top: 2px;
+
+    margin-left: var(--sp-normal);
+    margin-right: var(--sp-normal);
+
+    .image-pack,
+    .room-emojis__add-pack,
+    .room-emojis__empty {
+        margin: var(--sp-normal) 0;
+        overflow: hidden;
+
+        &>.context-menu__header:first-child {
+            margin-top: 2px;
+        }
     }
-  }
-  &__add-pack {
-    & form {
-      margin: var(--sp-normal);
-      display: flex;
-      gap: var(--sp-normal);
-      & .input-container {
-        flex-grow: 1;
-      }
+
+    &__add-pack {
+        & form {
+            margin: var(--sp-normal);
+            display: flex;
+            gap: var(--sp-tight);
+        }
     }
-  }
-  &__empty {
-    padding: var(--sp-extra-loose) var(--sp-normal);
-    text-align: center;
-  }
+
+    &__empty {
+        padding: var(--sp-extra-loose) var(--sp-normal);
+        text-align: center;
+    }
 }

@@ -10,13 +10,10 @@ import React, {
     useState,
 } from 'react';
 import { Box, Scroll, Text } from 'folds';
-import ReactQuill, { Quill } from 'react-quill';
 
 import 'quill/dist/quill.core.css';
 import * as css from './Editor.css';
 import './Editor.scss';
-import TextareaAutosize from 'react-autosize-textarea';
-import { anyTagRegexp, deleteEndRegexp, deleteStartRegexp } from './output';
 // import * as MarkdownShortcuts from 'quill-markdown-shortcuts';
 
 // Quill.register('modules/markdownShortcuts', MarkdownShortcuts);

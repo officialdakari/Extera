@@ -6,12 +6,12 @@ import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 
 import Text from '../../atoms/text/Text';
-import RadioButton from '../../atoms/button/RadioButton';
-import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 
 import { getNotificationType } from '../../utils/room';
 import { getText } from '../../../lang';
 import { mdiBell, mdiBellAlert, mdiBellOff, mdiBellRing } from '@mdi/js';
+import { ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import Icon from '@mdi/react';
 
 const items = [
     {
@@ -129,17 +129,17 @@ function RoomNotification({ roomId }) {
     return (
         <div className="room-notification">
             {items.map((item) => (
-                <MenuItem
-                    variant={activeType === item.type ? 'positive' : 'surface'}
+                <ListItem
                     key={item.type}
-                    iconSrc={item.iconSrc}
-                    onClick={() => setNotification(item)}
+                    secondaryAction={<RadioButton onClick={() => setNotification(item)} isActive={activeType === item.type} />}
                 >
-                    <Text varient="b1">
-                        <span>{item.text}</span>
-                        <RadioButton isActive={activeType === item.type} />
-                    </Text>
-                </MenuItem>
+                    <ListItemIcon>
+                        <Icon size={1} path={item.iconSrc} />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {item.text}
+                    </ListItemText>
+                </ListItem>
             ))}
         </div>
     );

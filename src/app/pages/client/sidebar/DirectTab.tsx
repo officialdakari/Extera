@@ -104,46 +104,5 @@ export function DirectTab() {
             </ListItemButton>
             <DirectMenu anchorEl={menuAnchor} requestClose={() => setMenuAnchor(null)} />
         </>
-        // <SidebarItem active={directSelected}>
-        //     <SidebarItemTooltip tooltip={getText('direct_menu.title')}>
-        //         {(triggerRef) => (
-        //             <SidebarAvatar
-        //                 as="button"
-        //                 ref={triggerRef}
-        //                 outlined
-        //                 onClick={handleDirectClick}
-        //                 onContextMenu={handleContextMenu}
-        //             >
-        //                 <MDIcon size={1} path={directSelected ? mdiAccount : mdiAccountOutline} />
-        //             </SidebarAvatar>
-        //         )}
-        //     </SidebarItemTooltip>
-        //     {directUnread && (
-        //         <SidebarItemBadge hasCount={directUnread.total > 0}>
-        //             <UnreadBadge highlight={directUnread.highlight > 0} count={directUnread.total} />
-        //         </SidebarItemBadge>
-        //     )}
-        //     {menuAnchor && (
-        //         <PopOut
-        //             anchor={menuAnchor}
-        //             position="Right"
-        //             align="Start"
-        //             content={
-        //                 <FocusTrap
-        //                     focusTrapOptions={{
-        //                         initialFocus: false,
-        //                         returnFocusOnDeactivate: false,
-        //                         onDeactivate: () => setMenuAnchor(undefined),
-        //                         clickOutsideDeactivates: true,
-        //                         isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-        //                         isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-        //                     }}
-        //                 >
-
-        //                 </FocusTrap>
-        //             }
-        //         />
-        //     )}
-        // </SidebarItem>
     );
 }

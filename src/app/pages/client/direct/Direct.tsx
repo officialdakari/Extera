@@ -55,6 +55,7 @@ import { Add, DoneAll, MenuOpen, MoreVert, PersonAdd, Menu as MenuIcon } from '@
 import FAB from '../../../components/fab/FAB';
 import { useNavHidden } from '../../../hooks/useHideableNav';
 import SearchBar from '../SearchBar';
+import SyncStateAlert from '../SyncStateAlert';
 
 type DirectMenuProps = {
     requestClose: () => void;
@@ -195,6 +196,7 @@ export function Direct() {
     return (
         <PageNav>
             <DirectHeader />
+            <SyncStateAlert />
             {noRoomToDisplay ? (
                 <DirectEmpty />
             ) : (

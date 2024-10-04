@@ -21,8 +21,9 @@ import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { getText, translate } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { mdiAccount, mdiArrowLeft, mdiClose, mdiCog, mdiEmoticon, mdiShield } from '@mdi/js';
-import { AppBar, Box, Dialog, DialogContent, DialogTitle, IconButton, Tab, Tabs, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, Dialog, DialogContent, DialogTitle, IconButton, styled, Tab, Tabs, Toolbar, Typography } from '@mui/material';
 import { Close } from '@mui/icons-material';
+import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -59,34 +60,10 @@ function GeneralSettings({ roomId }) {
     const mx = useMatrixClient();
 
     return (
-        <>
-            <div className="space-settings__card">
-                <MenuHeader>Options</MenuHeader>
-                <MenuItem
-                    variant="danger"
-                    onClick={async () => {
-                        const isConfirmed = await confirmDialog(
-                            getText('leavespace.title'),
-                            getText('leavespace.text.2', roomName),
-                            getText('btn.leave'),
-                            'danger'
-                        );
-                        if (isConfirmed) mx.leave(roomId);
-                    }}
-                    iconSrc={mdiArrowLeft}
-                >
-                    {getText('btn.leave')}
-                </MenuItem>
-            </div>
-            <div className="space-settings__card">
-                <MenuHeader>{getText('space_settings.visibility')}</MenuHeader>
-                <RoomVisibility roomId={roomId} />
-            </div>
-            <div className="space-settings__card">
-                <MenuHeader>{getText('space_settings.addresses')}</MenuHeader>
-                <RoomAliases roomId={roomId} />
-            </div>
-        </>
+        <div className='space-settings__card'>
+            <RoomVisibility roomId={roomId} />
+            <RoomAliases roomId={roomId} />
+        </div>
     );
 }
 
@@ -143,25 +120,22 @@ function SpaceSettings() {
             scroll='body'
         >
             <AppBar sx={{ position: 'relative' }}>
-                <Toolbar>
-                    <Typography
-                        variant='h6'
-                        component='div'
-                        sx={{ flexGrow: 1 }}
-                    >
-                        {translate(
-                            'space_settings.title',
-                            room?.name,
-                            getText('space_settings.title.1')
-                        )}
-                    </Typography>
+                <ProminientToolbar>
+                    <div style={{ flexGrow: 1, alignSelf: 'flex-end' }}>
+                        {
+                            isOpen && roomId && (
+                                <RoomProfile roomId={roomId} />
+                            )
+                        }
+                    </div>
                     <IconButton
                         size='large'
+                        edge='end'
                         onClick={requestClose}
                     >
                         <Close />
                     </IconButton>
-                </Toolbar>
+                </ProminientToolbar>
             </AppBar>
             <Box
                 sx={{ borderBottom: 1, borderColor: 'divider' }}

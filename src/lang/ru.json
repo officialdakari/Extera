@@ -959,5 +959,10 @@
 	"search": "Поиск...",
 	"search.tab.messages": "Сообщения",
 	"search.tab.chats": "Чаты",
-	"search.tab.users": "Пользователи"
+	"search.tab.users": "Пользователи",
+	"sync_state.ERROR": "Соединение потеряно",
+	"sync_state.CATCHUP": "Синхронизация...",
+	"sync_state.RECONNECTING": "Переподключение...",
+	"room_visibility": "Настройки доступа",
+	"room_aliases": "Адреса комнаты"
 }

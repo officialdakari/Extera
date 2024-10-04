@@ -8,15 +8,13 @@ import { Debounce } from '../../../util/common';
 import { isRoomAliasAvailable } from '../../../util/matrixUtil';
 
 import Text from '../../atoms/text/Text';
-import Button from '../../atoms/button/Button';
-import Input from '../../atoms/input/Input';
-import Checkbox from '../../atoms/button/Checkbox';
-import Toggle from '../../atoms/button/Toggle';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
 import SettingTile from '../setting-tile/SettingTile';
 
 import { useStore } from '../../hooks/useStore';
 import { getText } from '../../../lang';
+import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, Switch, TextField } from '@mui/material';
+import { ExpandMore } from '@mui/icons-material';
 
 function useValidate(hsString) {
     const [debounce] = useState(new Debounce());
@@ -262,10 +260,10 @@ function RoomAliases({ roomId }) {
 
         return (
             <div className="room-aliases__item-btns">
-                {canPublishAlias && !isMain && <Button onClick={() => handleSetMainAlias(alias)} variant="primary">{getText('btn.room_aliases.main')}</Button>}
-                {!isPublished && canPublishAlias && <Button onClick={() => handlePublishAlias(alias)} variant="positive">{getText('btn.room_aliases.publish')}</Button>}
-                {isPublished && canPublishAlias && <Button onClick={() => handleUnPublishAlias(alias)} variant="caution">{getText('btn.room_aliases.unpublish')}</Button>}
-                <Button onClick={() => handleDeleteAlias(alias)} variant="danger">{getText('btn.room_aliases.delete')}</Button>
+                {canPublishAlias && !isMain && <Button onClick={() => handleSetMainAlias(alias)} color="primary" variant='contained'>{getText('btn.room_aliases.main')}</Button>}
+                {!isPublished && canPublishAlias && <Button onClick={() => handlePublishAlias(alias)} color="success" variant='contained'>{getText('btn.room_aliases.publish')}</Button>}
+                {isPublished && canPublishAlias && <Button onClick={() => handleUnPublishAlias(alias)} color="warning" variant='outlined'>{getText('btn.room_aliases.unpublish')}</Button>}
+                <Button onClick={() => handleDeleteAlias(alias)} color="error" variant='outlined'>{getText('btn.room_aliases.delete')}</Button>
             </div>
         );
     };
@@ -278,7 +276,7 @@ function RoomAliases({ roomId }) {
         return (
             <React.Fragment key={`${alias}-wrapper`}>
                 <div className="room-aliases__alias-item" key={alias}>
-                    <Checkbox variant="positive" disabled={disabled} isActive={isActive} onToggle={() => handleAliasSelect(alias)} />
+                    <Checkbox disabled={disabled} checked={isActive} onClick={() => handleAliasSelect(alias)} />
                     <Text>
                         {alias}
                         {isMain && <span>{getText('room_aliases.main')}</span>}
@@ -293,62 +291,70 @@ function RoomAliases({ roomId }) {
     if (validate.status === cons.status.ERROR) inputState = 'error';
     if (validate.status === cons.status.SUCCESS) inputState = 'success';
     return (
-        <div className="room-aliases">
-            <SettingTile
-                title={getText('room_aliases.publish.title')}
-                content={<Text variant="b3">{getText('room_aliases.publish', getText(room.isSpaceRoom() ? 'room_aliases.publish.space' : 'room_aliases.publish.room'), hsString)}</Text>}
-                options={(
-                    <Toggle
-                        isActive={isPublic}
-                        onToggle={toggleDirectoryVisibility}
-                        disabled={!canPublishAlias}
-                    />
-                )}
-            />
-
-            <div className="room-aliases__content">
-                <MenuHeader>{getText('room_aliases.published')}</MenuHeader>
-                {(aliases.published.length === 0) && <Text className="room-aliases__message">{getText('room_aliases.no_published')}</Text>}
-                {(aliases.published.length > 0 && !aliases.main) && <Text className="room-aliases__message">{getText('room_aliases.no_main_address')}</Text>}
-                {aliases.published.map(renderAlias)}
-                <Text className="room-aliases__message" variant="b3">
-                    {getText('room_aliases.message', getText(room.isSpaceRoom() ? 'room_aliases.message.space' : 'room_aliases.message.room'))}
-                </Text>
-            </div>
-            {isLocalVisible && (
-                <div className="room-aliases__content">
-                    <MenuHeader>{getText('room_aliases.local')}</MenuHeader>
-                    {(aliases.local.length === 0) && <Text className="room-aliases__message">{getText('room_aliases.no_local')}</Text>}
-                    {aliases.local.map(renderAlias)}
-                    <Text className="room-aliases__message" variant="b3">
-                        {getText('room_aliases.message.2', getText(room.isSpaceRoom() ? 'room_aliases.message.space.2' : 'room_aliases.message.room.2'))}
-                    </Text>
-
-                    <Text className="room-aliases__form-label" variant="b2">{getText('room_aliases.add_local')}</Text>
-                    <form className="room-aliases__form" onSubmit={handleAliasSubmit}>
-                        <div className="room-aliases__input-wrapper">
-                            <Input
-                                name="alias-input"
-                                state={inputState}
-                                onChange={handleAliasChange}
-                                placeholder={`my_${room.isSpaceRoom() ? 'space' : 'room'}_address`}
-                                required
+        <Accordion>
+            <AccordionSummary
+                expandIcon={<ExpandMore />}
+            >
+                {getText('room_aliases')}
+            </AccordionSummary>
+            <AccordionDetails>
+                <div className="room-aliases">
+                    <SettingTile
+                        title={getText('room_aliases.publish.title')}
+                        content={<Text variant="b3">{getText('room_aliases.publish', getText(room.isSpaceRoom() ? 'room_aliases.publish.space' : 'room_aliases.publish.room'), hsString)}</Text>}
+                        options={(
+                            <Switch
+                                checked={isPublic}
+                                onClick={toggleDirectoryVisibility}
+                                disabled={!canPublishAlias}
                             />
+                        )}
+                    />
+
+                    <div className="room-aliases__content">
+                        <MenuHeader>{getText('room_aliases.published')}</MenuHeader>
+                        {(aliases.published.length === 0) && <Text className="room-aliases__message">{getText('room_aliases.no_published')}</Text>}
+                        {(aliases.published.length > 0 && !aliases.main) && <Text className="room-aliases__message">{getText('room_aliases.no_main_address')}</Text>}
+                        {aliases.published.map(renderAlias)}
+                        <Text className="room-aliases__message" variant="b3">
+                            {getText('room_aliases.message', getText(room.isSpaceRoom() ? 'room_aliases.message.space' : 'room_aliases.message.room'))}
+                        </Text>
+                    </div>
+                    {isLocalVisible && (
+                        <div className="room-aliases__content">
+                            <MenuHeader>{getText('room_aliases.local')}</MenuHeader>
+                            {(aliases.local.length === 0) && <Text className="room-aliases__message">{getText('room_aliases.no_local')}</Text>}
+                            {aliases.local.map(renderAlias)}
+                            <Text className="room-aliases__message" variant="b3">
+                                {getText('room_aliases.message.2', getText(room.isSpaceRoom() ? 'room_aliases.message.space.2' : 'room_aliases.message.room.2'))}
+                            </Text>
+
+                            <form className="room-aliases__form" onSubmit={handleAliasSubmit}>
+                                <TextField
+                                    name="alias-input"
+                                    state={inputState}
+                                    onChange={handleAliasChange}
+                                    placeholder={`my_${room.isSpaceRoom() ? 'space' : 'room'}_address`}
+                                    required
+                                    fullWidth
+                                    label={getText('room_aliases.add_local')}
+                                />
+                                <Button variant="contained" type="submit">{getText('btn.add')}</Button>
+                            </form>
+                            <div className="room-aliases__input-status">
+                                {validate.status === cons.status.SUCCESS && <Text className="room-aliases__valid" variant="b2">{validate.msg}</Text>}
+                                {validate.status === cons.status.ERROR && <Text className="room-aliases__invalid" variant="b2">{validate.msg}</Text>}
+                            </div>
                         </div>
-                        <Button variant="primary" type="submit">{getText('btn.add')}</Button>
-                    </form>
-                    <div className="room-aliases__input-status">
-                        {validate.status === cons.status.SUCCESS && <Text className="room-aliases__valid" variant="b2">{validate.msg}</Text>}
-                        {validate.status === cons.status.ERROR && <Text className="room-aliases__invalid" variant="b2">{validate.msg}</Text>}
+                    )}
+                    <div className="room-aliases__content">
+                        <Button variant='contained' onClick={() => setIsLocalVisible(!isLocalVisible)}>
+                            {getText(isLocalVisible ? 'btn.hide_local_address' : 'btn.show_local_address')}
+                        </Button>
                     </div>
                 </div>
-            )}
-            <div className="room-aliases__content">
-                <Button onClick={() => setIsLocalVisible(!isLocalVisible)}>
-                    {getText(isLocalVisible ? 'btn.hide_local_address' : 'btn.show_local_address')}
-                </Button>
-            </div>
-        </div>
+            </AccordionDetails>
+        </Accordion>
     );
 }
 

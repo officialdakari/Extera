@@ -7,10 +7,9 @@ import { suffixRename } from '../../../util/common';
 
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
 import Text from '../../atoms/text/Text';
-import Input from '../../atoms/input/Input';
-import Button from '../../atoms/button/Button';
 import ImagePack from '../image-pack/ImagePack';
 import { getText } from '../../../lang';
+import { Button, TextField } from '@mui/material';
 
 function useRoomPacks(room) {
     const mx = initMatrix.matrixClient;
@@ -97,10 +96,9 @@ function RoomEmojis({ roomId }) {
         <div className="room-emojis">
             {canChange && (
                 <div className="room-emojis__add-pack">
-                    <MenuHeader>{getText('room_emojis.create')}</MenuHeader>
                     <form onSubmit={handlePackCreate}>
-                        <Input name="nameInput" placeholder={getText('placeholder.create_pack_name')} required />
-                        <Button variant="primary" type="submit">{getText('btn.room_emojis.create_pack')}</Button>
+                        <TextField fullWidth name="nameInput" size='small' label={getText('placeholder.create_pack_name')} required />
+                        <Button sx={{ flexShrink: 0 }} variant='contained' size='small' color="primary" type="submit">{getText('btn.room_emojis.create_pack')}</Button>
                     </form>
                 </div>
             )}

@@ -8,10 +8,10 @@ import initMatrix from '../../../client/initMatrix';
 import { openReusableDialog } from '../../../client/action/navigation';
 import { suffixRename } from '../../../util/common';
 
-import Button from '../../atoms/button/Button';
+// import Button from '../../atoms/button/Button';
 import Text from '../../atoms/text/Text';
-import Input from '../../atoms/input/Input';
-import Checkbox from '../../atoms/button/Checkbox';
+// import Input from '../../atoms/input/Input';
+// import Checkbox from '../../atoms/button/Checkbox';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
 
 import { ImagePack as ImagePackBuilder } from '../../organisms/emoji-board/custom-emoji';
@@ -20,6 +20,7 @@ import ImagePackProfile from './ImagePackProfile';
 import ImagePackItem from './ImagePackItem';
 import ImagePackUpload from './ImagePackUpload';
 import { getText } from '../../../lang';
+import { Button, Checkbox, TextField } from '@mui/material';
 
 const renameImagePackItem = (shortcode) => new Promise((resolve) => {
     let isCompleted = false;
@@ -38,7 +39,7 @@ const renameImagePackItem = (shortcode) => new Promise((resolve) => {
                         requestClose();
                     }}
                 >
-                    <Input
+                    <TextField
                         value={shortcode}
                         name="shortcode"
                         label="Shortcode"
@@ -46,7 +47,7 @@ const renameImagePackItem = (shortcode) => new Promise((resolve) => {
                         required
                     />
                     <div style={{ height: 'var(--sp-normal)' }} />
-                    <Button variant="primary" type="submit">{getText('btn.rename_pack')}</Button>
+                    <Button color="primary" variant='contained' type="submit">{getText('btn.rename_pack')}</Button>
                 </form>
             </div>
         ),
@@ -312,7 +313,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete }) {
                 </div>
             )}
             <div className="image-pack__global">
-                <Checkbox variant="positive" onToggle={handleGlobalChange} isActive={isGlobal} />
+                <Checkbox onClick={handleGlobalChange} checked={isGlobal} />
                 <div>
                     <Text variant="b2">{getText('image_pack.global_use.1')}</Text>
                     <Text variant="b3">{getText('image_pack.global_use.2')}</Text>
@@ -448,7 +449,7 @@ function ImagePackGlobal() {
                                     if (!pack) return null;
                                     return (
                                         <div className="image-pack__global" key={pack.id}>
-                                            <Checkbox variant="positive" onToggle={() => handleChange(roomId, stateKey)} isActive />
+                                            <Checkbox onClick={() => handleChange(roomId, stateKey)} checked />
                                             <div>
                                                 <Text variant="b2">{pack.displayName ?? getText('generic.unknown')}</Text>
                                                 <Text variant="b3">{room.name}</Text>

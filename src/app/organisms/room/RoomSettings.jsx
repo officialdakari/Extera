@@ -24,8 +24,10 @@ import PopupWindow from '../../molecules/popup-window/PopupWindow';
 import { getText, translate } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { mdiAccount, mdiArrowLeft, mdiClose, mdiCog, mdiEmoticon, mdiLock, mdiShield } from '@mdi/js';
-import { IconButton } from 'folds';
 import Icon from '@mdi/react';
+import { AppBar, Dialog, IconButton } from '@mui/material';
+import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
+import { Close } from '@mui/icons-material';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -68,39 +70,11 @@ function GeneralSettings({ roomId }) {
     const room = mx.getRoom(roomId);
 
     return (
-        <>
-            <div className="room-settings__card">
-                <MenuHeader>Options</MenuHeader>
-                <MenuItem
-                    variant="danger"
-                    onClick={async () => {
-                        const isConfirmed = await confirmDialog(
-                            getText('leaveroom.title'),
-                            getText('leaveroom.text.2', room.name),
-                            getText('btn.leave'),
-                            'danger'
-                        );
-                        if (!isConfirmed) return;
-                        mx.leave(roomId);
-                    }}
-                    iconSrc={mdiArrowLeft}
-                >
-                    {getText('btn.leave')}
-                </MenuItem>
-            </div>
-            <div className="room-settings__card">
-                <MenuHeader>{getText('room_settings.menuheader.notification')}</MenuHeader>
-                <RoomNotification roomId={roomId} />
-            </div>
-            <div className="room-settings__card">
-                <MenuHeader>{getText('room_settings.menuheader.visibility')}</MenuHeader>
-                <RoomVisibility roomId={roomId} />
-            </div>
-            <div className="room-settings__card">
-                <MenuHeader>{getText('room_settings.menuheader.addresses')}</MenuHeader>
-                <RoomAliases roomId={roomId} />
-            </div>
-        </>
+        <div className="room-settings__card">
+            <RoomNotification roomId={roomId} />
+            <RoomVisibility roomId={roomId} />
+            <RoomAliases roomId={roomId} />
+        </div>
     );
 }
 
@@ -160,24 +134,27 @@ function RoomSettings() {
     useBackButton(requestClose);
 
     return (
-        <PopupWindow
-            isOpen={isOpen}
-            className="room-settings"
-            title={
-                <Text variant="s1" weight="medium" primary>
-                    {translate(
-                        'room_settings.header',
-                        isOpen && room?.name,
-                        <span style={{ color: 'var(--tc-surface-low)' }}>{getText('room_settings.header.1')}</span>
-                    )}
-                </Text>
-            }
-            contentOptions={<IconButton onClick={requestClose} tooltip="Close"><Icon path={mdiClose} size={0.8} /></IconButton>}
-            onRequestClose={requestClose}
+        <Dialog
+            open={isOpen}
+            onClose={requestClose}
         >
             {isOpen && (
+                <AppBar position='relative'>
+                    <ProminientToolbar>
+                        <RoomProfile roomId={roomId} />
+                        <IconButton
+                            size='large'
+                            edge='end'
+                            onClick={requestClose}
+                        >
+                            <Close />
+                        </IconButton>
+                    </ProminientToolbar>
+                </AppBar>
+            )}
+            {isOpen && (
                 <div className="room-settings__content">
-                    <RoomProfile roomId={roomId} />
+
                     <Tabs
                         items={tabItems}
                         defaultSelected={tabItems.findIndex((tab) => tab.text === selectedTab.text)}
@@ -192,7 +169,7 @@ function RoomSettings() {
                     </div>
                 </div>
             )}
-        </PopupWindow>
+        </Dialog>
     );
 }
 
