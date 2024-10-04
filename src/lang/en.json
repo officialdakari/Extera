@@ -964,5 +964,7 @@
     "sync_state.CATCHUP": "Syncing with server...",
     "sync_state.RECONNECTING": "Connection lost. Reconnecting...",
     "room_visibility": "Room visibility",
-    "room_aliases": "Room aliases"
+    "room_aliases": "Room aliases",
+    "settings.dark_theme.title": "Dark theme",
+    "settings.dark_theme.desc": "Use dark theme"
 }

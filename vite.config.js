@@ -36,6 +36,14 @@ const copyFiles = {
         {
             src: 'public/res/android',
             dest: 'public/',
+        },
+        {
+            src: 'public/ring.mp3',
+            dest: ''
+        },
+        {
+            src: 'public/incoming.mp3',
+            dest: ''
         }
     ],
 };

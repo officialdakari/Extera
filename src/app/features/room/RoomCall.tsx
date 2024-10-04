@@ -247,7 +247,7 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
                 [CallState.InviteSent, CallState.Connecting].includes(call.state) &&
                 (
                     <audio
-                        src='https://officialdakari.ru/_matrix/media/r0/download/officialdakari.ru/rAiqpTddZoUUhcBVjPQORWJb'
+                        src='/ring.mp3'
                         autoPlay
                         loop
                         playsInline
@@ -257,7 +257,7 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
             {call.state === CallState.Ringing && (
                 <>
                     <audio
-                        src='https://officialdakari.ru/_matrix/media/r0/download/officialdakari.ru/IthXmyIlDaVKfCIYfMTxNdIG'
+                        src='/incoming.mp3'
                         autoPlay={true}
                         loop={true}
                         ref={ringtoneRef}

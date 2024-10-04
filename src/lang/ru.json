@@ -964,5 +964,7 @@
 	"sync_state.CATCHUP": "Синхронизация...",
 	"sync_state.RECONNECTING": "Переподключение...",
 	"room_visibility": "Настройки доступа",
-	"room_aliases": "Адреса комнаты"
+	"room_aliases": "Адреса комнаты",
+	"settings.dark_theme.title": "Тёмная тема",
+	"settings.dark_theme.desc": "Использовать тёмную тему"
 }

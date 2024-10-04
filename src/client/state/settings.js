@@ -96,8 +96,8 @@ class Settings extends EventEmitter {
         if (typeof this.useSystemTheme === 'boolean') return this.useSystemTheme;
 
         const settings = getSettings();
-        if (settings === null) return true;
-        if (typeof settings.useSystemTheme === 'undefined') return true;
+        if (settings === null) return false;
+        if (typeof settings.useSystemTheme === 'undefined') return false;
         return settings.useSystemTheme;
     }
 
