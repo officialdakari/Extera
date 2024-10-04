@@ -14,12 +14,10 @@ import {
 import { usePermission } from '../../hooks/usePermission';
 
 import Text from '../../atoms/text/Text';
-import IconButton from '../../atoms/button/IconButton';
 import Tabs from '../../atoms/tabs/Tabs';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
 import SegmentedControls from '../../atoms/segmented-controls/SegmentedControls';
 
-import PopupWindow from '../../molecules/popup-window/PopupWindow';
 import SettingTile from '../../molecules/setting-tile/SettingTile';
 import ImportE2ERoomKeys from '../../molecules/import-export-e2e-room-keys/ImportE2ERoomKeys';
 import ExportE2ERoomKeys from '../../molecules/import-export-e2e-room-keys/ExportE2ERoomKeys';
@@ -33,7 +31,7 @@ import CrossSigning from './CrossSigning';
 import KeyBackup from './KeyBackup';
 import DeviceManage from './DeviceManage';
 
-import { Switch, Button, ToggleButtonGroup, ToggleButton, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog } from '@mui/material';
+import { Switch, Button, ToggleButtonGroup, ToggleButton, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog, AppBar, IconButton } from '@mui/material';
 
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
@@ -54,6 +52,8 @@ import FocusTrap from 'focus-trap-react';
 import getCachedURL from '../../utils/cache';
 import wallpaperDB from '../../utils/wallpaper';
 import { useAccountData } from '../../hooks/useAccountData';
+import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
+import { Close, HideImage, Image, Logout } from '@mui/icons-material';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
@@ -880,31 +880,67 @@ function Settings() {
     useBackButton(requestClose);
 
     return (
-        <PopupWindow
-            isOpen={isOpen}
-            className="settings-window"
-            title={<Text variant="s1" weight="medium" primary>{getText('settings.title')}</Text>}
-            contentOptions={(
-                <>
-                    {bannerSrc && <Button iconSrc={mdiClose} onClick={handleBannerRemove}>
-                        {getText('btn.remove_banner')}
-                    </Button>}
-                    <Button variant="outlined" color='error' iconSrc={mdiArrowLeft} onClick={handleLogout}>
-                        {getText('btn.logout_session')}
-                    </Button>
-                    <IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />
-                </>
-            )}
-            onRequestClose={requestClose}
+        <Dialog
+            open={isOpen}
+            // contentOptions={(
+            //     <>
+            //         {bannerSrc && <Button iconSrc={mdiClose} onClick={handleBannerRemove}>
+            //             {getText('btn.remove_banner')}
+            //         </Button>}
+            //         <Button variant="outlined" color='error' iconSrc={mdiArrowLeft} onClick={handleLogout}>
+            //             {getText('btn.logout_session')}
+            //         </Button>
+            //         <IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />
+            //     </>
+            // )}
+            onClose={requestClose}
         >
             {isOpen && (
+                <AppBar position='relative'>
+                    <ProminientToolbar>
+                        {/* {
+                            bannerSrc ?
+                                <Banner noBorder={true} url={bannerSrc} onUpload={handleBannerChange} /> :
+                                <Banner noBorder={true} emptyBanner='transparent' onUpload={handleBannerChange} />
+                        } */}
+                        <Box grow='Yes'>
+                            <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
+                        </Box>
+                        <IconButton
+                            size='large'
+                            edge='end'
+                            onClick={handleBannerChange}
+                        >
+                            <Image />
+                        </IconButton>
+                        <IconButton
+                            size='large'
+                            edge='end'
+                            color='error'
+                            onClick={handleBannerRemove}
+                        >
+                            <HideImage />
+                        </IconButton>
+                        <IconButton
+                            size='large'
+                            edge='end'
+                            color='error'
+                            onClick={handleLogout}
+                        >
+                            <Logout />
+                        </IconButton>
+                        <IconButton
+                            size='large'
+                            edge='end'
+                            onClick={requestClose}
+                        >
+                            <Close />
+                        </IconButton>
+                    </ProminientToolbar>
+                </AppBar>
+            )}
+            {isOpen && (
                 <div className="settings-window__content">
-                    {
-                        bannerSrc ?
-                            <Banner noBorder={true} url={bannerSrc} onUpload={handleBannerChange} /> :
-                            <Banner noBorder={true} emptyBanner='transparent' onUpload={handleBannerChange} />
-                    }
-                    <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
                     <Tabs
                         items={tabItems}
                         defaultSelected={tabItems.findIndex((tab) => tab.text === selectedTab.text)}
@@ -915,7 +951,7 @@ function Settings() {
                     </div>
                 </div>
             )}
-        </PopupWindow>
+        </Dialog>
     );
 }
 

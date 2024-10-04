@@ -44,6 +44,10 @@ const copyFiles = {
         {
             src: 'public/incoming.mp3',
             dest: ''
+        },
+        {
+            src: 'public/background.jpg',
+            dest: ''
         }
     ],
 };

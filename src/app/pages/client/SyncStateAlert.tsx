@@ -20,7 +20,7 @@ export default function SyncStateAlert() {
         };
     });
 
-    return syncState && syncState !== SyncState.Syncing && (
+    return syncState && syncState !== SyncState.Prepared && syncState !== SyncState.Syncing && (
         <Alert severity={syncState === SyncState.Error ? 'error' : 'info'}>
             {getText(`sync_state.${syncState}`)}
         </Alert>

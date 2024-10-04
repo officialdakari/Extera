@@ -13,7 +13,7 @@
     }
 
     & .profile-editor {
-        padding: var(--sp-loose) var(--sp-extra-loose);
+        padding: var(--sp-loose) var(--sp-extraloose);
     }
 
     & .tabs__content {
@@ -22,7 +22,7 @@
 
     &__cards-wrapper {
         padding: 0 var(--sp-normal);
-        @include dir.side(padding, var(--sp-normal), var(--sp-extra-tight));
+        @include dir.side(padding, var(--sp-normal), var(--sp-normal));
     }
 }
 
