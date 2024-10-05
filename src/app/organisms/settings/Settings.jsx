@@ -14,7 +14,6 @@ import {
 import { usePermission } from '../../hooks/usePermission';
 
 import Text from '../../atoms/text/Text';
-import Tabs from '../../atoms/tabs/Tabs';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
 import SegmentedControls from '../../atoms/segmented-controls/SegmentedControls';
 
@@ -31,7 +30,7 @@ import CrossSigning from './CrossSigning';
 import KeyBackup from './KeyBackup';
 import DeviceManage from './DeviceManage';
 
-import { Switch, Button, ToggleButtonGroup, ToggleButton, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog, AppBar, IconButton } from '@mui/material';
+import { Switch, Button, ToggleButtonGroup, ToggleButton, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog, AppBar, IconButton, Tab, Tabs, useTheme } from '@mui/material';
 
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
@@ -425,8 +424,8 @@ function PresenceSection() {
                 <div className='settings-presence__status'>
                     <Text variant="b3">{getText('settings.status_message.text')}</Text>
                     <form onSubmit={updateStatusMessage}>
-                        <TextField required name="statusInput" defaultValue={statusMsg} />
-                        <Button variant="contained" type="submit">{getText('btn.status_message.set')}</Button>
+                        <TextField size='small' autoComplete='off' variant='filled' label={getText('settings.status_message.title')} required name="statusInput" defaultValue={statusMsg} />
+                        <Button variant="contained" size='small' type="submit">{getText('btn.status_message.set')}</Button>
                     </form>
                 </div>
             )}
@@ -729,9 +728,9 @@ function AboutSection() {
                         <Text>Fork of Cinny</Text>
 
                         <div className="settings-about__btns">
-                            <Button onClick={() => window.open('https://git.cycloneteam.space/OfficialDakari/Extera')}>Source code</Button>
-                            <Button onClick={() => window.open('https://extera.officialdakari.ru/static/#sponsor')}>Support</Button>
-                            <Button onClick={() => initMatrix.clearCacheAndReload()} variant="danger">Clear cache & reload</Button>
+                            <Button variant='contained' onClick={() => window.open('https://github.com/OfficialDakari/Extera')}>Source code</Button>
+                            <Button variant='contained' onClick={() => window.open('https://officialdakari.ru/sponsor/')}>Support</Button>
+                            <Button variant='outlined' color='error' onClick={() => initMatrix.clearCacheAndReload()}>Clear cache & reload</Button>
                         </div>
                     </div>
                 </div>
@@ -830,7 +829,7 @@ function useWindowToggle(setSelectedTab) {
 }
 
 function Settings() {
-    const [selectedTab, setSelectedTab] = useState(tabItems[0]);
+    const [selectedTab, setSelectedTab] = useState(0);
     const [isOpen, requestClose] = useWindowToggle(setSelectedTab);
     const exteraProfileEvent = useAccountData('ru.officialdakari.extera_profile');
     const screenSize = useScreenSize();
@@ -878,6 +877,8 @@ function Settings() {
             alert(error.message); // TODO Better error handling
         }
     };
+
+    const theme = useTheme();
 
     useBackButton(requestClose);
 
@@ -943,19 +944,33 @@ function Settings() {
                 </AppBar>
             )}
             {isOpen && (
-                <div className="settings-window__content">
-                    <Tabs
-                        items={tabItems}
-                        defaultSelected={tabItems.findIndex((tab) => tab.text === selectedTab.text)}
-                        onSelect={handleTabChange}
-                    />
+                <div className="settings-window__content" style={{ backgroundColor: theme.palette.background.paper }}>
+                    <Box style={{ borderBottom: '1px', borderColor: theme.palette.divider }}>
+                        <Tabs
+                            value={selectedTab}
+                            onChange={handleTabChange}
+                            variant='scrollable'
+                            scrollButtons='auto'
+                        >
+                            {tabItems.map((tabItem, index) => (
+                                <Tab label={tabItem.text} {...a11yProps(index)} onClick={() => handleTabChange(index)} />
+                            ))}
+                        </Tabs>
+                    </Box>
                     <div className="settings-window__cards-wrapper">
-                        {selectedTab.render()}
+                        {tabItems[selectedTab].render()}
                     </div>
                 </div>
             )}
         </Dialog>
     );
+}
+
+function a11yProps(index) {
+    return {
+        id: `simple-tab-${index}`,
+        'aria-controls': `simple-tabpanel-${index}`,
+    };
 }
 
 export default Settings;
