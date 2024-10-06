@@ -883,7 +883,7 @@ export function EmojiBoard({
                                 </Footer>
                             )
                         )}
-                        {!hideAdvert && (
+                        {/* {!hideAdvert && (
                             <Box shrink="No" className={css.Footer} display='InlineFlex' justifyContent='SpaceBetween' gap="300" alignItems="Center">
                                 <Text size="H5">
                                     Free cool emojis
@@ -894,7 +894,7 @@ export function EmojiBoard({
                                     <Button size='300' variant='Secondary' onClick={handleDismissFreeEmojis}>Dismiss</Button>
                                 </div>
                             </Box>
-                        )}
+                        )} */}
                     </>
                 }
             >

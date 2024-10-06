@@ -20,7 +20,7 @@ function App() {
     const theme = createTheme({
         palette: {
             mode:
-                settings.getUseSystemTheme()
+                !settings.getUseSystemTheme()
                     ? settings.getThemeIndex() === 2 ? 'dark' : 'light'
                     : settings.darkModeQueryList.matches ? 'dark' : 'light'
         }
