@@ -968,4 +968,6 @@
 	"settings.dark_theme.title": "Тёмная тема",
 	"settings.dark_theme.desc": "Использовать тёмную тему",
 	"room_notification": "Уведомления"
+	"btn.verify": "Заверить",
+	"text.session.verified": "Заверенные устройства"
 }

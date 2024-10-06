@@ -10,28 +10,31 @@ import { copyToClipboard } from '../../../util/common';
 import { clearSecretStorageKeys } from '../../../client/state/secretStorageKeys';
 
 import Text from '../../atoms/text/Text';
-import Button from '../../atoms/button/Button';
-import Input from '../../atoms/input/Input';
-import Spinner from '../../atoms/spinner/Spinner';
 import SettingTile from '../../molecules/setting-tile/SettingTile';
 
 import { authRequest } from './AuthRequest';
 import { useCrossSigningStatus } from '../../hooks/useCrossSigningStatus';
 import { getText, translate } from '../../../lang';
+import { Button, CircularProgress, DialogActions, DialogContent, DialogContentText, TextField } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { OrDivider } from '../../pages/auth/OrDivider';
 
 const failedDialog = () => {
     const renderFailure = (requestClose) => (
-        <div className="cross-signing__failure">
-            <Text variant="h1">❌</Text>
-            <Text weight="medium">{getText('error.crosssigning')}</Text>
-            <Button onClick={requestClose}>{getText('btn.close')}</Button>
-        </div>
+        <>
+            <DialogContent>
+                <DialogContentText>
+                    {getText('error.crosssigning')}
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={requestClose}>{getText('btn.close')}</Button>
+            </DialogActions>
+        </>
     );
 
     openReusableDialog(
-        <Text variant="s1" weight="medium">
-            {getText('btn.crosssigning.title')}
-        </Text>,
+        getText('btn.crosssigning.title'),
         renderFailure
     );
 };
@@ -48,27 +51,33 @@ const securityKeyDialog = (key) => {
     };
 
     const renderSecurityKey = () => (
-        <div className="cross-signing__key">
-            <Text weight="medium">{getText('crosssigning.tip')}</Text>
-            <Text className="cross-signing__key-text">{key.encodedPrivateKey}</Text>
-            <div className="cross-signing__key-btn">
-                <Button variant="primary" onClick={() => copyKey(key)}>
+        <>
+            <DialogContent>
+                <DialogContentText>
+                    {getText('crosssigning.tip')}
+                </DialogContentText>
+                <DialogContentText>
+                    <code>
+                        {key.encodedPrivateKey}
+                    </code>
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => copyKey(key)}>
                     {getText('btn.copy')}
                 </Button>
                 <Button onClick={() => downloadKey(key)}>
                     {getText('btn.download')}
                 </Button>
-            </div>
-        </div>
+            </DialogActions>
+        </>
     );
 
     // Download automatically.
     downloadKey();
 
     openReusableDialog(
-        <Text variant="s1" weight="medium">
-            {getText('crosssigning.key.title')}
-        </Text>,
+        getText('crosssigning.key.title'),
         () => renderSecurityKey()
     );
 };
@@ -123,108 +132,111 @@ function CrossSigningSetup() {
     };
 
     return (
-        <div className="cross-signing__setup">
-            <div className="cross-signing__setup-entry">
-                <Text>
+        <>
+            <DialogContent>
+                <DialogContentText>
                     {translate(
                         'crosssigning.intro',
                         <b>
                             {getText('crosssigning.intro.security_key')}
                         </b>
                     )}
-                </Text>
-                {genWithPhrase !== false && (
-                    <Button variant="primary" onClick={() => setup()} disabled={genWithPhrase !== undefined}>
-                        {getText('btn.crosssigning.generate')}
-                    </Button>
-                )}
-                {genWithPhrase === false && <Spinner size="small" />}
-            </div>
-            <Text className="cross-signing__setup-divider">{getText('generic.OR')}</Text>
-            <Formik
-                initialValues={initialValues}
-                onSubmit={(values) => setup(values.phrase)}
-                validate={validator}
-            >
-                {({ values, errors, handleChange, handleSubmit }) => (
-                    <form
-                        className="cross-signing__setup-entry"
-                        onSubmit={handleSubmit}
-                        disabled={genWithPhrase !== undefined}
-                    >
-                        <Text>
-                            {getText('crosssigning.intro.2')}
-                        </Text>
-                        <Input
-                            name="phrase"
-                            value={values.phrase}
-                            onChange={handleChange}
-                            label={getText('label.security_phrase')}
-                            type="password"
-                            required
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton
+                    onClick={() => setup()}
+                    disabled={genWithPhrase !== undefined}
+                    loading={genWithPhrase === false}
+                    fullWidth
+                >
+                    {getText('btn.crosssigning.generate')}
+                </LoadingButton>
+            </DialogActions>
+            <OrDivider />
+            <DialogContent>
+                <Formik
+                    initialValues={initialValues}
+                    onSubmit={(values) => setup(values.phrase)}
+                    validate={validator}
+                >
+                    {({ values, errors, handleChange, handleSubmit }) => (
+                        <form
+                            onSubmit={handleSubmit}
                             disabled={genWithPhrase !== undefined}
-                        />
-                        {errors.phrase && (
-                            <Text variant="b3" className="cross-signing__error">
-                                {errors.phrase}
-                            </Text>
-                        )}
-                        <Input
-                            name="confirmPhrase"
-                            value={values.confirmPhrase}
-                            onChange={handleChange}
-                            label={getText('label.security_phrase.confirm')}
-                            type="password"
-                            required
-                            disabled={genWithPhrase !== undefined}
-                        />
-                        {errors.confirmPhrase && (
-                            <Text variant="b3" className="cross-signing__error">
-                                {errors.confirmPhrase}
-                            </Text>
-                        )}
-                        {genWithPhrase !== true && (
-                            <Button variant="primary" type="submit" disabled={genWithPhrase !== undefined}>
+                        >
+                            <DialogContentText>
+                                {getText('crosssigning.intro.2')}
+                            </DialogContentText>
+                            <TextField
+                                name="phrase"
+                                value={values.phrase}
+                                onChange={handleChange}
+                                label={getText('label.security_phrase')}
+                                type="password"
+                                required
+                                disabled={genWithPhrase !== undefined}
+                            />
+                            {errors.phrase && (
+                                <DialogContentText color='error'>
+                                    {errors.phrase}
+                                </DialogContentText>
+                            )}
+                            <TextField
+                                name="confirmPhrase"
+                                value={values.confirmPhrase}
+                                onChange={handleChange}
+                                label={getText('label.security_phrase.confirm')}
+                                type="password"
+                                required
+                                disabled={genWithPhrase !== undefined}
+                            />
+                            {errors.confirmPhrase && (
+                                <DialogContentText color='error'>
+                                    {errors.confirmPhrase}
+                                </DialogContentText>
+                            )}
+                            <LoadingButton loading={genWithPhrase === true} variant="contained" color='primary' type="submit" disabled={genWithPhrase !== undefined}>
                                 {getText('btn.set_phrase_and_generate_key')}
-                            </Button>
-                        )}
-                        {genWithPhrase === true && <Spinner size="small" />}
-                    </form>
-                )}
-            </Formik>
-        </div>
+                            </LoadingButton>
+                        </form>
+                    )}
+                </Formik>
+            </DialogContent>
+        </>
     );
 }
 
 const setupDialog = () => {
     openReusableDialog(
-        <Text variant="s1" weight="medium">
-            {getText('crosssigning.title')}
-        </Text>,
+        getText('crosssigning.title'),
         () => <CrossSigningSetup />
     );
 };
 
 function CrossSigningReset() {
     return (
-        <div className="cross-signing__reset">
-            <Text variant="h1">✋🧑‍🚒🤚</Text>
-            <Text weight="medium">{getText('reset_cross_signing.warning')}</Text>
-            <Text>
-                {getText('reset_cross_signing.warning.2')}
-            </Text>
-            <Button variant="danger" onClick={setupDialog}>
-                Reset
-            </Button>
-        </div>
+        <>
+            <DialogContent>
+                <DialogContentText fontWeight={1.5}>
+                    {getText('reset_cross_signing.warning')}
+                </DialogContentText>
+                <DialogContentText>
+                    {getText('reset_cross_signing.warning.2')}
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button color='danger' variant='contained' onClick={setupDialog}>
+                    {getText('btn.reset_cross_signing')}
+                </Button>
+            </DialogActions>
+        </>
     );
 }
 
 const resetDialog = () => {
     openReusableDialog(
-        <Text variant="s1" weight="medium">
-            {getText('reset_cross_signing.title')}
-        </Text>,
+        getText('reset_cross_signing.title'),
         () => <CrossSigningReset />
     );
 };
@@ -241,11 +253,11 @@ function CrossSignin() {
             }
             options={
                 isCSEnabled ? (
-                    <Button variant="danger" onClick={resetDialog}>
+                    <Button variant='outlined' color="error" onClick={resetDialog}>
                         {getText('btn.reset_cross_signing')}
                     </Button>
                 ) : (
-                    <Button variant="primary" onClick={setupDialog}>
+                    <Button variant='contained' color="primary" onClick={setupDialog}>
                         {getText('btn.setup_cross_signing')}
                     </Button>
                 )

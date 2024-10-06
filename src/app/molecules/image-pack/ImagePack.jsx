@@ -21,6 +21,7 @@ import ImagePackItem from './ImagePackItem';
 import ImagePackUpload from './ImagePackUpload';
 import { getText } from '../../../lang';
 import { Button, Checkbox, TextField } from '@mui/material';
+import { useForceUpdate } from '../../hooks/useForceUpdate';
 
 const renameImagePackItem = (shortcode) => new Promise((resolve) => {
     let isCompleted = false;
@@ -429,9 +430,11 @@ function useGlobalImagePack() {
 function ImagePackGlobal() {
     const mx = initMatrix.matrixClient;
     const roomIdToStateKeys = useGlobalImagePack();
+    const [, forceUpdate] = useForceUpdate();
 
     const handleChange = (roomId, stateKey) => {
         removeGlobalImagePack(mx, roomId, stateKey);
+        forceUpdate();
     };
 
     return (
