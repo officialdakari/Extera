@@ -390,7 +390,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 };
                 content['m.relates_to'].is_falling_back = false;
             }
-            
+
             if (hideReason) {
                 console.log(`Hide reason is`, hideReason);
                 content['space.0x1a8510f2.msc3368.tags'] = [hideReason];
