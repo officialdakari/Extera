@@ -22,9 +22,9 @@ export default function SyncStateAlert() {
         };
     });
 
-    return loading ? (
+    return (!syncState || syncState === 'NULL') ? (
         <Alert severity={'info'}>
-            {getText(`syncing`)}
+            {getText(`loading`)}
         </Alert>
     ) : (
         syncState && syncState !== SyncState.Prepared && syncState !== SyncState.Syncing && (

@@ -966,5 +966,6 @@
 	"room_visibility": "Настройки доступа",
 	"room_aliases": "Адреса комнаты",
 	"settings.dark_theme.title": "Тёмная тема",
-	"settings.dark_theme.desc": "Использовать тёмную тему"
+	"settings.dark_theme.desc": "Использовать тёмную тему",
+	"room_notification": "Уведомления"
 }

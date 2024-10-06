@@ -966,5 +966,6 @@
     "room_visibility": "Room visibility",
     "room_aliases": "Room aliases",
     "settings.dark_theme.title": "Dark theme",
-    "settings.dark_theme.desc": "Use dark theme"
+    "settings.dark_theme.desc": "Use dark theme",
+    "room_notification": "Notifications"
 }
