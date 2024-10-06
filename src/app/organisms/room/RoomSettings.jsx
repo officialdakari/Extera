@@ -162,7 +162,8 @@ function RoomSettings() {
             {isOpen && (
                 <div className="room-settings__content" style={{ backgroundColor: theme.palette.background.paper }}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                        <Tabs value={selectedTab} onChange={handleTabChange}>
+                        <Tabs value={selectedTab} onChange={handleTabChange} variant="scrollable"
+  scrollButtons="auto">
                             <Tab label={tabItems[0].text} onClick={() => handleTabChange(0)} {...a11yProps(0)} />
                             <Tab label={tabItems[1].text} onClick={() => handleTabChange(1)} {...a11yProps(1)} />
                             <Tab label={tabItems[2].text} onClick={() => handleTabChange(2)} {...a11yProps(2)} />

@@ -987,5 +987,6 @@
     "label.keyword_input": "Keyword",
     "label.ignore_user": "Matrix ID to ignore",
     "label.ignore_regex": "Regex matching Matrix IDs to ignore",
-    "nav.dm": "Directs"
+    "nav.dm": "Directs",
+    "room_notification": "Notifications"
 }
