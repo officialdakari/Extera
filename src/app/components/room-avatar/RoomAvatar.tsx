@@ -6,6 +6,7 @@ import { joinRuleToIconSrc } from '../../utils/room';
 import colorMXID from '../../../util/colorMXID';
 import Icon from '@mdi/react';
 import { mdiPound } from '@mdi/js';
+import { FallbackRoomAvatar } from '../../molecules/fallback-avatar/FallbackAvatar';
 
 type RoomAvatarProps = {
     roomId: string;
@@ -22,12 +23,16 @@ export function RoomAvatar({ roomId, src, alt, renderFallback }: RoomAvatarProps
 
     if (!src || error) {
         return (
-            <AvatarFallback
-                style={{ backgroundColor: colorMXID(roomId ?? ''), color: color.Surface.Container }}
-                className={css.RoomAvatar}
-            >
-                {renderFallback()}
-            </AvatarFallback>
+            <FallbackRoomAvatar
+                roomId={roomId ?? ''}
+                name={alt}
+            />
+            // <AvatarFallback
+            //     style={{ backgroundColor: colorMXID(roomId ?? ''), color: color.Surface.Container }}
+            //     className={css.RoomAvatar}
+            // >
+            //     {renderFallback()}
+            // </AvatarFallback>
         );
     }
 
