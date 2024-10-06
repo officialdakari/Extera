@@ -285,30 +285,15 @@ export function RoomNavItem({
                             </Box>
 
                         </Box>
-                        {muted && !optionsVisible && (
-                            <IconButton>
-                                <NotificationsOff />
-                            </IconButton>
-                        )}
                     </Box>
                 </NavItemContent>
             </NavLink>
-            {optionsVisible && (
-                <NavItemOptions>
-                    <IconButton
-                        onClick={handleOpenMenu}
-                        aria-pressed={!!menuAnchor}
-                    >
-                        <MoreVert />
-                    </IconButton>
-                    <RoomNavItemMenu
-                        room={room}
-                        linkPath={linkPath}
-                        requestClose={() => setMenuAnchor(null)}
-                        anchorEl={menuAnchor}
-                    />
-                </NavItemOptions>
-            )}
+            <RoomNavItemMenu
+                room={room}
+                linkPath={linkPath}
+                requestClose={() => setMenuAnchor(null)}
+                anchorEl={menuAnchor}
+            />
         </NavItem>
     );
 }

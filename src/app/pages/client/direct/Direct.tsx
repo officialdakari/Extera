@@ -56,6 +56,7 @@ import FAB from '../../../components/fab/FAB';
 import { useNavHidden } from '../../../hooks/useHideableNav';
 import SearchBar from '../SearchBar';
 import SyncStateAlert from '../SyncStateAlert';
+import BottomNav from '../BottomNav';
 
 type DirectMenuProps = {
     requestClose: () => void;
@@ -235,6 +236,7 @@ export function Direct() {
                     </Box>
                 </PageNavContent>
             )}
+            <BottomNav current='dm' />
             {screenSize === ScreenSize.Mobile && (
                 <FAB />
             )}

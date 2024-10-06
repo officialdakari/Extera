@@ -15,9 +15,10 @@ import { openCreateRoom, openSearch } from '../../../client/action/navigation';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiMagnify, mdiPlus } from '@mdi/js';
-import { Backdrop, Divider, Drawer, Fab, Grow, List, Slide, SwipeableDrawer } from '@mui/material';
+import { Backdrop, Divider, Drawer, Fab, Grow, List, ListItemButton, ListItemIcon, ListItemText, Slide, SwipeableDrawer } from '@mui/material';
 import { useNavHidden } from '../../hooks/useHideableNav';
 import { motion, Variants } from 'framer-motion';
+import { Add } from '@mui/icons-material';
 
 const variants: Variants = {
     initial: {
@@ -60,6 +61,21 @@ export function SidebarNav() {
             <nav aria-label='Spaces'>
                 <List>
                     <SpaceTabs scrollRef={scrollRef} />
+                </List>
+            </nav>
+            <Divider />
+            <nav>
+                <List>
+                    <ListItemButton
+                        onClick={() => openCreateRoom(true)}
+                    >
+                        <ListItemIcon>
+                            <Add />
+                        </ListItemIcon>
+                        <ListItemText>
+                            {getText('btn.space.new_space')}
+                        </ListItemText>
+                    </ListItemButton>
                 </List>
             </nav>
             <Divider />

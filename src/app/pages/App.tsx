@@ -19,7 +19,10 @@ const queryClient = new QueryClient();
 function App() {
     const theme = createTheme({
         palette: {
-            mode: settings.getThemeIndex() === 2 ? 'dark' : 'light'
+            mode:
+                settings.getUseSystemTheme()
+                    ? settings.getThemeIndex() === 2 ? 'dark' : 'light'
+                    : settings.darkModeQueryList.matches ? 'dark' : 'light'
         }
     });
     const screenSize = useScreenSize();

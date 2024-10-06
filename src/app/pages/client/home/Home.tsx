@@ -57,6 +57,7 @@ import { Add, ArrowForward, ArrowRight, DoneAll, KeyboardArrowRight, MoreVert, M
 import { useNavHidden } from '../../../hooks/useHideableNav';
 import SearchBar from '../SearchBar';
 import SyncStateAlert from '../SyncStateAlert';
+import BottomNav from '../BottomNav';
 
 type HomeMenuProps = {
     requestClose: () => void;
@@ -269,6 +270,7 @@ export function Home() {
                     </Box>
                 </PageNavContent>
             )}
+            <BottomNav current='rooms' />
             {screenSize === ScreenSize.Mobile && (
                 <FAB />
             )}
