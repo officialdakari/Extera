@@ -148,7 +148,7 @@ function SpaceSettings() {
                     variant='scrollable'
                     value={selectedTab}
                     onChange={handleTabChange}
-  scrollButtons="auto"
+                    scrollButtons="auto"
                 >
                     {tabItems.map((tabItem, index) => (
                         <Tab label={tabItem.text} {...allyProps(index)} />
