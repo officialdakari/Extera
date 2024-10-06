@@ -12,7 +12,7 @@ export default function FAB() {
     return (
         <SpeedDial
             ariaLabel='new chat'
-            sx={{ position: 'absolute', bottom: 16, right: 16 }}
+            sx={{ position: 'absolute', bottom: 70, right: 16 }}
 
             icon={<SpeedDialIcon icon={<Edit />} openIcon={<ArrowUpward />} />}
         >
