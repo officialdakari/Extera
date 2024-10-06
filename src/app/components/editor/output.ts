@@ -70,7 +70,15 @@ export const toPlainText = (content: string, getDisplayName: any): string => {
     // и этот кал будет лежать на гитхабе
     return content.replaceAll(emojiRegexp, (match: string, shortcode: string, mxc: string) => `:${shortcode}:`)
         .replaceAll(userMentionRegexp, (match: string, mxId: string) => `${getDisplayName(mxId)}`)
-        .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => `#${name}`)
+        .replaceAll(roomMentionRegexp, (match: string, id: string) => {
+            var roomName = `${id}`;
+            if (id.startsWith('!')) roomName = getRoomNameOrId(initMatrix.matrixClient!, id);
+            else if (id.startsWith('#')) {
+                const roomId = getCanonicalAliasRoomId(initMatrix.matrixClient!, id);
+                if (roomId) roomName = getRoomNameOrId(initMatrix.matrixClient!, roomId);
+            }
+            return `#${roomName}`;
+        })
         .replaceAll(everyoneMentionRegexp, '@room');
 };
 
