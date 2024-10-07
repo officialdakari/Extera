@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import './Settings.scss';
 
 import '../profile-viewer/Banner.scss';
@@ -329,7 +329,7 @@ function AppearanceSection() {
 function PresenceSection() {
     const mx = useMatrixClient();
     const [status, setStatus] = useSetting(settingsAtom, 'extera_status');
-    const [statusMsg, setStatusMsg] = useSetting(settingsAtom, 'extera_status_message');
+    const statusMsg = mx.getUser(mx.getUserId()).presenceStatusMsg || '';
     const [ghostMode, setGhostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
     const updateStatusMessage = (evt) => {
@@ -337,7 +337,6 @@ function PresenceSection() {
         const { statusInput } = evt.target.elements;
         const value = statusInput.value.trim();
         if (value === '') return;
-        setStatusMsg(value);
         mx.setPresence({
             status_msg: statusMsg
         });
@@ -383,29 +382,6 @@ function PresenceSection() {
                         {getText('settings.status.unavailable')}
                     </ToggleButton>
                 </ToggleButtonGroup>
-                // <SegmentedControls
-                //     selected={status}
-                //     segments={[
-                //         { text: getText('settings.status.online') },
-                //         { text: getText('settings.status.offline') },
-                //         { text: getText('settings.status.unavailable') }
-                //     ]}
-                //     onSelect={(index) => {
-                //         const statuses = [
-                //             'online', 'offline', 'unavailable'
-                //         ];
-                //         mx.setSyncPresence(statuses[index]);
-                //         mx.setPresence({
-                //             presence: statuses[index],
-                //             status_msg: index != 1 ? statusMsg : undefined
-                //         }).then(() => {
-                //             console.log('Presence updated');
-                //         }).catch(err => {
-                //             console.error('Could not update presence: ', err);
-                //         });
-                //         setStatus(index);
-                //     }}
-                // />
             )}
         />
         <SettingTile
@@ -865,6 +841,30 @@ function Settings() {
         }
     };
 
+    const uploadImageRef = useRef(null);
+    const [uploadPromise, setUploadPromise] = useState(null);
+
+    async function uploadImage(e) {
+        const file = e.target.files.item(0);
+        if (file === null) return;
+        try {
+            const uPromise = mx.uploadContent(file);
+            setUploadPromise(uPromise);
+
+            const res = await uPromise;
+            if (typeof res?.content_uri === 'string') handleBannerChange(res.content_uri);
+            setUploadPromise(null);
+        } catch {
+            setUploadPromise(null);
+        }
+        uploadImageRef.current.value = null;
+    }
+
+    function handleClick() {
+        if (uploadPromise !== null) return;
+        uploadImageRef.current?.click();
+    };
+
     const handleBannerRemove = async () => {
         try {
             if (await confirmDialog(getText('remove_banner.title'), getText('remove_banner.desc'), getText('btn.remove_banner.confirm'), 'primary')) {
@@ -879,28 +879,29 @@ function Settings() {
     };
 
     const theme = useTheme();
+    const bannerUrl = useMemo(() => {
+        return mx.mxcUrlToHttp(bannerSrc, null, null, null, false, true, true);
+    }, [mx, bannerSrc]);
 
     useBackButton(requestClose);
 
     return (
         <Dialog
             open={isOpen}
-            // contentOptions={(
-            //     <>
-            //         {bannerSrc && <Button iconSrc={mdiClose} onClick={handleBannerRemove}>
-            //             {getText('btn.remove_banner')}
-            //         </Button>}
-            //         <Button variant="outlined" color='error' iconSrc={mdiArrowLeft} onClick={handleLogout}>
-            //             {getText('btn.logout_session')}
-            //         </Button>
-            //         <IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />
-            //     </>
-            // )}
             onClose={requestClose}
             fullScreen={screenSize === ScreenSize.Mobile}
         >
+            <input type='file' accept='image/*' onChange={uploadImage} ref={uploadImageRef} style={{ display: 'none' }} />
             {isOpen && (
-                <AppBar position='relative'>
+                <AppBar
+                    position='relative'
+                    sx={bannerSrc && {
+                        background: `url(${bannerUrl}), #00000060`,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: 'cover',
+                        backgroundBlendMode: 'darken'
+                    }}
+                >
                     <ProminientToolbar>
                         {/* {
                             bannerSrc ?
@@ -913,7 +914,7 @@ function Settings() {
                         <IconButton
                             size='large'
                             edge='end'
-                            onClick={handleBannerChange}
+                            onClick={() => uploadImageRef.current?.click()}
                         >
                             <Image />
                         </IconButton>

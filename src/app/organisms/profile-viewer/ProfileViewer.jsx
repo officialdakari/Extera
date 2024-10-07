@@ -42,6 +42,7 @@ import { AddCircleOutline, BlockOutlined, Check, Close, ExpandMore, KeyboardArro
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 import styled from '@emotion/styled';
 import { LoadingButton } from '@mui/lab';
+import UserSelect from '../../atoms/user-select/UserSelect';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
     alignItems: 'flex-start',
@@ -473,14 +474,14 @@ function ProfileViewer() {
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(roomId);
 
-    const [avStyle, setAvStyle] = useState({});
+    const [avStyle, setAvStyle] = useState('offline');
     const [statusMsg, setStatusMsg] = useState('');
     const user = mx.getUser(userId);
 
     useEffect(() => {
         if (user) {
             setStatusMsg(user.presenceStatusMsg);
-            setAvStyle(cons.avatarStyles[user.presence] ?? cons.avatarStyles.offline);
+            setAvStyle(user.presence);
         }
     }, [mx, user]);
 
@@ -550,15 +551,17 @@ function ProfileViewer() {
                         <StyledToolbar>
                             <Box as='div' grow='Yes' className='profile-viewer__box'>
                                 <div className="profile-viewer__user">
-                                    <Avatar style={avStyle} imageSrc={avatarUrl} text={username} bgColor={colorMXID(userId)} size="large" />
+                                    <Avatar className={`presence-${avStyle}`} imageSrc={avatarUrl} text={username} bgColor={colorMXID(userId)} size="large" />
                                     <div className="profile-viewer__user__info">
-                                        <Box direction='Row'>
-                                            <Typography style={{ userSelect: 'all' }} variant='h6' component='span'>
-                                                {username}
-                                            </Typography>
-                                            <VerificationBadge userId={userId} userName={username} />
-                                        </Box>
-                                        <Typography sx={{ userSelect: 'text' }} variant="caption">{userId}</Typography>
+                                        <UserSelect>
+                                            <Box direction='Row'>
+                                                <Typography variant='h6' component='span'>
+                                                    {username}
+                                                </Typography>
+                                                <VerificationBadge userId={userId} userName={username} />
+                                            </Box>
+                                            <Typography variant="caption">{userId}</Typography>
+                                        </UserSelect>
                                     </div>
                                     {/* <div className="profile-viewer__user__role">
                                         <Button

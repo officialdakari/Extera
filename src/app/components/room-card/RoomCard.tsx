@@ -194,6 +194,14 @@ export const RoomCard = as<'div', RoomCardProps>(
         const joining =
             joinState.status === AsyncStatus.Loading || joinState.status === AsyncStatus.Success;
 
+        const [knockState, knock] = useAsyncCallback<{ room_id: string }, MatrixError, []>(
+            useCallback(() => {
+                return mx.knockRoom(roomIdOrAlias);
+            }, [mx, roomIdOrAlias])
+        );
+        const knocking =
+            knockState.status === AsyncStatus.Loading || knockState.status === AsyncStatus.Success;
+
         const [viewTopic, setViewTopic] = useState(false);
         const closeTopic = () => setViewTopic(false);
         const openTopic = () => setViewTopic(true);
@@ -250,6 +258,15 @@ export const RoomCard = as<'div', RoomCardProps>(
                         loading={joining}
                     >
                         {getText(joining ? 'room_card.joining' : 'btn.join')}
+                    </LoadingButton>
+                )}
+                {typeof joinedRoomId !== 'string' && knockState.status !== AsyncStatus.Error && (
+                    <LoadingButton
+                        onClick={knock}
+                        variant='contained'
+                        loading={knocking}
+                    >
+                        {getText(knocking ? 'room_card.knocking' : 'btn.knock')}
                     </LoadingButton>
                 )}
                 {typeof joinedRoomId !== 'string' && joinState.status === AsyncStatus.Error && (

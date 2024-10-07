@@ -114,14 +114,10 @@ export function MPoll({ edited, content, event }: MPollProps) {
     if (!content['org.matrix.msc3381.poll.start']) return <BrokenContent />;
 
     return (
-        <>
-            <PollContent
-                content={content}
-                event={event}
-            >
-
-            </PollContent>
-        </>
+        <PollContent
+            content={content}
+            event={event}
+        />
     );
 }
 
@@ -346,7 +342,7 @@ export function MAudio({ content, renderAsFile, renderAudioContent, renderBody, 
     const attachmentRef = useRef<HTMLDivElement>(null);
 
     return voiceMessage ? (
-        <div style={{margin: '5px'}}>
+        <div style={{ margin: '5px' }}>
             {renderAudioContent({
                 info: audioInfo,
                 mimeType: safeMimeType,

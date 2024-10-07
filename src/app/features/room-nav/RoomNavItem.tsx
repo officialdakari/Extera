@@ -216,7 +216,7 @@ export function RoomNavItem({
             const user = room.getDMInviter() ?? room.guessDMUserId();
             const presence = getPresenceFn(user);
             if (presence)
-                setAvStyle(cons.avatarStyles[presence.presence]);
+                setAvStyle(presence.presence);
         }
     }, [mx, directs, room]);
 
@@ -239,7 +239,7 @@ export function RoomNavItem({
                 <NavItemContent>
                     <Box as="span" style={{ marginTop: '5px', marginBottom: '5px' }} grow="Yes" alignItems="Center" gap="200">
                         <Badge max={99} color={unread?.highlight ? 'error' : 'primary'} badgeContent={unread && unread.total}>
-                            <Avatar style={avStyle} size="400" radii="400">
+                            <Avatar className={`presence-${avStyle}`} size="400" radii="400">
                                 {showAvatar ? (
                                     <RoomAvatar
                                         roomId={room.roomId}

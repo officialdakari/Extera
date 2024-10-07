@@ -71,6 +71,8 @@ import { getText, translate } from '../../../../lang';
 import { mdiAccount, mdiCheck, mdiCheckAll, mdiChevronUp, mdiMessage } from '@mdi/js';
 import { AppBar, Button, Chip, Fab, IconButton, Toolbar, Typography } from '@mui/material';
 import { ArrowBack, Check, DoneAll, KeyboardArrowUp } from '@mui/icons-material';
+import BottomNav from '../BottomNav';
+import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
 
 type RoomNotificationsGroup = {
     roomId: string;
@@ -487,6 +489,8 @@ export function Notifications() {
     const scrollTopAnchorRef = useRef<HTMLDivElement>(null);
     const [refreshIntervalTime, setRefreshIntervalTime] = useState(DEFAULT_REFRESH_MS);
 
+    const screenSize = useScreenSize();
+
     const onlyHighlight = notificationsSearchParams.only === 'highlight';
     const setOnlyHighlighted = (highlight: boolean) => {
         if (highlight) {
@@ -672,6 +676,7 @@ export function Notifications() {
                     </PageContent>
                 </Scroll>
             </Box>
+            {screenSize === ScreenSize.Mobile && <BottomNav current='inbox' />}
         </Page>
     );
 }

@@ -300,9 +300,8 @@ export function Space() {
             <SpaceHeader />
             <PageNavContent scrollRef={scrollRef}>
                 <Box flexDirection='column' gap='300'>
-                    <Box display='flex' flexDirection='column' gap='5px' width='100%'>
+                    <NavCategory>
                         <Button
-                            variant={lobbySelected ? 'contained' : 'outlined'}
                             aria-selected={lobbySelected}
                             fullWidth
                             startIcon={lobbySelected ? <Flag /> : <OutlinedFlag />}
@@ -313,7 +312,6 @@ export function Space() {
                             </NavLink>
                         </Button>
                         <Button
-                            variant={searchSelected ? 'contained' : 'outlined'}
                             aria-selected={searchSelected}
                             fullWidth
                             startIcon={<Search />}
@@ -323,7 +321,7 @@ export function Space() {
                                 {getText('home.search_messages')}
                             </NavLink>
                         </Button>
-                    </Box>
+                    </NavCategory>
                     <NavCategory
                         style={{
                             height: virtualizer.getTotalSize(),

@@ -12,7 +12,7 @@ type RoomAvatarProps = {
     roomId: string;
     src?: string;
     alt?: string;
-    renderFallback: () => ReactNode;
+    renderFallback?: () => ReactNode;
 };
 export function RoomAvatar({ roomId, src, alt, renderFallback }: RoomAvatarProps) {
     const [error, setError] = useState(false);

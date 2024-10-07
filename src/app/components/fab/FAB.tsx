@@ -20,21 +20,21 @@ export default function FAB() {
                 key='createRoom'
                 icon={<Add />}
                 tooltipTitle={getText('tooltip.new_room')}
-                tooltipOpen
+                tooltipOpen={'ontouchstart' in window}
                 onClick={() => openCreateRoom()}
             />
             <SpeedDialAction
                 key='createRoom'
                 icon={<ArrowForward />}
                 tooltipTitle={getText('tooltip.join_room')}
-                tooltipOpen
+                tooltipOpen={'ontouchstart' in window}
                 onClick={() => openJoinAlias()}
             />
             <SpeedDialAction
                 key='createRoom'
                 icon={<PersonAdd />}
                 tooltipTitle={getText('tooltip.new_dm')}
-                tooltipOpen
+                tooltipOpen={'ontouchstart' in window}
                 onClick={() => openInviteUser()}
             />
         </SpeedDial>

@@ -8,11 +8,15 @@
 }
 
 .user-select {
-    user-select: all !important;
+    user-select: text !important;
+    display: inline;
+}
+
+body {
+    user-select: none;
 }
 
 :root {
-    // user-select: none;
     /* background color | --bg-[background type]: value */
     --bg-surface: #ffffff;
     --bg-surface-transparent: #ffffff00;
@@ -100,14 +104,14 @@
     --mx-uc-7: hsl(242, 100%, 45%);
     --mx-uc-8: hsl(94, 100%, 35%);
 
-    --mx-uc-1-b: hsl(208, 90%, 73%);
-    --mx-uc-2-b: hsl(302, 44%, 63%);
-    --mx-uc-3-b: hsl(147, 58%, 66%);
-    --mx-uc-4-b: hsl(343, 72%, 65%);
-    --mx-uc-5-b: hsl(24, 67%, 70%);
-    --mx-uc-6-b: hsl(181, 63%, 67%);
-    --mx-uc-7-b: hsl(242, 63%, 66%);
-    --mx-uc-8-b: hsl(94, 61%, 74%);
+    --mx-uc-1-b: hsl(208, 100%, 86%);
+    --mx-uc-2-b: hsl(301, 40%, 76%);
+    --mx-uc-3-b: hsl(147, 49%, 75%);
+    --mx-uc-4-b: hsl(342, 53%, 74%);
+    --mx-uc-5-b: hsl(25, 45%, 76%);
+    --mx-uc-6-b: hsl(181, 73%, 85%);
+    --mx-uc-7-b: hsl(242, 63%, 77%);
+    --mx-uc-8-b: hsl(95, 76%, 87%);
 
     /* system icon size | -ic-[size]: value */
     --ic-large: 38px;
@@ -213,6 +217,30 @@
     --font-secondary: 'InterVariable',
     var(--font-emoji),
     sans-serif;
+}
+
+.presence-online::after {
+    content: '';
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    width: 0.9rem;
+    height: 0.9rem;
+    background-color: rgb(35, 211, 0);
+    border-radius: 50%;
+    border: 2px solid var(--bg-surface);
+}
+
+.presence-unavailable::after {
+    content: '';
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    width: 0.9rem;
+    height: 0.9rem;
+    background-color: rgb(211, 0, 0);
+    border-radius: 50%;
+    border: 2px solid var(--bg-surface);
 }
 
 .silver-theme {

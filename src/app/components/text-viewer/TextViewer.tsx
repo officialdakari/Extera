@@ -8,6 +8,7 @@ import { copyToClipboard } from '../../utils/dom';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiArrowLeft } from '@mdi/js';
+import UserSelect from '../../atoms/user-select/UserSelect';
 
 const ReactPrism = lazy(() => import('../../plugins/react-prism/ReactPrism'));
 
@@ -34,7 +35,7 @@ export const TextViewer = as<'div', TextViewerProps>(
                 <Header className={css.TextViewerHeader} size="400">
                     <Box grow="Yes" alignItems="Center" gap="200">
                         <IconButton size="300" radii="300" onClick={requestClose}>
-                        <Icon size={1} path={mdiArrowLeft} />
+                            <Icon size={1} path={mdiArrowLeft} />
                         </IconButton>
                         <Text size="T300" truncate>
                             {name}
@@ -56,7 +57,9 @@ export const TextViewer = as<'div', TextViewerProps>(
                         <Text as="pre" className={classNames(css.TextViewerPre, `language-${langName}`)}>
                             <ErrorBoundary fallback={<code>{text}</code>}>
                                 <Suspense fallback={<code>{text}</code>}>
-                                    <ReactPrism>{(codeRef) => <code ref={codeRef}>{text}</code>}</ReactPrism>
+                                    <UserSelect>
+                                        <ReactPrism>{(codeRef) => <code ref={codeRef}>{text}</code>}</ReactPrism>
+                                    </UserSelect>
                                 </Suspense>
                             </ErrorBoundary>
                         </Text>

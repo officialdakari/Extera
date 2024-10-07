@@ -16,7 +16,7 @@ function PeopleSelector({ avatarSrc, name, color, peopleRole, onClick, avStyle, 
                 onClick={onClick}
                 type="button"
             >
-                <Avatar imageSrc={avatarSrc} text={name} bgColor={color} size="small" style={avStyle} />
+                <Avatar imageSrc={avatarSrc} text={name} bgColor={color} size="small" className={`presence-${avStyle}`} />
                 <div className='people-selector__name_status_container'>
                     <Text className="people-selector__name" variant="b1">
                         {name} {verificationBadge}

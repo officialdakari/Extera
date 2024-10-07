@@ -5,15 +5,17 @@ import './RoomVisibility.scss';
 import initMatrix from '../../../client/initMatrix';
 
 import { getText } from '../../../lang';
-import { mdiEarth, mdiLock, mdiLockOff, mdiLockOpenOutline, mdiLockOutline, mdiPound, mdiStarFourPoints } from '@mdi/js';
-import { Accordion, AccordionDetails, AccordionSummary, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Radio, RadioGroup } from '@mui/material';
+import { mdiClock, mdiClockOutline, mdiEarth, mdiLock, mdiLockOff, mdiLockOpenOutline, mdiLockOutline, mdiPound, mdiStarFourPoints } from '@mdi/js';
+import { Accordion, AccordionDetails, AccordionSummary, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Radio, RadioGroup, unsupportedProp } from '@mui/material';
 import { Check, ExpandMore } from '@mui/icons-material';
 import Icon from '@mdi/react';
+import { StateEvent } from '../../../types/matrix/room';
 
 const visibility = {
     INVITE: 'invite',
     RESTRICTED: 'restricted',
     PUBLIC: 'public',
+    KNOCK: 'knock'
 };
 
 function setJoinRule(roomId, type) {
@@ -70,12 +72,18 @@ function RoomVisibility({ roomId }) {
     const roomVersion = Number(mCreate?.room_version ?? 0);
 
     const myPowerlevel = room.getMember(mx.getUserId())?.powerLevel || 0;
-    const canChange = room.currentState.hasSufficientPowerLevelFor('state_default', myPowerlevel);
+    const canChange = room.currentState.hasSufficientPowerLevelFor('state_default', myPowerlevel)
+        && room.currentState.mayClientSendStateEvent(StateEvent.RoomJoinRules, mx);
 
     const items = [{
         iconSrc: mdiLockOutline,
         text: getText('room_visibility.invite'),
         type: visibility.INVITE,
+        unsupported: false,
+    }, {
+        iconSrc: mdiClockOutline,
+        text: getText('room_visibility.knock'),
+        type: visibility.KNOCK,
         unsupported: false,
     }, {
         iconSrc: mdiLockOpenOutline,

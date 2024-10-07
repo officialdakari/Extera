@@ -1,4 +1,4 @@
-import { Badge, BottomNavigation, BottomNavigationAction } from "@mui/material";
+import { Badge, BottomNavigation, BottomNavigationAction, useTheme } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { DIRECT_PATH, HOME_PATH, INBOX_PATH } from "../paths";
@@ -20,6 +20,8 @@ type BottomNavProps = {
 
 export default function BottomNav({ current }: BottomNavProps) {
     const mx = useMatrixClient();
+
+    const theme = useTheme();
 
     const mDirects = useAtomValue(mDirectAtom);
     const directs = useDirects(mx, allRoomsAtom, mDirects);
@@ -52,6 +54,7 @@ export default function BottomNav({ current }: BottomNavProps) {
         <BottomNavigation
             value={current}
             onChange={onNav}
+            sx={{ bgcolor: theme.palette.grey[900] }}
         >
             <BottomNavigationAction
                 label={getText('home.rooms')}

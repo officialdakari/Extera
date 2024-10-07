@@ -41,6 +41,8 @@ import { getText, translate } from '../../../../lang';
 import { mdiMail } from '@mdi/js';
 import { AppBar, Button, CircularProgress, IconButton, Toolbar, Typography } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
+import BottomNav from '../BottomNav';
+import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
 
 const COMPACT_CARD_WIDTH = 548;
 
@@ -218,6 +220,7 @@ export function Invites() {
     const roomInvites = useRoomInvites(mx, allInvitesAtom, mDirects);
     const containerRef = useRef<HTMLDivElement>(null);
     const [compact, setCompact] = useState(document.body.clientWidth <= COMPACT_CARD_WIDTH);
+    const screenSize = useScreenSize();
     useElementSizeObserver(
         useCallback(() => containerRef.current, []),
         useCallback((width) => setCompact(width <= COMPACT_CARD_WIDTH), [])
@@ -305,6 +308,7 @@ export function Invites() {
                     </PageContent>
                 </Scroll>
             </Box>
+            {screenSize === ScreenSize.Mobile && <BottomNav current='inbox' />}
         </Page>
     );
 }

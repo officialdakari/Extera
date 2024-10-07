@@ -254,19 +254,19 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
 
     const getPresenceFn = usePresences();
 
-    const [avStyles, setAvStyles] = useState<Record<string, React.CSSProperties>>({});
+    const [avStyles, setAvStyles] = useState<Record<string, string>>({});
     const [statusMsgs, setStatusMsgs] = useState<Record<string, string>>({});
 
     useEffect(() => {
         const fetchMemberAvStylesAndStatus = () => {
-            const newAvStyles: { [key: string]: React.CSSProperties } = {};
+            const newAvStyles: { [key: string]: string } = {};
             const newStatusMsgs: { [key: string]: string } = {};
 
             members.map((member) => {
                 try {
                     const presence = getPresenceFn(member.userId);
                     if (!presence) return;
-                    newAvStyles[member.userId] = Object.keys(cons.avatarStyles).includes(presence.presence) ? cons.avatarStyles[presence.presence] : cons.avatarStyles.offline;
+                    newAvStyles[member.userId] = presence.presence;
                     newStatusMsgs[member.userId] = presence.presenceStatusMsg ?? presence.presence;
                 } catch (error) {
                     // handle error if needed
@@ -437,7 +437,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                             radii="400"
                                             onClick={handleMemberClick}
                                             before={
-                                                <Avatar style={avStyles[member.userId]} size="300">
+                                                <Avatar className={`presence-${avStyles[member.userId]}`} size="300">
                                                     <UserAvatar
                                                         userId={member.userId}
                                                         src={avatarUrl ?? undefined}

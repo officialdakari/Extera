@@ -13,9 +13,7 @@ import { memberByAtoZ, memberByPowerLevel } from '../../../util/sort';
 
 import Text from '../../atoms/text/Text';
 import Button from '../../atoms/button/Button';
-import Input from '../../atoms/input/Input';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
-import SegmentedControls from '../../atoms/segmented-controls/SegmentedControls';
 import PeopleSelector from '../people-selector/PeopleSelector';
 import { getText } from '../../../lang';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
@@ -145,7 +143,7 @@ function RoomMembers({ roomId }) {
                 try {
                     const presence = getPresenceFn(member.userId);
                     if (!presence) return;
-                    newAvStyles[member.userId] = Object.keys(cons.avatarStyles).includes(presence.presence) ? cons.avatarStyles[presence.presence] : cons.avatarStyles.offline;
+                    newAvStyles[member.userId] = presence.presence;
                     newStatusMsgs[member.userId] = presence.presenceStatusMsg ?? presence.presence;
                 } catch (error) {
                     // handle error if needed

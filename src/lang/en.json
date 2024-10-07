@@ -989,5 +989,7 @@
     "label.ignore_regex": "Regex matching Matrix IDs to ignore",
     "nav.dm": "Directs",
     "room_notification": "Notifications",
-    "pick_a_server": "Server list"
+    "pick_a_server": "Server list",
+    "room_card.knocking": "Knocking...",
+    "btn.knock": "Knock"
 }
