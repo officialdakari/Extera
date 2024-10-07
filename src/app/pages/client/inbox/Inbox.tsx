@@ -17,6 +17,7 @@ import { mdiEmail, mdiEmailOutline, mdiMail, mdiMailboxOutline, mdiMessageAlert,
 import { AppBar, IconButton, Toolbar, Typography } from '@mui/material';
 import { ArrowBack, Menu } from '@mui/icons-material';
 import { useNavHidden } from '../../../hooks/useHideableNav';
+import BottomNav from '../BottomNav';
 
 function InvitesNavItem() {
     const invitesSelected = useInboxInvitesSelected();
@@ -92,6 +93,7 @@ export function Inbox() {
                     </NavCategory>
                 </Box>
             </PageNavContent>
+            <BottomNav current='inbox' />
         </PageNav>
     );
 }

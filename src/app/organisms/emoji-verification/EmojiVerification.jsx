@@ -10,15 +10,17 @@ import { hasPrivateKey } from '../../../client/state/secretStorageKeys';
 import { getDefaultSSKey, isCrossVerified } from '../../../util/matrixUtil';
 
 import Text from '../../atoms/text/Text';
-import IconButton from '../../atoms/button/IconButton';
-import Button from '../../atoms/button/Button';
-import Spinner from '../../atoms/spinner/Spinner';
-import Dialog from '../../molecules/dialog/Dialog';
+// import IconButton from '../../atoms/button/IconButton';
+// import Button from '../../atoms/button/Button';
+// import Spinner from '../../atoms/spinner/Spinner';
+// import Dialog from '../../molecules/dialog/Dialog';
 
 import { useStore } from '../../hooks/useStore';
 import { accessSecretStorage } from '../settings/SecretStorageAccess';
 import { getText } from '../../../lang';
 import { mdiClose } from '@mdi/js';
+import { AppBar, Button, CircularProgress, Dialog, IconButton, LinearProgress, Toolbar, Typography } from '@mui/material';
+import { Close } from '@mui/icons-material';
 
 function EmojiVerificationContent({ data, requestClose }) {
     const [sas, setSas] = useState(null);
@@ -94,8 +96,10 @@ function EmojiVerificationContent({ data, requestClose }) {
 
     const renderWait = () => (
         <>
-            <Spinner size="small" />
-            <Text>{getText('emoji_verification.waiting')}</Text>
+            <CircularProgress />
+            <Typography>
+                {getText('emoji_verification.waiting')}
+            </Typography>
         </>
     );
 
@@ -117,10 +121,10 @@ function EmojiVerificationContent({ data, requestClose }) {
                         renderWait()
                     ) : (
                         <>
-                            <Button variant="primary" onClick={sasConfirm}>
+                            <Button variant="contained" color='primary' onClick={sasConfirm}>
                                 {getText('btn.emoji_verification.they_match')}
                             </Button>
-                            <Button variant="danger" onClick={sasMismatch}>
+                            <Button variant="outlined" color='error' onClick={sasMismatch}>
                                 {getText('btn.emoji_verification.no_match')}
                             </Button>
                         </>
@@ -146,7 +150,7 @@ function EmojiVerificationContent({ data, requestClose }) {
                 {process ? (
                     renderWait()
                 ) : (
-                    <Button variant="primary" onClick={beginVerification}>
+                    <Button variant="contained" color='primary' onClick={beginVerification}>
                         {getText('btn.emoji_verification.accept')}
                     </Button>
                 )}
@@ -185,16 +189,28 @@ function EmojiVerification() {
 
     return (
         <Dialog
-            isOpen={data !== null}
-            className="emoji-verification"
-            title={
-                <Text variant="s1" weight="medium" primary>
-                    {getText('emoji_verification.title')}
-                </Text>
-            }
-            contentOptions={<IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />}
-            onRequestClose={requestClose}
+            open={data !== null}
+            onClose={requestClose}
         >
+            <AppBar position='relative'>
+                <Toolbar>
+                    <Typography
+                        variant='h6'
+                        component='div'
+                        flexGrow={1}
+                    >
+                        {getText('emoji_verification.title')}
+                    </Typography>
+                    <IconButton
+                        edge='end'
+                        size='large'
+                        onClick={requestClose}
+                    >
+                        <Close />
+                    </IconButton>
+                </Toolbar>
+
+            </AppBar>
             {data !== null ? (
                 <EmojiVerificationContent data={data} requestClose={requestClose} />
             ) : (

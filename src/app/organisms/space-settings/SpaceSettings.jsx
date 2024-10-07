@@ -24,7 +24,7 @@ import { mdiAccount, mdiArrowLeft, mdiClose, mdiCog, mdiEmoticon, mdiShield } fr
 import { AppBar, Box, Dialog, DialogContent, DialogTitle, IconButton, styled, Tab, Tabs, Toolbar, Typography, useTheme } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
-import { useScreenSize } from '../../hooks/useScreenSize';
+import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -121,6 +121,7 @@ function SpaceSettings() {
             open={isOpen}
             onClose={requestClose}
             scroll='paper'
+            fullScreen={screenSize === ScreenSize.Mobile}
         >
             <AppBar sx={{ position: 'relative' }}>
                 <ProminientToolbar>

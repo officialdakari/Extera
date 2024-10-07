@@ -162,7 +162,7 @@ function RoomSettings() {
                 </AppBar>
             )}
             {isOpen && (
-                <div className="room-settings__content" style={{ backgroundColor: theme.palette.background.paper }}>
+                <div className="room-settings__content" style={{ backgroundColor: theme.palette.background.paper, height: '100%' }}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <Tabs value={selectedTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
                             <Tab label={tabItems[0].text} onClick={() => handleTabChange(0)} {...a11yProps(0)} />

@@ -1,9 +1,9 @@
 import { Badge, BottomNavigation, BottomNavigationAction } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { DIRECT_PATH, HOME_PATH } from "../paths";
+import { DIRECT_PATH, HOME_PATH, INBOX_PATH } from "../paths";
 import { getText } from "../../../lang";
-import { Home, Person } from "@mui/icons-material";
+import { Home, Inbox, Person } from "@mui/icons-material";
 import { mDirectAtom } from "../../state/mDirectList";
 import { useAtomValue } from "jotai";
 import { useDirects } from "../../state/hooks/roomList";
@@ -12,9 +12,10 @@ import { allRoomsAtom } from "../../state/room-list/roomList";
 import { useRoomsUnread } from "../../state/hooks/unread";
 import { roomToUnreadAtom } from "../../state/room/roomToUnread";
 import { useHomeRooms } from "./home/useHomeRooms";
+import { allInvitesAtom } from "../../state/room-list/inviteList";
 
 type BottomNavProps = {
-    current?: 'dm' | 'rooms';
+    current?: 'dm' | 'rooms' | 'inbox';
 };
 
 export default function BottomNav({ current }: BottomNavProps) {
@@ -27,6 +28,9 @@ export default function BottomNav({ current }: BottomNavProps) {
     const orphanRooms = useHomeRooms();
     const unread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
 
+    const allInvites = useAtomValue(allInvitesAtom);
+    const inviteCount = allInvites.length;
+
     const nav = useNavigate();
     const onNav = (evt: any, v: string) => {
         if (v === 'dm') {
@@ -35,6 +39,10 @@ export default function BottomNav({ current }: BottomNavProps) {
             });
         } else if (v === 'rooms') {
             nav(HOME_PATH, {
+                replace: true
+            });
+        } else if (v === 'inbox') {
+            nav(INBOX_PATH, {
                 replace: true
             });
         }
@@ -68,6 +76,19 @@ export default function BottomNav({ current }: BottomNavProps) {
                         color={directUnread?.highlight ? 'error' : 'primary'}
                     >
                         <Person />
+                    </Badge>
+                }
+            />
+            <BottomNavigationAction
+                label={getText('inbox.title')}
+                value='inbox'
+                icon={
+                    <Badge
+                        max={99}
+                        badgeContent={inviteCount}
+                        color='error'
+                    >
+                        <Inbox />
                     </Badge>
                 }
             />

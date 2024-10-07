@@ -73,6 +73,7 @@ import { RoomJoinRulesEventContent } from 'matrix-js-sdk/lib/types';
 import { AppBar, Box, Button, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import { Add, DoneAll, MenuOpen, MoreVert, PersonAdd, Menu as MenuIcon, Share, ArrowBack, Flag, OutlinedFlag, Search, Settings } from '@mui/icons-material';
 import { useNavHidden } from '../../../hooks/useHideableNav';
+import BottomNav from '../BottomNav';
 
 type SpaceMenuProps = {
     room: Room;
@@ -374,6 +375,7 @@ export function Space() {
                     </NavCategory>
                 </Box>
             </PageNavContent>
+            <BottomNav />
             {screenSize === ScreenSize.Mobile && (
                 <FAB />
             )}
