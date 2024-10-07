@@ -182,6 +182,7 @@ export const Username = style({
 export const MessageTextBody = recipe({
     base: {
         wordBreak: 'break-word',
+        userSelect: 'text'
     },
     variants: {
         preWrap: {
