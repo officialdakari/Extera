@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Avatar, Box, Button, Spinner, Text, as } from 'folds';
+import { Avatar, Box, Text, as } from 'folds';
 import { Room } from 'matrix-js-sdk';
 import { useAtomValue } from 'jotai';
 import { openInviteUser } from '../../../client/action/navigation';
@@ -16,6 +16,8 @@ import { useRoomAvatar, useRoomName, useRoomTopic } from '../../hooks/useRoomMet
 import { mDirectAtom } from '../../state/mDirectList';
 import { sendExteraProfile } from '../../../client/action/room';
 import { getText, translate } from '../../../lang';
+import { Button } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 
 export type RoomIntroProps = {
     room: Room;
@@ -75,39 +77,31 @@ export const RoomIntro = as<'div', RoomIntroProps>(({ room, ...props }, ref) => 
                 <Box gap="200" wrap="Wrap">
                     <Button
                         onClick={() => openInviteUser(room.roomId)}
-                        variant="Secondary"
-                        size="300"
-                        radii="300"
+                        variant="contained"
+                        color='primary'
+                        size='small'
                     >
-                        <Text size="B300">{getText('btn.invite')}</Text>
+                        {getText('btn.invite')}
                     </Button>
                     {typeof prevRoomId === 'string' &&
                         (mx.getRoom(prevRoomId)?.getMyMembership() === Membership.Join ? (
                             <Button
                                 onClick={() => navigateRoom(prevRoomId)}
-                                variant="Success"
-                                size="300"
-                                fill="Soft"
-                                radii="300"
+                                variant="contained"
+                                color='success'
+                                size='small'
                             >
-                                <Text size="B300">{getText('btn.old_room.open')}</Text>
+                                {getText('btn.old_room.open')}
                             </Button>
                         ) : (
-                            <Button
+                            <LoadingButton
                                 onClick={() => joinPrevRoom(prevRoomId)}
-                                variant="Secondary"
-                                size="300"
-                                fill="Soft"
-                                radii="300"
-                                disabled={prevRoomState.status === AsyncStatus.Loading}
-                                after={
-                                    prevRoomState.status === AsyncStatus.Loading ? (
-                                        <Spinner size="50" variant="Secondary" fill="Soft" />
-                                    ) : undefined
-                                }
+                                color="secondary"
+                                loading={prevRoomState.status === AsyncStatus.Loading}
+                                size='small'
                             >
-                                <Text size="B300">{getText('btn.old_room.join')}</Text>
-                            </Button>
+                                {getText('btn.old_room.join')}
+                            </LoadingButton>
                         ))}
                 </Box>
             </Box>

@@ -814,7 +814,7 @@ function Settings() {
 
     const handleTabChange = (tabItem) => setSelectedTab(tabItem);
     const handleLogout = async () => {
-        if (await confirmDialog(getText('logout.title'), getText('logout.confirm'), getText('btn.logout.confirm'), 'danger')) {
+        if (await confirmDialog(getText('logout.title'), getText('logout.confirm'), getText('btn.logout.confirm'), 'error')) {
             initMatrix.logout();
         }
     };

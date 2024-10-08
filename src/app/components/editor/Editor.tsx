@@ -7,6 +7,7 @@ import React, {
     ReactNode,
     forwardRef,
     useCallback,
+    useEffect,
     useState,
 } from 'react';
 import { Box, Scroll, Text } from 'folds';
@@ -82,6 +83,12 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
             if (onChange)
                 onChange(newText);
         };
+
+        useEffect(() => {
+            if (textAreaRef.current)
+                updateRows(textAreaRef.current);
+        }, [textAreaRef]);
+
         return (
             <div ref={ref} className={newDesign ? css.EditorNew : css.Editor}>
                 {top}

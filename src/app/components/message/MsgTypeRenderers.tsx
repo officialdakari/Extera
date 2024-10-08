@@ -6,6 +6,7 @@ import { trimReplyFromBody } from '../../utils/room';
 import { MessageTextBody } from './layout';
 import {
     MessageBadEncryptedContent,
+    MessageBlockedContent,
     MessageBrokenContent,
     MessageDeletedContent,
     MessageEditedContent,
@@ -49,6 +50,14 @@ export function RedactedContent({ reason }: RedactedContentProps) {
     return (
         <Text>
             <MessageDeletedContent reason={reason} />
+        </Text>
+    );
+}
+
+export function BlockedContent() {
+    return (
+        <Text>
+            <MessageBlockedContent />
         </Text>
     );
 }

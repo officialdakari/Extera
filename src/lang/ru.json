@@ -991,5 +991,6 @@
 	"text.session.verified": "Заверенные устройства",
 	"pick_a_server": "Список серверов",
 	"room_card.knocking": "Запрашиваем...",
-	"btn.knock": "Запросить вход"
+	"btn.knock": "Запросить вход",
+	"msg.blocked": "Сообщение скрыто"
 }

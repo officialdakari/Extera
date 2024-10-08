@@ -9,92 +9,91 @@ import { getDefaultSSKey, getSSKeyInfo } from '../../../util/matrixUtil';
 import { storePrivateKey, hasPrivateKey, getPrivateKey } from '../../../client/state/secretStorageKeys';
 
 import Text from '../../atoms/text/Text';
-import Button from '../../atoms/button/Button';
-import Input from '../../atoms/input/Input';
-import Spinner from '../../atoms/spinner/Spinner';
 
 import { useStore } from '../../hooks/useStore';
+import { Alert, Button, DialogActions, DialogContent, TextField } from '@mui/material';
+import { getText } from '../../../lang';
+import { LoadingButton } from '@mui/lab';
 
 function SecretStorageAccess({ onComplete }) {
-  const mx = initMatrix.matrixClient;
-  const sSKeyId = getDefaultSSKey();
-  const sSKeyInfo = getSSKeyInfo(sSKeyId);
-  const isPassphrase = !!sSKeyInfo.passphrase;
-  const [withPhrase, setWithPhrase] = useState(isPassphrase);
-  const [process, setProcess] = useState(false);
-  const [error, setError] = useState(null);
-  const mountStore = useStore();
+    const mx = initMatrix.matrixClient;
+    const sSKeyId = getDefaultSSKey();
+    const sSKeyInfo = getSSKeyInfo(sSKeyId);
+    const isPassphrase = !!sSKeyInfo.passphrase;
+    const [withPhrase, setWithPhrase] = useState(isPassphrase);
+    const [process, setProcess] = useState(false);
+    const [error, setError] = useState(null);
+    const mountStore = useStore();
 
-  const toggleWithPhrase = () => setWithPhrase(!withPhrase);
+    const toggleWithPhrase = () => setWithPhrase(!withPhrase);
 
-  const processInput = async ({ key, phrase }) => {
-    mountStore.setItem(true);
-    setProcess(true);
-    try {
-      const { salt, iterations } = sSKeyInfo.passphrase || {};
-      const privateKey = key
-        ? mx.keyBackupKeyFromRecoveryKey(key)
-        : await deriveKey(phrase, salt, iterations);
-      const isCorrect = await mx.checkSecretStorageKey(privateKey, sSKeyInfo);
+    const processInput = async ({ key, phrase }) => {
+        mountStore.setItem(true);
+        setProcess(true);
+        try {
+            const { salt, iterations } = sSKeyInfo.passphrase || {};
+            const privateKey = key
+                ? mx.keyBackupKeyFromRecoveryKey(key)
+                : await deriveKey(phrase, salt, iterations);
+            const isCorrect = await mx.checkSecretStorageKey(privateKey, sSKeyInfo);
 
-      if (!mountStore.getItem()) return;
-      if (!isCorrect) {
-        setError(`Incorrect Security ${key ? 'Key' : 'Phrase'}`);
+            if (!mountStore.getItem()) return;
+            if (!isCorrect) {
+                setError(`Incorrect Security ${key ? 'Key' : 'Phrase'}`);
+                setProcess(false);
+                return;
+            }
+            onComplete({
+                keyId: sSKeyId,
+                key,
+                phrase,
+                privateKey,
+            });
+        } catch (e) {
+            if (!mountStore.getItem()) return;
+            setError(`Incorrect Security ${key ? 'Key' : 'Phrase'}`);
+            setProcess(false);
+        }
+    };
+
+    const handleForm = async (e) => {
+        e.preventDefault();
+        const password = e.target.password.value;
+        if (password.trim() === '') return;
+        const data = {};
+        if (withPhrase) data.phrase = password;
+        else data.key = password;
+        processInput(data);
+    };
+
+    const handleChange = () => {
+        setError(null);
         setProcess(false);
-        return;
-      }
-      onComplete({
-        keyId: sSKeyId,
-        key,
-        phrase,
-        privateKey,
-      });
-    } catch (e) {
-      if (!mountStore.getItem()) return;
-      setError(`Incorrect Security ${key ? 'Key' : 'Phrase'}`);
-      setProcess(false);
-    }
-  };
+    };
 
-  const handleForm = async (e) => {
-    e.preventDefault();
-    const password = e.target.password.value;
-    if (password.trim() === '') return;
-    const data = {};
-    if (withPhrase) data.phrase = password;
-    else data.key = password;
-    processInput(data);
-  };
-
-  const handleChange = () => {
-    setError(null);
-    setProcess(false);
-  };
-
-  return (
-    <div className="secret-storage-access">
-      <form onSubmit={handleForm}>
-        <Input
-          name="password"
-          label={`Security ${withPhrase ? 'Phrase' : 'Key'}`}
-          type="password"
-          onChange={handleChange}
-          required
-        />
-        {error && <Text variant="b3">{error}</Text>}
-        {!process && (
-          <div className="secret-storage-access__btn">
-            <Button variant="primary" type="submit">Continue</Button>
-            {isPassphrase && <Button onClick={toggleWithPhrase}>{`Use Security ${withPhrase ? 'Key' : 'Phrase'}`}</Button>}
-          </div>
-        )}
-      </form>
-      {process && <Spinner size="small" />}
-    </div>
-  );
+    return (
+        <form onSubmit={handleForm}>
+            <DialogContent>
+                <TextField
+                    name="password"
+                    label={`Security ${withPhrase ? 'Phrase' : 'Key'}`}
+                    type="password"
+                    onChange={handleChange}
+                    required
+                    fullWidth
+                    color={error ? 'error' : null}
+                />
+                {error && <Alert severity='error'>{error}</Alert>}
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton loading={process} type="submit">{getText('btn.continue')}</LoadingButton>
+                {isPassphrase && <Button onClick={toggleWithPhrase}>{`Use Security ${withPhrase ? 'Key' : 'Phrase'}`}</Button>}
+            </DialogActions>
+        </form>
+    );
 }
 SecretStorageAccess.propTypes = {
-  onComplete: PropTypes.func.isRequired,
+    onComplete: PropTypes.func.isRequired,
 };
 
 /**
@@ -102,32 +101,32 @@ SecretStorageAccess.propTypes = {
  * @returns {Promise<keyData | null>} resolve to keyData or null
  */
 export const accessSecretStorage = (title) => new Promise((resolve) => {
-  let isCompleted = false;
-  const defaultSSKey = getDefaultSSKey();
-  if (hasPrivateKey(defaultSSKey)) {
-    resolve({ keyId: defaultSSKey, privateKey: getPrivateKey(defaultSSKey) });
-    return;
-  }
-  const handleComplete = (keyData) => {
-    isCompleted = true;
-    storePrivateKey(keyData.keyId, keyData.privateKey);
-    resolve(keyData);
-  };
+    let isCompleted = false;
+    const defaultSSKey = getDefaultSSKey();
+    if (hasPrivateKey(defaultSSKey)) {
+        resolve({ keyId: defaultSSKey, privateKey: getPrivateKey(defaultSSKey) });
+        return;
+    }
+    const handleComplete = (keyData) => {
+        isCompleted = true;
+        storePrivateKey(keyData.keyId, keyData.privateKey);
+        resolve(keyData);
+    };
 
-  openReusableDialog(
-    <Text variant="s1" weight="medium">{title}</Text>,
-    (requestClose) => (
-      <SecretStorageAccess
-        onComplete={(keyData) => {
-          handleComplete(keyData);
-          requestClose(requestClose);
-        }}
-      />
-    ),
-    () => {
-      if (!isCompleted) resolve(null);
-    },
-  );
+    openReusableDialog(
+        title,
+        (requestClose) => (
+            <SecretStorageAccess
+                onComplete={(keyData) => {
+                    handleComplete(keyData);
+                    requestClose(requestClose);
+                }}
+            />
+        ),
+        () => {
+            if (!isCompleted) resolve(null);
+        },
+    );
 });
 
 export default SecretStorageAccess;

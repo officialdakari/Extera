@@ -54,7 +54,6 @@ export default function BottomNav({ current }: BottomNavProps) {
         <BottomNavigation
             value={current}
             onChange={onNav}
-            sx={{ bgcolor: theme.palette.grey[900] }}
         >
             <BottomNavigationAction
                 label={getText('home.rooms')}

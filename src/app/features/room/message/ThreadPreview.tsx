@@ -18,7 +18,8 @@ export function ThreadPreview({ mEvent, room, onClick }: ThreadPreviewProps) {
     const [showButton, setShowButton] = useState(false);
     const [messageCount, setMessageCount] = useState(0);
     const update = useCallback(() => {
-        const thread = room.findThreadForEvent(mEvent);
+        const thread = room.getThreads().find((thread) =>
+            thread.rootEvent?.getId() === eventId);
         const count = thread?.liveTimeline?.getEvents().length;
         if (!count) {
             setShowButton(false);
@@ -38,6 +39,7 @@ export function ThreadPreview({ mEvent, room, onClick }: ThreadPreviewProps) {
             style={{ textAlign: 'end' }}
             size='300'
             before={<Icon size={1} path={mdiMessageOutline} />}
+            onClick={onClick}
         >
             {translate(
                 'btn.thread',

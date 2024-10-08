@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Line } from 'folds';
 import { useParams } from 'react-router-dom';
 import { RoomView } from './RoomView';
@@ -16,6 +16,10 @@ export function Room() {
     const [isDrawer] = useSetting(settingsAtom, 'isPeopleDrawer');
     const screenSize = useScreenSizeContext();
     const powerLevels = usePowerLevels(room);
+
+    useEffect(() => {
+
+    }, [threadRootId]);
 
     return (
         <PowerLevelsContextProvider value={powerLevels}>

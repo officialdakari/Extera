@@ -205,7 +205,7 @@ function SpaceHeader() {
 
     return (
         <Box sx={{ flexGrow: 0 }}>
-            <AppBar color='inherit' enableColorOnDark position='static'>
+            <AppBar color='primary' position='static'>
                 <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
                     <IconButton
                         size='large'
