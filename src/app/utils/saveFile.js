@@ -30,7 +30,7 @@ export async function saveFile(src, name) {
     };
     const token = mx.getAccessToken();
     if (!src.includes(token)) {
-        src += `${src.includes('?') ? '&'} : '?'}access_token=${token}`;
+        src += `${src.includes('?') ? '&' : '?'}access_token=${token}`;
     }
     if (!window.cordova || cordova.platformId === 'browser') {
         FileSaver.saveAs(src, name);
