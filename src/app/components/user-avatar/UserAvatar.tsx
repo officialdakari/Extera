@@ -12,12 +12,14 @@ type UserAvatarProps = {
 };
 export function UserAvatar({ userId, src, alt, renderFallback }: UserAvatarProps) {
     const [error, setError] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const handleLoad: ReactEventHandler<HTMLImageElement> = (evt) => {
         evt.currentTarget.setAttribute('data-image-loaded', 'true');
+setLoading(false);
     };
 
-    if (!src || error) {
+    if (!src || error || loading) {
         return (
             <FallbackAvatar
                 userId={userId}
