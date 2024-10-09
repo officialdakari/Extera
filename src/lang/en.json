@@ -325,7 +325,7 @@
     "msg_menu.copy_link": "Copy link",
     "msg_redact.title": "Delete message",
     "msg_redact.subtitle": "This action is irreversible! Are you sure you want to delete this message?",
-    "msg_redact.reason.1": "Reason ",
+    "msg_redact.reason.1": "Reason",
     "msg_redact.reason.2": "(optional)",
     "error.redact_msg": "Failed to delete message! Please try again.",
     "msg_redact.processing": "Deleting...",

@@ -87,7 +87,6 @@ export const getReactCustomHtmlParser = (
         replace: (domNode) => {
             if (domNode instanceof Element && 'name' in domNode) {
                 const { name, attribs, children, parent } = domNode;
-                if (name === 'blockquote') console.debug(`!!! ${name}`, domNode);
                 const props = attributesToProps(attribs);
 
                 if (name === 'h1') {

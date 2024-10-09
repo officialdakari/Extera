@@ -1788,7 +1788,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                                     }`,
                             }}
                         >
-                            <RoomIntro room={room} />
+                            <Divider />
                         </div>
                     )}
                     {(canPaginateBack || !rangeAtStart) &&
