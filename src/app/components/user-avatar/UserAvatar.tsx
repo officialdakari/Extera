@@ -23,12 +23,6 @@ export function UserAvatar({ userId, src, alt, renderFallback }: UserAvatarProps
                 userId={userId}
                 name={alt}
             />
-            // <AvatarFallback
-            //     style={{ backgroundColor: colorMXID(userId), color: color.Surface.Container }}
-            //     className={css.UserAvatar}
-            // >
-            //     {renderFallback()}
-            // </AvatarFallback>
         );
     }
 
