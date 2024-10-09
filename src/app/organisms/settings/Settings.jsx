@@ -330,6 +330,7 @@ function PresenceSection() {
     const mx = useMatrixClient();
     const [status, setStatus] = useSetting(settingsAtom, 'extera_status');
     const statusMsg = mx.getUser(mx.getUserId()).presenceStatusMsg || '';
+    const statusMsgRef = useRef();
     const [ghostMode, setGhostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
     const updateStatusMessage = (evt) => {
@@ -338,7 +339,7 @@ function PresenceSection() {
         const value = statusInput.value.trim();
         if (value === '') return;
         mx.setPresence({
-            status_msg: statusMsg
+            status_msg: value
         });
     };
 
@@ -357,7 +358,7 @@ function PresenceSection() {
                         mx.setSyncPresence(statuses[index]);
                         mx.setPresence({
                             presence: statuses[index],
-                            status_msg: index != 1 ? statusMsg : undefined
+                            status_msg: index != 1 ? statusMsgRef.current?.value?.trim() : undefined
                         }).then(() => {
                             console.log('Presence updated');
                         }).catch(err => {
@@ -400,7 +401,7 @@ function PresenceSection() {
                 <div className='settings-presence__status'>
                     <Text variant="b3">{getText('settings.status_message.text')}</Text>
                     <form onSubmit={updateStatusMessage}>
-                        <TextField size='small' autoComplete='off' variant='filled' label={getText('settings.status_message.title')} required name="statusInput" defaultValue={statusMsg} />
+                        <TextField inputRef={statusMsgRef} size='small' autoComplete='off' variant='filled' label={getText('settings.status_message.title')} required name="statusInput" defaultValue={statusMsg} />
                         <Button variant="contained" size='small' type="submit">{getText('btn.status_message.set')}</Button>
                     </form>
                 </div>
