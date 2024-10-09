@@ -35,7 +35,7 @@ export type _SearchPathSearchParams = {
     senders?: string;
 };
 export const _SEARCH_PATH = 'search/';
-export const _THREAD_PATH = 'thread/:roomIdOrAlias/:threadId/';
+export const _THREAD_PATH = 'thread/:roomIdOrAlias/:threadId/:eventId?/';
 export const _ROOM_PATH = ':roomIdOrAlias/:eventId?/';
 
 export const HOME_PATH = '/home/';

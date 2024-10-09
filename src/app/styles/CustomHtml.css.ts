@@ -36,7 +36,7 @@ export const BlockQuote = style([
     {
         paddingLeft: config.space.S200,
         borderLeft: `${config.borderWidth.B700} solid ${color.SurfaceVariant.ContainerLine}`,
-        backgroundColor: color.Background.ContainerHover,
+        backgroundColor: color.Background.Container,
         padding: '5px',
         borderRadius: config.radii.R300,
         borderStyle: 'solid',
