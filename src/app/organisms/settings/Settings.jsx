@@ -335,7 +335,7 @@ function PresenceSection() {
 
     const updateStatusMessage = (evt) => {
         evt.preventDefault();
-        const { statusInput } = evt.target.elements;
+        const { statusInput } = evt.currentTarget.elements;
         const value = statusInput.value.trim();
         if (value === '') return;
         mx.setPresence({
