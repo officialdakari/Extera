@@ -18,8 +18,6 @@ import { EventTimeline, EventType, IContent, MsgType, Room } from 'matrix-js-sdk
 import {
     Box,
     Dialog,
-    IconButton,
-    Line,
     Overlay,
     OverlayBackdrop,
     OverlayCenter,
@@ -115,6 +113,7 @@ import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLe
 import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
 import { getEventCords } from '../../../util/common';
 import HideReasonSelector from '../../molecules/hide-reason-selector/HideReasonSelector';
+import { IconButton } from '@mui/material';
 
 interface RoomInputProps {
     fileDropContainerRef: RefObject<HTMLElement>;
@@ -708,21 +707,15 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                             {trimReplyFromBody(replyDraft.body)}
                                         </Text>
                                     </ReplyLayout>
-                                    <IconButton
+                                    <IconButton size='small'
                                         onMouseDown={dontHideKeyboard}
                                         onClick={() => setReplyMention(!replyMention)}
-                                        variant="SurfaceVariant"
-                                        size="300"
-                                        radii="300"
                                     >
                                         <Icon size={1} path={replyMention ? mdiBell : mdiBellOff} />
                                     </IconButton>
-                                    <IconButton
+                                    <IconButton size='small'
                                         onMouseDown={dontHideKeyboard}
                                         onClick={() => setReplyDraft(undefined)}
-                                        variant="SurfaceVariant"
-                                        size="300"
-                                        radii="300"
                                     >
                                         <Icon size={1} path={mdiClose} />
                                     </IconButton>
@@ -731,20 +724,19 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                         )
                     }
                     before={
-                        !ar.isRecording && <IconButton
-                            onClick={() => pickFile('*')}
-                            variant="SurfaceVariant"
-                            size="300"
-                            radii="300"
-                        >
-                            <Icon size={1} path={mdiPlusCircleOutline} />
-                        </IconButton>
+                        !ar.isRecording && (
+                            <IconButton size='small'
+                                onClick={() => pickFile('*')}
+                            >
+                                <Icon size={1} path={mdiPlusCircleOutline} />
+                            </IconButton>
+                        )
                     }
                     after={
                         <>
                             {!ar.isRecording && (
                                 <>
-                                    <IconButton onMouseDown={dontHideKeyboard} onClick={handleHide} variant="SurfaceVariant" size="300" radii="300">
+                                    <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={handleHide}>
                                         <Icon size={1} path={hideReason ? mdiEyeOff : mdiEye} />
                                     </IconButton>
                                     <UseStateProvider initial={undefined}>
@@ -776,7 +768,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                                 }
                                             >
                                                 {(
-                                                    <IconButton
+                                                    <IconButton size='small'
                                                         aria-pressed={
                                                             !!emojiBoardTab
                                                         }
@@ -788,9 +780,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                                             }
                                                         }}
                                                         onMouseDown={dontHideKeyboard}
-                                                        variant="SurfaceVariant"
-                                                        size="300"
-                                                        radii="300"
                                                         ref={emojiBtnRef}
                                                     >
                                                         <Icon
@@ -805,13 +794,11 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                 </>
                             )}
                             {(isEmptyEditor(textAreaRef) && !ar.isRecording && voiceMessages) ? (
-                                <>
-                                    <IconButton onMouseDown={dontHideKeyboard} onClick={recordVoice} variant="SurfaceVariant" size="300" radii="300">
-                                        <Icon size={1} path={mdiMicrophone} />
-                                    </IconButton>
-                                </>
+                                <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={recordVoice}>
+                                    <Icon size={1} path={mdiMicrophone} />
+                                </IconButton>
                             ) : (
-                                <IconButton onMouseDown={dontHideKeyboard} onClick={ar.isRecording ? stopRecording : submit} variant="SurfaceVariant" size="300" radii="300">
+                                <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={ar.isRecording ? stopRecording : submit}>
                                     <Icon size={1} path={mdiSendOutline} />
                                 </IconButton>
                             )}

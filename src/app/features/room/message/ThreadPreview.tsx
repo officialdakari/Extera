@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { MatrixEvent, Room } from 'matrix-js-sdk';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { Box, Button } from 'folds';
 import Icon from '@mdi/react';
 import { mdiMessageOutline } from '@mdi/js';
 import { translate } from '../../../../lang';
+import { Button, Divider, Typography } from '@mui/material';
+import { MessageOutlined } from '@mui/icons-material';
 
 type ThreadPreviewProps = {
     mEvent: MatrixEvent;
@@ -33,18 +34,21 @@ export function ThreadPreview({ mEvent, room, onClick }: ThreadPreviewProps) {
         update();
     }, [update]);
     return showButton && (
-        <Button
-            fill='None'
-            variant='Secondary'
-            style={{ textAlign: 'end' }}
-            size='300'
-            before={<Icon size={1} path={mdiMessageOutline} />}
-            onClick={onClick}
-        >
-            {translate(
-                'btn.thread',
-                <b>{messageCount}</b>
-            )}
-        </Button>
+        <div style={{ marginTop: '1rem', gap: '1rem' }}>
+            <Divider />
+            <Button
+                color='secondary'
+                fullWidth
+                startIcon={<MessageOutlined />}
+                onClick={onClick}
+            >
+                <Typography>
+                    {translate(
+                        'btn.thread',
+                        messageCount
+                    )}
+                </Typography>
+            </Button>
+        </div>
     );
 }

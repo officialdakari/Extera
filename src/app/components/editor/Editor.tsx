@@ -15,6 +15,7 @@ import { Box, Scroll, Text } from 'folds';
 import 'quill/dist/quill.core.css';
 import * as css from './Editor.css';
 import './Editor.scss';
+import { useTheme } from '@mui/material';
 // import * as MarkdownShortcuts from 'quill-markdown-shortcuts';
 
 // Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
@@ -54,6 +55,7 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
         newDesign,
         disabled
     }, ref) => {
+        const theme = useTheme();
         const updateRows = (target: HTMLTextAreaElement) => {
             target.style.height = `auto`;
             target.style.height = `${target.scrollHeight}px`;
@@ -90,7 +92,14 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
         }, [textAreaRef]);
 
         return (
-            <div ref={ref} className={newDesign ? css.EditorNew : css.Editor}>
+            <div
+                ref={ref}
+                className={newDesign ? css.EditorNew : css.Editor}
+                style={{
+                    background: theme.palette.background.default,
+                    color: theme.palette.text.primary
+                }}
+            >
                 {top}
                 <Box alignItems="Start">
                     {before && (
@@ -100,9 +109,7 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
                     )}
                     <Scroll
                         className={css.EditorTextareaScroll}
-                        variant='SurfaceVariant'
                         style={{ maxHeight }}
-                        size='300'
                         visibility='Hover'
                         hideTrack
                     >
