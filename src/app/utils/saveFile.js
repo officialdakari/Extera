@@ -24,14 +24,18 @@ export function useDownloadStatus(src) {
 
 export async function saveFile(src, name) {
     const mx = initMatrix.matrixClient;
+    console.log(`Saving file ${src} ${name}`);
     const setState = (state) => {
         downloadStatus[src] = state;
     };
+    const token = mx.getAccessToken();
+    if (!src.includes(token)) {
+        src += `${src.includes('?') ? '&'} : '?'}access_token=${token}`;
+    }
     if (!window.cordova || cordova.platformId === 'browser') {
         FileSaver.saveAs(src, name);
         return;
     }
-    console.log(`Saving file ${src} ${name}`);
 
     try {
         const spl = name.split('.');
