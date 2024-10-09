@@ -17,7 +17,7 @@ export function UserAvatar({ userId, src, alt, renderFallback }: UserAvatarProps
         evt.currentTarget.setAttribute('data-image-loaded', 'true');
     };
 
-    if (!src || error || loading) {
+    if (!src || error) {
         return (
             <FallbackAvatar
                 userId={userId}
