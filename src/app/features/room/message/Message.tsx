@@ -808,6 +808,13 @@ export const MessageDeleteItem = as<
         onClose?.();
     };
 
+    useEffect(() => {
+        if (deleteState.status === AsyncStatus.Success) {
+            setOpen(false);
+            onClose?.();
+        }
+    }, [deleteState.status, onClose]);
+
     return (
         <>
             <Dialog
@@ -878,6 +885,11 @@ export const MessageReportItem = as<
         )
     );
 
+    const handleClose = () => {
+        setOpen(false);
+        onClose?.();
+    };
+
     const handleSubmit: FormEventHandler<HTMLFormElement> = (evt) => {
         evt.preventDefault();
         const eventId = mEvent.getId();
@@ -894,10 +906,12 @@ export const MessageReportItem = as<
         reportMessage(eventId, reason ? -100 : -50, reason || 'No reason provided');
     };
 
-    const handleClose = () => {
-        setOpen(false);
-        onClose?.();
-    };
+    useEffect(() => {
+        if (reportState.status === AsyncStatus.Success) {
+            setOpen(false);
+            onClose?.();
+        }
+    }, [reportState.status, onClose]);
 
     return (
         <>
@@ -1032,7 +1046,7 @@ export const Message = as<'div', MessageProps>(
         }
 
         const childrenRef = useRef<HTMLDivElement>(null);
-        const maxWidthStyle = mEvent.getType() === 'm.sticker' || (!['m.text', 'm.notice'].includes(mEvent.getContent().msgtype ?? '')) ? { maxWidth: `${childrenRef.current?.clientWidth}px` } : undefined;
+        const maxWidthStyle = messageLayout === 2 && (mEvent.getType() === 'm.sticker' || (!['m.text', 'm.notice'].includes(mEvent.getContent().msgtype ?? ''))) ? { maxWidth: `${childrenRef.current?.clientWidth}px` } : undefined;
 
         const headerJSX = !collapse && (
             <Box
@@ -1311,7 +1325,7 @@ export const Message = as<'div', MessageProps>(
                                 )}
                             </>
                         )}
-                        <Menu open={!!menuAnchor} anchorEl={menuAnchor} onClose={() => setMenuAnchor(null)}>
+                        <Menu open={!!menuAnchor} anchorEl={menuAnchor} onClose={closeMenu}>
                             {(status !== EventStatus.SENT) && (
                                 <MenuItem>
                                     <ListItemText>

@@ -23,6 +23,9 @@ import { EventReaders } from '../../components/event-readers';
 import { getText, translate } from '../../../lang';
 import { mdiCheckAll } from '@mdi/js';
 import Icon from '@mdi/react';
+import { useSetting } from '../../state/hooks/settings';
+import { settingsAtom } from '../../state/settings';
+import { useTheme } from '@mui/material';
 
 export type ThreadViewFollowingProps = {
     room: Room;
@@ -34,6 +37,7 @@ export const ThreadViewFollowing = as<'div', ThreadViewFollowingProps>(
         const [open, setOpen] = useState(false);
         const latestEvent = useThreadLatestRenderedEvent(thread);
         const latestEventReaders = useRoomEventReaders(room, latestEvent?.getId());
+        const [newDesign] = useSetting(settingsAtom, 'newDesignInput');
         const names = latestEventReaders
             .filter((readerId) => readerId !== mx.getUserId())
             .map(
@@ -41,6 +45,7 @@ export const ThreadViewFollowing = as<'div', ThreadViewFollowingProps>(
             );
 
         const eventId = latestEvent?.getId();
+        const theme = useTheme();
 
         return (
             <>
@@ -68,6 +73,7 @@ export const ThreadViewFollowing = as<'div', ThreadViewFollowingProps>(
                     alignItems="Center"
                     justifyContent="End"
                     gap="200"
+                    style={newDesign ? { backgroundColor: theme.palette.background.default } : undefined}
                     {...props}
                     ref={ref}
                 >

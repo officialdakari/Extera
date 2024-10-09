@@ -23,6 +23,9 @@ import { EventReaders } from '../../components/event-readers';
 import { getText, translate } from '../../../lang';
 import { mdiCheckAll } from '@mdi/js';
 import Icon from '@mdi/react';
+import { useTheme } from '@mui/material';
+import { useSetting } from '../../state/hooks/settings';
+import { settingsAtom } from '../../state/settings';
 
 export type RoomViewFollowingProps = {
     room: Room;
@@ -31,6 +34,7 @@ export const RoomViewFollowing = as<'div', RoomViewFollowingProps>(
     ({ className, room, ...props }, ref) => {
         const mx = useMatrixClient();
         const [open, setOpen] = useState(false);
+        const [newDesign] = useSetting(settingsAtom, 'newDesignInput');
         const latestEvent = useRoomLatestRenderedEvent(room);
         const latestEventReaders = useRoomEventReaders(room, latestEvent?.getId());
         const names = latestEventReaders
@@ -40,6 +44,7 @@ export const RoomViewFollowing = as<'div', RoomViewFollowingProps>(
             );
 
         const eventId = latestEvent?.getId();
+        const theme = useTheme();
 
         return (
             <>
@@ -67,6 +72,7 @@ export const RoomViewFollowing = as<'div', RoomViewFollowingProps>(
                     alignItems="Center"
                     justifyContent="End"
                     gap="200"
+                    style={newDesign ? { backgroundColor: theme.palette.background.default } : undefined}
                     {...props}
                     ref={ref}
                 >
