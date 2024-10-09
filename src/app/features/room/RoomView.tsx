@@ -30,7 +30,7 @@ import { generateConferenceID } from '../../../util/conferenceID';
 import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
 import wallpaperDB from '../../utils/wallpaper';
 
-export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?: string; threadRootId?: string; }) {
+export function RoomView({ room, eventId }: { room: Room; eventId?: string; }) {
     const roomInputRef = useRef(null);
     const roomViewRef = useRef(null);
 
@@ -215,7 +215,6 @@ export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?
                     eventId={eventId}
                     roomInputRef={roomInputRef}
                     textAreaRef={taRef}
-                    threadRootId={threadRootId}
                 />
                 <RoomViewTyping room={room} />
             </Box>
@@ -238,7 +237,6 @@ export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?
                                     fileDropContainerRef={roomViewRef}
                                     newDesign={newDesignInput}
                                     ref={roomInputRef}
-                                    threadRootId={threadRootId}
                                 />
                             )}
                         </>

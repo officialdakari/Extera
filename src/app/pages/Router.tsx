@@ -29,6 +29,7 @@ import {
     _SEARCH_PATH,
     _SERVER_PATH,
     SEARCH_PATH,
+    _THREAD_PATH,
 } from './paths';
 import { isAuthenticated } from '../../client/state/auth';
 import {
@@ -44,7 +45,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ClientBindAtoms, ClientLayout, ClientRoot } from './client';
 import { Home, HomeRouteRoomProvider, HomeSearch } from './client/home';
 import { Direct, DirectRouteRoomProvider } from './client/direct';
-import { RouteSpaceProvider, Space, SpaceRouteRoomProvider, SpaceSearch } from './client/space';
+import { RouteSpaceProvider, Space, SpaceRouteRoomProvider, SpaceRouteThreadProvider, SpaceSearch } from './client/space';
 import { Explore, FeaturedRooms, PublicRooms } from './client/explore';
 import { Notifications, Inbox, Invites } from './client/inbox';
 import { setAfterLoginRedirectPath } from './afterLoginRedirectPath';
@@ -61,6 +62,8 @@ import AnimatedLayout from './AnimatedLayout';
 import CreateRoom from '../organisms/create-room/CreateRoom';
 import { useNavHidden } from '../hooks/useHideableNav';
 import SearchTab from './client/sidebar/SearchTab';
+import { ThreadProvider } from '../hooks/useThread';
+import { Thread } from '../features/thread/Thread';
 
 export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize) => {
     const { hashRouter } = clientConfig;
@@ -159,6 +162,16 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                     <Route path={_JOIN_PATH} element={<p>join</p>} />
                     <Route path={_SEARCH_PATH} element={<HomeSearch />} />
                     <Route
+                        path={_THREAD_PATH}
+                        element={
+                            <HomeRouteRoomProvider>
+                                <SpaceRouteThreadProvider>
+                                    <Thread />
+                                </SpaceRouteThreadProvider>
+                            </HomeRouteRoomProvider>
+                        }
+                    />
+                    <Route
                         path={_ROOM_PATH}
                         element={
                             <HomeRouteRoomProvider>
@@ -183,6 +196,16 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                 >
                     {mobile ? null : <Route index element={<WelcomePage />} />}
                     <Route path={_CREATE_PATH} element={<p>create</p>} />
+                    <Route
+                        path={_THREAD_PATH}
+                        element={
+                            <DirectRouteRoomProvider>
+                                <SpaceRouteThreadProvider>
+                                    <Thread />
+                                </SpaceRouteThreadProvider>
+                            </DirectRouteRoomProvider>
+                        }
+                    />
                     <Route
                         path={_ROOM_PATH}
                         element={
@@ -223,6 +246,16 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                     )}
                     <Route path={_LOBBY_PATH} element={<Lobby />} />
                     <Route path={_SEARCH_PATH} element={<SpaceSearch />} />
+                    <Route
+                        path={_THREAD_PATH}
+                        element={
+                            <SpaceRouteRoomProvider>
+                                <SpaceRouteThreadProvider>
+                                    <Thread />
+                                </SpaceRouteThreadProvider>
+                            </SpaceRouteRoomProvider>
+                        }
+                    />
                     <Route
                         path={_ROOM_PATH}
                         element={

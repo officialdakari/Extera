@@ -11,7 +11,7 @@ const SlideUpAnime = keyframes({
     },
 });
 
-export const RoomViewTyping = style([
+export const ThreadViewTyping = style([
     DefaultReset,
     {
         padding: `0 ${config.space.S500}`,

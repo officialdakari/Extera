@@ -4,9 +4,12 @@ import { useAtomValue } from 'jotai';
 import { getCanonicalAliasOrRoomId } from '../utils/matrix';
 import {
     getDirectRoomPath,
+    getDirectThreadPath,
     getHomeRoomPath,
+    getHomeThreadPath,
     getSpacePath,
     getSpaceRoomPath,
+    getSpaceThreadPath,
 } from '../pages/pathUtils';
 import { useMatrixClient } from './useMatrixClient';
 import { getOrphanParents } from '../utils/room';
@@ -28,22 +31,43 @@ export const useRoomNavigate = () => {
     );
 
     const navigateRoom = useCallback(
-        (roomId: string, eventId?: string, threadRootId?: string, opts?: NavigateOptions) => {
+        (roomId: string, eventId?: string, opts?: NavigateOptions) => {
             const roomIdOrAlias = getCanonicalAliasOrRoomId(mx, roomId);
 
             const orphanParents = getOrphanParents(roomToParents, roomId);
             if (orphanParents.length > 0) {
                 const pSpaceIdOrAlias = getCanonicalAliasOrRoomId(mx, orphanParents[0]);
-                navigate(getSpaceRoomPath(pSpaceIdOrAlias, roomIdOrAlias, eventId, threadRootId), opts);
+                navigate(getSpaceRoomPath(pSpaceIdOrAlias, roomIdOrAlias, eventId), opts);
                 return;
             }
 
             if (mDirects.has(roomId)) {
-                navigate(getDirectRoomPath(roomIdOrAlias, eventId, threadRootId), opts);
+                navigate(getDirectRoomPath(roomIdOrAlias, eventId), opts);
                 return;
             }
 
-            navigate(getHomeRoomPath(roomIdOrAlias, eventId, threadRootId), opts);
+            navigate(getHomeRoomPath(roomIdOrAlias, eventId), opts);
+        },
+        [mx, navigate, roomToParents, mDirects]
+    );
+
+    const navigateThread = useCallback(
+        (roomId: string, threadId: string, eventId?: string, opts?: NavigateOptions) => {
+            const roomIdOrAlias = getCanonicalAliasOrRoomId(mx, roomId);
+
+            const orphanParents = getOrphanParents(roomToParents, roomId);
+            if (orphanParents.length > 0) {
+                const pSpaceIdOrAlias = getCanonicalAliasOrRoomId(mx, orphanParents[0]);
+                navigate(getSpaceThreadPath(pSpaceIdOrAlias, roomIdOrAlias, threadId, eventId), opts);
+                return;
+            }
+
+            if (mDirects.has(roomId)) {
+                navigate(getDirectThreadPath(roomIdOrAlias, threadId, eventId), opts);
+                return;
+            }
+
+            navigate(getHomeThreadPath(roomIdOrAlias, threadId, eventId), opts);
         },
         [mx, navigate, roomToParents, mDirects]
     );
@@ -51,5 +75,6 @@ export const useRoomNavigate = () => {
     return {
         navigateSpace,
         navigateRoom,
+        navigateThread
     };
 };

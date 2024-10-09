@@ -34,7 +34,7 @@ import {
 } from '../../pages/pathUtils';
 import { getCanonicalAliasOrRoomId, isRoomId, isUserId } from '../../utils/matrix';
 import { _SearchPathSearchParams } from '../../pages/paths';
-import * as css from './RoomViewHeader.css';
+import * as css from './ThreadViewHeader.css';
 import { useRoomUnread } from '../../state/hooks/unread';
 import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
 import { markAsRead } from '../../../client/action/notifications';
@@ -54,7 +54,7 @@ import { ImageViewer } from '../../components/image-viewer';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getReactCustomHtmlParser } from '../../plugins/react-custom-html-parser';
 import { HTMLReactParserOptions } from 'html-react-parser';
-import { Message } from './message';
+import { Message } from '../room/message';
 import { Image } from '../../components/media';
 import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiChevronLeft, mdiChevronRight, mdiClose, mdiCog, mdiDotsVertical, mdiLinkVariant, mdiMagnify, mdiPhone, mdiPin, mdiPlus, mdiVideo, mdiVideoOff, mdiWidgets } from '@mdi/js';
 import Icon from '@mdi/react';
@@ -73,153 +73,14 @@ type RoomMenuProps = {
     requestClose: () => void;
     anchorEl: HTMLElement | null;
 };
-const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
-    ({ room, linkPath, anchorEl, requestClose }, ref) => {
-        const mx = useMatrixClient();
-        const { hashRouter } = useClientConfig();
-        const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
-        const powerLevels = usePowerLevelsContext();
-        const { getPowerLevel, canDoAction, canSendEvent } = usePowerLevelsAPI(powerLevels);
-        const canInvite = canDoAction('invite', getPowerLevel(mx.getUserId() ?? ''));
-        const myUserId = mx.getUserId();
-        const timeline = room.getLiveTimeline();
-        const state = timeline.getState(EventTimeline.FORWARDS);
-        const widgetsEvents = [
-            ...(state?.getStateEvents('m.widget') ?? []),
-            ...(state?.getStateEvents('im.vector.modular.widgets') ?? [])
-        ];
-        const videoCallEvent = widgetsEvents.find(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
 
-        const canRedact = myUserId
-            ? canDoAction('redact', getPowerLevel(myUserId))
-            : false;
-
-        const handleMarkAsRead = () => {
-            markAsRead(room.roomId);
-            requestClose();
-        };
-
-        const handleInvite = () => {
-            openInviteUser(room.roomId);
-            requestClose();
-        };
-
-        const handleCopyLink = () => {
-            copyToClipboard(withOriginBaseUrl(getOriginBaseUrl(hashRouter), linkPath));
-            requestClose();
-        };
-
-        const handleRoomSettings = () => {
-            toggleRoomSettings(room.roomId);
-            requestClose();
-        };
-
-        const endJitsi = () => {
-            const evs = widgetsEvents.filter(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
-            for (const ev of evs) {
-                const eventId = ev.getId();
-                if (!eventId) continue;
-                mx.redactEvent(room.roomId, eventId);
-            }
-        };
-
-        return (
-            <Menu ref={ref} open={!!anchorEl} anchorEl={anchorEl} onClose={requestClose}>
-                <MenuItem
-                    disabled={!unread}
-                    onClick={handleMarkAsRead}
-                >
-                    <ListItemIcon>
-                        <DoneAll />
-                    </ListItemIcon>
-                    <ListItemText>
-                        {getText('room_header.mark_as_read')}
-                    </ListItemText>
-                </MenuItem>
-                <Divider />
-                <MenuItem
-                    disabled={!canInvite}
-                    onClick={handleInvite}
-                >
-                    <ListItemIcon>
-                        <PersonAdd />
-                    </ListItemIcon>
-                    <ListItemText>
-                        {getText('room_header.invite')}
-                    </ListItemText>
-                </MenuItem>
-                <MenuItem
-                    onClick={handleCopyLink}
-                >
-                    <ListItemIcon>
-                        <Link />
-                    </ListItemIcon>
-                    <ListItemText>
-                        {getText('room_header.copy_link')}
-                    </ListItemText>
-                </MenuItem>
-                <MenuItem
-                    onClick={handleRoomSettings}
-                >
-                    <ListItemIcon>
-                        <Settings />
-                    </ListItemIcon>
-                    <ListItemText>
-                        {getText('room_header.settings')}
-                    </ListItemText>
-                </MenuItem>
-                <Divider />
-                <UseStateProvider initial={false}>
-                    {(promptLeave, setPromptLeave) => (
-                        <>
-                            <MenuItem
-                                onClick={() => setPromptLeave(true)}
-                                aria-pressed={promptLeave}
-                            >
-                                <ListItemIcon>
-                                    <ArrowBack />
-                                </ListItemIcon>
-                                <ListItemText>
-                                    {getText('room_header.leave')}
-                                </ListItemText>
-                            </MenuItem>
-                            {promptLeave && (
-                                <LeaveRoomPrompt
-                                    roomId={room.roomId}
-                                    onDone={requestClose}
-                                    onCancel={() => setPromptLeave(false)}
-                                />
-                            )}
-                        </>
-                    )}
-                </UseStateProvider>
-                {canRedact && videoCallEvent && (
-                    <MenuItem
-                        onClick={endJitsi}
-                        disabled={!canRedact}
-                    >
-                        <ListItemIcon>
-                            <CallEnd />
-                        </ListItemIcon>
-                        <ListItemText>
-                            {getText('room_header.end_meeting')}
-                        </ListItemText>
-                    </MenuItem>
-                )}
-            </Menu>
-        );
-    }
-);
-
-type RoomViewHeaderProps = {
-    handleCall: any;
-    handleVideoCall: any;
+type ThreadViewHeaderProps = {
+    threadId: string;
 };
 
-export function RoomViewHeader({
-    handleCall,
-    handleVideoCall
-}: RoomViewHeaderProps) {
+export function ThreadViewHeader({
+    threadId
+}: ThreadViewHeaderProps) {
     const navigate = useNavigate();
     const { threadRootId } = useParams();
     const mx = useMatrixClient();
@@ -327,89 +188,6 @@ export function RoomViewHeader({
     const [pageNo, setPageNo] = useState(1);
     const [loadingPinList, setLoadingPinList] = useState(true);
     const modals = useModals();
-
-    // officialdakari 24.07.2024 - надо зарефакторить это всё, но мне пока лень
-
-    const handleWidgetsClick = async () => {
-        const userId = mx.getUserId();
-        if (typeof userId !== 'string') return;
-        const profile = mx.getUser(userId);
-        const timeline = room.getLiveTimeline();
-        const state = timeline.getState(EventTimeline.FORWARDS);
-        const widgets = [
-            ...(state?.getStateEvents('m.widget') ?? []),
-            ...(state?.getStateEvents('im.vector.modular.widgets') ?? [])
-        ];
-        const widgetList: ReactNode[] = [];
-        console.log(widgets);
-        if (!widgets || widgets.length < 1) {
-            setWidgets(
-                [
-                    <Text>{getText('widgets.none')}</Text>
-                ]
-            );
-        } else {
-            for (const ev of widgets) {
-                const content = ev.getContent();
-                if (typeof content.url !== 'string') continue;
-                const data = {
-                    matrix_user_id: userId,
-                    matrix_room_id: room.roomId,
-                    matrix_display_name: profile?.displayName ?? userId,
-                    matrix_avatar_url: profile?.avatarUrl && mx.mxcUrlToHttp(profile?.avatarUrl),
-                    ...content.data
-                };
-                var url = `${content.url}`; // Should not be a reference
-                for (const key in data) {
-                    if (typeof data[key] === 'string') {
-                        url = url.replaceAll(`$${key}`, data[key]);
-                    }
-                }
-                if (!url.startsWith('https://')) continue;
-                const r = await getIntegrationManagerURL(mx, room);
-                if (url.startsWith('https://scalar.vector.im') && r?.token) url += `&scalar_token=${r.token}`;
-                const openWidget = () => {
-                    setShowWidgets(false);
-                    modals.addModal({
-                        allowClose: true,
-                        title: content.name ?? 'Widget',
-                        node: (
-                            <iframe
-                                style={{ border: 'none', width: '100%', height: '100%' }}
-                                allow="autoplay; camera; clipboard-write; compute-pressure; display-capture; hid; microphone; screen-wake-lock"
-                                allowFullScreen
-                                data-widget-room-id={ev.getRoomId()}
-                                data-widget-event-id={ev.getId()}
-                                data-widget-name={content.name}
-                                data-widget-room-name={room.name}
-                                data-widget={true}
-                                src={url}
-                            />
-                        ),
-                        externalUrl: url
-                    });
-                };
-                const removeWidget = async () => {
-                    setShowWidgets(false);
-                    if (!(await confirmDialog(
-                        getText('confirm.remove_widget.title'),
-                        getText('confirm.remove_widget.question'),
-                        getText('btn.widget.remove'),
-                        'error'
-                    ))) return;
-                    const evId = ev.getId();
-                    if (!evId) return;
-                    mx.redactEvent(room.roomId, evId);
-                };
-                console.debug(`Can redact: ${canRedact}`);
-                widgetList.push(
-                    <WidgetItem onClick={openWidget} onRemove={canRedact ? removeWidget : undefined} name={typeof content.name === 'string' ? content.name : undefined} url={url} type={content.type} />
-                );
-            }
-        }
-        setWidgets(widgetList);
-        setShowWidgets(true);
-    };
 
     const updatePinnedList = async () => {
         const pinnedMessages = [];
@@ -521,27 +299,6 @@ export function RoomViewHeader({
         history.back();
     };
 
-    const handleScalar = async () => {
-        setShowWidgets(false);
-        const r = await getIntegrationManagerURL(mx, room);
-        if (!r?.url) return;
-        const { url } = r;
-        modals.addModal({
-            allowClose: true,
-            title: 'Integrations',
-            node: (
-                <iframe
-                    style={{ border: 'none', width: '100%', height: '100%' }}
-                    allow="autoplay; camera; clipboard-write; compute-pressure; display-capture; hid; microphone; screen-wake-lock"
-                    allowFullScreen
-                    data-integration-manager={true}
-                    src={url}
-                />
-            ),
-            externalUrl: url
-        });
-    };
-
     useEffect(() => {
         const isDm = room.getDMInviter() || room.getJoinedMemberCount() == 2;
         if (isDm) {
@@ -580,33 +337,6 @@ export function RoomViewHeader({
                 </DialogContent>
                 <Pagination count={pinnedPages} page={pageNo} onChange={(evt, page) => setPageNo(page)} sx={{ marginBottom: '10px' }} />
             </Dialog>
-            <Dialog
-                open={showWidgets}
-                onClose={() => setShowWidgets(false)}
-                scroll='body'
-            >
-                <AppBar sx={{ position: 'relative' }}>
-                    <Toolbar>
-                        <Typography flexGrow={1} variant='h6' component='div'>
-                            {getText('widgets.title')}
-                        </Typography>
-                        <IconButton
-                            onClick={handleScalar}
-                            disabled={!canEditWidgets}
-                        >
-                            <Widgets />
-                        </IconButton>
-                        <IconButton
-                            onClick={() => setShowWidgets(false)}
-                        >
-                            <Close />
-                        </IconButton>
-                    </Toolbar>
-                </AppBar>
-                <DialogContent sx={{ minWidth: '500px', minHeight: '300px' }} dividers>
-                    {widgets}
-                </DialogContent>
-            </Dialog>
             <AppBar position='relative'>
                 <Toolbar>
                     <Box grow="Yes" gap="300">
@@ -619,12 +349,7 @@ export function RoomViewHeader({
                         </Box>
                         <Box grow="Yes" alignItems="Center" gap="300">
                             <Avatar onClick={handleAvClick} size="400">
-                                <RoomAvatar
-                                    roomId={room.roomId}
-                                    src={avatarUrl}
-                                    alt={name}
-                                    renderFallback={() => nameInitials(name)}
-                                />
+                                <MessageOutlined />
                             </Avatar>
                             <Box direction="Column">
                                 <Text size={(topic ?? statusMessage) ? 'H5' : 'H3'} truncate>
@@ -669,11 +394,6 @@ export function RoomViewHeader({
                                     </IconButton>
                                 </Tooltip>
                             )}
-                            <Tooltip title={getText('tooltip.widgets')}>
-                                <IconButton onClick={handleWidgetsClick}>
-                                    <Widgets />
-                                </IconButton>
-                            </Tooltip>
                             <Tooltip title={getText('tooltip.pinned')}>
                                 <IconButton onClick={handlePinnedClick}>
                                     <PushPin />
@@ -686,27 +406,11 @@ export function RoomViewHeader({
                                     </IconButton>
                                 </Tooltip>
                             )}
-                            {!mDirects.has(room.roomId) && showVideoCallButton && (
-                                <IconButton onClick={handleVideoCall}>
-                                    <VideoCall />
-                                </IconButton>
-                            )}
-                            {mDirects.has(room.roomId) && (
-                                <IconButton onClick={handleCall}>
-                                    <Phone />
-                                </IconButton>
-                            )}
-                            <Tooltip title={getText('tooltip.more_options')}>
+                            {/* <Tooltip title={getText('tooltip.more_options')}>
                                 <IconButton onClick={handleOpenMenu} aria-pressed={!!menuAnchor}>
                                     <MoreVert />
                                 </IconButton>
-                            </Tooltip>
-                            <RoomMenu
-                                room={room}
-                                linkPath={currentPath}
-                                requestClose={() => setMenuAnchor(null)}
-                                anchorEl={menuAnchor}
-                            />
+                            </Tooltip> */}
                         </Box>
                     </Box>
                 </Toolbar>

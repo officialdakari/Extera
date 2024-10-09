@@ -122,10 +122,10 @@ interface RoomInputProps {
     roomId: string;
     room: Room;
     newDesign?: boolean;
-    threadRootId?: string;
+    threadId?: string;
 }
 export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
-    ({ fileDropContainerRef, roomId, room, textAreaRef, newDesign, threadRootId }, ref) => {
+    ({ fileDropContainerRef, roomId, room, textAreaRef, newDesign, threadId }, ref) => {
         const mx = useMatrixClient();
         const [enterForNewline] = useSetting(settingsAtom, 'enterForNewline');
         const [isMarkdown] = useSetting(settingsAtom, 'isMarkdown');
@@ -155,6 +155,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             selectedFiles.map((f) => f.file)
         );
         const uploadBoardHandlers = useRef<UploadBoardImperativeHandlers>();
+        const thread = threadId ? room.getThread(threadId) : null;
 
         const ar = useVoiceRecorder();
 
@@ -372,12 +373,12 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 content['m.mentions']?.user_ids?.push(replyDraft.userId);
             }
 
-            if (threadRootId) {
+            if (thread) {
                 content['m.relates_to'] = {
                     rel_type: 'm.thread',
-                    event_id: threadRootId,
+                    event_id: thread.rootEvent?.getId(),
                     'm.in_reply_to': {
-                        event_id: threadRootId
+                        event_id: thread.rootEvent?.getId()
                     },
                     is_falling_back: true
                 };
@@ -397,7 +398,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             }
 
             return content;
-        }, [mx, room, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, threadRootId, hideReason]);
+        }, [mx, room, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, threadId, thread, hideReason]);
 
         const submit = useCallback(async () => {
             const content = getContent();
@@ -406,15 +407,11 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             } else {
                 ar.stopRecording();
             }
-        }, [mx, roomId, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, ar, threadRootId, setMsgContent]);
+        }, [mx, roomId, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, ar, thread, threadId, setMsgContent]);
 
         const stopRecording = useCallback(() => {
             ar.stopRecording();
         }, [ar]);
-
-        useEffect(() => {
-
-        }, [threadRootId]);
 
         useEffect(() => {
             if (msgContent) {
