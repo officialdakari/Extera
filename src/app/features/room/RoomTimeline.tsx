@@ -961,8 +961,9 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                     body,
                     formattedBody,
                 });
-                // TODO focus
-                textAreaRef.current?.focus();
+                setTimeout(() => {
+                    textAreaRef.current?.focus();
+                }, 10);
             }
         },
         [room, setReplyDraft, textAreaRef]

@@ -1031,8 +1031,9 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                     body,
                     formattedBody,
                 });
-                // TODO focus
-                textAreaRef.current?.focus();
+                setTimeout(() => {
+                    textAreaRef.current?.focus();
+                }, 10);
             }
         },
         [room, setReplyDraft, textAreaRef]

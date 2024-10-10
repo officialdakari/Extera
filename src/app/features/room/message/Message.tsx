@@ -1405,8 +1405,8 @@ export const Message = as<'div', MessageProps>(
                                     <MenuItem
                                         data-event-id={mEvent.getId()}
                                         onClick={(evt: any) => {
-                                            onReplyClick(evt);
                                             closeMenu();
+                                            onReplyClick(evt);
                                         }}
                                     >
                                         <ListItemIcon>
