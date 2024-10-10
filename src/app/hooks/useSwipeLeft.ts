@@ -46,7 +46,7 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
             const dx = Math.abs(event.changedTouches[0].clientX - (sideMoved || 0));
             const dy = Math.abs(event.changedTouches[0].clientY - (sideMovedY || 0));
             const ratio = dy / dx;
-            if (ratio > 10) return setTouchingSide(false);
+            if (ratio > 50) return setTouchingSide(false);
             event.preventDefault();
             if (swipingId == replyId) {
                 if (event.changedTouches.length != 1) setSideMoved(0);
