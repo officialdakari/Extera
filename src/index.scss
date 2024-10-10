@@ -16,6 +16,12 @@ body {
     user-select: none;
 }
 
+// i dont want to get arrested for that flag in my software
+.leaflet-control>a>svg {
+    opacity: 0;
+    display: none !important;
+}
+
 :root {
     /* background color | --bg-[background type]: value */
     --bg-surface: #ffffff;

@@ -1049,7 +1049,7 @@ export const Message = as<'div', MessageProps>(
         }
 
         const childrenRef = useRef<HTMLDivElement>(null);
-        const maxWidthStyle = messageLayout === 2 && (mEvent.getType() === 'm.sticker' || (!['m.text', 'm.notice'].includes(mEvent.getContent().msgtype ?? ''))) ? { maxWidth: `${childrenRef.current?.clientWidth}px` } : undefined;
+        const maxWidthStyle = messageLayout === 2 && (!['m.text', 'm.notice'].includes(mEvent.getContent().msgtype ?? '')) ? { maxWidth: `${childrenRef.current?.clientWidth}px` } : undefined;
 
         const headerJSX = !collapse && (
             <Box

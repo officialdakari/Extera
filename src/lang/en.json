@@ -993,5 +993,6 @@
     "room_card.knocking": "Knocking...",
     "btn.knock": "Knock",
     "msg.blocked": "Blocked message",
-    "room_visibility.knock": "Knock"
+    "room_visibility.knock": "Knock",
+    "title.map": "Map"
 }

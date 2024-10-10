@@ -36,7 +36,7 @@ export const ReplyLayout = as<'div', ReplyLayoutProps>(
             {...props}
             ref={ref}
         >
-            <Box style={{ color: userColor, maxWidth: toRem(200) }} alignItems="Center" shrink="No">
+            <Box style={{ color: userColor, maxWidth: 'inherit' }} alignItems="Center" shrink="No">
                 {username}
             </Box>
             <Box grow="Yes" className={css.ReplyContent}>

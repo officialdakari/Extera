@@ -993,5 +993,6 @@
 	"room_card.knocking": "Запрашиваем...",
 	"btn.knock": "Запросить вход",
 	"msg.blocked": "Сообщение скрыто",
-	"room_visibility.knock": "По запросу"
+	"room_visibility.knock": "По запросу",
+	"title.map": "Карта"
 }
