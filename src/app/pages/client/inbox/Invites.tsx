@@ -308,7 +308,7 @@ export function Invites() {
                     </PageContent>
                 </Scroll>
             </Box>
-            {screenSize === ScreenSize.Mobile && <BottomNav current='inbox' />}
+            {screenSize === ScreenSize.Mobile && <BottomNav />}
         </Page>
     );
 }

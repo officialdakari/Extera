@@ -1,36 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { MenuHeader, MenuItem } from '../../atoms/context-menu/ContextMenu';
 import { getText } from '../../../lang';
 import { mdiCheck } from '@mdi/js';
+import { Menu, MenuItem, Paper } from '@mui/material';
 
 function ImagePackUsageSelector({ usage, onSelect }) {
     return (
-        <div>
-            <MenuHeader>{getText('image_pack.usage')}</MenuHeader>
+        <Paper>
             <MenuItem
-                iconSrc={usage === 'emoticon' ? mdiCheck : undefined}
-                variant={usage === 'emoticon' ? 'positive' : 'surface'}
-                onClick={() => onSelect('emoticon')}
+                selected={usage === 'emoticon'}
+                onClick={() => onSelect('emoji')}
             >
                 {getText('image.usage.emoji')}
             </MenuItem>
             <MenuItem
-                iconSrc={usage === 'sticker' ? mdiCheck : undefined}
-                variant={usage === 'sticker' ? 'positive' : 'surface'}
+                selected={usage === 'sticker'}
                 onClick={() => onSelect('sticker')}
             >
                 {getText('image.usage.sticker')}
             </MenuItem>
             <MenuItem
-                iconSrc={usage === 'both' ? mdiCheck : undefined}
-                variant={usage === 'both' ? 'positive' : 'surface'}
+                selected={usage === 'both'}
                 onClick={() => onSelect('both')}
             >
                 {getText('image.usage.both')}
             </MenuItem>
-        </div>
+        </Paper>
     );
 }
 

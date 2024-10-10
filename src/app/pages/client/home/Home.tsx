@@ -270,7 +270,7 @@ export function Home() {
                     </Box>
                 </PageNavContent>
             )}
-            <BottomNav current='rooms' />
+            <BottomNav />
             {screenSize === ScreenSize.Mobile && (
                 <FAB />
             )}

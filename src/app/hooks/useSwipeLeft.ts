@@ -4,6 +4,7 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
     // States used for swipe-left-reply. Used for animations and determining whether we should reply or not.
     const [isTouchingSide, setTouchingSide] = useState(false);
     const [sideMoved, setSideMoved] = useState(0);
+    const [sideMovedY, setSideMovedY] = useState(0);
     const [sideMovedInit, setSideMovedInit] = useState(0);
     const [swipingId, setSwipingId] = useState("");
 
@@ -42,15 +43,27 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
     function onTouchMove(event: TouchEvent, replyId: string | undefined) {
         if (event.touches.length != 1) return;
         if (isTouchingSide) {
+            const dx = Math.abs(event.changedTouches[0].clientX - (sideMoved || 0));
+            const dy = Math.abs(event.changedTouches[0].clientY - (sideMovedY || 0));
+            const ratio = dy / dx;
+            if (ratio > 10) return setTouchingSide(false);
             event.preventDefault();
             if (swipingId == replyId) {
                 if (event.changedTouches.length != 1) setSideMoved(0);
-                else setSideMoved(sideMoved => {
-                    const newSideMoved = event.changedTouches[0].clientX;
-                    //sideVelocity = (newSideMoved - sideMoved); // / (Date.now() - lastTouch);  
-                    //lastTouch = Date.now();
-                    return newSideMoved;
-                });
+                else {
+                    setSideMoved(sideMoved => {
+                        const newSideMoved = event.changedTouches[0].clientX;
+                        //sideVelocity = (newSideMoved - sideMoved); // / (Date.now() - lastTouch);  
+                        //lastTouch = Date.now();
+                        return newSideMoved;
+                    });
+                    setSideMovedY(sideMovedY => {
+                        const newSideMovedY = event.changedTouches[0].clientY;
+                        //sideVelocity = (newSideMoved - sideMoved); // / (Date.now() - lastTouch);  
+                        //lastTouch = Date.now();
+                        return newSideMovedY;
+                    });
+                }
             }
         }
     }

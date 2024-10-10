@@ -2,10 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './PowerLevelSelector.scss';
 
-import { MenuHeader, MenuItem } from '../../atoms/context-menu/ContextMenu';
-
 import { getText } from '../../../lang';
-import { IconButton, Paper, TextField, useTheme } from '@mui/material';
+import { IconButton, MenuItem, Paper, TextField, useTheme } from '@mui/material';
 import { Check } from '@mui/icons-material';
 
 function PowerLevelSelector({
@@ -40,9 +38,9 @@ function PowerLevelSelector({
                 />
                 <IconButton color="primary" type="submit"><Check /></IconButton>
             </form>
-            {max >= 100 && <MenuItem variant={value === 100 ? 'positive' : 'surface'} onClick={() => onSelect(100)}>{getText('power_level.admin')}</MenuItem>}
-            {max >= 50 && <MenuItem variant={value === 50 ? 'positive' : 'surface'} onClick={() => onSelect(50)}>{getText('power_level.mod')}</MenuItem>}
-            {max >= 0 && <MenuItem variant={value === 0 ? 'positive' : 'surface'} onClick={() => onSelect(0)}>{getText('power_level.member')}</MenuItem>}
+            {max >= 100 && <MenuItem selected={value === 100} onClick={() => onSelect(100)}>{getText('power_level.admin')}</MenuItem>}
+            {max >= 50 && <MenuItem selected={value === 50} onClick={() => onSelect(50)}>{getText('power_level.mod')}</MenuItem>}
+            {max >= 0 && <MenuItem selected={value === 0} onClick={() => onSelect(0)}>{getText('power_level.member')}</MenuItem>}
         </Paper>
     );
 }

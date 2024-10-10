@@ -40,6 +40,7 @@ import { mdiClose, mdiPlus, mdiServerNetwork, mdiServerNetworkOutline, mdiStar, 
 import { AppBar, Toolbar, Typography } from '@mui/material';
 import { useNavHidden } from '../../../hooks/useHideableNav';
 import { Menu } from '@mui/icons-material';
+import BottomNav from '../BottomNav';
 
 export function AddServer() {
     const mx = useMatrixClient();
@@ -270,6 +271,7 @@ export function Explore() {
                     </Box>
                 </Box>
             </PageNavContent>
+            <BottomNav />
         </PageNav>
     );
 }

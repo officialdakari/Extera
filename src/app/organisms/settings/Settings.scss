@@ -3,9 +3,6 @@
 @use '../../partials/screen';
 
 .settings-window {
-    & .pw {
-        background-color: var(--bg-surface-low);
-    }
 
     .header .btn-danger {
         margin: 0 var(--sp-tight);
@@ -21,14 +18,12 @@
     }
 
     &__cards-wrapper {
-        padding: 0 var(--sp-normal);
-        @include dir.side(padding, var(--sp-normal), var(--sp-normal));
+        padding: var(--sp-normal);
     }
 }
 
 .settings-window__card {
     margin: var(--sp-normal) 0;
-    background-color: var(--bg-surface);
     border-radius: var(--bo-radius);
     box-shadow: var(--bs-surface-border);
     overflow: hidden;

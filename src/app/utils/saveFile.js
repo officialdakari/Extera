@@ -28,11 +28,11 @@ export async function saveFile(src, name) {
     const setState = (state) => {
         downloadStatus[src] = state;
     };
-    const token = mx.getAccessToken();
-    if (!src.includes(token)) {
-        src += `${src.includes('?') ? '&' : '?'}access_token=${token}`;
-    }
     if (!window.cordova || cordova.platformId === 'browser') {
+        const token = mx.getAccessToken();
+        if (!src.includes(token)) {
+            src += `${src.includes('?') ? '&' : '?'}access_token=${token}`;
+        }
         FileSaver.saveAs(src, name);
         return;
     }

@@ -3,7 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { DIRECT_PATH, HOME_PATH, INBOX_PATH } from "../paths";
 import { getText } from "../../../lang";
-import { Home, Inbox, Person } from "@mui/icons-material";
+import { BreakfastDiningOutlined, Home, Inbox, Person } from "@mui/icons-material";
 import { mDirectAtom } from "../../state/mDirectList";
 import { useAtomValue } from "jotai";
 import { useDirects } from "../../state/hooks/roomList";
@@ -13,15 +13,60 @@ import { useRoomsUnread } from "../../state/hooks/unread";
 import { roomToUnreadAtom } from "../../state/room/roomToUnread";
 import { useHomeRooms } from "./home/useHomeRooms";
 import { allInvitesAtom } from "../../state/room-list/inviteList";
+import { useNavToActivePathAtom } from "../../state/hooks/navToActivePath";
+import { roomToParentsAtom } from "../../state/room/roomToParents";
+import { useHomeSelected } from "../../hooks/router/useHomeSelected";
+import { getDirectPath, getHomePath, getInboxInvitesPath, getInboxNotificationsPath, getInboxPath, joinPathComponent } from "../pathUtils";
+import { ScreenSize, useScreenSize } from "../../hooks/useScreenSize";
+import { useDirectSelected } from "../../hooks/router/useDirectSelected";
+import { useInboxSelected } from "../../hooks/router/useInbox";
 
-type BottomNavProps = {
-    current?: 'dm' | 'rooms' | 'inbox';
-};
-
-export default function BottomNav({ current }: BottomNavProps) {
+export default function BottomNav() {
     const mx = useMatrixClient();
+    const screenSize = useScreenSize();
 
-    const theme = useTheme();
+    const navToActivePath = useAtomValue(useNavToActivePathAtom());
+    const homeSelected = useHomeSelected();
+    const nav = useNavigate();
+
+    const handleHomeClick = () => {
+        const activePath = navToActivePath.get('home');
+        if (activePath && screenSize !== ScreenSize.Mobile) {
+            nav(joinPathComponent(activePath));
+            return;
+        }
+
+        nav(getHomePath(), { replace: true });
+    };
+
+    const directSelected = useDirectSelected();
+
+    const handleDirectClick = () => {
+        const activePath = navToActivePath.get('direct');
+        if (activePath && screenSize !== ScreenSize.Mobile) {
+            nav(joinPathComponent(activePath), { replace: true });
+            return;
+        }
+
+        nav(getDirectPath(), { replace: true });
+    };
+
+    const inboxSelected = useInboxSelected();
+
+    const handleInboxClick = () => {
+        if (screenSize === ScreenSize.Mobile) {
+            nav(getInboxPath(), { replace: true });
+            return;
+        }
+        const activePath = navToActivePath.get('inbox');
+        if (activePath) {
+            nav(joinPathComponent(activePath), { replace: true });
+            return;
+        }
+
+        const path = inviteCount > 0 ? getInboxInvitesPath() : getInboxNotificationsPath();
+        nav(path);
+    };
 
     const mDirects = useAtomValue(mDirectAtom);
     const directs = useDirects(mx, allRoomsAtom, mDirects);
@@ -33,26 +78,31 @@ export default function BottomNav({ current }: BottomNavProps) {
     const allInvites = useAtomValue(allInvitesAtom);
     const inviteCount = allInvites.length;
 
-    const nav = useNavigate();
-    const onNav = (evt: any, v: string) => {
-        if (v === 'dm') {
-            nav(DIRECT_PATH, {
-                replace: true
-            });
-        } else if (v === 'rooms') {
-            nav(HOME_PATH, {
-                replace: true
-            });
-        } else if (v === 'inbox') {
-            nav(INBOX_PATH, {
-                replace: true
-            });
+    const onNav = (ev: any, value: string) => {
+        switch (value) {
+            case 'rooms':
+                handleHomeClick();
+                break;
+            case 'dm':
+                handleDirectClick();
+                break;
+            case 'inbox':
+                handleInboxClick()
+                break;
         }
     };
 
     return (
         <BottomNavigation
-            value={current}
+            value={
+                homeSelected
+                    ? 'rooms'
+                    : directSelected
+                        ? 'dm'
+                        : inboxSelected
+                            ? 'inbox'
+                            : undefined
+            }
             onChange={onNav}
         >
             <BottomNavigationAction

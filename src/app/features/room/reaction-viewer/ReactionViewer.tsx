@@ -3,10 +3,6 @@ import classNames from 'classnames';
 import {
     Avatar,
     Box,
-    Header,
-    IconButton,
-    Line,
-    MenuItem,
     Scroll,
     Text,
     as,
@@ -26,6 +22,8 @@ import { UserAvatar } from '../../../components/user-avatar';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccount, mdiClose } from '@mdi/js';
+import { AppBar, Divider, IconButton, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
+import { Close } from '@mui/icons-material';
 
 export type ReactionViewerProps = {
     room: Room;
@@ -88,66 +86,62 @@ export const ReactionViewer = as<'div', ReactionViewerProps>(
                         </Box>
                     </Scroll>
                 </Box>
-                <Line variant="Surface" direction="Vertical" size="300" />
+                <Divider orientation='vertical' />
                 <Box grow="Yes" direction="Column">
-                    <Header className={css.Header} variant="Surface" size="600">
-                        <Box grow="Yes">
-                            <Text size="H3">{getText('reaction_viewer.reacted_with', selectedShortcode)}</Text>
-                        </Box>
-                        <IconButton size="300" onClick={requestClose}>
-                            <Icon size={1} path={mdiClose} />
-                        </IconButton>
-                    </Header>
+                    <AppBar position='relative'>
+                        <Toolbar>
+                            <Typography component='div' variant='h6' flexGrow={1}>{getText('reaction_viewer.reacted_with', selectedShortcode)}</Typography>
+                            <IconButton
+                                size='large'
+                                edge='end'
+                                onClick={requestClose}
+                            >
+                                <Close />
+                            </IconButton>
+                        </Toolbar>
+                    </AppBar>
 
-                    <Box grow="Yes">
-                        <Scroll visibility="Hover" hideTrack size="300">
-                            <Box className={css.Content} direction="Column">
-                                {selectedReactions.map((mEvent) => {
-                                    const senderId = mEvent.getSender();
-                                    if (!senderId) return null;
-                                    const member = room.getMember(senderId);
-                                    const name = (member ? getName(member) : getMxIdLocalPart(senderId)) ?? senderId;
+                    <List>
+                        {selectedReactions.map((mEvent) => {
+                            const senderId = mEvent.getSender();
+                            if (!senderId) return null;
+                            const member = room.getMember(senderId);
+                            const name = (member ? getName(member) : getMxIdLocalPart(senderId)) ?? senderId;
 
-                                    const avatarUrl = member?.getAvatarUrl(
-                                        mx.baseUrl,
-                                        100,
-                                        100,
-                                        'crop',
-                                        undefined,
-                                        false
-                                    );
+                            const avatarUrl = member?.getAvatarUrl(
+                                mx.baseUrl,
+                                100,
+                                100,
+                                'crop',
+                                undefined,
+                                false
+                            );
 
-                                    return (
-                                        <MenuItem
-                                            key={senderId}
-                                            style={{ padding: `0 ${config.space.S200}` }}
-                                            radii="400"
-                                            onClick={() => {
-                                                requestClose();
-                                                openProfileViewer(senderId, room.roomId);
-                                            }}
-                                            before={
-                                                <Avatar size="200">
-                                                    <UserAvatar
-                                                        userId={senderId}
-                                                        src={avatarUrl ?? undefined}
-                                                        alt={name}
-                                                        renderFallback={() => <Icon size={1} path={mdiAccount} />}
-                                                    />
-                                                </Avatar>
-                                            }
-                                        >
-                                            <Box grow="Yes">
-                                                <Text size="T400" truncate>
-                                                    {name}
-                                                </Text>
-                                            </Box>
-                                        </MenuItem>
-                                    );
-                                })}
-                            </Box>
-                        </Scroll>
-                    </Box>
+                            return (
+                                <ListItem
+                                    key={senderId}
+                                    onClick={() => {
+                                        requestClose();
+                                        openProfileViewer(senderId, room.roomId);
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <Avatar size="200">
+                                            <UserAvatar
+                                                userId={senderId}
+                                                src={avatarUrl ?? undefined}
+                                                alt={name}
+                                                renderFallback={() => <Icon size={1} path={mdiAccount} />}
+                                            />
+                                        </Avatar>
+                                    </ListItemIcon>
+                                    <ListItemText>
+                                        {name}
+                                    </ListItemText>
+                                </ListItem>
+                            );
+                        })}
+                    </List>
                 </Box>
             </Box>
         );

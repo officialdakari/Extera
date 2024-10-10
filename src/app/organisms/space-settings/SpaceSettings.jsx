@@ -120,7 +120,7 @@ function SpaceSettings() {
         <Dialog
             open={isOpen}
             onClose={requestClose}
-            scroll='paper'
+            scroll='body'
             fullScreen={screenSize === ScreenSize.Mobile}
         >
             <AppBar sx={{ position: 'relative' }}>

@@ -49,22 +49,18 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string; }) {
     const taRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
     const [style, setStyle] = useState<CSSProperties>({});
 
-    const [mxCall, setMxCall] = useState<MatrixCall | undefined>(undefined);
-
     const [callWindow, setCallWindow] = useRoomCall();
 
     const handleCall = async () => {
         if (callWindow) return console.error('A call is already going on');
         const newCall = mx.createCall(room.roomId);
         if (!newCall) return alert('Calls are not supported in your browser!');
-        setMxCall(newCall);
 
         if (!newCall) return;
 
         await newCall.placeVoiceCall();
 
         newCall.on(CallEvent.Hangup, () => {
-            setMxCall(undefined);
             setCallWindow(undefined);
         });
 
@@ -146,7 +142,6 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string; }) {
     };
 
     const onHangup = () => {
-        setMxCall(undefined);
         setCallWindow(undefined);
     };
 
@@ -178,7 +173,6 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string; }) {
 
                     console.debug(`Call offer!!!`, content.offer);
 
-                    setMxCall(call);
                     setCallWindow(
                         <RoomCall room={room} call={call} onHangup={onHangup} invitation={true} video={content.offer.sdp.includes('video')} />
                     );

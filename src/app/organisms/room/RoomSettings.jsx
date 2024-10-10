@@ -143,7 +143,7 @@ function RoomSettings() {
             fullScreen={screenSize === ScreenSize.Mobile}
             open={isOpen}
             onClose={requestClose}
-            scroll='paper'
+            scroll='body'
         >
             {isOpen && (
                 <AppBar position='relative'>

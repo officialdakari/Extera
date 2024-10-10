@@ -332,6 +332,9 @@ function PresenceSection() {
     const statusMsg = mx.getUser(mx.getUserId()).presenceStatusMsg || '';
     const statusMsgRef = useRef();
     const [ghostMode, setGhostMode] = useSetting(settingsAtom, 'extera_ghostMode');
+    const statuses = [
+        'online', 'offline', 'unavailable'
+    ];
 
     const updateStatusMessage = (evt) => {
         evt.preventDefault();
@@ -339,6 +342,7 @@ function PresenceSection() {
         const value = statusInput.value.trim();
         if (value === '') return;
         mx.setPresence({
+            presence: statuses[status],
             status_msg: value
         });
     };
@@ -352,9 +356,6 @@ function PresenceSection() {
                     exclusive
                     value={status}
                     onChange={(evt, index) => {
-                        const statuses = [
-                            'online', 'offline', 'unavailable'
-                        ];
                         mx.setSyncPresence(statuses[index]);
                         mx.setPresence({
                             presence: statuses[index],
@@ -891,6 +892,7 @@ function Settings() {
             open={isOpen}
             onClose={requestClose}
             fullScreen={screenSize === ScreenSize.Mobile}
+            scroll='body'
         >
             <input type='file' accept='image/*' onChange={uploadImage} ref={uploadImageRef} style={{ display: 'none' }} />
             {isOpen && (

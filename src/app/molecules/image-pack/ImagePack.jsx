@@ -257,7 +257,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete }) {
             getText('delete_pack.title'),
             getText('delete_pack.desc', pack.displayName),
             getText('btn.delete_pack'),
-            'danger',
+            'error',
         );
         if (!isConfirmed) return;
         handlePackDelete(stateKey);
@@ -310,7 +310,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete }) {
                             }
                         </Button>
                     )}
-                    {handlePackDelete && <Button variant="danger" onClick={handleDeletePack}>{getText('btn.delete_pack')}</Button>}
+                    {handlePackDelete && <Button variant="outlined" color='error' onClick={handleDeletePack}>{getText('btn.delete_pack')}</Button>}
                 </div>
             )}
             <div className="image-pack__global">

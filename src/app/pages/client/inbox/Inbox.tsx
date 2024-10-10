@@ -93,7 +93,7 @@ export function Inbox() {
                     </NavCategory>
                 </Box>
             </PageNavContent>
-            <BottomNav current='inbox' />
+            <BottomNav />
         </PageNav>
     );
 }

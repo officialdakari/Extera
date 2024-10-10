@@ -7,14 +7,13 @@ import { getEventCords } from '../../../util/common';
 
 import Text from '../../atoms/text/Text';
 import Avatar from '../../atoms/avatar/Avatar';
-import Button from '../../atoms/button/Button';
-import IconButton from '../../atoms/button/IconButton';
-import Input from '../../atoms/input/Input';
 import ImageUpload from '../image-upload/ImageUpload';
 import ImagePackUsageSelector from './ImagePackUsageSelector';
 
 import { getText } from '../../../lang';
 import { mdiChevronDown, mdiPencil } from '@mdi/js';
+import { Button, IconButton, TextField } from '@mui/material';
+import { Edit, KeyboardArrowDown } from '@mui/icons-material';
 
 function ImagePackProfile({
     avatarUrl, displayName, attribution, usage,
@@ -70,10 +69,10 @@ function ImagePackProfile({
                     isEdit
                         ? (
                             <form onSubmit={handleSubmit}>
-                                <Input name="nameInput" label={getText('label.name')} value={displayName} required />
-                                <Input name="attributionInput" label={getText('label.attribution')} value={attribution} resizable />
+                                <TextField name="nameInput" label={getText('label.name')} defaultValue={displayName} required />
+                                <TextField name="attributionInput" label={getText('label.attribution')} defaultValue={attribution} multiline />
                                 <div>
-                                    <Button variant="primary" type="submit">{getText('btn.save')}</Button>
+                                    <Button variant="contained" type="submit">{getText('btn.save')}</Button>
                                     <Button onClick={() => setIsEdit(false)}>{getText('btn.cancel')}</Button>
                                 </div>
                             </form>
@@ -81,7 +80,7 @@ function ImagePackProfile({
                             <>
                                 <div>
                                     <Text>{displayName}</Text>
-                                    {onEditProfile && <IconButton size="extra-small" onClick={() => setIsEdit(true)} src={mdiPencil} tooltip={getText('tooltip.edit')} />}
+                                    {onEditProfile && <IconButton onClick={() => setIsEdit(true)}><Edit /></IconButton>}
                                 </div>
                                 {attribution && <Text variant="b3">{attribution}</Text>}
                             </>
@@ -92,13 +91,12 @@ function ImagePackProfile({
                 <Text variant="b3">{getText('image_pack.pack_usage')}</Text>
                 <Button
                     onClick={onUsageChange ? handleUsageSelect : undefined}
-                    iconSrc={onUsageChange ? mdiChevronDown : null}
+                    endIcon={onUsageChange && <KeyboardArrowDown />}
+                    color='inherit'
                 >
-                    <Text>
-                        {usage === 'emoticon' && getText('image.usage.emoji')}
-                        {usage === 'sticker' && getText('image.usage.sticker')}
-                        {usage === 'both' && getText('image.usage.both')}
-                    </Text>
+                    {usage === 'emoticon' && getText('image.usage.emoji')}
+                    {usage === 'sticker' && getText('image.usage.sticker')}
+                    {usage === 'both' && getText('image.usage.both')}
                 </Button>
             </div>
         </div>

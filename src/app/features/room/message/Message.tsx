@@ -655,6 +655,9 @@ export const MessageTranslateItem = as<
                 <DialogContent>
                     {message}
                 </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>{getText('btn.close')}</Button>
+                </DialogActions>
             </Dialog>
             <MenuItem
                 onClick={handleClick}
@@ -1244,7 +1247,7 @@ export const Message = as<'div', MessageProps>(
             };
         }, [mx, mEvent]);
 
-        console.log(status);
+        const isTouch = 'ontouchstart' in window;
 
         return (
             <MessageBase
@@ -1262,67 +1265,80 @@ export const Message = as<'div', MessageProps>(
             >
                 {!edit && (hover || !!menuAnchor || !!emojiBoardAnchor) && (
                     <div className={css.MessageOptionsBase}>
-                        {status === EventStatus.SENT && (
+                        {!isTouch && (
                             <>
-                                {canSendReaction && (
+                                {status === EventStatus.SENT && (
                                     <>
-                                        <Menu anchorEl={emojiBoardAnchor} open={!!emojiBoardAnchor}>
-                                            <EmojiBoard
-                                                imagePackRooms={imagePackRooms ?? []}
-                                                returnFocusOnDeactivate={false}
-                                                allowTextCustomEmoji
-                                                onEmojiSelect={(key) => {
-                                                    onReactionToggle(mEvent.getId()!, key);
-                                                    setEmojiBoardAnchor(null);
-                                                }}
-                                                onCustomEmojiSelect={(mxc, shortcode) => {
-                                                    onReactionToggle(mEvent.getId()!, mxc, shortcode);
-                                                    setEmojiBoardAnchor(null);
-                                                }}
-                                                requestClose={() => {
-                                                    setEmojiBoardAnchor(null);
-                                                }}
-                                            />
-                                        </Menu>
+                                        {canSendReaction && (
+                                            <>
+                                                <Menu anchorEl={emojiBoardAnchor} open={!!emojiBoardAnchor}>
+                                                    <EmojiBoard
+                                                        imagePackRooms={imagePackRooms ?? []}
+                                                        returnFocusOnDeactivate={false}
+                                                        allowTextCustomEmoji
+                                                        onEmojiSelect={(key) => {
+                                                            onReactionToggle(mEvent.getId()!, key);
+                                                            setEmojiBoardAnchor(null);
+                                                        }}
+                                                        onCustomEmojiSelect={(mxc, shortcode) => {
+                                                            onReactionToggle(mEvent.getId()!, mxc, shortcode);
+                                                            setEmojiBoardAnchor(null);
+                                                        }}
+                                                        requestClose={() => {
+                                                            setEmojiBoardAnchor(null);
+                                                        }}
+                                                    />
+                                                </Menu>
+                                                <IconButton
+                                                    onClick={handleOpenEmojiBoard}
+                                                    variant="SurfaceVariant"
+                                                    size="300"
+                                                    radii="300"
+                                                    aria-pressed={!!emojiBoardAnchor}
+                                                >
+                                                    <Icon size={1} path={mdiEmoticonPlus} />
+                                                </IconButton>
+                                            </>
+                                        )}
                                         <IconButton
-                                            onClick={handleOpenEmojiBoard}
+                                            onClick={onReplyClick}
+                                            data-event-id={mEvent.getId()}
                                             variant="SurfaceVariant"
                                             size="300"
                                             radii="300"
-                                            aria-pressed={!!emojiBoardAnchor}
                                         >
-                                            <Icon size={1} path={mdiEmoticonPlus} />
+                                            <Icon size={1} path={mdiReply} />
                                         </IconButton>
+                                        <IconButton
+                                            onClick={onDiscussClick}
+                                            data-event-id={mEvent.getId()}
+                                            variant="SurfaceVariant"
+                                            size="300"
+                                            radii="300"
+                                        >
+                                            <Icon size={1} path={mdiMessage} />
+                                        </IconButton>
+                                        {canEditEvent(mx, mEvent) && onEditId && (
+                                            <IconButton
+                                                onClick={() => onEditId(mEvent.getId())}
+                                                variant="SurfaceVariant"
+                                                size="300"
+                                                radii="300"
+                                            >
+                                                <Icon size={1} path={mdiPencil} />
+                                            </IconButton>
+                                        )}
                                     </>
                                 )}
                                 <IconButton
-                                    onClick={onReplyClick}
-                                    data-event-id={mEvent.getId()}
                                     variant="SurfaceVariant"
                                     size="300"
                                     radii="300"
+                                    onClick={handleOpenMenu}
+                                    aria-pressed={!!menuAnchor}
                                 >
-                                    <Icon size={1} path={mdiReply} />
+                                    <Icon size={1} path={mdiDotsVertical} />
                                 </IconButton>
-                                <IconButton
-                                    onClick={onDiscussClick}
-                                    data-event-id={mEvent.getId()}
-                                    variant="SurfaceVariant"
-                                    size="300"
-                                    radii="300"
-                                >
-                                    <Icon size={1} path={mdiMessage} />
-                                </IconButton>
-                                {canEditEvent(mx, mEvent) && onEditId && (
-                                    <IconButton
-                                        onClick={() => onEditId(mEvent.getId())}
-                                        variant="SurfaceVariant"
-                                        size="300"
-                                        radii="300"
-                                    >
-                                        <Icon size={1} path={mdiPencil} />
-                                    </IconButton>
-                                )}
                             </>
                         )}
                         <Menu open={!!menuAnchor} anchorEl={menuAnchor} onClose={closeMenu}>
@@ -1500,15 +1516,6 @@ export const Message = as<'div', MessageProps>(
                                 />
                             )}
                         </Menu>
-                        <IconButton
-                            variant="SurfaceVariant"
-                            size="300"
-                            radii="300"
-                            onClick={handleOpenMenu}
-                            aria-pressed={!!menuAnchor}
-                        >
-                            <Icon size={1} path={mdiDotsVertical} />
-                        </IconButton>
                     </div>
                 )
                 }

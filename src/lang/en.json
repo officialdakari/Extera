@@ -992,5 +992,6 @@
     "pick_a_server": "Server list",
     "room_card.knocking": "Knocking...",
     "btn.knock": "Knock",
-    "msg.blocked": "Blocked message"
+    "msg.blocked": "Blocked message",
+    "room_visibility.knock": "Knock"
 }

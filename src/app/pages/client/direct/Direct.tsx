@@ -236,7 +236,7 @@ export function Direct() {
                     </Box>
                 </PageNavContent>
             )}
-            <BottomNav current='dm' />
+            <BottomNav />
             {screenSize === ScreenSize.Mobile && (
                 <FAB />
             )}

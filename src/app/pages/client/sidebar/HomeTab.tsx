@@ -91,9 +91,10 @@ export function HomeTab() {
     return (
         <>
             <ListItemButton
-                selected={homeSelected}
+                component='a'
                 onClick={handleHomeClick}
                 onContextMenu={handleContextMenu}
+                selected={homeSelected}
             >
                 <ListItemIcon>
                     <Badge badgeContent={homeUnread?.total} max={99} color={homeUnread?.highlight ? 'error' : 'primary'}>

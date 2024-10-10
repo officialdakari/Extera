@@ -89,6 +89,7 @@ export function DirectTab() {
     return (
         <>
             <ListItemButton
+                component='a'
                 selected={directSelected}
                 onClick={handleDirectClick}
                 onContextMenu={handleContextMenu}

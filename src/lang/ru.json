@@ -992,5 +992,6 @@
 	"pick_a_server": "Список серверов",
 	"room_card.knocking": "Запрашиваем...",
 	"btn.knock": "Запросить вход",
-	"msg.blocked": "Сообщение скрыто"
+	"msg.blocked": "Сообщение скрыто",
+	"room_visibility.knock": "По запросу"
 }

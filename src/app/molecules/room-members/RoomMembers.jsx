@@ -22,7 +22,7 @@ import cons from '../../../client/state/cons';
 import { VerificationBadge } from '../../components/verification-badge/VerificationBadge';
 import { TextField, ToggleButton, ToggleButtonGroup, useTheme } from '@mui/material';
 import { SearchContainer, SearchIcon, SearchIconWrapper, SearchInputBase } from '../../atoms/search/Search';
-import { Person, PersonAdd, PersonOff } from '@mui/icons-material';
+import { AccessTime, Person, PersonAdd, PersonOff } from '@mui/icons-material';
 
 const PER_PAGE_MEMBER = 50;
 
@@ -182,6 +182,13 @@ function RoomMembers({ roomId }) {
                         onClick={() => setMembership('join')}
                     >
                         <Person />
+                    </ToggleButton>
+                    <ToggleButton
+                        size='small'
+                        selected={membership === 'knock'}
+                        onClick={() => setMembership('knock')}
+                    >
+                        <AccessTime />
                     </ToggleButton>
                     <ToggleButton
                         size='small'

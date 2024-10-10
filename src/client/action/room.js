@@ -129,15 +129,16 @@ async function sendExteraProfile(roomId) {
         const exteraProfile = exteraProfileEvent ? exteraProfileEvent.getContent() : {};
         const newEntries = Object.fromEntries(Object.entries(exteraProfile).map(([k, v]) => [`xyz.extera.${k}`, v]));
         for (const key of Object.keys(membershipContent).concat(Object.keys(newEntries))) {
+            if (!key.startsWith('xyz.extera.')) continue;
             if (newEntries[key] !== membershipContent[key]) {
                 await mx.sendStateEvent(roomId, 'm.room.member', {
                     ...membershipContent,
                     ...newEntries
                 }, mx.getUserId());
-                break;  
+                break;
             }
         }
-        
+
     } catch (e) {
         console.error(e);
         throw new Error(e);
