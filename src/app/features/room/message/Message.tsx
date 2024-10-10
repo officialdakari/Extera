@@ -1248,6 +1248,10 @@ export const Message = as<'div', MessageProps>(
         }, [mx, mEvent]);
 
         const isTouch = 'ontouchstart' in window;
+        const isSticker = useMemo(
+            () => mEvent.getType() === 'm.sticker',
+            [mEvent]
+        );
 
         return (
             <MessageBase
@@ -1527,7 +1531,7 @@ export const Message = as<'div', MessageProps>(
                 )}
                 {
                     messageLayout === 2 && (
-                        <BubbleLayout before={userId !== senderId && avatarJSX} rightAligned={userId === senderId} onContextMenu={handleContextMenu}>
+                        <BubbleLayout transparent={isSticker} before={userId !== senderId && avatarJSX} rightAligned={userId === senderId} onContextMenu={handleContextMenu}>
                             {headerJSX}
                             {msgContentJSX}
                             {footerJSX}

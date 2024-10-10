@@ -154,6 +154,10 @@ export const BubbleContentRightAligned = style([
     }
 ]);
 
+export const BubbleContentTransparent = style({
+    background: 'transparent'
+});
+
 export const BubbleAfter = style({
     position: 'relative',
     //top: '.375rem',
