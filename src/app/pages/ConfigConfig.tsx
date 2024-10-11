@@ -3,12 +3,13 @@ import React from 'react';
 import { SplashScreen } from '../components/splash-screen';
 import { RandomFact } from '../../fact';
 import { getText } from '../../lang';
+import { CircularProgress } from '@mui/material';
 
 export function ConfigConfigLoading() {
     return (
         <SplashScreen>
             <Box grow="Yes" direction="Column" gap="400" alignItems="Center" justifyContent="Center">
-                <Spinner variant="Secondary" size="600" />
+                <CircularProgress />
                 <Text>
                     {getText('loading')}
                 </Text>

@@ -288,3 +288,4 @@ function CreateRoom() {
 }
 
 export default CreateRoom;
+export { CreateRoomContent };

@@ -8,6 +8,8 @@ import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import { PowerLevelsContextProvider, usePowerLevels } from '../../hooks/usePowerLevels';
 import { useRoom } from '../../hooks/useRoom';
+import { AnimatePresence } from 'framer-motion';
+import { AnimatedLayout } from '../../components/page';
 
 export function Room() {
     const { eventId } = useParams();
@@ -21,12 +23,14 @@ export function Room() {
         <PowerLevelsContextProvider value={powerLevels}>
             <Box grow="Yes">
                 <RoomView room={room} eventId={eventId} />
-                {screenSize === ScreenSize.Desktop && isDrawer && (
-                    <>
-                        <Line variant="Background" direction="Vertical" size="300" />
-                        <MembersDrawer key={room.roomId} room={room} />
-                    </>
-                )}
+                <AnimatePresence>
+                    {screenSize === ScreenSize.Desktop && isDrawer && (
+                        <>
+                            <Line variant="Background" direction="Vertical" size="300" />
+                            <MembersDrawer key={room.roomId} room={room} />
+                        </>
+                    )}
+                </AnimatePresence>
             </Box>
         </PowerLevelsContextProvider>
     );

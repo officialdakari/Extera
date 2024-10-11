@@ -172,20 +172,22 @@ export function Explore() {
     const [, setNavHidden] = useNavHidden();
 
     return (
-        <PageNav>
-            <AppBar color='inherit' enableColorOnDark position='static'>
-                <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
-                    <IconButton
-                        onClick={() => setNavHidden(false)}
-                    >
-                        <Menu />
-                    </IconButton>
-                    <Typography component='div' variant='h6' flexGrow={1}>
-                        {getText('explore.title')}
-                    </Typography>
-                </Toolbar>
-            </AppBar>
-
+        <PageNav
+            header={
+                <AppBar color='inherit' enableColorOnDark position='static'>
+                    <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
+                        <IconButton
+                            onClick={() => setNavHidden(false)}
+                        >
+                            <Menu />
+                        </IconButton>
+                        <Typography component='div' variant='h6' flexGrow={1}>
+                            {getText('explore.title')}
+                        </Typography>
+                    </Toolbar>
+                </AppBar>
+            }
+        >
             <PageNavContent>
                 <Box direction="Column" gap="300">
                     <NavCategory>
@@ -271,7 +273,6 @@ export function Explore() {
                     </Box>
                 </Box>
             </PageNavContent>
-            <BottomNav />
         </PageNav>
     );
 }

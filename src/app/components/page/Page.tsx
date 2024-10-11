@@ -1,10 +1,14 @@
-import React, { ComponentProps, MutableRefObject, ReactNode } from 'react';
-import { Box, Header, Line, Scroll, Text, as } from 'folds';
+import React, { ComponentProps, MutableRefObject, PropsWithChildren, ReactNode, RefObject } from 'react';
+import { AsProp, Box, Header, Line, Scroll, Text, as } from 'folds';
 import classNames from 'classnames';
 import { ContainerColor } from '../../styles/ContainerColor.css';
 import * as css from './style.css';
-import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
+import { ScreenSize, useScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 import { useTheme } from '@mui/material';
+import { AnimatePresence, HTMLMotionProps, Variants, motion } from 'framer-motion';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import BottomNav from '../../pages/client/BottomNav';
+import { MotionBox } from '../../atoms/motion/Animated';
 
 type PageRootProps = {
     nav: ReactNode;
@@ -27,8 +31,9 @@ export function PageRoot({ nav, children }: PageRootProps) {
 
 type ClientDrawerLayoutProps = {
     children: ReactNode;
+    header?: ReactNode;
 };
-export function PageNav({ children }: ClientDrawerLayoutProps) {
+export function PageNav({ children, header, ...props }: ClientDrawerLayoutProps & HTMLMotionProps<'div'>) {
     const screenSize = useScreenSizeContext();
     const isMobile = screenSize === ScreenSize.Mobile;
 
@@ -39,7 +44,15 @@ export function PageNav({ children }: ClientDrawerLayoutProps) {
             shrink={isMobile ? 'Yes' : 'No'}
         >
             <Box grow="Yes" direction="Column">
-                {children}
+                {header}
+                <MobileAnimatedLayout
+                    initial='exit'
+                    style={{ height: '100%' }}
+                    {...props}
+                >
+                    {children}
+                </MobileAnimatedLayout>
+                <BottomNav />
             </Box>
         </Box>
     );
@@ -78,7 +91,77 @@ export function PageNavContent({
     );
 }
 
-export const Page = as<'div'>(({ className, ...props }, ref) => {
+const PageAnimationVariants: Variants = {
+    initial: {
+        translateX: '50%',
+        opacity: 0.3,
+        transition: {
+            ease: 'linear'
+        },
+    },
+    final: {
+        translateX: '0%',
+        opacity: 1,
+        transition: {
+            ease: 'linear'
+        },
+    },
+    exit: {
+        translateX: '-50%',
+        opacity: 0.3,
+        transition: {
+            ease: 'linear'
+        },
+    }
+};
+
+export function AnimatedLayout(props: PropsWithChildren & HTMLMotionProps<'div'>) {
+    return (
+        <motion.div
+            initial='initial'
+            animate='final'
+            exit='exit'
+            variants={PageAnimationVariants}
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+            }}
+            layoutScroll
+            {...props}
+        />
+    );
+}
+
+export function AnimatedNode(props: PropsWithChildren & HTMLMotionProps<'div'>) {
+    return (
+        <motion.div
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+            }}
+            {...props}
+        />
+    );
+}
+
+export function MobileAnimatedLayout(props: PropsWithChildren & HTMLMotionProps<'div'>) {
+    const screenSize = useScreenSize();
+    if (screenSize === ScreenSize.Mobile) {
+        return (
+            <MotionBox
+                initial='initial'
+                animate='final'
+                exit='exit'
+                variants={PageAnimationVariants}
+                direction='Column'
+                {...props}
+            />
+        );
+    }
+    return props.children;
+}
+
+export const Page = as<'div'>(({ className, children, ...props }, ref) => {
     const theme = useTheme();
     return (
         <Box
@@ -87,7 +170,24 @@ export const Page = as<'div'>(({ className, ...props }, ref) => {
             style={{ backgroundColor: theme.palette.background.default }}
             {...props}
             ref={ref}
-        />
+        >
+            <AnimatePresence>
+                <motion.div
+                    initial='initial'
+                    animate='final'
+                    exit='exit'
+                    variants={PageAnimationVariants}
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: '100%'
+                    }}
+                    layoutScroll
+                >
+                    {children}
+                </motion.div>
+            </AnimatePresence>
+        </Box>
     );
 });
 

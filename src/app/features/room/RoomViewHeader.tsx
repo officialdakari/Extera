@@ -14,7 +14,7 @@ import { EventTimeline, EventType, JoinRule, MatrixEvent, Room } from 'matrix-js
 import { useAtomValue } from 'jotai';
 
 import { useStateEvent } from '../../hooks/useStateEvent';
-import { PageHeader } from '../../components/page';
+import { AnimatedLayout, AnimatedNode, PageHeader } from '../../components/page';
 import { RoomAvatar, RoomIcon } from '../../components/room-avatar';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { RoomTopicViewer } from '../../components/room-topic-viewer';
@@ -618,14 +618,18 @@ export function RoomViewHeader({
                             </IconButton>
                         </Box>
                         <Box grow="Yes" alignItems="Center" gap="300">
-                            <Avatar onClick={handleAvClick} size="400">
-                                <RoomAvatar
-                                    roomId={room.roomId}
-                                    src={avatarUrl}
-                                    alt={name}
-                                    renderFallback={() => nameInitials(name)}
-                                />
-                            </Avatar>
+                            <AnimatedNode
+                                whileHover={{ scale: 1.2 }}
+                            >
+                                <Avatar onClick={handleAvClick} size="400">
+                                    <RoomAvatar
+                                        roomId={room.roomId}
+                                        src={avatarUrl}
+                                        alt={name}
+                                        renderFallback={() => nameInitials(name)}
+                                    />
+                                </Avatar>
+                            </AnimatedNode>
                             <Box direction="Column">
                                 <Text size={(topic ?? statusMessage) ? 'H5' : 'H3'} truncate>
                                     {name}

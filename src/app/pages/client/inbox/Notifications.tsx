@@ -676,7 +676,6 @@ export function Notifications() {
                     </PageContent>
                 </Scroll>
             </Box>
-            {screenSize === ScreenSize.Mobile && <BottomNav />}
         </Page>
     );
 }

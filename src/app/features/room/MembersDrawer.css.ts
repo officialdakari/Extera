@@ -2,9 +2,7 @@ import { keyframes, style } from '@vanilla-extract/css';
 import { color, config, toRem } from 'folds';
 
 export const MembersDrawer = style({
-    width: toRem(266),
-    backgroundColor: color.Background.Container,
-    color: color.Background.OnContainer,
+    width: toRem(266)
 });
 
 export const MembersDrawerHeader = style({
@@ -15,19 +13,22 @@ export const MembersDrawerHeader = style({
 
 export const MemberDrawerContentBase = style({
     position: 'relative',
-    overflow: 'hidden',
+    overflow: 'auto',
 });
 
 export const MemberDrawerContent = style({
     padding: `${config.space.S200} 0`,
 });
 
-const ScrollBtnAnime = keyframes({
+const ScrollBtnAnim = keyframes({
     '0%': {
-        transform: `translate(-50%, -100%) scale(0)`,
+        transform: `scale(0)`,
+    },
+    '50%': {
+        transform: `scale(0.5)`,
     },
     '100%': {
-        transform: `translate(-50%, 0) scale(1)`,
+        transform: `scale(1)`,
     },
 });
 
@@ -37,7 +38,7 @@ export const DrawerScrollTop = style({
     left: '50%',
     transform: 'translateX(-50%)',
     zIndex: 1,
-    animation: `${ScrollBtnAnime} 100ms`,
+    animation: `${ScrollBtnAnim} 100ms`,
 });
 
 export const DrawerGroup = style({

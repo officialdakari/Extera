@@ -54,6 +54,8 @@ import { useAccountData } from '../../hooks/useAccountData';
 import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
 import { Close, HideImage, Image, Logout } from '@mui/icons-material';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
+import { AnimatePresence } from 'framer-motion';
+import { AnimatedLayout } from '../../components/page';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
@@ -193,20 +195,6 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.msg_spacing.title')}
                     content={
-                        // <SegmentedControls
-                        //     selected={spacings.findIndex((s) => s === messageSpacing)}
-                        //     segments={[
-                        //         { text: 'No' },
-                        //         { text: 'XXS' },
-                        //         { text: 'XS' },
-                        //         { text: 'S' },
-                        //         { text: 'M' },
-                        //         { text: 'L' },
-                        //     ]}
-                        //     onSelect={(index) => {
-                        //         setMessageSpacing(spacings[index])
-                        //     }}
-                        // />
                         <ToggleButtonGroup
                             exclusive
                             value={spacings.findIndex((s) => s === messageSpacing)}

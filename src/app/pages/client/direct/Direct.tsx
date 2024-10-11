@@ -195,8 +195,7 @@ export function Direct() {
     );
 
     return (
-        <PageNav>
-            <DirectHeader />
+        <PageNav header={<DirectHeader />}>
             <SyncStateAlert />
             {noRoomToDisplay ? (
                 <DirectEmpty />
@@ -236,7 +235,6 @@ export function Direct() {
                     </Box>
                 </PageNavContent>
             )}
-            <BottomNav />
             {screenSize === ScreenSize.Mobile && (
                 <FAB />
             )}

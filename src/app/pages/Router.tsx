@@ -41,7 +41,6 @@ import {
     getOriginBaseUrl,
     getSpaceLobbyPath,
 } from './pathUtils';
-import { AnimatePresence, motion } from 'framer-motion';
 import { ClientBindAtoms, ClientLayout, ClientRoot } from './client';
 import { Home, HomeRouteRoomProvider, HomeSearch } from './client/home';
 import { Direct, DirectRouteRoomProvider } from './client/direct';
@@ -58,19 +57,21 @@ import { ScreenSize } from '../hooks/useScreenSize';
 import { MobileFriendlyPageNav, MobileFriendlyClientNav } from './MobileFriendly';
 import { ClientInitStorageAtom } from './client/ClientInitStorageAtom';
 import { ClientNonUIFeatures } from './client/ClientNonUIFeatures';
-import AnimatedLayout from './AnimatedLayout';
-import CreateRoom from '../organisms/create-room/CreateRoom';
-import { useNavHidden } from '../hooks/useHideableNav';
+import CreateRoom, { CreateRoomContent } from '../organisms/create-room/CreateRoom';
 import SearchTab from './client/sidebar/SearchTab';
-import { ThreadProvider } from '../hooks/useThread';
 import { Thread } from '../features/thread/Thread';
+import ErrorScreen from '../organisms/error-screen/ErrorScreen';
+import BottomNav from './client/BottomNav';
+import { Box } from 'folds';
 
 export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize) => {
     const { hashRouter } = clientConfig;
     const mobile = screenSize === ScreenSize.Mobile;
 
     const routes = createRoutesFromElements(
-        <Route>
+        <Route
+            errorElement={<ErrorScreen />}
+        >
             <Route
                 index
                 loader={() => {
@@ -158,7 +159,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                     }
                 >
                     {mobile ? null : <Route index element={<WelcomePage />} />}
-                    <Route path={_CREATE_PATH} element={<CreateRoom />} />
+                    <Route path={_CREATE_PATH} element={<CreateRoomContent isSpace={false} onRequestClose={() => false} />} />
                     <Route path={_JOIN_PATH} element={<p>join</p>} />
                     <Route path={_SEARCH_PATH} element={<HomeSearch />} />
                     <Route

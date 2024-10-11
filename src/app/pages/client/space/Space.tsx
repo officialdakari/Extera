@@ -296,8 +296,7 @@ export function Space() {
         getSpaceRoomPath(spaceIdOrAlias, getCanonicalAliasOrRoomId(mx, roomId));
 
     return (
-        <PageNav>
-            <SpaceHeader />
+        <PageNav header={<SpaceHeader />}>
             <PageNavContent scrollRef={scrollRef}>
                 <Box flexDirection='column' gap='300'>
                     <NavCategory>
@@ -373,7 +372,6 @@ export function Space() {
                     </NavCategory>
                 </Box>
             </PageNavContent>
-            <BottomNav />
             {screenSize === ScreenSize.Mobile && (
                 <FAB />
             )}

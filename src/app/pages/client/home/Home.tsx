@@ -224,13 +224,8 @@ export function Home() {
         overscan: 10,
     });
 
-    const handleCategoryClick = useCategoryHandler(setClosedCategories, (categoryId) =>
-        closedCategories.has(categoryId)
-    );
-
     return (
-        <PageNav>
-            <HomeHeader />
+        <PageNav header={<HomeHeader />}>
             <SyncStateAlert />
             {noRoomToDisplay ? (
                 <HomeEmpty />
@@ -270,7 +265,6 @@ export function Home() {
                     </Box>
                 </PageNavContent>
             )}
-            <BottomNav />
             {screenSize === ScreenSize.Mobile && (
                 <FAB />
             )}

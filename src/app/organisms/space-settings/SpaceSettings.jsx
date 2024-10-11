@@ -162,7 +162,7 @@ function SpaceSettings() {
                     hidden={selectedTab !== index}
                     id={`vertical-tabpanel-${index}`}
                     aria-labelledby={`vertical-tab-${index}`}
-                    style={{ maxWidth: '100%', flexGrow: 1, backgroundColor: theme.palette.background.paper }}
+                    style={{ maxWidth: '100%', flexGrow: 1, backgroundColor: theme.palette.background.paper, padding: 1 }}
                 >
                     {selectedTab === index && (
                         <Box

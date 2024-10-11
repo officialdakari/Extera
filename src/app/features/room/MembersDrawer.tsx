@@ -16,6 +16,7 @@ import {
     Scroll,
     Text,
     config,
+    toRem,
 } from 'folds';
 import { Room, RoomMember } from 'matrix-js-sdk';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -54,6 +55,9 @@ import { VerificationBadge } from '../../components/verification-badge/Verificat
 import { AppBar, Chip, CircularProgress, Fab, IconButton, ListItemText, Menu, MenuItem, Paper, Toolbar, Typography } from '@mui/material';
 import { Filter, FilterAlt, KeyboardArrowUp, Sort } from '@mui/icons-material';
 import { SearchContainer, SearchIcon, SearchIconWrapper, SearchInputBase } from '../../atoms/search/Search';
+import { AnimatedLayout } from '../../components/page';
+import { motion } from 'framer-motion';
+import { MotionBox } from '../../atoms/motion/Animated';
 
 export const MembershipFilters = {
     filterJoined: (m: RoomMember) => m.membership === Membership.Join,
@@ -282,7 +286,22 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
     }, [members, mx]);
 
     return (
-        <Box className={css.MembersDrawer} shrink="No" direction="Column">
+        <MotionBox
+            shrink="No"
+            direction="Column"
+            initial={{
+                width: 0,
+                opacity: 0.1,
+            }}
+            exit={{
+                width: 0,
+                opacity: 0.1,
+            }}
+            animate={{
+                width: toRem(266),
+                opacity: 1,
+            }}
+        >
             <AppBar position='relative'>
                 <Toolbar>
                     <Typography variant='h6'>
@@ -479,6 +498,6 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                     </Box>
                 </Scroll>
             </Box>
-        </Box>
+        </MotionBox>
     );
 }
