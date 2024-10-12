@@ -156,7 +156,7 @@ export const BubbleContent = style({
     padding: config.space.S200,
     backgroundColor: color.SurfaceVariant.Container,
     color: color.SurfaceVariant.OnContainer,
-    borderRadius: config.radii.R500,
+    borderRadius: config.radii.R400,
     position: 'relative',
 });
 
