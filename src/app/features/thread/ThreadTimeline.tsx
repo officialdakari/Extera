@@ -1089,7 +1089,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
         [textAreaRef]
     );
 
-    const { isTouchingSide, sideMoved, sideMovedInit, swipingId, onTouchStart, onTouchMove, onTouchEnd } = useSwipeLeft(handleReplyId);
+    const { isTouchingSide, sideMoved, sideMovedInit, swipingId, onTouchStart, onTouchMove, onTouchEnd, animate } = useSwipeLeft(handleReplyId);
 
     const renderMatrixEvent = useMatrixEventRenderer<
         [string, MatrixEvent, number, EventTimelineSet, boolean]
@@ -1148,7 +1148,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                         onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
                         onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
                         onTouchEnd={onTouchEnd}
-                        style={{ transform: `translateX(${isTouchingSide && mEvent.getId() == swipingId ? clamp(sideMoved - sideMovedInit, -window.innerWidth / 2, 0) : 0}px)` }}
+                        replySwipeAnimation={swipingId === mEvent.getId() && animate}
                         onReactionToggle={handleReactionToggle}
                         onEditId={handleEdit}
                         thread={
@@ -1236,7 +1236,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                         onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
                         onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
                         onTouchEnd={onTouchEnd}
-                        style={{ transform: `translateX(${isTouchingSide && mEvent.getId() == swipingId ? clamp(sideMoved - sideMovedInit, -window.innerWidth, 0) : 0}px)` }}
+                        replySwipeAnimation={swipingId === mEvent.getId() && animate}
                         onReactionToggle={handleReactionToggle}
                         onEditId={handleEdit}
                         thread={
@@ -1356,7 +1356,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                         onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
                         onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
                         onTouchEnd={onTouchEnd}
-                        style={{ transform: `translateX(${isTouchingSide && mEvent.getId() == swipingId ? clamp(sideMoved - sideMovedInit, -window.innerWidth, 0) : 0}px)` }}
+                        replySwipeAnimation={swipingId === mEvent.getId() && animate}
                         onReactionToggle={handleReactionToggle}
                         thread={
                             <ThreadPreview mEvent={mEvent} room={room} onClick={() => handleDiscussId(mEvent.getId())} />
@@ -1434,7 +1434,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                         onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
                         onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
                         onTouchEnd={onTouchEnd}
-                        style={{ transform: `translateX(${isTouchingSide && mEvent.getId() == swipingId ? clamp(sideMoved - sideMovedInit, -window.innerWidth, 0) : 0}px)` }}
+                        replySwipeAnimation={swipingId === mEvent.getId() && animate}
                         onReactionToggle={handleReactionToggle}
                         reactions={
                             reactionRelations && (

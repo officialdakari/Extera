@@ -29,3 +29,8 @@ export default function colorMXID(userId) {
 export function colorMXIDBrighter(userId) {
     return `var(${cssColorMXID(userId)}-b)`;
 }
+
+
+export function colorMXIDReplyBg(userId) {
+    return `var(${cssColorMXID(userId)}-c)`;
+}

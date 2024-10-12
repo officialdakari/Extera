@@ -66,6 +66,7 @@ import { nameInitials } from '../../utils/common';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { AppBar, Dialog, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Pagination, Toolbar, Tooltip, Typography } from '@mui/material';
 import { ArrowBack, CallEnd, Close, DoneAll, Link, MessageOutlined, MoreVert, People, PersonAdd, Phone, PushPin, Search, Settings, VideoCall, Widgets } from '@mui/icons-material';
+import { BackRouteHandler } from '../../components/BackRouteHandler';
 
 type RoomMenuProps = {
     room: Room;
@@ -291,14 +292,6 @@ export function ThreadViewHeader({
 
     const getPresenceFn = usePresences();
 
-    const handleOpenJump: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        setJumpAnchor(evt.currentTarget.getBoundingClientRect());
-    };
-
-    const handleBack: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        history.back();
-    };
-
     useEffect(() => {
         const isDm = room.getDMInviter() || room.getJoinedMemberCount() == 2;
         if (isDm) {
@@ -341,11 +334,15 @@ export function ThreadViewHeader({
                 <Toolbar>
                     <Box grow="Yes" gap="300">
                         <Box shrink="No">
-                            <IconButton
-                                onClick={handleBack}
-                            >
-                                <ArrowBack />
-                            </IconButton>
+                            <BackRouteHandler>
+                                {(goBack) => (
+                                    <IconButton
+                                        onClick={goBack}
+                                    >
+                                        <ArrowBack />
+                                    </IconButton>
+                                )}
+                            </BackRouteHandler>
                         </Box>
                         <Box grow="Yes" alignItems="Center" gap="300">
                             <Avatar onClick={handleAvClick} size="400">

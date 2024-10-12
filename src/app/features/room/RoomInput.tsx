@@ -583,39 +583,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
         return (
             <div ref={ref}>
-                {selectedFiles.length > 0 && (
-                    <UploadBoard
-                        header={
-                            <UploadBoardHeader
-                                open={uploadBoard}
-                                onToggle={() => setUploadBoard(!uploadBoard)}
-                                uploadFamilyObserverAtom={uploadFamilyObserverAtom}
-                                onSend={handleSendUpload}
-                                imperativeHandlerRef={uploadBoardHandlers}
-                                onCancel={handleCancelUpload}
-                            />
-                        }
-                    >
-                        {uploadBoard && (
-                            <Scroll size="300" hideTrack visibility="Hover">
-                                <UploadBoardContent>
-                                    {Array.from(selectedFiles)
-                                        .reverse()
-                                        .map((fileItem, index) => (
-                                            <UploadCardRenderer
-                                                // eslint-disable-next-line react/no-array-index-key
-                                                key={index}
-                                                file={fileItem.file}
-                                                isEncrypted={!!fileItem.encInfo}
-                                                uploadAtom={roomUploadAtomFamily(fileItem.file)}
-                                                onRemove={handleRemoveUpload}
-                                            />
-                                        ))}
-                                </UploadBoardContent>
-                            </Scroll>
-                        )}
-                    </UploadBoard>
-                )}
                 <Overlay
                     open={dropZoneVisible}
                     backdrop={<OverlayBackdrop />}
@@ -683,45 +650,80 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     onKeyUp={handleKeyUp}
                     onPaste={handlePaste}
                     top={
-                        replyDraft && (
-                            <div>
-                                <Box
-                                    alignItems="Center"
-                                    gap="300"
-                                    style={{ padding: `${config.space.S200} ${config.space.S300} 0` }}
+                        <>
+                            {selectedFiles.length > 0 && (
+                                <UploadBoard
+                                    header={
+                                        <UploadBoardHeader
+                                            open={uploadBoard}
+                                            onToggle={() => setUploadBoard(!uploadBoard)}
+                                            uploadFamilyObserverAtom={uploadFamilyObserverAtom}
+                                            onSend={handleSendUpload}
+                                            imperativeHandlerRef={uploadBoardHandlers}
+                                            onCancel={handleCancelUpload}
+                                        />
+                                    }
                                 >
-                                    <ReplyLayout
-                                        userColor={colorMXID(replyDraft.userId)}
-                                        style={{ width: '100%' }}
-                                        username={
+                                    {uploadBoard && (
+                                        <Scroll size="300" hideTrack direction='Horizontal' visibility="Hover">
+                                            <UploadBoardContent>
+                                                {Array.from(selectedFiles)
+                                                    .reverse()
+                                                    .map((fileItem, index) => (
+                                                        <UploadCardRenderer
+                                                            // eslint-disable-next-line react/no-array-index-key
+                                                            key={index}
+                                                            file={fileItem.file}
+                                                            isEncrypted={!!fileItem.encInfo}
+                                                            uploadAtom={roomUploadAtomFamily(fileItem.file)}
+                                                            onRemove={handleRemoveUpload}
+                                                        />
+                                                    ))}
+                                            </UploadBoardContent>
+                                        </Scroll>
+                                    )}
+                                </UploadBoard>
+                            )}
+                            {replyDraft && (
+                                <div>
+                                    <Box
+                                        alignItems="Center"
+                                        gap="300"
+                                        style={{ padding: `${config.space.S200} ${config.space.S300} 0` }}
+                                    >
+                                        <ReplyLayout
+                                            userColor={colorMXID(replyDraft.userId)}
+                                            style={{ width: '100%' }}
+                                            username={
+                                                <Text size="T300" truncate>
+                                                    <b>
+                                                        {getMemberDisplayName(room, replyDraft.userId) ??
+                                                            getMxIdLocalPart(replyDraft.userId) ??
+                                                            replyDraft.userId}
+                                                    </b>
+                                                </Text>
+                                            }
+                                        >
                                             <Text size="T300" truncate>
-                                                <b>
-                                                    {getMemberDisplayName(room, replyDraft.userId) ??
-                                                        getMxIdLocalPart(replyDraft.userId) ??
-                                                        replyDraft.userId}
-                                                </b>
+                                                {trimReplyFromBody(replyDraft.body)}
                                             </Text>
-                                        }
-                                    >
-                                        <Text size="T300" truncate>
-                                            {trimReplyFromBody(replyDraft.body)}
-                                        </Text>
-                                    </ReplyLayout>
-                                    <IconButton size='small'
-                                        onMouseDown={dontHideKeyboard}
-                                        onClick={() => setReplyMention(!replyMention)}
-                                    >
-                                        <Icon size={1} path={replyMention ? mdiBell : mdiBellOff} />
-                                    </IconButton>
-                                    <IconButton size='small'
-                                        onMouseDown={dontHideKeyboard}
-                                        onClick={() => setReplyDraft(undefined)}
-                                    >
-                                        <Icon size={1} path={mdiClose} />
-                                    </IconButton>
-                                </Box>
-                            </div>
-                        )
+                                        </ReplyLayout>
+                                        <IconButton size='small'
+                                            onMouseDown={dontHideKeyboard}
+                                            onClick={() => setReplyMention(!replyMention)}
+                                        >
+                                            <Icon size={1} path={replyMention ? mdiBell : mdiBellOff} />
+                                        </IconButton>
+                                        <IconButton size='small'
+                                            onMouseDown={dontHideKeyboard}
+                                            onClick={() => setReplyDraft(undefined)}
+                                        >
+                                            <Icon size={1} path={mdiClose} />
+                                        </IconButton>
+                                    </Box>
+                                </div>
+                            )}
+                        </>
                     }
                     before={
                         !ar.isRecording && (
@@ -766,6 +768,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                                         }}
                                                     />
                                                 }
+                                                style={{ zIndex: 2 }}
                                             >
                                                 {(
                                                     <IconButton size='small'

@@ -43,6 +43,7 @@ import { AppBar, Button, CircularProgress, IconButton, Toolbar, Typography } fro
 import { ArrowBack } from '@mui/icons-material';
 import BottomNav from '../BottomNav';
 import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
+import { BackRouteHandler } from '../../../components/BackRouteHandler';
 
 const COMPACT_CARD_WIDTH = 548;
 
@@ -247,11 +248,15 @@ export function Invites() {
         <Page>
             <AppBar color='inherit' enableColorOnDark position='static'>
                 <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
-                    <IconButton
-                        onClick={() => history.back()}
-                    >
-                        <ArrowBack />
-                    </IconButton>
+                    <BackRouteHandler>
+                        {(goBack) => (
+                            <IconButton
+                                onClick={goBack}
+                            >
+                                <ArrowBack />
+                            </IconButton>
+                        )}
+                    </BackRouteHandler>
                     <Typography component='div' variant='h6' flexGrow={1}>
                         {getText('inbox.invites.title')}
                     </Typography>

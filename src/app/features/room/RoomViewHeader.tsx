@@ -66,6 +66,7 @@ import { nameInitials } from '../../utils/common';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { AppBar, Dialog, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Pagination, Toolbar, Tooltip, Typography } from '@mui/material';
 import { ArrowBack, CallEnd, Close, DoneAll, Link, MessageOutlined, MoreVert, People, PersonAdd, Phone, PushPin, Search, Settings, VideoCall, Widgets } from '@mui/icons-material';
+import { BackRouteHandler } from '../../components/BackRouteHandler';
 
 type RoomMenuProps = {
     room: Room;
@@ -517,10 +518,6 @@ export function RoomViewHeader({
         setJumpAnchor(evt.currentTarget.getBoundingClientRect());
     };
 
-    const handleBack: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        history.back();
-    };
-
     const handleScalar = async () => {
         setShowWidgets(false);
         const r = await getIntegrationManagerURL(mx, room);
@@ -611,15 +608,23 @@ export function RoomViewHeader({
                 <Toolbar>
                     <Box grow="Yes" gap="300">
                         <Box shrink="No">
-                            <IconButton
-                                onClick={handleBack}
-                            >
-                                <ArrowBack />
-                            </IconButton>
+                            <BackRouteHandler>
+                                {(goBack) => (
+                                    <IconButton
+                                        onClick={goBack}
+                                    >
+                                        <ArrowBack />
+                                    </IconButton>
+                                )}
+                            </BackRouteHandler>
                         </Box>
                         <Box grow="Yes" alignItems="Center" gap="300">
                             <AnimatedNode
-                                whileHover={{ scale: 1.2 }}
+                                whileHover={{
+                                    scale: 1.2,
+                                    boxShadow: '5px 5px #00000050',
+                                }}
+                                style={{ borderRadius: '50%' }}
                             >
                                 <Avatar onClick={handleAvClick} size="400">
                                     <RoomAvatar

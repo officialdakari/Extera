@@ -17,7 +17,7 @@ export const MediaControl = as<'div', MediaControlProps>(
                         {leftControl}
                     </Box>
 
-                    <Box justifyItems="End" alignItems="Center" gap="Inherit">
+                    <Box justifyItems="End" shrink='No' grow='Yes' alignItems="Center" gap="Inherit">
                         {rightControl}
                     </Box>
                 </Box>

@@ -7,19 +7,21 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
     const [sideMovedY, setSideMovedY] = useState(0);
     const [sideMovedInit, setSideMovedInit] = useState(0);
     const [swipingId, setSwipingId] = useState("");
+    const [animate, setAnimate] = useState(false);
 
     // Touch handlers for the Message components. If touch starts at 90% of the right, it will trigger the swipe-left-reply.
     let lastTouch = 0, sideVelocity = 0;
     function onTouchStart(event: TouchEvent, replyId: string | undefined) {
         if (event.touches.length != 1) return setTouchingSide(false);
         if (
-            event.touches[0].clientX > window.innerWidth * 0.7 &&
+            event.touches[0].clientX > window.innerWidth * 0.5 &&
             !Array.from(document.elementsFromPoint(event.touches[0].clientX, event.touches[0].clientY)[0].classList).some(c => c.startsWith("ImageViewer")) // Disable gesture if ImageViewer is up. There's probably a better way I don't know
         ) {
             setTouchingSide(true);
             setSideMoved(event.touches[0].clientX);
             setSideMovedInit(event.touches[0].clientX);
             setSwipingId(replyId || "");
+            event.preventDefault();
             lastTouch = Date.now();
         }
     }
@@ -39,6 +41,7 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
             setSideMoved(0);
         }
         setTouchingSide(false);
+        setAnimate(false);
     }
     function onTouchMove(event: TouchEvent, replyId: string | undefined) {
         if (event.touches.length != 1) return;
@@ -46,15 +49,23 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
             const dx = Math.abs(event.changedTouches[0].clientX - (sideMoved || 0));
             const dy = Math.abs(event.changedTouches[0].clientY - (sideMovedY || 0));
             const ratio = dy / dx;
-            if (ratio > 50) return setTouchingSide(false);
+            if (ratio > 50) {
+                setTouchingSide(false);
+                setSwipingId('');
+                setAnimate(false);
+                return;
+            }
             event.preventDefault();
             if (swipingId == replyId) {
-                if (event.changedTouches.length != 1) setSideMoved(0);
-                else {
+                if (event.changedTouches.length != 1) {
+                    setSideMoved(0);
+                    setAnimate(false);
+                } else {
                     setSideMoved(sideMoved => {
                         const newSideMoved = event.changedTouches[0].clientX;
                         //sideVelocity = (newSideMoved - sideMoved); // / (Date.now() - lastTouch);  
                         //lastTouch = Date.now();
+                        setAnimate((sideMoved - sideMovedInit) < -(window.innerWidth * 0.15));
                         return newSideMoved;
                     });
                     setSideMovedY(sideMovedY => {
@@ -75,6 +86,7 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
         swipingId,
         onTouchStart,
         onTouchMove,
-        onTouchEnd
+        onTouchEnd,
+        animate
     }
 }

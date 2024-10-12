@@ -1,6 +1,7 @@
 import { createVar, keyframes, style, styleVariants } from '@vanilla-extract/css';
 import { recipe, RecipeVariants } from '@vanilla-extract/recipes';
 import { DefaultReset, color, config, toRem } from 'folds';
+import { HTMLMotionProps, Variants } from 'framer-motion';
 
 export const StickySection = style({
     position: 'sticky',
@@ -82,6 +83,18 @@ const AutoCollapse = style({
     },
 });
 
+export const MessageBaseAnimationVariants: Variants = {
+    initial: {
+        translateX: 0
+    },
+    replySwipe: {
+        translateX: '-30px',
+        translateY: '-2px',
+        scale: 1.1,
+        rotate: '-1deg'
+    }
+};
+
 export const MessageBase = recipe({
     base: [
         DefaultReset,
@@ -143,7 +156,7 @@ export const BubbleContent = style({
     padding: config.space.S200,
     backgroundColor: color.SurfaceVariant.Container,
     color: color.SurfaceVariant.OnContainer,
-    borderRadius: config.radii.R400,
+    borderRadius: config.radii.R500,
     position: 'relative',
 });
 

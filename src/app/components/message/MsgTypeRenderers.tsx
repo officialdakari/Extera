@@ -235,7 +235,7 @@ export function MImage({ content, renderImageContent, renderBody, outlined }: MI
 
     return (
         <>
-            <Attachment ref={attachmentRef} outlined={outlined}>
+            <Attachment ref={attachmentRef} >
                 <AttachmentBox
                     style={{
                         height: toRem(height < 48 ? 48 : height),
@@ -298,7 +298,7 @@ export function MVideo({ content, renderAsFile, renderVideoContent, renderBody, 
 
     return (
         <>
-            <Attachment ref={attachmentRef} outlined={outlined}>
+            <Attachment ref={attachmentRef} >
                 <AttachmentBox
                     style={{
                         height: toRem(height < 48 ? 48 : height),
@@ -367,7 +367,7 @@ export function MAudio({ content, renderAsFile, renderAudioContent, renderBody, 
         </div>
     ) : (
         <>
-            <Attachment ref={attachmentRef} outlined={outlined}>
+            <Attachment ref={attachmentRef} >
                 <AttachmentHeader>
                     <FileHeader body={content.filename ?? content.body ?? 'Audio'} mimeType={safeMimeType} />
                 </AttachmentHeader>
@@ -426,7 +426,7 @@ export function MFile({ content, renderFileContent, renderBody, outlined, htmlRe
 
     return (
         <>
-            <Attachment ref={attachmentRef} outlined={outlined}>
+            <Attachment ref={attachmentRef} >
                 <AttachmentHeader>
                     <FileHeader
                         body={content.filename ?? content.body ?? 'Unnamed File'}

@@ -73,6 +73,7 @@ import { AppBar, Button, Chip, Fab, IconButton, Toolbar, Typography } from '@mui
 import { ArrowBack, Check, DoneAll, KeyboardArrowUp } from '@mui/icons-material';
 import BottomNav from '../BottomNav';
 import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
+import { BackRouteHandler } from '../../../components/BackRouteHandler';
 
 type RoomNotificationsGroup = {
     roomId: string;
@@ -550,11 +551,15 @@ export function Notifications() {
         <Page>
             <AppBar color='inherit' enableColorOnDark position='static'>
                 <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
-                    <IconButton
-                        onClick={() => history.back()}
-                    >
-                        <ArrowBack />
-                    </IconButton>
+                    <BackRouteHandler>
+                        {(goBack) => (
+                            <IconButton
+                                onClick={goBack}
+                            >
+                                <ArrowBack />
+                            </IconButton>
+                        )}
+                    </BackRouteHandler>
                     <Typography component='div' variant='h6' flexGrow={1}>
                         {getText('notifications.title')}
                     </Typography>

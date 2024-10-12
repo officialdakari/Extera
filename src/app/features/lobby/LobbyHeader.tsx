@@ -26,6 +26,7 @@ import Icon from '@mdi/react';
 import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCog, mdiDotsVertical } from '@mdi/js';
 import { AppBar, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
 import { ArrowBack, MoreVert, Person, PersonAdd, Settings } from '@mui/icons-material';
+import { BackRouteHandler } from '../../components/BackRouteHandler';
 
 type LobbyMenuProps = {
     roomId: string;
@@ -123,11 +124,15 @@ export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
     return (
         <AppBar position='static'>
             <Toolbar>
-                <IconButton
-                    onClick={() => history.back()}
-                >
-                    <ArrowBack />
-                </IconButton>
+                <BackRouteHandler>
+                    {(goBack) => (
+                        <IconButton
+                            onClick={goBack}
+                        >
+                            <ArrowBack />
+                        </IconButton>
+                    )}
+                </BackRouteHandler>
                 <Box grow="Yes" basis="No" />
                 <Box justifyContent="Center" alignItems="Center" gap="300">
                     {showProfile && (

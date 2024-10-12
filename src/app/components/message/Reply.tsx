@@ -6,7 +6,7 @@ import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import to from 'await-to-js';
 import classNames from 'classnames';
 import { HTMLReactParserOptions } from 'html-react-parser';
-import colorMXID from '../../../util/colorMXID';
+import colorMXID, { colorMXIDReplyBg } from '../../../util/colorMXID';
 import { getMemberDisplayName } from '../../utils/room';
 import { getMxIdLocalPart, isRoomId, isUserId } from '../../utils/matrix';
 import { LinePlaceholder } from './placeholder';
@@ -24,13 +24,14 @@ import { openJoinAlias, openProfileViewer } from '../../../client/action/navigat
 
 type ReplyLayoutProps = {
     userColor?: string;
+    backgroundColor?: string;
     username?: ReactNode;
 };
 export const ReplyLayout = as<'div', ReplyLayoutProps>(
-    ({ username, userColor, className, children, ...props }, ref) => (
+    ({ username, userColor, className, children, backgroundColor, ...props }, ref) => (
         <Box
             className={classNames(css.Reply, className)}
-            style={{ borderLeftColor: userColor }}
+            style={{ borderLeftColor: userColor, backgroundColor: backgroundColor }}
             alignItems="Start"
             direction='Column'
             {...props}
@@ -147,6 +148,7 @@ export const Reply = as<'div', ReplyProps>(({ mx, room, timelineSet, eventId, ..
     return (
         <ReplyLayout
             userColor={sender ? colorMXID(sender) : undefined}
+            backgroundColor={sender ? colorMXIDReplyBg(sender) : undefined}
             username={
                 sender && (
                     <Text size="T300" truncate>

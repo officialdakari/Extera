@@ -1,5 +1,4 @@
 import React from 'react';
-import { Chip, IconButton, Text, color } from 'folds';
 import { UploadCard, UploadCardError, UploadCardProgress } from './UploadCard';
 import { TUploadAtom, UploadStatus, useBindUploadAtom } from '../../state/upload';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
@@ -7,10 +6,9 @@ import { TUploadContent } from '../../utils/matrix';
 import { getFileTypeIcon } from '../../utils/common';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
-import { mdiCheck, mdiClose, mdiEye, mdiEyeOff, mdiFile } from '@mdi/js';
-import { openReusableContextMenu } from '../../../client/action/navigation';
-import { getEventCords } from '../../../util/common';
-import HideReasonSelector from '../../molecules/hide-reason-selector/HideReasonSelector';
+import { Chip, IconButton, Typography } from '@mui/material';
+import { Check, Close } from '@mui/icons-material';
+import { mdiFile } from '@mdi/js';
 
 type UploadCardRendererProps = {
     file: TUploadContent;
@@ -49,25 +47,19 @@ export function UploadCardRenderer({
                 <>
                     {upload.status === UploadStatus.Error && (
                         <Chip
-                            as="button"
                             onClick={startUpload}
                             aria-label={getText('aria.retry_upload')}
-                            variant="Critical"
-                            radii="Pill"
-                            outlined
-                        >
-                            <Text size="B300">{getText('btn.retry')}</Text>
-                        </Chip>
+                            label={getText('btn.retry')}
+                            color='error'
+                            variant='outlined'
+                        />
                     )}
 
                     <IconButton
                         onClick={removeUpload}
                         aria-label={getText('aria.cancel_upload')}
-                        variant="SurfaceVariant"
-                        radii="Pill"
-                        size="300"
                     >
-                        <Icon path={mdiClose} size={1} />
+                        <Close />
                     </IconButton>
                 </>
             }
@@ -81,17 +73,17 @@ export function UploadCardRenderer({
                     )}
                     {upload.status === UploadStatus.Error && (
                         <UploadCardError>
-                            <Text size="T200">{upload.error.message}</Text>
+                            {upload.error.message}
                         </UploadCardError>
                     )}
                 </>
             }
         >
-            <Text size="H6" truncate>
+            <Typography textOverflow='ellipsis'>
                 {file.name}
-            </Text>
+            </Typography>
             {upload.status === UploadStatus.Success && (
-                <Icon style={{ color: color.Success.Main }} path={mdiCheck} size={1} />
+                <Check color='success' />
             )}
         </UploadCard>
     );

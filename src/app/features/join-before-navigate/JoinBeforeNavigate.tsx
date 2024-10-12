@@ -10,6 +10,7 @@ import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { allRoomsAtom } from '../../state/room-list/roomList';
 import { AppBar, IconButton, Menu, Toolbar, Typography } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
+import { BackRouteHandler } from '../../components/BackRouteHandler';
 
 type JoinBeforeNavigateProps = { roomIdOrAlias: string };
 export function JoinBeforeNavigate({ roomIdOrAlias }: JoinBeforeNavigateProps) {
@@ -29,11 +30,15 @@ export function JoinBeforeNavigate({ roomIdOrAlias }: JoinBeforeNavigateProps) {
         <Page>
             <AppBar position='static' color='info'>
                 <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
-                    <IconButton
-                        onClick={() => history.back()}
-                    >
-                        <ArrowBack />
-                    </IconButton>
+                    <BackRouteHandler>
+                        {(goBack) => (
+                            <IconButton
+                                onClick={goBack}
+                            >
+                                <ArrowBack />
+                            </IconButton>
+                        )}
+                    </BackRouteHandler>
                     <Typography component='div' variant='h6' flexGrow={1}>
                         {roomIdOrAlias}
                     </Typography>

@@ -991,6 +991,7 @@ export type MessageProps = {
     thread?: ReactNode;
     reactions?: ReactNode;
     showGoTo?: boolean;
+    replySwipeAnimation?: boolean;
 };
 export const Message = as<'div', MessageProps>(
     (

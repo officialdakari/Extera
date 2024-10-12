@@ -2,18 +2,29 @@ import React from 'react';
 import { Text, as } from 'folds';
 import classNames from 'classnames';
 import * as css from './layout.css';
+import { HTMLMotionProps, motion } from 'framer-motion';
 import UserSelect from '../../../atoms/user-select/UserSelect';
 
-export const MessageBase = as<'div', css.MessageBaseVariants>(
-    ({ className, highlight, selected, collapse, autoCollapse, space, ...props }, ref) => (
-        <div
-            className={classNames(
-                css.MessageBase({ highlight, selected, collapse, autoCollapse, space }),
-                className
-            )}
-            {...props}
-            ref={ref}
-        />
+type AnimationProps = {
+    replySwipeAnimation?: boolean;
+};
+
+export const MessageBase = as<'div', css.MessageBaseVariants & AnimationProps>(
+    ({ className, highlight, selected, collapse, autoCollapse, space, replySwipeAnimation, ...props }, ref) => (
+        <motion.div
+            variants={css.MessageBaseAnimationVariants}
+            initial='initial'
+            animate={replySwipeAnimation ? 'replySwipe' : undefined}
+        >
+            <div
+                className={classNames(
+                    css.MessageBase({ highlight, selected, collapse, autoCollapse, space }),
+                    className
+                )}
+                {...props}
+                ref={ref}
+            />
+        </motion.div>
     )
 );
 
