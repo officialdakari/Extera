@@ -22,7 +22,7 @@ import { CallProvider } from '../../hooks/useCall';
 import { createModals, ModalsProvider } from '../../hooks/useModals';
 import { Modals } from '../../components/modal/Modal';
 import { getText } from '../../../lang';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab } from '@mui/material';
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, LinearProgress } from '@mui/material';
 import Icon from '@mdi/react';
 import { mdiPlus } from '@mdi/js';
 
@@ -42,7 +42,7 @@ function ClientRootLoading() {
     return (
         <SplashScreen>
             <Box direction="Column" grow="Yes" alignItems="Center" justifyContent="Center" gap="400">
-                <Spinner variant="Secondary" size="600" />
+                <CircularProgress />
                 <Text>
                     {getText('loading')}
                 </Text>
