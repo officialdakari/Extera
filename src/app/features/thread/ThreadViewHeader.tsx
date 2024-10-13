@@ -184,112 +184,6 @@ export function ThreadViewHeader({
         [mx, room, navigateRoom, navigateSpace]
     );
 
-    const [pinnedPages, setPinnedPages] = useState(1);
-    const [jumpAnchor, setJumpAnchor] = useState<RectCords>();
-    const [pageNo, setPageNo] = useState(1);
-    const [loadingPinList, setLoadingPinList] = useState(true);
-    const modals = useModals();
-
-    const updatePinnedList = async () => {
-        const pinnedMessages = [];
-        const timeline = room.getLiveTimeline();
-        const state = timeline.getState(EventTimeline.FORWARDS);
-        const pinnedEvents = state?.getStateEvents('m.room.pinned_events');
-
-        setLoadingPinList(true);
-
-        if (!pinnedEvents || pinnedEvents.length < 1) {
-            return setPinned(
-                [
-                    <Text>
-                        {getText('pinned.none')}
-                    </Text>
-                ]
-            );
-        }
-
-        var { pinned }: { pinned: string[] } = pinnedEvents[pinnedEvents.length - 1].getContent();
-        pinned = pinned.reverse();
-        setPinnedPages(Math.ceil(pinned.length / 10));
-        const index = (pageNo - 1) * 10;
-        // todo optimize this
-        setPinned([
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />
-        ]);
-        for (const eventId of pinned.slice(index, index + 10)) {
-            try {
-                const mEvent: MatrixEvent = room.findEventById(eventId) ?? new MatrixEvent(await mx.fetchRoomEvent(room.roomId, eventId));
-                console.log(eventId, mEvent);
-                if (!mEvent) continue;
-                pinnedMessages.push(
-                    <Message
-                        key={mEvent.getId()}
-                        data-message-id={mEvent.getId()}
-                        room={room}
-                        mEvent={mEvent}
-                        edit={false}
-                        canDelete={false}
-                        canSendReaction={false}
-                        collapse={false}
-                        highlight={false}
-                        messageSpacing={messageSpacing}
-                        messageLayout={messageLayout}
-                        onReactionToggle={(evt: any) => null}
-                        onReplyClick={(evt: any) => null}
-                        onDiscussClick={(evt: any) => null}
-                        onUserClick={(evt: any) => null}
-                        onUsernameClick={(evt: any) => null}
-                        showGoTo
-                    >
-                        {mEvent.getType() == 'm.room.message' && <RenderMessageContent
-                            displayName={mEvent.sender?.rawDisplayName || mEvent.sender?.userId || getText('generic.unknown')}
-                            msgType={mEvent.getContent().msgtype ?? ''}
-                            ts={mEvent.getTs()}
-                            edited={false}
-                            getContent={mEvent.getContent.bind(mEvent) as GetContentCallback}
-                            mediaAutoLoad={true}
-                            urlPreview={false}
-                            htmlReactParserOptions={htmlReactParserOptions}
-                        />}
-                        {mEvent.getType() == 'm.sticker' && <MSticker
-                            content={mEvent.getContent()}
-                            renderImageContent={(props) => (
-                                <ImageContent
-                                    {...props}
-                                    autoPlay={mediaAutoLoad}
-                                    renderImage={(p) => <Image loading="lazy" />}
-                                    renderViewer={(p) => <ImageViewer {...p} />}
-                                />
-                            )}
-                        />}
-                    </Message>
-                );
-            } catch (error) {
-                console.error(`Failed loading ${eventId}`, error);
-            }
-        }
-        setPinned(pinnedMessages);
-        setLoadingPinList(false);
-    };
-
-    const handlePinnedClick = () => {
-        setPageNo(1);
-        setShowPinned(true);
-    };
-
     const getPresenceFn = usePresences();
 
     useEffect(() => {
@@ -302,34 +196,8 @@ export function ThreadViewHeader({
         }
     }, [mx]);
 
-    useEffect(() => {
-        updatePinnedList();
-    }, [pageNo]);
-
     return (
         <>
-            <Dialog
-                open={showPinned}
-                onClose={() => setShowPinned(false)}
-                scroll='body'
-            >
-                <AppBar sx={{ position: 'relative' }}>
-                    <Toolbar>
-                        <Typography flexGrow={1} component='div' variant='h6'>
-                            {getText('pinned.title')}
-                        </Typography>
-                        <IconButton
-                            onClick={() => setShowPinned(false)}
-                        >
-                            <Close />
-                        </IconButton>
-                    </Toolbar>
-                </AppBar>
-                <DialogContent sx={{ minWidth: '500px', minHeight: '300px' }}>
-                    {pinned}
-                </DialogContent>
-                <Pagination count={pinnedPages} page={pageNo} onChange={(evt, page) => setPageNo(page)} sx={{ marginBottom: '10px' }} />
-            </Dialog>
             <AppBar position='relative'>
                 <Toolbar>
                     <Box grow="Yes" gap="300">
@@ -391,11 +259,11 @@ export function ThreadViewHeader({
                                     </IconButton>
                                 </Tooltip>
                             )}
-                            <Tooltip title={getText('tooltip.pinned')}>
+                            {/* <Tooltip title={getText('tooltip.pinned')}>
                                 <IconButton onClick={handlePinnedClick}>
                                     <PushPin />
                                 </IconButton>
-                            </Tooltip>
+                            </Tooltip> */}
                             {screenSize === ScreenSize.Desktop && (
                                 <Tooltip title={getText('tooltip.members')}>
                                     <IconButton onClick={() => setPeopleDrawer((drawer) => !drawer)}>

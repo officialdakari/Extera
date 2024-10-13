@@ -73,8 +73,8 @@ import { VerificationBadge } from '../../../components/verification-badge/Verifi
 import { saveFile } from '../../../utils/saveFile';
 import { getFileSrcUrl } from '../../../components/message/content/util';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Link, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Typography } from '@mui/material';
-import { AddReactionOutlined, ArrowBack, Cancel, CancelOutlined, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
+import { Alert, AppBar, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Link, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Toolbar, Typography } from '@mui/material';
+import { AddReactionOutlined, ArrowBack, Cancel, CancelOutlined, Close, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;

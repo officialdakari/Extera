@@ -2,6 +2,10 @@
 @use '../../partials/dir';
 
 .room-members {
+    gap: 8px;
+    display: flex;
+    flex-direction: column;
+
     & .input-container {
         margin: var(--sp-normal);
     }

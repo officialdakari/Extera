@@ -1,4 +1,4 @@
-import React, { FormEventHandler, MouseEventHandler, ReactNode, forwardRef, useEffect, useMemo, useState } from 'react';
+import React, { FormEventHandler, MouseEventHandler, ReactNode, forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import FocusTrap from 'focus-trap-react';
 import {
     Box,
@@ -64,9 +64,14 @@ import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
 import { nameInitials } from '../../utils/common';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
-import { AppBar, Dialog, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Pagination, Toolbar, Tooltip, Typography } from '@mui/material';
-import { ArrowBack, CallEnd, Close, DoneAll, Link, MessageOutlined, MoreVert, People, PersonAdd, Phone, PushPin, Search, Settings, VideoCall, Widgets } from '@mui/icons-material';
+import { AppBar, Dialog, DialogContent, DialogContentText, DialogTitle, Divider, Fab, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Pagination, Toolbar, Tooltip, Typography } from '@mui/material';
+import { ArrowBack, CallEnd, Close, DoneAll, KeyboardArrowUp, Link, MessageOutlined, MoreVert, People, PersonAdd, Phone, PushPin, Search, Settings, VideoCall, Widgets } from '@mui/icons-material';
 import { BackRouteHandler } from '../../components/BackRouteHandler';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { VirtualTile } from '../../components/virtualizer';
+import { ScrollTopContainer } from '../../components/scroll-top-container';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import AsyncLoadMessage from './AsyncLoadMessage';
 
 type RoomMenuProps = {
     room: Room;
@@ -238,7 +243,6 @@ export function RoomViewHeader({
     const [statusMessage, setStatusMessage] = useState('');
     const [showPinned, setShowPinned] = useState(false);
     const [showWidgets, setShowWidgets] = useState(false);
-    const [pinned, setPinned] = useState<ReactNode[]>([]);
     const [widgets, setWidgets] = useState<ReactNode[]>([]);
     const avatarUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
     const roomToParents = useAtomValue(roomToParentsAtom);
@@ -288,45 +292,6 @@ export function RoomViewHeader({
         toggleRoomSettings(room.roomId);
     };
 
-    const [messageLayout] = useSetting(settingsAtom, 'messageLayout');
-    const [messageSpacing] = useSetting(settingsAtom, 'messageSpacing');
-    const { navigateRoom, navigateSpace } = useRoomNavigate();
-    const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
-
-    const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
-        () =>
-            getReactCustomHtmlParser(mx, room, {
-                handleSpoilerClick: (evt) => {
-                    const target = evt.currentTarget;
-                    if (target.getAttribute('aria-pressed') === 'true') {
-                        evt.stopPropagation();
-                        target.setAttribute('aria-pressed', 'false');
-                        target.style.cursor = 'initial';
-                    }
-                },
-                handleMentionClick: (evt) => {
-                    const target = evt.currentTarget;
-                    const mentionId = target.getAttribute('data-mention-id');
-                    if (typeof mentionId !== 'string') return;
-                    if (isUserId(mentionId)) {
-                        openProfileViewer(mentionId, room.roomId);
-                        return;
-                    }
-                    if (isRoomId(mentionId) && mx.getRoom(mentionId)) {
-                        if (mx.getRoom(mentionId)?.isSpaceRoom()) navigateSpace(mentionId);
-                        else navigateRoom(mentionId);
-                        return;
-                    }
-                    openJoinAlias(mentionId);
-                },
-            }),
-        [mx, room, navigateRoom, navigateSpace]
-    );
-
-    const [pinnedPages, setPinnedPages] = useState(1);
-    const [jumpAnchor, setJumpAnchor] = useState<RectCords>();
-    const [pageNo, setPageNo] = useState(1);
-    const [loadingPinList, setLoadingPinList] = useState(true);
     const modals = useModals();
 
     // officialdakari 24.07.2024 - надо зарефакторить это всё, но мне пока лень
@@ -412,111 +377,24 @@ export function RoomViewHeader({
         setShowWidgets(true);
     };
 
-    const updatePinnedList = async () => {
-        const pinnedMessages = [];
-        const timeline = room.getLiveTimeline();
-        const state = timeline.getState(EventTimeline.FORWARDS);
-        const pinnedEvents = state?.getStateEvents('m.room.pinned_events');
-
-        setLoadingPinList(true);
-
-        if (!pinnedEvents || pinnedEvents.length < 1) {
-            return setPinned(
-                [
-                    <Text>
-                        {getText('pinned.none')}
-                    </Text>
-                ]
-            );
-        }
-
-        var { pinned }: { pinned: string[] } = pinnedEvents[pinnedEvents.length - 1].getContent();
-        pinned = pinned.reverse();
-        setPinnedPages(Math.ceil(pinned.length / 10));
-        const index = (pageNo - 1) * 10;
-        // todo optimize this
-        setPinned([
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />
-        ]);
-        for (const eventId of pinned.slice(index, index + 10)) {
-            try {
-                const mEvent: MatrixEvent = room.findEventById(eventId) ?? new MatrixEvent(await mx.fetchRoomEvent(room.roomId, eventId));
-                console.log(eventId, mEvent);
-                if (!mEvent) continue;
-                pinnedMessages.push(
-                    <Message
-                        key={mEvent.getId()}
-                        data-message-id={mEvent.getId()}
-                        room={room}
-                        mEvent={mEvent}
-                        edit={false}
-                        canDelete={false}
-                        canSendReaction={false}
-                        collapse={false}
-                        highlight={false}
-                        messageSpacing={messageSpacing}
-                        messageLayout={messageLayout}
-                        onReactionToggle={(evt: any) => null}
-                        onReplyClick={(evt: any) => null}
-                        onDiscussClick={(evt: any) => null}
-                        onUserClick={(evt: any) => null}
-                        onUsernameClick={(evt: any) => null}
-                        showGoTo
-                    >
-                        {mEvent.getType() == 'm.room.message' && <RenderMessageContent
-                            displayName={mEvent.sender?.rawDisplayName || mEvent.sender?.userId || getText('generic.unknown')}
-                            msgType={mEvent.getContent().msgtype ?? ''}
-                            ts={mEvent.getTs()}
-                            edited={false}
-                            getContent={mEvent.getContent.bind(mEvent) as GetContentCallback}
-                            mediaAutoLoad={true}
-                            urlPreview={false}
-                            htmlReactParserOptions={htmlReactParserOptions}
-                        />}
-                        {mEvent.getType() == 'm.sticker' && <MSticker
-                            content={mEvent.getContent()}
-                            renderImageContent={(props) => (
-                                <ImageContent
-                                    {...props}
-                                    autoPlay={mediaAutoLoad}
-                                    renderImage={(p) => <Image loading="lazy" />}
-                                    renderViewer={(p) => <ImageViewer {...p} />}
-                                />
-                            )}
-                        />}
-                    </Message>
-                );
-            } catch (error) {
-                console.error(`Failed loading ${eventId}`, error);
-            }
-        }
-        setPinned(pinnedMessages);
-        setLoadingPinList(false);
-    };
-
     const handlePinnedClick = () => {
-        setPageNo(1);
         setShowPinned(true);
     };
 
-    const getPresenceFn = usePresences();
+    const scrollRef = useRef<HTMLDivElement>(null);
 
-    const handleOpenJump: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        setJumpAnchor(evt.currentTarget.getBoundingClientRect());
-    };
+    const pinnedEvents = state?.getStateEvents('m.room.pinned_events');
+    const pinned = useMemo(() => pinnedEvents && pinnedEvents[0].getContent().pinned, [pinnedEvents, state, mx, room]);
+
+    const virtualizer = useVirtualizer({
+        count: pinned?.length || 0,
+        getScrollElement: () => scrollRef.current,
+        estimateSize: () => 40,
+        overscan: 1,
+    });
+    const vItems = virtualizer.getVirtualItems();
+
+    const getPresenceFn = usePresences();
 
     const handleScalar = async () => {
         setShowWidgets(false);
@@ -549,9 +427,7 @@ export function RoomViewHeader({
         }
     }, [mx]);
 
-    useEffect(() => {
-        updatePinnedList();
-    }, [pageNo]);
+    const scrollTopAnchorRef = useRef<HTMLDivElement>(null);
 
     return (
         <>
@@ -560,7 +436,7 @@ export function RoomViewHeader({
                 onClose={() => setShowPinned(false)}
                 scroll='body'
             >
-                <AppBar sx={{ position: 'relative' }}>
+                <AppBar sx={{ position: 'relative' }} ref={scrollTopAnchorRef}>
                     <Toolbar>
                         <Typography flexGrow={1} component='div' variant='h6'>
                             {getText('pinned.title')}
@@ -572,10 +448,30 @@ export function RoomViewHeader({
                         </IconButton>
                     </Toolbar>
                 </AppBar>
-                <DialogContent sx={{ minWidth: '500px', minHeight: '300px' }}>
-                    {pinned}
+                <DialogContent ref={scrollRef} sx={{ minWidth: '500px', minHeight: '300px' }}>
+                    <div
+                        style={{
+                            position: 'relative',
+                            height: virtualizer.getTotalSize(),
+                        }}
+                    >
+                        {vItems.map((vItem, i) => {
+                            const eventId = pinned[vItem.index];
+                            return (
+                                <VirtualTile
+                                    virtualItem={vItem}
+                                    ref={virtualizer.measureElement}
+                                    key={vItem.index}
+                                >
+                                    <AsyncLoadMessage
+                                        room={room}
+                                        eventId={eventId}
+                                    />
+                                </VirtualTile>
+                            );
+                        })}
+                    </div>
                 </DialogContent>
-                <Pagination count={pinnedPages} page={pageNo} onChange={(evt, page) => setPageNo(page)} sx={{ marginBottom: '10px' }} />
             </Dialog>
             <Dialog
                 open={showWidgets}

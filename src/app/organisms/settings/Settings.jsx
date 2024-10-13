@@ -880,12 +880,13 @@ function Settings() {
             open={isOpen}
             onClose={requestClose}
             fullScreen={screenSize === ScreenSize.Mobile}
-            scroll='body'
+            scroll='paper'
+            sx={{ overscrollBehaviorY: 'none' }}
         >
             <input type='file' accept='image/*' onChange={uploadImage} ref={uploadImageRef} style={{ display: 'none' }} />
             {isOpen && (
                 <AppBar
-                    position='relative'
+                    position='sticky'
                     sx={bannerSrc && {
                         background: `url(${bannerUrl}), #00000060`,
                         backgroundRepeat: 'no-repeat',
@@ -936,7 +937,7 @@ function Settings() {
                 </AppBar>
             )}
             {isOpen && (
-                <div className="settings-window__content" style={{ backgroundColor: theme.palette.background.paper }}>
+                <div className="settings-window__content">
                     <Box style={{ borderBottom: '1px', borderColor: theme.palette.divider }}>
                         <Tabs
                             value={selectedTab}

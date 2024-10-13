@@ -162,9 +162,7 @@ function RoomMembers({ roomId }) {
 
     return (
         <div className="room-members">
-            <SearchContainer
-                sx={{ m: theme.spacing(2) }}
-            >
+            <SearchContainer>
                 <SearchIconWrapper>
                     <SearchIcon />
                 </SearchIconWrapper>
