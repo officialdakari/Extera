@@ -263,7 +263,7 @@ export function RoomViewHeader({
         ? canDoAction('redact', getPowerLevel(myUserId))
         : false;
 
-    const videoCallEvent = widgetsEvents.find(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
+    const videoCallEvent = widgetsEvents.find(x => x && (x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi'));
 
     const showVideoCallButton = canEditWidgets || videoCallEvent;
 
@@ -384,7 +384,7 @@ export function RoomViewHeader({
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const pinnedEvents = state?.getStateEvents('m.room.pinned_events');
-    const pinned = useMemo(() => pinnedEvents && pinnedEvents[0].getContent().pinned, [pinnedEvents, state, mx, room]);
+    const pinned = useMemo(() => pinnedEvents && pinnedEvents[0] && pinnedEvents[0].getContent().pinned, [pinnedEvents, state, mx, room]);
 
     const virtualizer = useVirtualizer({
         count: pinned?.length || 0,
