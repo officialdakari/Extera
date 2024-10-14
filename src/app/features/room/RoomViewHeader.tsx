@@ -264,7 +264,7 @@ export function RoomViewHeader({
         ? canDoAction('redact', getPowerLevel(myUserId))
         : false;
 
-    const videoCallEvent = widgetsEvents.find(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
+    const videoCallEvent = widgetsEvents.find(x => x && (x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi'));
 
     const showVideoCallButton = canEditWidgets || videoCallEvent;
 

@@ -59,7 +59,7 @@ export function Login() {
             <Text size="H2" priority="400">
                 {getText('loginpage.login-title')}
             </Text>
-            {parsedFlows.token && loginSearchParams.loginToken && (
+            {loginSearchParams.loginToken && (
                 <TokenLogin token={loginSearchParams.loginToken} />
             )}
             {parsedFlows.password && (
