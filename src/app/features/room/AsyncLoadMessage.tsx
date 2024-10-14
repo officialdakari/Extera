@@ -111,7 +111,7 @@ export default function AsyncLoadMessage({ eventId, room }: AsyncLoadMessageProp
                 null
             );
         }
-    }, [mx, room, eventId]);
+    }, [mx, room, eventId, messageLayout, messageSpacing, mediaAutoLoad, setMessage]);
 
     load();
 

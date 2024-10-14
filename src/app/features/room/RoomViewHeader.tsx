@@ -72,6 +72,7 @@ import { VirtualTile } from '../../components/virtualizer';
 import { ScrollTopContainer } from '../../components/scroll-top-container';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import AsyncLoadMessage from './AsyncLoadMessage';
+import PinnedMessages from './PinnedMessages';
 
 type RoomMenuProps = {
     room: Room;
@@ -381,19 +382,6 @@ export function RoomViewHeader({
         setShowPinned(true);
     };
 
-    const scrollRef = useRef<HTMLDivElement>(null);
-
-    const pinnedEvents = state?.getStateEvents('m.room.pinned_events');
-    const pinned = useMemo(() => pinnedEvents && pinnedEvents[0].getContent().pinned, [pinnedEvents, state, mx, room]);
-
-    const virtualizer = useVirtualizer({
-        count: pinned?.length || 0,
-        getScrollElement: () => scrollRef.current,
-        estimateSize: () => 40,
-        overscan: 1,
-    });
-    const vItems = virtualizer.getVirtualItems();
-
     const getPresenceFn = usePresences();
 
     const handleScalar = async () => {
@@ -427,8 +415,6 @@ export function RoomViewHeader({
         }
     }, [mx]);
 
-    const scrollTopAnchorRef = useRef<HTMLDivElement>(null);
-
     return (
         <>
             <Dialog
@@ -436,7 +422,7 @@ export function RoomViewHeader({
                 onClose={() => setShowPinned(false)}
                 scroll='body'
             >
-                <AppBar sx={{ position: 'relative' }} ref={scrollTopAnchorRef}>
+                <AppBar sx={{ position: 'relative' }}>
                     <Toolbar>
                         <Typography flexGrow={1} component='div' variant='h6'>
                             {getText('pinned.title')}
@@ -448,30 +434,7 @@ export function RoomViewHeader({
                         </IconButton>
                     </Toolbar>
                 </AppBar>
-                <DialogContent ref={scrollRef} sx={{ minWidth: '500px', minHeight: '300px' }}>
-                    <div
-                        style={{
-                            position: 'relative',
-                            height: virtualizer.getTotalSize(),
-                        }}
-                    >
-                        {vItems.map((vItem, i) => {
-                            const eventId = pinned[vItem.index];
-                            return (
-                                <VirtualTile
-                                    virtualItem={vItem}
-                                    ref={virtualizer.measureElement}
-                                    key={vItem.index}
-                                >
-                                    <AsyncLoadMessage
-                                        room={room}
-                                        eventId={eventId}
-                                    />
-                                </VirtualTile>
-                            );
-                        })}
-                    </div>
-                </DialogContent>
+                <PinnedMessages room={room} />
             </Dialog>
             <Dialog
                 open={showWidgets}

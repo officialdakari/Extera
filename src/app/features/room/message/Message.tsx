@@ -1038,6 +1038,7 @@ export const Message = as<'div', MessageProps>(
         const localPart = getMxIdLocalPart(senderId);
         const content = mEvent.getContent();
 
+
         var senderDisplayName =
             getMemberDisplayName(room, senderId) ?? user?.displayName ?? localPart ?? senderId;
         var senderAvatarMxc = getMemberAvatarMxc(room, senderId);
