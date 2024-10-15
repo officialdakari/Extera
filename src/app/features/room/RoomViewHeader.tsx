@@ -415,6 +415,12 @@ export function RoomViewHeader({
         }
     }, [mx]);
 
+    const pinnedEvents = state?.getStateEvents('m.room.pinned_events');
+    const pinned = useMemo<string[]>(() => (pinnedEvents && pinnedEvents[0].getContent().pinned) || [], [pinnedEvents, state, mx, room]);
+    const [eventN, setEventN] = useState<number>(0);
+
+    useEffect(() => { }, [eventN]);
+
     return (
         <>
             <Dialog
@@ -434,7 +440,19 @@ export function RoomViewHeader({
                         </IconButton>
                     </Toolbar>
                 </AppBar>
-                <PinnedMessages room={room} />
+                <DialogContent>
+                    {pinned[eventN] ? (
+                        <AsyncLoadMessage
+                            room={room}
+                            eventId={pinned[eventN]}
+                        />
+                    ) : (
+                        <DefaultPlaceholder />
+                    )}
+                    <Box justifyContent='Center'>
+                        <Pagination count={pinned.length} page={eventN + 1} onChange={(evt, page) => setEventN(page - 1)} />
+                    </Box>
+                </DialogContent>
             </Dialog>
             <Dialog
                 open={showWidgets}

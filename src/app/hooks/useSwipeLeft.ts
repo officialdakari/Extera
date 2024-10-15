@@ -9,8 +9,6 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
     const [swipingId, setSwipingId] = useState("");
     const [animate, setAnimate] = useState(false);
 
-    // Touch handlers for the Message components. If touch starts at 90% of the right, it will trigger the swipe-left-reply.
-    let lastTouch = 0, sideVelocity = 0;
     function onTouchStart(event: TouchEvent, replyId: string | undefined) {
         if (event.touches.length != 1) return setTouchingSide(false);
         if (
@@ -22,7 +20,6 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
             setSideMovedInit(event.touches[0].clientX);
             setSwipingId(replyId || "");
             event.preventDefault();
-            lastTouch = Date.now();
         }
     }
     function onTouchEnd(event: TouchEvent) {
