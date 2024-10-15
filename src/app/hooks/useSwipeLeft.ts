@@ -1,15 +1,15 @@
 import { TouchEvent, useState } from "react";
 
-export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) => {
+export const useSwipeLeft = (handleReplyId: () => void) => {
     // States used for swipe-left-reply. Used for animations and determining whether we should reply or not.
     const [isTouchingSide, setTouchingSide] = useState(false);
     const [sideMoved, setSideMoved] = useState(0);
     const [sideMovedY, setSideMovedY] = useState(0);
     const [sideMovedInit, setSideMovedInit] = useState(0);
-    const [swipingId, setSwipingId] = useState("");
+    const [sideMovedInitY, setSideMovedInitY] = useState(0);
     const [animate, setAnimate] = useState(false);
 
-    function onTouchStart(event: TouchEvent, replyId: string | undefined) {
+    function onTouchStart(event: TouchEvent) {
         if (event.touches.length != 1) return setTouchingSide(false);
         if (
             event.touches[0].clientX > window.innerWidth * 0.5 &&
@@ -17,8 +17,9 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
         ) {
             setTouchingSide(true);
             setSideMoved(event.touches[0].clientX);
+            setSideMovedY(event.touches[0].clientY);
             setSideMovedInit(event.touches[0].clientX);
-            setSwipingId(replyId || "");
+            setSideMovedInitY(event.touches[0].clientY);
             event.preventDefault();
         }
     }
@@ -27,11 +28,10 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
             if (sideMoved) {
                 setSideMovedInit(sideMovedInit => {
                     //  || sideVelocity <= -(window.innerWidth * 0.05 / 250)
-                    if ((sideMoved - sideMovedInit) < -(window.innerWidth * 0.15)) setSwipingId(swipingId => {
+                    if ((sideMoved - sideMovedInit) < -(window.innerWidth * 0.15)) {
                         event.preventDefault();
-                        setTimeout(() => handleReplyId(swipingId), 100);
-                        return "";
-                    });
+                        setTimeout(() => handleReplyId(), 100);
+                    }
                     return 0;
                 });
             }
@@ -40,38 +40,37 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
         setTouchingSide(false);
         setAnimate(false);
     }
-    function onTouchMove(event: TouchEvent, replyId: string | undefined) {
+    function onTouchMove(event: TouchEvent) {
         if (event.touches.length != 1) return;
         if (isTouchingSide) {
-            const dx = Math.abs(event.changedTouches[0].clientX - (sideMoved || 0));
-            const dy = Math.abs(event.changedTouches[0].clientY - (sideMovedY || 0));
-            const ratio = dy / dx;
-            if (ratio > 50) {
-                setTouchingSide(false);
-                setSwipingId('');
+            const minY = sideMovedInitY - 50;
+            const maxY = sideMovedInitY + 50;
+            event.preventDefault();
+            if (sideMovedY < minY || sideMovedY > maxY) {
                 setAnimate(false);
+                setSideMoved(0);
+                setSideMovedY(0);
+                setTouchingSide(false);
                 return;
             }
-            event.preventDefault();
-            if (swipingId == replyId) {
-                if (event.changedTouches.length != 1) {
-                    setSideMoved(0);
-                    setAnimate(false);
-                } else {
-                    setSideMoved(sideMoved => {
-                        const newSideMoved = event.changedTouches[0].clientX;
-                        //sideVelocity = (newSideMoved - sideMoved); // / (Date.now() - lastTouch);  
-                        //lastTouch = Date.now();
-                        setAnimate((sideMoved - sideMovedInit) < -(window.innerWidth * 0.15));
-                        return newSideMoved;
-                    });
-                    setSideMovedY(sideMovedY => {
-                        const newSideMovedY = event.changedTouches[0].clientY;
-                        //sideVelocity = (newSideMoved - sideMoved); // / (Date.now() - lastTouch);  
-                        //lastTouch = Date.now();
-                        return newSideMovedY;
-                    });
-                }
+            if (event.changedTouches.length != 1) {
+                setSideMoved(0);
+                setSideMovedY(0);
+                setAnimate(false);
+            } else {
+                setSideMoved(sideMoved => {
+                    const newSideMoved = event.changedTouches[0].clientX;
+                    //sideVelocity = (newSideMoved - sideMoved); // / (Date.now() - lastTouch);  
+                    //lastTouch = Date.now();
+                    setAnimate((sideMoved - sideMovedInit) < -(window.innerWidth * 0.15));
+                    return newSideMoved;
+                });
+                setSideMovedY(sideMovedY => {
+                    const newSideMovedY = event.changedTouches[0].clientY;
+                    //sideVelocity = (newSideMoved - sideMoved); // / (Date.now() - lastTouch);  
+                    //lastTouch = Date.now();
+                    return newSideMovedY;
+                });
             }
         }
     }
@@ -80,7 +79,6 @@ export const useSwipeLeft = (handleReplyId: (replyId: string | null) => void) =>
         isTouchingSide,
         sideMoved,
         sideMovedInit,
-        swipingId,
         onTouchStart,
         onTouchMove,
         onTouchEnd,

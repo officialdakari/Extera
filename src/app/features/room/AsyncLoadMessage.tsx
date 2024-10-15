@@ -77,8 +77,8 @@ export default function AsyncLoadMessage({ eventId, room }: AsyncLoadMessageProp
                     messageSpacing={messageSpacing}
                     messageLayout={messageLayout}
                     onReactionToggle={(evt: any) => null}
-                    onReplyClick={(evt: any) => null}
-                    onDiscussClick={(evt: any) => null}
+                    onReplyClick={() => null}
+                    onDiscussClick={() => null}
                     onUserClick={(evt: any) => null}
                     onUsernameClick={(evt: any) => null}
                     showGoTo

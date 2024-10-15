@@ -114,7 +114,6 @@ import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { useRoomUnread } from '../../state/hooks/unread';
 import { roomToUnreadAtom } from '../../state/room/roomToUnread';
-import { useSwipeLeft } from '../../hooks/useSwipeLeft';
 import { clamp } from '../../utils/common';
 import { getText, translate } from '../../../lang';
 import { mdiCheckAll, mdiChevronDown, mdiCodeBraces, mdiCodeBracesBox, mdiImageEdit, mdiMessageAlert, mdiPencilBox } from '@mdi/js';
@@ -1089,8 +1088,6 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
         [textAreaRef]
     );
 
-    const { isTouchingSide, sideMoved, sideMovedInit, swipingId, onTouchStart, onTouchMove, onTouchEnd, animate } = useSwipeLeft(handleReplyId);
-
     const renderMatrixEvent = useMatrixEventRenderer<
         [string, MatrixEvent, number, EventTimelineSet, boolean]
     >(
@@ -1143,12 +1140,8 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                         relations={hasReactions ? reactionRelations : undefined}
                         onUserClick={handleUserClick}
                         onUsernameClick={handleUsernameClick}
-                        onReplyClick={(evt: MouseEvent) => handleReplyId(evt.currentTarget.getAttribute('data-event-id'))}
-                        onDiscussClick={(evt: MouseEvent) => handleDiscussId(evt.currentTarget.getAttribute('data-event-id'))}
-                        onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
-                        onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
-                        onTouchEnd={onTouchEnd}
-                        replySwipeAnimation={swipingId === mEvent.getId() && animate}
+                        onReplyClick={() => handleReplyId(mEventId)}
+                        onDiscussClick={() => handleDiscussId(mEventId)}
                         onReactionToggle={handleReactionToggle}
                         onEditId={handleEdit}
                         thread={
@@ -1231,12 +1224,8 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                         relations={hasReactions ? reactionRelations : undefined}
                         onUserClick={handleUserClick}
                         onUsernameClick={handleUsernameClick}
-                        onReplyClick={(evt: MouseEvent) => handleReplyId(evt.currentTarget.getAttribute('data-event-id'))}
-                        onDiscussClick={(evt: MouseEvent) => handleDiscussId(evt.currentTarget.getAttribute('data-event-id'))}
-                        onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
-                        onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
-                        onTouchEnd={onTouchEnd}
-                        replySwipeAnimation={swipingId === mEvent.getId() && animate}
+                        onReplyClick={() => handleReplyId(mEventId)}
+                        onDiscussClick={() => handleDiscussId(mEventId)}
                         onReactionToggle={handleReactionToggle}
                         onEditId={handleEdit}
                         thread={
@@ -1351,12 +1340,8 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                         relations={hasReactions ? reactionRelations : undefined}
                         onUserClick={handleUserClick}
                         onUsernameClick={handleUsernameClick}
-                        onReplyClick={(evt: MouseEvent) => handleReplyId(evt.currentTarget.getAttribute('data-event-id'))}
-                        onDiscussClick={(evt: MouseEvent) => handleDiscussId(evt.currentTarget.getAttribute('data-event-id'))}
-                        onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
-                        onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
-                        onTouchEnd={onTouchEnd}
-                        replySwipeAnimation={swipingId === mEvent.getId() && animate}
+                        onReplyClick={() => handleReplyId(mEventId)}
+                        onDiscussClick={() => handleDiscussId(mEventId)}
                         onReactionToggle={handleReactionToggle}
                         thread={
                             <ThreadPreview mEvent={mEvent} room={room} onClick={() => handleDiscussId(mEvent.getId())} />
@@ -1429,12 +1414,8 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                         relations={hasReactions ? reactionRelations : undefined}
                         onUserClick={handleUserClick}
                         onUsernameClick={handleUsernameClick}
-                        onReplyClick={(evt: MouseEvent) => handleReplyId(evt.currentTarget.getAttribute('data-event-id'))}
-                        onDiscussClick={(evt: MouseEvent) => handleDiscussId(evt.currentTarget.getAttribute('data-event-id'))}
-                        onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
-                        onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
-                        onTouchEnd={onTouchEnd}
-                        replySwipeAnimation={swipingId === mEvent.getId() && animate}
+                        onReplyClick={() => handleReplyId(mEventId)}
+                        onDiscussClick={() => handleDiscussId(mEventId)}
                         onReactionToggle={handleReactionToggle}
                         reactions={
                             reactionRelations && (

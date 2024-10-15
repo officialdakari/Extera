@@ -76,6 +76,7 @@ import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 import { Alert, AppBar, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Link, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Toolbar, Typography } from '@mui/material';
 import { AddReactionOutlined, ArrowBack, Cancel, CancelOutlined, Close, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
+import { useSwipeLeft } from '../../../hooks/useSwipeLeft';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -475,8 +476,8 @@ export const MessageRecoverItem = as<
                 messageSpacing={messageSpacing}
                 messageLayout={messageLayout}
                 onReactionToggle={(evt: any) => null}
-                onReplyClick={(evt: any) => null}
-                onDiscussClick={(evt: any) => null}
+                onReplyClick={() => { }}
+                onDiscussClick={() => { }}
                 onUserClick={(evt: any) => null}
                 onUsernameClick={(evt: any) => null}
             >
@@ -607,8 +608,8 @@ export const MessageTranslateItem = as<
                 messageSpacing={messageSpacing}
                 messageLayout={messageLayout}
                 onReactionToggle={(evt: any) => null}
-                onReplyClick={(evt: any) => null}
-                onDiscussClick={(evt: any) => null}
+                onReplyClick={() => { }}
+                onDiscussClick={() => { }}
                 onUserClick={(evt: any) => null}
                 onUsernameClick={(evt: any) => null}
             >
@@ -983,8 +984,8 @@ export type MessageProps = {
     messageSpacing: MessageSpacing;
     onUserClick: MouseEventHandler<HTMLButtonElement>;
     onUsernameClick: MouseEventHandler<HTMLButtonElement>;
-    onReplyClick: MouseEventHandler<HTMLButtonElement>;
-    onDiscussClick: MouseEventHandler<HTMLButtonElement>;
+    onReplyClick: () => void;
+    onDiscussClick: () => void;
     onEditId?: (eventId?: string) => void;
     onReactionToggle: (targetEventId: string, key: string, shortcode?: string) => void;
     reply?: ReactNode;
@@ -1038,6 +1039,7 @@ export const Message = as<'div', MessageProps>(
         const localPart = getMxIdLocalPart(senderId);
         const content = mEvent.getContent();
 
+        const { animate, isTouchingSide, onTouchEnd, onTouchMove, onTouchStart } = useSwipeLeft(() => onReplyClick());
 
         var senderDisplayName =
             getMemberDisplayName(room, senderId) ?? user?.displayName ?? localPart ?? senderId;
@@ -1264,6 +1266,10 @@ export const Message = as<'div', MessageProps>(
                 collapse={collapse}
                 highlight={highlight}
                 selected={!!menuAnchor || !!emojiBoardAnchor}
+                onTouchStart={onTouchStart}
+                onTouchEnd={onTouchEnd}
+                onTouchMove={onTouchMove}
+                replySwipeAnimation={animate}
                 {...props}
                 {...hoverProps}
                 {...focusWithinProps}
@@ -1408,7 +1414,7 @@ export const Message = as<'div', MessageProps>(
                                         data-event-id={mEvent.getId()}
                                         onClick={(evt: any) => {
                                             closeMenu();
-                                            onReplyClick(evt);
+                                            onReplyClick();
                                         }}
                                     >
                                         <ListItemIcon>
@@ -1421,8 +1427,8 @@ export const Message = as<'div', MessageProps>(
                                     <MenuItem
                                         data-event-id={mEvent.getId()}
                                         onClick={(evt: any) => {
-                                            onDiscussClick?.(evt);
                                             closeMenu();
+                                            onDiscussClick();
                                         }}
                                     >
                                         <ListItemIcon>
