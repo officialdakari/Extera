@@ -160,7 +160,7 @@ function AppearanceSection() {
                                 onClick={handleSetWallpaper}
                             >{getText(wallpaperURL ? 'btn.settings.wallpaper.change' : 'btn.settings.wallpaper.add')}</Button>
                             {wallpaperURL && <>&nbsp;<Button
-                                variant='contained'
+                                variant='outlined'
                                 color='error'
                                 onClick={handleDeleteWallpaper}
                             >{getText('btn.settings.wallpaper.delete')}</Button></>}
@@ -880,7 +880,7 @@ function Settings() {
             open={isOpen}
             onClose={requestClose}
             fullScreen={screenSize === ScreenSize.Mobile}
-            scroll='paper'
+            scroll={screenSize === ScreenSize.Mobile ? 'body' : 'paper'}
             sx={{ overscrollBehaviorY: 'none' }}
         >
             <input type='file' accept='image/*' onChange={uploadImage} ref={uploadImageRef} style={{ display: 'none' }} />

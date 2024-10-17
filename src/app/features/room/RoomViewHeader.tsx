@@ -64,7 +64,7 @@ import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
 import { nameInitials } from '../../utils/common';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
-import { AppBar, Dialog, DialogContent, DialogContentText, DialogTitle, Divider, Fab, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Pagination, Toolbar, Tooltip, Typography } from '@mui/material';
+import { AppBar, Dialog, DialogContent, DialogContentText, DialogTitle, Divider, Fab, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Pagination, Toolbar, Tooltip, Typography, useTheme } from '@mui/material';
 import { ArrowBack, CallEnd, Close, DoneAll, KeyboardArrowUp, Link, MessageOutlined, MoreVert, People, PersonAdd, Phone, PushPin, Search, Settings, VideoCall, Widgets } from '@mui/icons-material';
 import { BackRouteHandler } from '../../components/BackRouteHandler';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -228,8 +228,8 @@ export function RoomViewHeader({
     handleVideoCall
 }: RoomViewHeaderProps) {
     const navigate = useNavigate();
-    const { threadRootId } = useParams();
     const mx = useMatrixClient();
+    const theme = useTheme();
     const screenSize = useScreenSizeContext();
     const room = useRoom();
     const space = useSpaceOptionally();
@@ -242,6 +242,7 @@ export function RoomViewHeader({
     const name = useRoomName(room);
     const topic = useRoomTopic(room);
     const [statusMessage, setStatusMessage] = useState('');
+    const [topicColor, setTopicColor] = useState('textSecondary');
     const [showPinned, setShowPinned] = useState(false);
     const [showWidgets, setShowWidgets] = useState(false);
     const [widgets, setWidgets] = useState<ReactNode[]>([]);
@@ -410,13 +411,15 @@ export function RoomViewHeader({
         if (isDm) {
             const userId = room.guessDMUserId();
             const presence = getPresenceFn(userId);
-            if (presence)
+            if (presence) {
                 setStatusMessage(presence.presenceStatusMsg ?? presence.presence ?? 'offline');
+                if (presence.presence === 'online') setTopicColor(theme.palette.success.main);
+            }
         }
-    }, [mx]);
+    }, [mx, theme]);
 
     const pinnedEvents = state?.getStateEvents('m.room.pinned_events');
-    const pinned = useMemo<string[]>(() => (pinnedEvents && pinnedEvents[0].getContent().pinned) || [], [pinnedEvents, state, mx, room]);
+    const pinned = useMemo<string[]>(() => (pinnedEvents && pinnedEvents[0] && pinnedEvents[0].getContent().pinned) || [], [pinnedEvents, state, mx, room]);
     const [eventN, setEventN] = useState<number>(0);
 
     useEffect(() => { }, [eventN]);
@@ -488,6 +491,7 @@ export function RoomViewHeader({
                             <BackRouteHandler>
                                 {(goBack) => (
                                     <IconButton
+                                        color='inherit'
                                         onClick={goBack}
                                     >
                                         <ArrowBack />
@@ -531,13 +535,12 @@ export function RoomViewHeader({
                                                     />
                                                 </Dialog>
                                                 <Text
-                                                    as="button"
-                                                    type="button"
                                                     onClick={() => setViewTopic(true)}
-                                                    className={css.HeaderTopic}
-                                                    size="T200"
-                                                    priority="300"
+                                                    as='button'
+                                                    type='button'
                                                     truncate
+                                                    size='T200'
+                                                    color={topicColor}
                                                 >
                                                     {topic ?? statusMessage}
                                                 </Text>
@@ -550,40 +553,40 @@ export function RoomViewHeader({
                         <Box shrink="No">
                             {!encryptedRoom && (
                                 <Tooltip title={getText('tooltip.search')}>
-                                    <IconButton onClick={handleSearchClick}>
+                                    <IconButton color='inherit' onClick={handleSearchClick}>
                                         <Search />
                                     </IconButton>
                                 </Tooltip>
                             )}
                             <Tooltip title={getText('tooltip.widgets')}>
-                                <IconButton onClick={handleWidgetsClick}>
+                                <IconButton color='inherit' onClick={handleWidgetsClick}>
                                     <Widgets />
                                 </IconButton>
                             </Tooltip>
                             <Tooltip title={getText('tooltip.pinned')}>
-                                <IconButton onClick={handlePinnedClick}>
+                                <IconButton color='inherit' onClick={handlePinnedClick}>
                                     <PushPin />
                                 </IconButton>
                             </Tooltip>
                             {screenSize === ScreenSize.Desktop && (
                                 <Tooltip title={getText('tooltip.members')}>
-                                    <IconButton onClick={() => setPeopleDrawer((drawer) => !drawer)}>
+                                    <IconButton color='inherit' onClick={() => setPeopleDrawer((drawer) => !drawer)}>
                                         <People />
                                     </IconButton>
                                 </Tooltip>
                             )}
                             {!mDirects.has(room.roomId) && showVideoCallButton && (
-                                <IconButton onClick={handleVideoCall}>
+                                <IconButton color='inherit' onClick={handleVideoCall}>
                                     <VideoCall />
                                 </IconButton>
                             )}
                             {mDirects.has(room.roomId) && (
-                                <IconButton onClick={handleCall}>
+                                <IconButton color='inherit' onClick={handleCall}>
                                     <Phone />
                                 </IconButton>
                             )}
                             <Tooltip title={getText('tooltip.more_options')}>
-                                <IconButton onClick={handleOpenMenu} aria-pressed={!!menuAnchor}>
+                                <IconButton color='inherit' onClick={handleOpenMenu} aria-pressed={!!menuAnchor}>
                                     <MoreVert />
                                 </IconButton>
                             </Tooltip>

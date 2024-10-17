@@ -1,16 +1,10 @@
 import React, { FormEventHandler, MouseEventHandler, useCallback, useState } from 'react';
 import {
     Box,
-    Header,
-    Menu,
     Overlay,
     OverlayBackdrop,
     OverlayCenter,
-    PopOut,
-    RectCords,
-    Spinner,
     Text,
-    config,
 } from 'folds';
 import FocusTrap from 'focus-trap-react';
 import { Link } from 'react-router-dom';
@@ -35,7 +29,7 @@ import { getText } from '../../../../lang';
 import cons from '../../../../client/state/cons';
 import Icon from '@mdi/react';
 import { mdiAlertCircleOutline } from '@mdi/js';
-import { Button, TextField } from '@mui/material';
+import { Button, CircularProgress, TextField } from '@mui/material';
 
 type PasswordLoginFormProps = {
     defaultUsername?: string;
@@ -182,7 +176,7 @@ export function PasswordLoginForm({ defaultUsername, defaultEmail }: PasswordLog
                 backdrop={<OverlayBackdrop />}
             >
                 <OverlayCenter>
-                    <Spinner variant="Secondary" size="600" />
+                    <CircularProgress />
                 </OverlayCenter>
             </Overlay>
         </Box>

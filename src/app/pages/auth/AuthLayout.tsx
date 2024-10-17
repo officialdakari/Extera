@@ -31,6 +31,7 @@ import { AuthFlowsProvider } from '../../hooks/useAuthFlows';
 import { AuthServerProvider } from '../../hooks/useAuthServer';
 import { getText } from '../../../lang';
 import cons from '../../../client/state/cons';
+import { CircularProgress, LinearProgress } from '@mui/material';
 
 const currentAuthPath = (pathname: string): string => {
     if (matchPath(LOGIN_PATH, pathname)) {
@@ -48,10 +49,8 @@ const currentAuthPath = (pathname: string): string => {
 function AuthLayoutLoading({ message }: { message: string }) {
     return (
         <Box justifyContent="Center" alignItems="Center" gap="200">
-            <Spinner size="100" variant="Secondary" />
-            <Text align="Center" size="T300">
-                {message}
-            </Text>
+            <CircularProgress size={30} />
+            {message}
         </Box>
     );
 }

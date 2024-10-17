@@ -994,5 +994,6 @@
     "btn.knock": "Knock",
     "msg.blocked": "Blocked message",
     "room_visibility.knock": "Knock",
-    "title.map": "Map"
+    "title.map": "Map",
+    "authrequest.desc": "Performing this action requires verifying your identity."
 }

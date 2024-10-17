@@ -3,9 +3,6 @@ import classNames from 'classnames';
 import {
     Avatar,
     Box,
-    Header,
-    IconButton,
-    MenuItem,
     Scroll,
     Text,
     as,
@@ -22,6 +19,7 @@ import { UserAvatar } from '../user-avatar';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccount, mdiClose } from '@mdi/js';
+import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 
 export type EventReadersProps = {
     room: Room;
@@ -37,59 +35,38 @@ export const EventReaders = as<'div', EventReadersProps>(
             getMemberDisplayName(room, userId) ?? getMxIdLocalPart(userId) ?? userId;
 
         return (
-            <Box
-                className={classNames(css.EventReaders, className)}
-                direction="Column"
-                {...props}
-                ref={ref}
-            >
-                <Header className={css.Header} variant="Surface" size="600">
-                    <Box grow="Yes">
-                        <Text size="H3">{getText('event_readers.seen_by')}</Text>
-                    </Box>
-                    <IconButton size="300" onClick={requestClose}>
-                    <Icon size={1} path={mdiClose} />
-                    </IconButton>
-                </Header>
-                <Box grow="Yes">
-                    <Scroll visibility="Hover" hideTrack size="300">
-                        <Box className={css.Content} direction="Column">
-                            {latestEventReaders.map((readerId) => {
-                                const name = getName(readerId);
-                                const avatarUrl = room
-                                    .getMember(readerId)
-                                    ?.getAvatarUrl(mx.baseUrl, 100, 100, 'crop', undefined, false);
+            <List>
+                {latestEventReaders.map((readerId) => {
+                    const name = getName(readerId);
+                    const avatarUrl = room
+                        .getMember(readerId)
+                        ?.getAvatarUrl(mx.baseUrl, 100, 100, 'crop', undefined, false);
 
-                                return (
-                                    <MenuItem
-                                        key={readerId}
-                                        style={{ padding: `0 ${config.space.S200}` }}
-                                        radii="400"
-                                        onClick={() => {
-                                            requestClose();
-                                            openProfileViewer(readerId, room.roomId);
-                                        }}
-                                        before={
-                                            <Avatar size="200">
-                                                <UserAvatar
-                                                    userId={readerId}
-                                                    src={avatarUrl ?? undefined}
-                                                    alt={name}
-                                                    renderFallback={() => <Icon size={1} path={mdiAccount} />}
-                                                />
-                                            </Avatar>
-                                        }
-                                    >
-                                        <Text size="T400" truncate>
-                                            {name}
-                                        </Text>
-                                    </MenuItem>
-                                );
-                            })}
-                        </Box>
-                    </Scroll>
-                </Box>
-            </Box>
+                    return (
+                        <ListItemButton
+                            key={readerId}
+                            onClick={() => {
+                                requestClose();
+                                openProfileViewer(readerId, room.roomId);
+                            }}
+                        >
+                            <ListItemIcon>
+                                <Avatar size="300">
+                                    <UserAvatar
+                                        userId={readerId}
+                                        src={avatarUrl ?? undefined}
+                                        alt={name}
+                                        renderFallback={() => <Icon size={1} path={mdiAccount} />}
+                                    />
+                                </Avatar>
+                            </ListItemIcon>
+                            <ListItemText>
+                                {name}
+                            </ListItemText>
+                        </ListItemButton>
+                    );
+                })}
+            </List>
         );
     }
 );

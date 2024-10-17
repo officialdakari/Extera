@@ -113,7 +113,9 @@ export default function AsyncLoadMessage({ eventId, room }: AsyncLoadMessageProp
         }
     }, [mx, room, eventId, messageLayout, messageSpacing, mediaAutoLoad, setMessage]);
 
-    load();
+    useEffect(() => {
+        load();
+    }, [mx, room, eventId, messageLayout, messageSpacing, mediaAutoLoad]);
 
     return message;
 }

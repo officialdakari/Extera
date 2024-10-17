@@ -994,5 +994,6 @@
 	"btn.knock": "Запросить вход",
 	"msg.blocked": "Сообщение скрыто",
 	"room_visibility.knock": "По запросу",
-	"title.map": "Карта"
+	"title.map": "Карта",
+	"authrequest.desc": "Для выполнения этого действия, введите пароль."
 }

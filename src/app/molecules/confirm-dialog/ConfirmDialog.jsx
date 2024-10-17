@@ -18,11 +18,11 @@ function ConfirmDialog({
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button color={actionType || 'primary'} onClick={() => onComplete(true)}>
-                    {actionTitle}
-                </Button>
                 <Button onClick={() => onComplete(false)}>
                     {getText('btn.cancel')}
+                </Button>
+                <Button color={actionType || 'primary'} onClick={() => onComplete(true)}>
+                    {actionTitle}
                 </Button>
             </DialogActions>
         </>

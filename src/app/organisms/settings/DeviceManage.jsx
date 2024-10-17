@@ -115,7 +115,7 @@ function DeviceManage() {
             getText('device_manage.logout.title', device.display_name),
             getText('device_manage.logout.warning', device.display_name),
             getText('btn.logout'),
-            'danger',
+            'error',
         );
         if (!isConfirmed) return;
         addToProcessing(device);

@@ -7,8 +7,9 @@ import { openReusableDialog } from '../../../client/action/navigation';
 
 import { useStore } from '../../hooks/useStore';
 import { getText } from '../../../lang';
-import { Alert, Button, DialogActions, DialogContent, LinearProgress, TextField } from '@mui/material';
+import { Alert, Button, DialogActions, DialogContent, DialogContentText, LinearProgress, TextField } from '@mui/material';
 import { Error } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 
 let lastUsedPassword;
 const getAuthId = (password) => ({
@@ -55,6 +56,9 @@ function AuthRequest({ onComplete, makeRequest }) {
     return (
         <>
             <DialogContent>
+                <DialogContentText>
+                    {getText('authrequest.desc')}
+                </DialogContentText>
                 <TextField
                     autoFocus
                     required
@@ -64,7 +68,6 @@ function AuthRequest({ onComplete, makeRequest }) {
                     inputRef={inputRef}
                     fullWidth
                 />
-                {status.ongoing && <LinearProgress />}
                 {status.error && (
                     <Alert icon={<Error />} severity='error'>
                         {status.error}
@@ -72,12 +75,13 @@ function AuthRequest({ onComplete, makeRequest }) {
                 )}
             </DialogContent>
             <DialogActions>
-                <Button
+                <LoadingButton
                     onClick={handleForm}
                     disabled={!!status.error}
+                    loading={status.ongoing}
                 >
                     {getText('btn.auth_request.continue')}
-                </Button>
+                </LoadingButton>
             </DialogActions>
         </>
         // <div className="auth-request">

@@ -1,7 +1,6 @@
 import {
     Avatar,
     Box,
-    IconButton,
     Line,
     Text,
     as,
@@ -73,10 +72,11 @@ import { VerificationBadge } from '../../../components/verification-badge/Verifi
 import { saveFile } from '../../../utils/saveFile';
 import { getFileSrcUrl } from '../../../components/message/content/util';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
-import { Alert, AppBar, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Link, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Toolbar, Typography } from '@mui/material';
+import { Alert, AppBar, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, Link, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Toolbar, Typography, useTheme } from '@mui/material';
 import { AddReactionOutlined, ArrowBack, Cancel, CancelOutlined, Close, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useSwipeLeft } from '../../../hooks/useSwipeLeft';
+import { Feature, ServerSupport } from 'matrix-js-sdk/lib/feature';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -103,14 +103,11 @@ export const MessageQuickReactions = as<'div', MessageQuickReactionsProps>(
                         <IconButton
                             key={emoji.unicode}
                             className={css.MessageQuickReaction}
-                            size="300"
-                            variant="SurfaceVariant"
-                            radii="Pill"
                             title={emoji.shortcode}
                             aria-label={emoji.shortcode}
                             onClick={() => onReaction(emoji.unicode, emoji.shortcode)}
                         >
-                            <Text size="T500">{emoji.unicode}</Text>
+                            {emoji.unicode}
                         </IconButton>
                     ))}
                 </Box>
@@ -180,7 +177,21 @@ export const MessageReadReceiptItem = as<
                 open={open}
                 onClose={handleClose}
             >
-                <DialogContent>
+                <AppBar position='relative'>
+                    <Toolbar>
+                        <Typography
+                            variant='h6'
+                            component='div'
+                            flexGrow={1}
+                        >
+                            {getText('event_readers.seen_by')}
+                        </Typography>
+                        <IconButton onClick={handleClose} edge='end'>
+                            <Close />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent sx={{ minWidth: '500px' }}>
                     <EventReaders room={room} eventId={eventId} requestClose={handleClose} />
                 </DialogContent>
             </Dialog>
@@ -776,17 +787,24 @@ export const MessageDeleteItem = as<
     const [deleteState, deleteMessage] = useAsyncCallback(
         useCallback(
             (eventId: string, reason?: string) => {
-                mx.relations(room.roomId, eventId, RelationType.Replace)
-                    .then(({ events }) => {
-                        for (const ev of events) {
-                            const evId = ev.getId();
-                            if (!evId) continue;
-                            mx.redactEvent(room.roomId, evId, undefined, { reason });
-                        }
+                if (mx.canSupport.get(Feature.RelationBasedRedactions) !== ServerSupport.Unsupported) {
+                    return mx.redactEvent(room.roomId, eventId, undefined, {
+                        reason,
+                        with_rel_types: [RelationType.Replace]
                     });
-                return mx.redactEvent(room.roomId, eventId, undefined, {
-                    reason
-                });
+                } else {
+                    mx.relations(room.roomId, eventId, RelationType.Replace)
+                        .then(({ events }) => {
+                            for (const ev of events) {
+                                const evId = ev.getId();
+                                if (!evId) continue;
+                                mx.redactEvent(room.roomId, evId, undefined, { reason });
+                            }
+                        });
+                    return mx.redactEvent(room.roomId, eventId, undefined, {
+                        reason
+                    });
+                }
             },
             [mx, room]
         )
@@ -850,7 +868,7 @@ export const MessageDeleteItem = as<
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>{getText('btn.cancel')}</Button>
-                    <LoadingButton loading={deleteState.status === AsyncStatus.Loading} type='submit' color='error'>{getText('btn.msg_redact')}</LoadingButton>
+                    <Button disabled={deleteState.status === AsyncStatus.Loading} type='submit' color='error'>{getText('btn.msg_redact')}</Button>
                 </DialogActions>
             </Dialog>
             <MenuItem
@@ -1256,6 +1274,7 @@ export const Message = as<'div', MessageProps>(
             () => mEvent.getType() === 'm.sticker',
             [mEvent]
         );
+        const theme = useTheme();
 
         return (
             <MessageBase
@@ -1276,7 +1295,15 @@ export const Message = as<'div', MessageProps>(
                 ref={ref}
             >
                 {!edit && (hover || !!menuAnchor || !!emojiBoardAnchor) && (
-                    <div className={css.MessageOptionsBase}>
+                    <div
+                        className={css.MessageOptionsBase}
+                        style={{
+                            backgroundColor: theme.palette.background.paper,
+                            borderColor: theme.palette.divider,
+                            borderWidth: '1px',
+                            borderRadius: theme.shape.borderRadius,
+                        }}
+                    >
                         {!isTouch && (
                             <>
                                 {status === EventStatus.SENT && (
@@ -1303,9 +1330,6 @@ export const Message = as<'div', MessageProps>(
                                                 </Menu>
                                                 <IconButton
                                                     onClick={handleOpenEmojiBoard}
-                                                    variant="SurfaceVariant"
-                                                    size="300"
-                                                    radii="300"
                                                     aria-pressed={!!emojiBoardAnchor}
                                                 >
                                                     <Icon size={1} path={mdiEmoticonPlus} />
@@ -1315,27 +1339,18 @@ export const Message = as<'div', MessageProps>(
                                         <IconButton
                                             onClick={onReplyClick}
                                             data-event-id={mEvent.getId()}
-                                            variant="SurfaceVariant"
-                                            size="300"
-                                            radii="300"
                                         >
                                             <Icon size={1} path={mdiReply} />
                                         </IconButton>
                                         <IconButton
                                             onClick={onDiscussClick}
                                             data-event-id={mEvent.getId()}
-                                            variant="SurfaceVariant"
-                                            size="300"
-                                            radii="300"
                                         >
                                             <Icon size={1} path={mdiMessage} />
                                         </IconButton>
                                         {canEditEvent(mx, mEvent) && onEditId && (
                                             <IconButton
                                                 onClick={() => onEditId(mEvent.getId())}
-                                                variant="SurfaceVariant"
-                                                size="300"
-                                                radii="300"
                                             >
                                                 <Icon size={1} path={mdiPencil} />
                                             </IconButton>
@@ -1343,9 +1358,6 @@ export const Message = as<'div', MessageProps>(
                                     </>
                                 )}
                                 <IconButton
-                                    variant="SurfaceVariant"
-                                    size="300"
-                                    radii="300"
                                     onClick={handleOpenMenu}
                                     aria-pressed={!!menuAnchor}
                                 >
