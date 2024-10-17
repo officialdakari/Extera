@@ -1,8 +1,9 @@
+import { ReceiptType } from 'matrix-js-sdk';
 import { removeNotifications } from '../../app/utils/notifications';
 import initMatrix from '../initMatrix';
 
 // eslint-disable-next-line import/prefer-default-export
-export async function markAsRead(roomId, threadId) {
+export async function markAsRead(roomId, threadId, privateReceipt) {
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(roomId);
     if (!room) return;
@@ -25,7 +26,7 @@ export async function markAsRead(roomId, threadId) {
         const latestEvent = getLatestValidEvent();
         if (latestEvent === null) return;
 
-        await mx.sendReadReceipt(latestEvent);
+        await mx.sendReadReceipt(latestEvent, privateReceipt ? ReceiptType.ReadPrivate : ReceiptType.Read);
     } else {
         const thread = room.getThread(threadId);
         const timeline = thread.getUnfilteredTimelineSet().getLiveTimeline().getEvents();
@@ -43,6 +44,6 @@ export async function markAsRead(roomId, threadId) {
         const latestEvent = getLatestValidEvent();
         if (latestEvent === null) return;
 
-        await mx.sendReadReceipt(latestEvent);
+        await mx.sendReadReceipt(latestEvent, privateReceipt ? ReceiptType.ReadPrivate : ReceiptType.Read);
     }
 }

@@ -93,21 +93,21 @@ export function PageNavContent({
 
 const PageAnimationVariants: Variants = {
     initial: {
-        translateX: '50%',
+        translateX: '20px',
         opacity: 0.3,
         transition: {
             ease: 'linear'
         },
     },
     final: {
-        translateX: '0%',
+        translateX: 0,
         opacity: 1,
         transition: {
             ease: 'linear'
         },
     },
     exit: {
-        translateX: '-50%',
+        translateX: '-20px',
         opacity: 0.3,
         transition: {
             ease: 'linear'

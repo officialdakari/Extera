@@ -65,7 +65,7 @@ import { ImageViewer } from '../../../components/image-viewer';
 import { Image } from '../../../components/media';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
-import { mdiAccount, mdiAlertCircleOutline, mdiArrowRight, mdiCancel, mdiCheck, mdiCheckAll, mdiClose, mdiCloseCircle, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiDownload, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReload, mdiRepeat, mdiReply, mdiRestore, mdiTranslate } from '@mdi/js';
+import { mdiAccount, mdiAlertCircleOutline, mdiArrowRight, mdiCancel, mdiCheck, mdiCheckAll, mdiClose, mdiCloseCircle, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiDownload, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReload, mdiRepeat, mdiReply, mdiRestore, mdiShare, mdiTranslate } from '@mdi/js';
 import { useBackButton } from '../../../hooks/useBackButton';
 import { translateContent } from '../../../utils/translation';
 import { VerificationBadge } from '../../../components/verification-badge/VerificationBadge';
@@ -77,6 +77,8 @@ import { AddReactionOutlined, ArrowBack, Cancel, CancelOutlined, Close, DataObje
 import { LoadingButton } from '@mui/lab';
 import { useSwipeLeft } from '../../../hooks/useSwipeLeft';
 import { Feature, ServerSupport } from 'matrix-js-sdk/lib/feature';
+import { useAtomValue } from 'jotai';
+import { mDirectAtom } from '../../../state/mDirectList';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -1056,6 +1058,7 @@ export const Message = as<'div', MessageProps>(
         const user = mx.getUser(senderId);
         const localPart = getMxIdLocalPart(senderId);
         const content = mEvent.getContent();
+        const mDirects = useAtomValue(mDirectAtom);
 
         const { animate, isTouchingSide, onTouchEnd, onTouchMove, onTouchStart } = useSwipeLeft(() => onReplyClick());
 
@@ -1070,10 +1073,16 @@ export const Message = as<'div', MessageProps>(
             }
         }
 
+        const isBridged = useMemo(() => {
+            return (content['fi.mau.telegram.source']) ? true : false;
+        }, [content, mEvent, mx]);
+
+        const hideHeader = useMemo(() => messageLayout === 2 && mDirects.has(room.roomId), [messageLayout, room, mDirects]);
+
         const childrenRef = useRef<HTMLDivElement>(null);
         const maxWidthStyle = messageLayout === 2 && (!['m.text', 'm.notice'].includes(mEvent.getContent().msgtype ?? '')) ? { maxWidth: `${childrenRef.current?.clientWidth}px` } : undefined;
 
-        const headerJSX = !collapse && (
+        const headerJSX = !collapse && !hideHeader && (
             <Box
                 gap="300"
                 direction={messageLayout === 1 ? 'RowReverse' : 'Row'}
@@ -1091,6 +1100,7 @@ export const Message = as<'div', MessageProps>(
                             onContextMenu={onUserClick}
                             onClick={onUsernameClick}
                         >
+                            {/* {isBridged && <Icon path={mdiShare} size={0.8} style={{ verticalAlign: 'bottom' }} />} */}
                             <Text as="span" size={messageLayout === 2 ? 'T300' : 'T400'} truncate>
                                 <b>{senderDisplayName}</b>
                             </Text>
@@ -1099,9 +1109,9 @@ export const Message = as<'div', MessageProps>(
                     </Box>
                 )}
                 <Box shrink="No" grow='No' gap="100">
-                    {messageLayout === 2 && senderId !== userId && (
+                    {/* {messageLayout === 2 && senderId !== userId && (
                         <Time className={css.MessageTimestamp} ts={mEvent.getTs()} compact={true} />
-                    )}
+                    )} */}
                     {messageLayout === 0 && hover && (
                         <>
                             <Text as="span" size="T200" priority="300">
@@ -1551,7 +1561,7 @@ export const Message = as<'div', MessageProps>(
                 )}
                 {
                     messageLayout === 2 && (
-                        <BubbleLayout transparent={isSticker} before={userId !== senderId && avatarJSX} rightAligned={userId === senderId} onContextMenu={handleContextMenu}>
+                        <BubbleLayout after={<Time compact ts={mEvent.getTs()} />} transparent={isSticker} before={userId !== senderId && avatarJSX} rightAligned={userId === senderId} onContextMenu={handleContextMenu}>
                             {headerJSX}
                             {msgContentJSX}
                             {footerJSX}

@@ -2,6 +2,8 @@ import React, { ReactNode } from 'react';
 import { Box, as } from 'folds';
 import * as css from './layout.css';
 import classNames from 'classnames';
+import { useTheme } from '@mui/material';
+import { blue } from '@mui/material/colors';
 
 type BubbleLayoutProps = {
     before?: ReactNode;
@@ -10,15 +12,35 @@ type BubbleLayoutProps = {
     transparent?: boolean;
 };
 
-export const BubbleLayout = as<'div', BubbleLayoutProps>(({ before, rightAligned, transparent, children, after, ...props }, ref) => (
-    <Box justifyContent={rightAligned ? 'End' : undefined} gap="300" {...props} ref={ref}>
-        <Box className={css.BubbleBefore} shrink="No">
-            {before}
+export const BubbleLayout = as<'div', BubbleLayoutProps>(({ before, rightAligned, transparent, children, after, ...props }, ref) => {
+    const theme = useTheme();
+    return (
+        <Box
+            justifyContent={rightAligned ? 'End' : undefined}
+            gap="300"
+            {...props}
+            ref={ref}
+        >
+            <Box className={css.BubbleBefore} shrink="No">
+                {before}
+            </Box>
+            <Box
+                className={css.BubbleContent}
+                style={{
+                    backgroundColor: !transparent
+                        ? (rightAligned
+                            ? blue[900]
+                            : theme.palette.grey[800])
+                        : 'transparent',
+                    borderRadius: theme.shape.borderRadius,
+                    color: rightAligned ? theme.palette.common.white : undefined
+                }}
+                direction="Column"
+            >
+                {children}
+                {after &&
+                    <div dir='ltr' className={css.BubbleAfter}>{after}</div>}
+            </Box>
         </Box>
-        <Box className={classNames(rightAligned ? css.BubbleContentRightAligned : css.BubbleContent, transparent && css.BubbleContentTransparent)} direction="Column">
-            {children}
-            {after &&
-                <div className={css.BubbleAfter}>{after}</div>}
-        </Box>
-    </Box>
-));
+    );
+});

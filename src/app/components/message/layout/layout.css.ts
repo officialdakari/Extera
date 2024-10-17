@@ -154,31 +154,31 @@ export const BubbleBefore = style([ModernBefore]);
 export const BubbleContent = style({
     maxWidth: '75%',
     padding: config.space.S200,
-    backgroundColor: color.SurfaceVariant.Container,
-    color: color.SurfaceVariant.OnContainer,
-    borderRadius: config.radii.R400,
     position: 'relative',
 });
-
-export const BubbleContentRightAligned = style([
-    BubbleContent,
-    {
-        backgroundColor: color.Surface.ContainerLine,
-    }
-]);
 
 export const BubbleContentTransparent = style({
     background: 'transparent'
 });
 
 export const BubbleAfter = style({
-    position: 'relative',
-    //top: '.375rem',
-    bottom: 'auto !important',
+    //@ts-ignore
+    '> time': {
+        position: 'relative',
+        bottom: 'auto !important',
+        float: 'right',
+        lineHeight: 1.35,
+        marginLeft: '.4375rem',
+        flexGrow: 0,
+    },
+    width: 'min-content',
+    alignSelf: 'end',
+    flexGrow: 0,
+    right: 0,
+    display: 'flex',
+    padding: '0 0',
     float: 'right',
-    lineHeight: 1.35,
-    marginLeft: '.4375rem',
-    //marginRight: '-0.375rem'
+    position: 'relative'
 });
 
 

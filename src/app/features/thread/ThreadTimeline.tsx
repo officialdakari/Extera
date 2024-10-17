@@ -122,10 +122,15 @@ import HiddenContent from '../../components/hidden-content/HiddenContent';
 import { isIgnored } from '../../../client/action/room';
 import { Chip, Divider, Fab } from '@mui/material';
 import { ArrowUpward, DoneAll, KeyboardArrowDown } from '@mui/icons-material';
+import { MotionBox } from '../../atoms/motion/Animated';
+import { AnimatePresence } from 'framer-motion';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
     ({ position, className, ...props }, ref) => (
-        <Box
+        <MotionBox
+            animate={{ scale: 1 }}
+            initial={{ scale: 0 }}
+            exit={{ scale: 0 }}
             className={classNames(css.TimelineFloat({ position }), className)}
             justifyContent="End"
             alignItems="End"
@@ -686,8 +691,8 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                     scrollToBottomRef.current.smooth = smoothScroll;
                 }
 
-                if (document.hasFocus() && (!unreadInfo || mEvt.getSender() === mx.getUserId()) && !ghostMode) {
-                    requestAnimationFrame(() => markAsRead(mEvt.getRoomId(), thread?.id));
+                if (document.hasFocus() && (!unreadInfo || mEvt.getSender() === mx.getUserId())) {
+                    requestAnimationFrame(() => markAsRead(mEvt.getRoomId(), thread?.id, ghostMode));
                 }
                 setTimeline((ct) => ({
                     ...ct,
@@ -1739,24 +1744,26 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
 
     return (
         <Box grow="Yes" style={{ position: 'relative' }}>
-            {unreadInfo?.readUptoEventId && !unreadInfo?.inLiveTimeline && (
-                <TimelineFloat position="Top">
-                    <Fab
-                        size='small'
-                        aria-label={getText('btn.timeline.jump_to_unread')}
-                        onClick={handleJumpToUnread}
-                    >
-                        <ArrowUpward />
-                    </Fab>
-                    <Fab
-                        size='small'
-                        aria-label={getText('btn.timeline.mark_as_read')}
-                        onClick={handleMarkAsRead}
-                    >
-                        <DoneAll />
-                    </Fab>
-                </TimelineFloat>
-            )}
+            <AnimatePresence>
+                {unreadInfo?.readUptoEventId && !unreadInfo?.inLiveTimeline && (
+                    <TimelineFloat position="Top">
+                        <Fab
+                            size='small'
+                            aria-label={getText('btn.timeline.jump_to_unread')}
+                            onClick={handleJumpToUnread}
+                        >
+                            <ArrowUpward />
+                        </Fab>
+                        <Fab
+                            size='small'
+                            aria-label={getText('btn.timeline.mark_as_read')}
+                            onClick={handleMarkAsRead}
+                        >
+                            <DoneAll />
+                        </Fab>
+                    </TimelineFloat>
+                )}
+            </AnimatePresence>
             <Scroll ref={scrollRef} visibility="Hover">
                 <Box
                     direction="Column"
@@ -1811,17 +1818,19 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                     <span ref={atBottomAnchorRef} />
                 </Box>
             </Scroll>
-            {!atBottom && (
-                <TimelineFloat position="Bottom">
-                    <Fab
-                        size='small'
-                        aria-label={getText('btn.timeline.jump_to_latest')}
-                        onClick={handleJumpToLatest}
-                    >
-                        <KeyboardArrowDown />
-                    </Fab>
-                </TimelineFloat>
-            )}
+            <AnimatePresence>
+                {!atBottom && (
+                    <TimelineFloat position="Bottom">
+                        <Fab
+                            size='small'
+                            aria-label={getText('btn.timeline.jump_to_latest')}
+                            onClick={handleJumpToLatest}
+                        >
+                            <KeyboardArrowDown />
+                        </Fab>
+                    </TimelineFloat>
+                )}
+            </AnimatePresence>
         </Box>
     );
 }
