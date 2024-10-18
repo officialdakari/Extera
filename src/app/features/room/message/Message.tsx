@@ -1283,7 +1283,7 @@ export const Message = as<'div', MessageProps>(
         };
 
         const handleOpenEmojiBoard: MouseEventHandler<HTMLButtonElement> = (evt) => {
-            const target = evt.currentTarget.parentElement?.parentElement ?? evt.currentTarget;
+            const target = evt.currentTarget.parentElement ?? evt.currentTarget;
             setEmojiBoardAnchor(target);
         };
 
