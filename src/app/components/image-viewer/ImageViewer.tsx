@@ -45,13 +45,14 @@ export const ImageViewer = as<'div', ImageViewerProps>(
                         <IconButton onClick={requestClose}>
                             <Close />
                         </IconButton>
-                        <Typography variant='h6' component='div' flexGrow={1}>
+                        <Typography variant='h6' component='div' flexGrow={1} overflow='hidden' maxWidth='50%'>
                             {alt}
                         </Typography>
-                        <Box shrink="No" alignItems="Center" gap="200">
+                        <Box gap='200'>
                             <IconButton
                                 onClick={zoomOut}
                                 aria-label={getText('aria.zoom_out')}
+                                edge='end'
                             >
                                 <ZoomOut />
                             </IconButton>
@@ -59,12 +60,14 @@ export const ImageViewer = as<'div', ImageViewerProps>(
                             <IconButton
                                 onClick={zoomIn}
                                 aria-label={getText('aria.zoom_in')}
+                                edge='end'
                             >
                                 <ZoomIn />
                             </IconButton>
                             <IconButton
                                 aria-label={getText('btn.download')}
                                 onClick={handleDownload}
+                                edge='end'
                             >
                                 <Download />
                             </IconButton>
