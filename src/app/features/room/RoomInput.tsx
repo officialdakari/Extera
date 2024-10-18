@@ -392,7 +392,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             }
 
             if (hideReason) {
-                console.log(`Hide reason is`, hideReason);
                 content['space.0x1a8510f2.msc3368.tags'] = [hideReason];
             }
 
@@ -440,10 +439,8 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         }, [mx, ar]);
 
         const sendVoice = useCallback(async () => {
-            console.log('Sending voice');
             ar.stopRecording();
             const blob = ar.blob;
-            console.log(`blob!!!`, blob);
             if (blob) {
                 const { content_uri } = await mx.uploadContent(blob, {
                     type: 'audio/ogg',
@@ -511,7 +508,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 }
 
                 const query = getAutocompleteQuery<AutocompletePrefix>(textAreaRef, AUTOCOMPLETE_PREFIXES);
-                console.log(query);
                 setAutocompleteQuery(query);
             },
             [textAreaRef, sendTypingStatus]

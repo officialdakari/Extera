@@ -1,4 +1,4 @@
-import { blue, blueGrey, green, grey } from '@mui/material/colors';
+import { blue, blueGrey, green, grey, yellow } from '@mui/material/colors';
 import { style } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
 import { color, config, DefaultReset, toRem } from 'folds';
@@ -123,12 +123,7 @@ export const Mention = recipe({
     base: [
         DefaultReset,
         {
-            backgroundColor: blueGrey[800],
             color: blue[400],
-            // boxShadow: `0 0 0 ${config.borderWidth.B300} ${grey[800]}`,
-            padding: `0 ${toRem(2)}`,
-            borderRadius: config.radii.R300,
-            fontWeight: config.fontWeight.W500,
         },
     ],
     variants: {
@@ -137,7 +132,7 @@ export const Mention = recipe({
                 //backgroundColor: color.Success.Container,
                 //color: color.Success.OnContainer,
                 //boxShadow: `0 0 0 ${config.borderWidth.B300} ${color.Success.ContainerLine}`,
-                color: green[600]
+                color: yellow[900]
             },
         },
         focus: {

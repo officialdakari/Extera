@@ -65,7 +65,7 @@ import { ImageViewer } from '../../../components/image-viewer';
 import { Image } from '../../../components/media';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
-import { mdiAccount, mdiAlertCircleOutline, mdiArrowRight, mdiCancel, mdiCheck, mdiCheckAll, mdiClose, mdiCloseCircle, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiDownload, mdiEmoticon, mdiEmoticonPlus, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReload, mdiRepeat, mdiReply, mdiRestore, mdiShare, mdiTranslate } from '@mdi/js';
+import { mdiAccount, mdiAlertCircleOutline, mdiArrowRight, mdiCancel, mdiCheck, mdiCheckAll, mdiCheckOutline, mdiClock, mdiClockOutline, mdiClose, mdiCloseCircle, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiDownload, mdiEmoticon, mdiEmoticonPlus, mdiExclamation, mdiExclamationThick, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReload, mdiRepeat, mdiReply, mdiRestore, mdiShare, mdiTranslate } from '@mdi/js';
 import { useBackButton } from '../../../hooks/useBackButton';
 import { translateContent } from '../../../utils/translation';
 import { VerificationBadge } from '../../../components/verification-badge/VerificationBadge';
@@ -73,12 +73,13 @@ import { saveFile } from '../../../utils/saveFile';
 import { getFileSrcUrl } from '../../../components/message/content/util';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 import { Alert, AppBar, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, Link, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Toolbar, Typography, useTheme } from '@mui/material';
-import { AddReactionOutlined, ArrowBack, Cancel, CancelOutlined, Close, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
+import { AddReactionOutlined, ArrowBack, Cancel, CancelOutlined, Check, Close, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useSwipeLeft } from '../../../hooks/useSwipeLeft';
 import { Feature, ServerSupport } from 'matrix-js-sdk/lib/feature';
 import { useAtomValue } from 'jotai';
 import { mDirectAtom } from '../../../state/mDirectList';
+import { useRoomEventReaders } from '../../../hooks/useRoomEventReaders';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -1059,6 +1060,8 @@ export const Message = as<'div', MessageProps>(
         const localPart = getMxIdLocalPart(senderId);
         const content = mEvent.getContent();
         const mDirects = useAtomValue(mDirectAtom);
+        const theme = useTheme();
+        const readers = useRoomEventReaders(room, mEvent.getId());
 
         const { animate, isTouchingSide, onTouchEnd, onTouchMove, onTouchStart } = useSwipeLeft(() => onReplyClick());
 
@@ -1072,6 +1075,22 @@ export const Message = as<'div', MessageProps>(
                 senderAvatarMxc = room.getMxcAvatarUrl() ?? senderAvatarMxc;
             }
         }
+
+        const [status, setStatus] = useState(mEvent.status || EventStatus.SENT);
+
+        useEffect(() => {
+            const listener = (event: MatrixEvent) => {
+                if (event.getId() === mEvent.getId()) {
+                    setStatus(mEvent.status || EventStatus.SENT);
+                    console.log(event.status);
+                }
+            };
+
+            mx.on(RoomEvent.LocalEchoUpdated, listener);
+            return () => {
+                mx.off(RoomEvent.LocalEchoUpdated, listener);
+            };
+        }, [mx, mEvent]);
 
         const isBridged = useMemo(() => {
             return (content['fi.mau.telegram.source']) ? true : false;
@@ -1125,6 +1144,39 @@ export const Message = as<'div', MessageProps>(
                     {messageLayout !== 2 &&
                         <Time ts={mEvent.getTs()} compact={messageLayout === 1} />}
                 </Box>
+            </Box>
+        );
+
+        const hasBeenRead = readers.find(x => x !== senderId) ? true : false;
+        const hasBeenSent = status === EventStatus.SENT;
+        const sending = [EventStatus.ENCRYPTING, EventStatus.QUEUED, EventStatus.SENDING].includes(status!);
+        const failed = status === EventStatus.NOT_SENT;
+        const cancelled = status === EventStatus.CANCELLED;
+
+        const metaJSX = (
+            <Box gap='100'>
+                <Time compact ts={mEvent.getTs()} />
+                {userId === senderId &&
+                    <Icon
+                        color={theme.palette.text.secondary}
+                        path={
+                            // Good luck figuring out
+                            sending
+                                ? mdiClockOutline
+                                :
+                                failed
+                                    ? mdiAlertCircleOutline
+                                    :
+                                    cancelled
+                                        ? mdiClose
+                                        :
+                                        hasBeenRead
+                                            ? mdiCheckAll
+                                            : mdiCheck
+                        }
+                        size={0.75}
+                    />
+                }
             </Box>
         );
 
@@ -1263,32 +1315,15 @@ export const Message = as<'div', MessageProps>(
             });
         };
 
-        const [status, setStatus] = useState(mEvent.status || EventStatus.SENT);
-
-        useEffect(() => {
-            const listener = (event: MatrixEvent) => {
-                if (event.getId() === mEvent.getId()) {
-                    setStatus(mEvent.status || EventStatus.SENT);
-                    console.log(event.status);
-                }
-            };
-
-            mx.on(RoomEvent.LocalEchoUpdated, listener);
-            return () => {
-                mx.off(RoomEvent.LocalEchoUpdated, listener);
-            };
-        }, [mx, mEvent]);
-
         const isTouch = 'ontouchstart' in window;
         const isSticker = useMemo(
             () => mEvent.getType() === 'm.sticker',
             [mEvent]
         );
-        const theme = useTheme();
 
         return (
             <MessageBase
-                className={classNames(status === EventStatus.SENT ? css.MessageBase : [EventStatus.ENCRYPTING, EventStatus.QUEUED, EventStatus.SENDING].includes(status!) ? css.MessageBaseSending : status === EventStatus.NOT_SENT ? css.MessageBaseFailed : css.MessageBase, className)}
+                className={classNames(hasBeenSent ? css.MessageBase : sending ? css.MessageBaseSending : failed ? css.MessageBaseFailed : css.MessageBase, className)}
                 tabIndex={0}
                 data-message-status={status}
                 space={messageSpacing}
@@ -1561,7 +1596,7 @@ export const Message = as<'div', MessageProps>(
                 )}
                 {
                     messageLayout === 2 && (
-                        <BubbleLayout after={<Time compact ts={mEvent.getTs()} />} transparent={isSticker} before={userId !== senderId && avatarJSX} rightAligned={userId === senderId} onContextMenu={handleContextMenu}>
+                        <BubbleLayout after={metaJSX} transparent={isSticker} before={userId !== senderId && avatarJSX} rightAligned={userId === senderId} onContextMenu={handleContextMenu}>
                             {headerJSX}
                             {msgContentJSX}
                             {footerJSX}

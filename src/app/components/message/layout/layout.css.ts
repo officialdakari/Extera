@@ -91,7 +91,6 @@ export const MessageBaseAnimationVariants: Variants = {
         translateX: '-30px',
         translateY: '-2px',
         scale: 1.1,
-        rotate: '-1deg'
     }
 };
 

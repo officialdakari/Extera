@@ -995,5 +995,6 @@
     "msg.blocked": "Blocked message",
     "room_visibility.knock": "Knock",
     "title.map": "Map",
-    "authrequest.desc": "Performing this action requires verifying your identity."
+    "authrequest.desc": "Performing this action requires verifying your identity.",
+    "downloaded": "Saved to Downloads."
 }

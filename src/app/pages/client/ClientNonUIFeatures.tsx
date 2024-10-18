@@ -379,7 +379,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                 const [perms, setPerms] = usePermission(widgetKey, {});
                 const getPermission = async (key: keyof Permissions) => {
                     if (typeof perms[key] === 'undefined') {
-                        const result = await confirmDialog('Widget permission', `Allow ${iframe.dataset.widgetRoomName} to ${key}?`, 'Yes', 'positive');
+                        const result = await confirmDialog('Widget permission', `Allow ${iframe.dataset.widgetRoomName} to ${key}?`, 'Yes', 'success');
                         setPerms((x: Permissions) => {
                             x[key] = result;
                             return x;
