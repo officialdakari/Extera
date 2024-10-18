@@ -17,7 +17,7 @@ export function useDownloadStatus(src) {
 function onDownloaded(fileName) {
     cordova.plugins.notification.local.hasPermission(granted => {
         if (granted) {
-            plugin.local.schedule({
+            cordova.plugins.notification.local.schedule({
                 id: roomIdToHash(fileName),
                 title: fileName,
                 text: getText('downloaded')
