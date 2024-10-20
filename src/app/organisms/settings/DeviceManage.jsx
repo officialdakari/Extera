@@ -191,11 +191,6 @@ function DeviceManage() {
                                 }
                             </Text>
                         )}
-                        {isCurrentDevice && (
-                            <Text style={{ marginTop: 'var(--sp-ultra-tight)' }} variant="b3">
-                                {`Session Key: ${initMatrix.matrixClient.getDeviceEd25519Key().match(/.{1,4}/g).join(' ')}`}
-                            </Text>
-                        )}
                     </>
                 )}
             />
