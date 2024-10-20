@@ -144,6 +144,7 @@ function RoomSettings() {
             open={isOpen}
             onClose={requestClose}
             scroll='body'
+            sx={{ backdropFilter: 'blur(3px)' }}
         >
             {isOpen && (
                 <AppBar position='relative'>
@@ -162,7 +163,7 @@ function RoomSettings() {
                 </AppBar>
             )}
             {isOpen && (
-                <div className="room-settings__content" style={{ minHeight: '100%' }}>
+                <div className="room-settings__content" style={{ minHeight: '100%', backgroundColor: theme.palette.background.default }}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <Tabs value={selectedTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
                             <Tab label={tabItems[0].text} onClick={() => handleTabChange(0)} {...a11yProps(0)} />
@@ -172,7 +173,7 @@ function RoomSettings() {
                             <Tab label={tabItems[4].text} onClick={() => handleTabChange(4)} {...a11yProps(4)} />
                         </Tabs>
                     </Box>
-                    <List>
+                    <List sx={{ bgcolor: 'background.default' }}>
                         <div className="room-settings__cards-wrapper">
                             {selectedTab === 0 && <GeneralSettings roomId={roomId} />}
                             {selectedTab === 1 && <RoomMembers roomId={roomId} />}

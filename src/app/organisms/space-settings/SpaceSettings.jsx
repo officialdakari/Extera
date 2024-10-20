@@ -122,6 +122,7 @@ function SpaceSettings() {
             onClose={requestClose}
             scroll='body'
             fullScreen={screenSize === ScreenSize.Mobile}
+            sx={{ backdropFilter: 'blur(3px)' }}
         >
             <AppBar sx={{ position: 'relative' }}>
                 <ProminientToolbar>

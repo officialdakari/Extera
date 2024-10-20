@@ -20,19 +20,6 @@ import { useNavHidden } from '../../hooks/useHideableNav';
 import { motion, Variants } from 'framer-motion';
 import { Add } from '@mui/icons-material';
 
-const variants: Variants = {
-    initial: {
-        left: '-60px',
-        height: '100%',
-        display: 'flex'
-    },
-    final: {
-        left: '0px',
-        height: '100%',
-        display: 'flex'
-    }
-};
-
 export function SidebarNav() {
     const [navHidden, setNavHidden] = useNavHidden();
     const scrollRef = useRef<HTMLDivElement>(null);

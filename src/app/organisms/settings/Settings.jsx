@@ -900,8 +900,8 @@ function Settings() {
             open={isOpen}
             onClose={requestClose}
             fullScreen={screenSize === ScreenSize.Mobile}
-            scroll={screenSize === ScreenSize.Mobile ? 'body' : 'paper'}
-            sx={{ overscrollBehaviorY: 'none' }}
+            scroll='body'
+            sx={{ overscrollBehaviorY: 'none', backdropFilter: 'blur(3px)' }}
         >
             <input type='file' accept='image/*' onChange={uploadImage} ref={uploadImageRef} style={{ display: 'none' }} />
             {isOpen && (
@@ -958,7 +958,7 @@ function Settings() {
             )}
             {isOpen && (
                 <div className="settings-window__content">
-                    <Box style={{ borderBottom: '1px', borderColor: theme.palette.divider }}>
+                    <Box style={{ borderBottom: '1px', borderColor: theme.palette.divider, backgroundColor: theme.palette.background.default }}>
                         <Tabs
                             value={selectedTab}
                             onChange={handleTabChange}
@@ -970,7 +970,7 @@ function Settings() {
                             ))}
                         </Tabs>
                     </Box>
-                    <div className="settings-window__cards-wrapper">
+                    <div className="settings-window__cards-wrapper" style={{ backgroundColor: theme.palette.background.default }}>
                         {tabItems[selectedTab].render()}
                     </div>
                 </div>

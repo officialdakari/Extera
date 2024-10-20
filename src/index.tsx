@@ -24,7 +24,7 @@ settings.applyTheme();
 if ('serviceWorker' in navigator) {
     const swUrl =
         import.meta.env.MODE === 'production'
-            ? `/sw.js`
+            ? trimTrailingSlash(`${import.meta.env.BASE_URL}/sw.js`)
             : `/dev-sw.js?dev-sw`;
 
     navigator.serviceWorker.register(swUrl);
