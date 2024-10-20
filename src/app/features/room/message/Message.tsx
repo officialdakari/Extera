@@ -511,7 +511,7 @@ export const MessageRecoverItem = as<
                         <ImageContent
                             {...props}
                             autoPlay={mediaAutoLoad}
-                            renderImage={(p) => <Image loading="lazy" />}
+                            renderImage={(p) => <Image {...p} loading="lazy" />}
                             renderViewer={(p) => <ImageViewer {...p} />}
                         />
                     )}
@@ -1291,7 +1291,7 @@ export const Message = as<'div', MessageProps>(
 
         const handleAddReactions: MouseEventHandler<HTMLLIElement> = (evt) => {
             const target = evt.currentTarget.parentElement?.parentElement ?? evt.currentTarget;
-setEmojiBoardAnchor(target);
+            setEmojiBoardAnchor(target);
         };
 
         const handleEndPoll: MouseEventHandler<HTMLLIElement> = () => {
