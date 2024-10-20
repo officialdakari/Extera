@@ -6,7 +6,10 @@ import {
     createHashRouter,
     createRoutesFromElements,
     redirect,
+    useLocation,
 } from 'react-router-dom';
+
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 import { ClientConfig } from '../hooks/useClientConfig';
 import { AuthLayout, Login, Register, ResetPassword } from './auth';
