@@ -840,6 +840,8 @@ export const MessageDeleteItem = as<
         }
     }, [deleteState.status, onClose]);
 
+    useBackButton(handleClose);
+
     return (
         <>
             <Dialog
