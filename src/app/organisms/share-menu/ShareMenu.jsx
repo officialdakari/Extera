@@ -17,6 +17,7 @@ import { roomToUnreadAtom } from "../../state/room/roomToUnread";
 import { roomToParentsAtom } from "../../state/room/roomToParents";
 import { confirmDialog } from "../../molecules/confirm-dialog/ConfirmDialog";
 import { getText } from "../../../lang";
+import { Dialog } from "@mui/material";
 
 function useVisiblityToggle() {
     const [isOpen, setIsOpen] = useState(false);
@@ -88,7 +89,7 @@ function ShareMenu() {
     const openItem = async (roomId, type) => {
         requestClose();
         const name = mx.getRoom(roomId)?.name;
-        if (!(await confirmDialog(getText('share.title'), getText('share.desc', name ?? roomId), getText('btn.share'), 'positive'))) return;
+        if (!(await confirmDialog(getText('share.title'), getText('share.desc', name ?? roomId), getText('btn.share'), 'success'))) return;
         const messages = [];
         for (const item of content) {
             var text;
@@ -136,6 +137,7 @@ function ShareMenu() {
         for (const content of messages) {
             await mx.sendMessage(roomId, content);
         }
+        navigateRoom(roomId);
     };
 
     const renderRoomSelector = (item) => {
@@ -159,24 +161,38 @@ function ShareMenu() {
 
     useBackButton(requestClose);
 
+    useEffect(() => {
+
+    }, [mx, rooms, directs, mDirects, allRoomsAtom, mDirectAtom]);
+
     return (
-        <RawModal
-            className="share-menu-dialog__modal dialog-modal"
-            isOpen={isOpen}
-            onAfterOpen={handleAfterOpen}
-            onRequestClose={requestClose}
-            size="small"
+        <Dialog
+            open={isOpen}
+            onClose={requestClose}
         >
-            <div className="share-menu-dialog">
-                <div className="share-menu-dialog__content-wrapper">
-                    <ScrollView autoHide>
-                        <div className="share-menu-dialog__content">
-                            {Array.isArray(result) && result.map(renderRoomSelector)}
-                        </div>
-                    </ScrollView>
+            <ScrollView autoHide>
+                <div className="share-menu-dialog__content">
+                    {Array.isArray(result) && result.map(renderRoomSelector)}
                 </div>
-            </div>
-        </RawModal>
+            </ScrollView>
+        </Dialog>
+        // <RawModal
+        //     className="share-menu-dialog__modal dialog-modal"
+        //     isOpen={isOpen}
+        //     onAfterOpen={handleAfterOpen}
+        //     onRequestClose={requestClose}
+        //     size="small"
+        // >
+        //     <div className="share-menu-dialog">
+        //         <div className="share-menu-dialog__content-wrapper">
+        //             <ScrollView autoHide>
+        //                 <div className="share-menu-dialog__content">
+        //                     {Array.isArray(result) && result.map(renderRoomSelector)}
+        //                 </div>
+        //             </ScrollView>
+        //         </div>
+        //     </div>
+        // </RawModal>
     );
 }
 

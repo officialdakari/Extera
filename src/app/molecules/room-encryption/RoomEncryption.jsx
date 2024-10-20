@@ -5,11 +5,11 @@ import './RoomEncryption.scss';
 import initMatrix from '../../../client/initMatrix';
 
 import Text from '../../atoms/text/Text';
-import Toggle from '../../atoms/button/Toggle';
 import SettingTile from '../setting-tile/SettingTile';
 
 import { confirmDialog } from '../confirm-dialog/ConfirmDialog';
 import { getText } from '../../../lang';
+import { Switch } from '@mui/material';
 
 function RoomEncryption({ roomId }) {
     const mx = initMatrix.matrixClient;
@@ -44,9 +44,9 @@ function RoomEncryption({ roomId }) {
                     <Text variant="b3">{getText('room_encryption.setting.tip')}</Text>
                 )}
                 options={(
-                    <Toggle
-                        isActive={isEncrypted}
-                        onToggle={handleEncryptionEnable}
+                    <Switch
+                        checked={isEncrypted}
+                        onClick={handleEncryptionEnable}
                         disabled={isEncrypted || !canEnableEncryption}
                     />
                 )}

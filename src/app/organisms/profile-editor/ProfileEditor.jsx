@@ -5,16 +5,16 @@ import initMatrix from '../../../client/initMatrix';
 import colorMXID from '../../../util/colorMXID';
 
 import Text from '../../atoms/text/Text';
-import IconButton from '../../atoms/button/IconButton';
-import Button from '../../atoms/button/Button';
 import ImageUpload from '../../molecules/image-upload/ImageUpload';
-import Input from '../../atoms/input/Input';
 
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 
 import './ProfileEditor.scss';
 import { getText } from '../../../lang';
 import { mdiPencil } from '@mdi/js';
+import { Button, IconButton, TextField } from '@mui/material';
+import { Close, Edit, Save } from '@mui/icons-material';
+import { Box } from 'folds';
 
 function ProfileEditor({ userId }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -86,16 +86,22 @@ function ProfileEditor({ userId }) {
                 saveDisplayName();
             }}
         >
-            <Input
+            <TextField
                 label={getText('profile_editor.displayname')}
                 onChange={onDisplayNameInputChange}
-                value={mx.getUser(mx.getUserId()).displayName}
-                forwardRef={displayNameRef}
+                defaultValue={mx.getUser(mx.getUserId()).displayName}
+                inputRef={displayNameRef}
+                size='small'
+                variant='standard'
             />
-            <Button variant="primary" type="submit" disabled={disabled}>
-                {getText('btn.profile_editor.save_name')}
-            </Button>
-            <Button onClick={cancelDisplayNameChanges}>{getText('btn.cancel')}</Button>
+            <Box grow='Yes'>
+                <IconButton color="primary" type="submit" disabled={disabled}>
+                    <Save />
+                </IconButton>
+                <IconButton onClick={cancelDisplayNameChanges}>
+                    <Close />
+                </IconButton>
+            </Box>
         </form>
     );
 
@@ -106,10 +112,10 @@ function ProfileEditor({ userId }) {
                     {username ?? userId}
                 </Text>
                 <IconButton
-                    src={mdiPencil}
-                    tooltip="Edit"
                     onClick={() => setIsEditing(true)}
-                />
+                >
+                    <Edit />
+                </IconButton>
             </div>
             <Text variant="b2">{mx.getUserId()}</Text>
         </div>

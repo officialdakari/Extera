@@ -11,24 +11,16 @@ import {
     Avatar,
     Badge,
     Box,
-    Chip,
     ContainerColor,
     Header,
-    IconButton,
-    Input,
-    Menu,
-    MenuItem,
-    PopOut,
-    RectCords,
     Scroll,
-    Spinner,
     Text,
-    Tooltip,
-    TooltipProvider,
     config,
+    toRem,
 } from 'folds';
 import { Room, RoomMember } from 'matrix-js-sdk';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { MenuItem as FoldsMenuItem } from 'folds';
 import FocusTrap from 'focus-trap-react';
 import classNames from 'classnames';
 
@@ -60,6 +52,12 @@ import { mdiAccount, mdiChevronUp, mdiClose, mdiFilterOutline, mdiMagnify, mdiSo
 import Icon from '@mdi/react';
 import cons from '../../../client/state/cons';
 import { VerificationBadge } from '../../components/verification-badge/VerificationBadge';
+import { AppBar, Chip, CircularProgress, Fab, IconButton, ListItemText, Menu, MenuItem, Paper, Toolbar, Typography } from '@mui/material';
+import { Filter, FilterAlt, KeyboardArrowUp, Sort } from '@mui/icons-material';
+import { SearchContainer, SearchIcon, SearchIconWrapper, SearchInputBase } from '../../atoms/search/Search';
+import { AnimatedLayout } from '../../components/page';
+import { motion } from 'framer-motion';
+import { MotionBox } from '../../atoms/motion/Animated';
 
 export const MembershipFilters = {
     filterJoined: (m: RoomMember) => m.membership === Membership.Join,
@@ -260,19 +258,19 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
 
     const getPresenceFn = usePresences();
 
-    const [avStyles, setAvStyles] = useState<Record<string, React.CSSProperties>>({});
+    const [avStyles, setAvStyles] = useState<Record<string, string>>({});
     const [statusMsgs, setStatusMsgs] = useState<Record<string, string>>({});
 
     useEffect(() => {
         const fetchMemberAvStylesAndStatus = () => {
-            const newAvStyles: { [key: string]: React.CSSProperties } = {};
+            const newAvStyles: { [key: string]: string } = {};
             const newStatusMsgs: { [key: string]: string } = {};
 
             members.map((member) => {
                 try {
                     const presence = getPresenceFn(member.userId);
                     if (!presence) return;
-                    newAvStyles[member.userId] = Object.keys(cons.avatarStyles).includes(presence.presence) ? cons.avatarStyles[presence.presence] : cons.avatarStyles.offline;
+                    newAvStyles[member.userId] = presence.presence;
                     newStatusMsgs[member.userId] = presence.presenceStatusMsg ?? presence.presence;
                 } catch (error) {
                     // handle error if needed
@@ -288,201 +286,116 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
     }, [members, mx]);
 
     return (
-        <Box className={css.MembersDrawer} shrink="No" direction="Column">
-            <Header className={css.MembersDrawerHeader} variant="Background" size="600">
-                <Box grow="Yes" alignItems="Center" gap="200">
-                    <Box grow="Yes" alignItems="Center" gap="200">
-                        <Text title={getText('generic.member_count', room.getJoinedMemberCount())} size="H5" truncate>
-                            {getText('generic.member_count', millify(room.getJoinedMemberCount()))}
-                        </Text>
-                    </Box>
-                    <Box shrink="No" alignItems="Center">
-                        <TooltipProvider
-                            position="Bottom"
-                            align="End"
-                            offset={4}
-                            tooltip={
-                                <Tooltip>
-                                    <Text>{getText('tooltip.close')}</Text>
-                                </Tooltip>
-                            }
-                        >
-                            {(triggerRef) => (
-                                <IconButton
-                                    ref={triggerRef}
-                                    variant="Background"
-                                    onClick={() => setPeopleDrawer(false)}
-                                >
-                                    <Icon size={1} path={mdiClose} />
-                                </IconButton>
-                            )}
-                        </TooltipProvider>
-                    </Box>
-                </Box>
-            </Header>
+        <MotionBox
+            shrink="No"
+            direction="Column"
+            initial={{
+                width: 0,
+                opacity: 0.1,
+            }}
+            exit={{
+                width: 0,
+                opacity: 0.1,
+            }}
+            animate={{
+                width: toRem(266),
+                opacity: 1,
+            }}
+        >
+            <AppBar position='relative'>
+                <Toolbar>
+                    <Typography variant='h6'>
+                        {getText('generic.member_count', millify(room.getJoinedMemberCount()))}
+                    </Typography>
+                </Toolbar>
+            </AppBar>
             <Box className={css.MemberDrawerContentBase} grow="Yes">
                 <Scroll ref={scrollRef} variant="Background" size="300" visibility="Hover" hideTrack>
                     <Box className={css.MemberDrawerContent} direction="Column" gap="200">
                         <Box ref={scrollTopAnchorRef} className={css.DrawerGroup} direction="Column" gap="200">
                             <Box alignItems="Center" justifyContent="SpaceBetween" gap="200">
-                                <UseStateProvider initial={undefined}>
-                                    {(anchor: RectCords | undefined, setAnchor) => (
-                                        <PopOut
-                                            anchor={anchor}
-                                            position="Bottom"
-                                            align="Start"
-                                            offset={4}
-                                            content={
-                                                <FocusTrap
-                                                    focusTrapOptions={{
-                                                        initialFocus: false,
-                                                        onDeactivate: () => setAnchor(undefined),
-                                                        clickOutsideDeactivates: true,
-                                                        isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                                                        isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                                                    }}
-                                                >
-                                                    <Menu style={{ padding: config.space.S100 }}>
-                                                        {membershipFilterMenu.map((menuItem, index) => (
-                                                            <MenuItem
-                                                                key={menuItem.name}
-                                                                variant={
-                                                                    menuItem.name === membershipFilter.name
-                                                                        ? menuItem.color
-                                                                        : 'Surface'
-                                                                }
-                                                                aria-pressed={menuItem.name === membershipFilter.name}
-                                                                size="300"
-                                                                radii="300"
-                                                                onClick={() => {
-                                                                    setMembershipFilterIndex(index);
-                                                                    setAnchor(undefined);
-                                                                }}
-                                                            >
-                                                                <Text size="T300">{menuItem.name}</Text>
-                                                            </MenuItem>
-                                                        ))}
-                                                    </Menu>
-                                                </FocusTrap>
-                                            }
-                                        >
+                                <UseStateProvider initial={null}>
+                                    {(anchor: HTMLElement | null, setAnchor) => (
+                                        <>
+                                            <Menu onClose={() => setAnchor(null)} anchorEl={anchor} open={!!anchor}>
+                                                {membershipFilterMenu.map((menuItem, index) =>
+                                                    <MenuItem
+                                                        key={menuItem.name}
+                                                        selected={menuItem.name === membershipFilter.name}
+                                                        onClick={() => {
+                                                            setMembershipFilterIndex(index);
+                                                            setAnchor(null);
+                                                        }}
+                                                    >
+                                                        <ListItemText>
+                                                            {menuItem.name}
+                                                        </ListItemText>
+                                                    </MenuItem>
+                                                )}
+                                            </Menu>
                                             <Chip
+                                                component='button'
                                                 onClick={
                                                     ((evt) =>
                                                         setAnchor(
-                                                            evt.currentTarget.getBoundingClientRect()
+                                                            evt.currentTarget
                                                         )) as MouseEventHandler<HTMLButtonElement>
                                                 }
-                                                variant={membershipFilter.color}
-                                                size="400"
-                                                radii="300"
-                                                before={<Icon size={1} path={mdiFilterOutline} />}
-                                            >
-                                                <Text size="T200">{membershipFilter.name}</Text>
-                                            </Chip>
-                                        </PopOut>
+                                                icon={<FilterAlt />}
+                                                label={membershipFilter.name}
+                                            />
+                                        </>
                                     )}
                                 </UseStateProvider>
-                                <UseStateProvider initial={undefined}>
-                                    {(anchor: RectCords | undefined, setAnchor) => (
-                                        <PopOut
-                                            anchor={anchor}
-                                            position="Bottom"
-                                            align="End"
-                                            offset={4}
-                                            content={
-                                                <FocusTrap
-                                                    focusTrapOptions={{
-                                                        initialFocus: false,
-                                                        onDeactivate: () => setAnchor(undefined),
-                                                        clickOutsideDeactivates: true,
-                                                        isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                                                        isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                                                    }}
-                                                >
-                                                    <Menu style={{ padding: config.space.S100 }}>
-                                                        {sortFilterMenu.map((menuItem, index) => (
-                                                            <MenuItem
-                                                                key={menuItem.name}
-                                                                variant="Surface"
-                                                                aria-pressed={menuItem.name === sortFilter.name}
-                                                                size="300"
-                                                                radii="300"
-                                                                onClick={() => {
-                                                                    setSortFilterIndex(index);
-                                                                    setAnchor(undefined);
-                                                                }}
-                                                            >
-                                                                <Text size="T300">{menuItem.name}</Text>
-                                                            </MenuItem>
-                                                        ))}
-                                                    </Menu>
-                                                </FocusTrap>
-                                            }
-                                        >
+                                <UseStateProvider initial={null}>
+                                    {(anchor: HTMLElement | null, setAnchor) => (
+                                        <>
+                                            <Menu anchorEl={anchor} open={!!anchor} onClose={() => setAnchor(null)}>
+                                                {sortFilterMenu.map((menuItem, index) => (
+                                                    <MenuItem selected={menuItem.name === sortFilter.name}>
+                                                        <ListItemText>
+                                                            {menuItem.name}
+                                                        </ListItemText>
+                                                    </MenuItem>
+                                                ))}
+                                            </Menu>
                                             <Chip
+                                                component='button'
                                                 onClick={
                                                     ((evt) =>
                                                         setAnchor(
-                                                            evt.currentTarget.getBoundingClientRect()
+                                                            evt.currentTarget
                                                         )) as MouseEventHandler<HTMLButtonElement>
                                                 }
-                                                variant="Background"
-                                                size="400"
-                                                radii="300"
-                                                after={<Icon size={1} path={mdiSort} />}
-                                            >
-                                                <Text size="T200">{sortFilter.name}</Text>
-                                            </Chip>
-                                        </PopOut>
+                                                icon={<Sort />}
+                                                label={sortFilter.name}
+                                            />
+                                        </>
                                     )}
                                 </UseStateProvider>
                             </Box>
                             <Box direction="Column" gap="100">
-                                <Input
-                                    ref={searchInputRef}
-                                    onChange={handleSearchChange}
-                                    style={{ paddingRight: config.space.S200 }}
-                                    placeholder={getText('placeholder.search_name')}
-                                    variant="Surface"
-                                    size="400"
-                                    radii="400"
-                                    before={<Icon size={1} path={mdiMagnify} />}
-                                    after={
-                                        result && (
-                                            <Chip
-                                                variant={result.items.length > 0 ? 'Success' : 'Critical'}
-                                                size="400"
-                                                radii="Pill"
-                                                aria-pressed
-                                                onClick={() => {
-                                                    if (searchInputRef.current) {
-                                                        searchInputRef.current.value = '';
-                                                        searchInputRef.current.focus();
-                                                    }
-                                                    resetSearch();
-                                                }}
-                                                after={<Icon size={1} path={mdiClose} />}
-                                            >
-                                                <Text size="B300">{result.items.length ? getText('generic.result_count', result.items.length) : getText('generic.no_results.2')}</Text>
-                                            </Chip>
-                                        )
-                                    }
-                                />
+                                <SearchContainer>
+                                    <SearchIconWrapper>
+                                        <SearchIcon />
+                                    </SearchIconWrapper>
+                                    <SearchInputBase
+                                        inputRef={searchInputRef}
+                                        onChange={handleSearchChange}
+                                        placeholder={getText('placeholder.search_name')}
+                                    />
+                                </SearchContainer>
                             </Box>
                         </Box>
 
                         <ScrollTopContainer scrollRef={scrollRef} anchorRef={scrollTopAnchorRef}>
-                            <IconButton
+                            <Fab
+                                size='small'
                                 onClick={() => virtualizer.scrollToOffset(0)}
-                                variant="Surface"
-                                radii="Pill"
-                                outlined
-                                size="300"
                                 aria-label={getText('aria.scroll_to_top')}
                             >
-                                <Icon size={1} path={mdiChevronUp} />
-                            </IconButton>
+                                <KeyboardArrowUp />
+                            </Fab>
                         </ScrollTopContainer>
 
                         {!fetchingMembers && !result && processMembers.length === 0 && (
@@ -529,7 +442,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                     );
 
                                     return (
-                                        <MenuItem
+                                        <FoldsMenuItem
                                             style={{
                                                 padding: `0 ${config.space.S400}`,
                                                 transform: `translateY(${vItem.start}px)`
@@ -543,7 +456,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                             radii="400"
                                             onClick={handleMemberClick}
                                             before={
-                                                <Avatar style={avStyles[member.userId]} size="300">
+                                                <Avatar className={`presence-${avStyles[member.userId]}`} size="300">
                                                     <UserAvatar
                                                         userId={member.userId}
                                                         src={avatarUrl ?? undefined}
@@ -571,7 +484,7 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
                                                     {statusMsgs[member.userId]}
                                                 </Text>
                                             </Box>
-                                        </MenuItem>
+                                        </FoldsMenuItem>
                                     );
                                 })}
                             </div>
@@ -579,12 +492,12 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
 
                         {fetchingMembers && (
                             <Box justifyContent="Center">
-                                <Spinner />
+                                <CircularProgress />
                             </Box>
                         )}
                     </Box>
                 </Scroll>
             </Box>
-        </Box>
+        </MotionBox>
     );
 }

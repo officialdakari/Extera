@@ -18,8 +18,6 @@ import { EventTimeline, EventType, IContent, MsgType, Room } from 'matrix-js-sdk
 import {
     Box,
     Dialog,
-    IconButton,
-    Line,
     Overlay,
     OverlayBackdrop,
     OverlayCenter,
@@ -115,6 +113,7 @@ import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLe
 import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
 import { getEventCords } from '../../../util/common';
 import HideReasonSelector from '../../molecules/hide-reason-selector/HideReasonSelector';
+import { IconButton } from '@mui/material';
 
 interface RoomInputProps {
     fileDropContainerRef: RefObject<HTMLElement>;
@@ -122,10 +121,10 @@ interface RoomInputProps {
     roomId: string;
     room: Room;
     newDesign?: boolean;
-    threadRootId?: string;
+    threadId?: string;
 }
 export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
-    ({ fileDropContainerRef, roomId, room, textAreaRef, newDesign, threadRootId }, ref) => {
+    ({ fileDropContainerRef, roomId, room, textAreaRef, newDesign, threadId }, ref) => {
         const mx = useMatrixClient();
         const [enterForNewline] = useSetting(settingsAtom, 'enterForNewline');
         const [isMarkdown] = useSetting(settingsAtom, 'isMarkdown');
@@ -155,6 +154,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             selectedFiles.map((f) => f.file)
         );
         const uploadBoardHandlers = useRef<UploadBoardImperativeHandlers>();
+        const thread = threadId ? room.getThread(threadId) : null;
 
         const ar = useVoiceRecorder();
 
@@ -372,12 +372,12 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 content['m.mentions']?.user_ids?.push(replyDraft.userId);
             }
 
-            if (threadRootId) {
+            if (thread) {
                 content['m.relates_to'] = {
                     rel_type: 'm.thread',
-                    event_id: threadRootId,
+                    event_id: thread.rootEvent?.getId(),
                     'm.in_reply_to': {
-                        event_id: threadRootId
+                        event_id: thread.rootEvent?.getId()
                     },
                     is_falling_back: true
                 };
@@ -390,14 +390,13 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 };
                 content['m.relates_to'].is_falling_back = false;
             }
-            
+
             if (hideReason) {
-                console.log(`Hide reason is`, hideReason);
                 content['space.0x1a8510f2.msc3368.tags'] = [hideReason];
             }
 
             return content;
-        }, [mx, room, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, threadRootId, hideReason]);
+        }, [mx, room, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, threadId, thread, hideReason]);
 
         const submit = useCallback(async () => {
             const content = getContent();
@@ -406,15 +405,11 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             } else {
                 ar.stopRecording();
             }
-        }, [mx, roomId, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, ar, threadRootId, setMsgContent]);
+        }, [mx, roomId, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, ar, thread, threadId, setMsgContent]);
 
         const stopRecording = useCallback(() => {
             ar.stopRecording();
         }, [ar]);
-
-        useEffect(() => {
-
-        }, [threadRootId]);
 
         useEffect(() => {
             if (msgContent) {
@@ -444,10 +439,8 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         }, [mx, ar]);
 
         const sendVoice = useCallback(async () => {
-            console.log('Sending voice');
             ar.stopRecording();
             const blob = ar.blob;
-            console.log(`blob!!!`, blob);
             if (blob) {
                 const { content_uri } = await mx.uploadContent(blob, {
                     type: 'audio/ogg',
@@ -515,7 +508,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 }
 
                 const query = getAutocompleteQuery<AutocompletePrefix>(textAreaRef, AUTOCOMPLETE_PREFIXES);
-                console.log(query);
                 setAutocompleteQuery(query);
             },
             [textAreaRef, sendTypingStatus]
@@ -587,39 +579,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
         return (
             <div ref={ref}>
-                {selectedFiles.length > 0 && (
-                    <UploadBoard
-                        header={
-                            <UploadBoardHeader
-                                open={uploadBoard}
-                                onToggle={() => setUploadBoard(!uploadBoard)}
-                                uploadFamilyObserverAtom={uploadFamilyObserverAtom}
-                                onSend={handleSendUpload}
-                                imperativeHandlerRef={uploadBoardHandlers}
-                                onCancel={handleCancelUpload}
-                            />
-                        }
-                    >
-                        {uploadBoard && (
-                            <Scroll size="300" hideTrack visibility="Hover">
-                                <UploadBoardContent>
-                                    {Array.from(selectedFiles)
-                                        .reverse()
-                                        .map((fileItem, index) => (
-                                            <UploadCardRenderer
-                                                // eslint-disable-next-line react/no-array-index-key
-                                                key={index}
-                                                file={fileItem.file}
-                                                isEncrypted={!!fileItem.encInfo}
-                                                uploadAtom={roomUploadAtomFamily(fileItem.file)}
-                                                onRemove={handleRemoveUpload}
-                                            />
-                                        ))}
-                                </UploadBoardContent>
-                            </Scroll>
-                        )}
-                    </UploadBoard>
-                )}
                 <Overlay
                     open={dropZoneVisible}
                     backdrop={<OverlayBackdrop />}
@@ -687,67 +646,95 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     onKeyUp={handleKeyUp}
                     onPaste={handlePaste}
                     top={
-                        replyDraft && (
-                            <div>
-                                <Box
-                                    alignItems="Center"
-                                    gap="300"
-                                    style={{ padding: `${config.space.S200} ${config.space.S300} 0` }}
+                        <>
+                            {selectedFiles.length > 0 && (
+                                <UploadBoard
+                                    header={
+                                        <UploadBoardHeader
+                                            open={uploadBoard}
+                                            onToggle={() => setUploadBoard(!uploadBoard)}
+                                            uploadFamilyObserverAtom={uploadFamilyObserverAtom}
+                                            onSend={handleSendUpload}
+                                            imperativeHandlerRef={uploadBoardHandlers}
+                                            onCancel={handleCancelUpload}
+                                        />
+                                    }
                                 >
-                                    <ReplyLayout
-                                        userColor={colorMXID(replyDraft.userId)}
-                                        style={{ width: '100%' }}
-                                        username={
+                                    {uploadBoard && (
+                                        <Scroll size="300" hideTrack direction='Horizontal' visibility="Hover">
+                                            <UploadBoardContent>
+                                                {Array.from(selectedFiles)
+                                                    .reverse()
+                                                    .map((fileItem, index) => (
+                                                        <UploadCardRenderer
+                                                            // eslint-disable-next-line react/no-array-index-key
+                                                            key={index}
+                                                            file={fileItem.file}
+                                                            isEncrypted={!!fileItem.encInfo}
+                                                            uploadAtom={roomUploadAtomFamily(fileItem.file)}
+                                                            onRemove={handleRemoveUpload}
+                                                        />
+                                                    ))}
+                                            </UploadBoardContent>
+                                        </Scroll>
+                                    )}
+                                </UploadBoard>
+                            )}
+                            {replyDraft && (
+                                <div>
+                                    <Box
+                                        alignItems="Center"
+                                        gap="300"
+                                        style={{ padding: `${config.space.S200} ${config.space.S300} 0` }}
+                                    >
+                                        <ReplyLayout
+                                            userColor={colorMXID(replyDraft.userId)}
+                                            style={{ width: '100%' }}
+                                            username={
+                                                <Text size="T300" truncate>
+                                                    <b>
+                                                        {getMemberDisplayName(room, replyDraft.userId) ??
+                                                            getMxIdLocalPart(replyDraft.userId) ??
+                                                            replyDraft.userId}
+                                                    </b>
+                                                </Text>
+                                            }
+                                        >
                                             <Text size="T300" truncate>
-                                                <b>
-                                                    {getMemberDisplayName(room, replyDraft.userId) ??
-                                                        getMxIdLocalPart(replyDraft.userId) ??
-                                                        replyDraft.userId}
-                                                </b>
+                                                {trimReplyFromBody(replyDraft.body)}
                                             </Text>
-                                        }
-                                    >
-                                        <Text size="T300" truncate>
-                                            {trimReplyFromBody(replyDraft.body)}
-                                        </Text>
-                                    </ReplyLayout>
-                                    <IconButton
-                                        onMouseDown={dontHideKeyboard}
-                                        onClick={() => setReplyMention(!replyMention)}
-                                        variant="SurfaceVariant"
-                                        size="300"
-                                        radii="300"
-                                    >
-                                        <Icon size={1} path={replyMention ? mdiBell : mdiBellOff} />
-                                    </IconButton>
-                                    <IconButton
-                                        onMouseDown={dontHideKeyboard}
-                                        onClick={() => setReplyDraft(undefined)}
-                                        variant="SurfaceVariant"
-                                        size="300"
-                                        radii="300"
-                                    >
-                                        <Icon size={1} path={mdiClose} />
-                                    </IconButton>
-                                </Box>
-                            </div>
-                        )
+                                        </ReplyLayout>
+                                        <IconButton size='small'
+                                            onMouseDown={dontHideKeyboard}
+                                            onClick={() => setReplyMention(!replyMention)}
+                                        >
+                                            <Icon size={1} path={replyMention ? mdiBell : mdiBellOff} />
+                                        </IconButton>
+                                        <IconButton size='small'
+                                            onMouseDown={dontHideKeyboard}
+                                            onClick={() => setReplyDraft(undefined)}
+                                        >
+                                            <Icon size={1} path={mdiClose} />
+                                        </IconButton>
+                                    </Box>
+                                </div>
+                            )}
+                        </>
                     }
                     before={
-                        !ar.isRecording && <IconButton
-                            onClick={() => pickFile('*')}
-                            variant="SurfaceVariant"
-                            size="300"
-                            radii="300"
-                        >
-                            <Icon size={1} path={mdiPlusCircleOutline} />
-                        </IconButton>
+                        !ar.isRecording && (
+                            <IconButton size='small'
+                                onClick={() => pickFile('*')}
+                            >
+                                <Icon size={1} path={mdiPlusCircleOutline} />
+                            </IconButton>
+                        )
                     }
                     after={
                         <>
                             {!ar.isRecording && (
                                 <>
-                                    <IconButton onMouseDown={dontHideKeyboard} onClick={handleHide} variant="SurfaceVariant" size="300" radii="300">
+                                    <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={handleHide}>
                                         <Icon size={1} path={hideReason ? mdiEyeOff : mdiEye} />
                                     </IconButton>
                                     <UseStateProvider initial={undefined}>
@@ -777,9 +764,10 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                                         }}
                                                     />
                                                 }
+                                                style={{ zIndex: 2 }}
                                             >
                                                 {(
-                                                    <IconButton
+                                                    <IconButton size='small'
                                                         aria-pressed={
                                                             !!emojiBoardTab
                                                         }
@@ -791,9 +779,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                                             }
                                                         }}
                                                         onMouseDown={dontHideKeyboard}
-                                                        variant="SurfaceVariant"
-                                                        size="300"
-                                                        radii="300"
                                                         ref={emojiBtnRef}
                                                     >
                                                         <Icon
@@ -808,13 +793,11 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                 </>
                             )}
                             {(isEmptyEditor(textAreaRef) && !ar.isRecording && voiceMessages) ? (
-                                <>
-                                    <IconButton onMouseDown={dontHideKeyboard} onClick={recordVoice} variant="SurfaceVariant" size="300" radii="300">
-                                        <Icon size={1} path={mdiMicrophone} />
-                                    </IconButton>
-                                </>
+                                <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={recordVoice}>
+                                    <Icon size={1} path={mdiMicrophone} />
+                                </IconButton>
                             ) : (
-                                <IconButton onMouseDown={dontHideKeyboard} onClick={ar.isRecording ? stopRecording : submit} variant="SurfaceVariant" size="300" radii="300">
+                                <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={ar.isRecording ? stopRecording : submit}>
                                     <Icon size={1} path={mdiSendOutline} />
                                 </IconButton>
                             )}

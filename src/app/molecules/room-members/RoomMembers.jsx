@@ -13,15 +13,16 @@ import { memberByAtoZ, memberByPowerLevel } from '../../../util/sort';
 
 import Text from '../../atoms/text/Text';
 import Button from '../../atoms/button/Button';
-import Input from '../../atoms/input/Input';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
-import SegmentedControls from '../../atoms/segmented-controls/SegmentedControls';
 import PeopleSelector from '../people-selector/PeopleSelector';
 import { getText } from '../../../lang';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { usePresences } from '../../hooks/usePresences';
 import cons from '../../../client/state/cons';
 import { VerificationBadge } from '../../components/verification-badge/VerificationBadge';
+import { TextField, ToggleButton, ToggleButtonGroup, useTheme } from '@mui/material';
+import { SearchContainer, SearchIcon, SearchIconWrapper, SearchInputBase } from '../../atoms/search/Search';
+import { AccessTime, Person, PersonAdd, PersonOff } from '@mui/icons-material';
 
 const PER_PAGE_MEMBER = 50;
 
@@ -142,7 +143,7 @@ function RoomMembers({ roomId }) {
                 try {
                     const presence = getPresenceFn(member.userId);
                     if (!presence) return;
-                    newAvStyles[member.userId] = Object.keys(cons.avatarStyles).includes(presence.presence) ? cons.avatarStyles[presence.presence] : cons.avatarStyles.offline;
+                    newAvStyles[member.userId] = presence.presence;
                     newStatusMsgs[member.userId] = presence.presenceStatusMsg ?? presence.presence;
                 } catch (error) {
                     // handle error if needed
@@ -156,29 +157,52 @@ function RoomMembers({ roomId }) {
 
         fetchMemberAvStylesAndStatus();
     }, [members, mList, mx]);
+
+    const theme = useTheme();
+
     return (
         <div className="room-members">
-            <MenuHeader>{getText('room_members.search_title')}</MenuHeader>
-            <Input
-                onChange={handleSearch}
-                placeholder={getText('placeholder.search_room_members')}
-                autoFocus
-            />
+            <SearchContainer>
+                <SearchIconWrapper>
+                    <SearchIcon />
+                </SearchIconWrapper>
+                <SearchInputBase
+                    onChange={handleSearch}
+                    placeholder={getText('placeholder.search_room_members')}
+                />
+            </SearchContainer>
             <div className="room-members__header">
                 <MenuHeader>{searchMembers ? getText('room_members.1', mList.length) : getText('room_members.found', members.length)}</MenuHeader>
-                <SegmentedControls
-                    selected={
-                        (() => {
-                            const getSegmentIndex = { join: 0, invite: 1, ban: 2 };
-                            return getSegmentIndex[membership];
-                        })()
-                    }
-                    segments={[{ text: getText('room_members.joined') }, { text: getText('room_members.invited') }, { text: getText('room_members.banned') }]}
-                    onSelect={(index) => {
-                        const memberships = ['join', 'invite', 'ban'];
-                        setMembership(memberships[index]);
-                    }}
-                />
+                <ToggleButtonGroup>
+                    <ToggleButton
+                        size='small'
+                        selected={membership === 'join'}
+                        onClick={() => setMembership('join')}
+                    >
+                        <Person />
+                    </ToggleButton>
+                    <ToggleButton
+                        size='small'
+                        selected={membership === 'knock'}
+                        onClick={() => setMembership('knock')}
+                    >
+                        <AccessTime />
+                    </ToggleButton>
+                    <ToggleButton
+                        size='small'
+                        selected={membership === 'invite'}
+                        onClick={() => setMembership('invite')}
+                    >
+                        <PersonAdd />
+                    </ToggleButton>
+                    <ToggleButton
+                        size='small'
+                        selected={membership === 'ban'}
+                        onClick={() => setMembership('ban')}
+                    >
+                        <PersonOff />
+                    </ToggleButton>
+                </ToggleButtonGroup>
             </div>
             <div className="room-members__list">
                 {mList.map((member) => (

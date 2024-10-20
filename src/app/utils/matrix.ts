@@ -4,16 +4,20 @@ import {
     encryptAttachment,
 } from 'browser-encrypt-attachment';
 import {
+    EventTimeline,
     MatrixClient,
     MatrixError,
     MatrixEvent,
     Room,
     RoomMember,
+    RoomType,
     UploadProgress,
     UploadResponse,
 } from 'matrix-js-sdk';
 import { IImageInfo, IThumbnailContent, IVideoInfo } from '../../types/matrix/common';
 import { AccountDataEvent } from '../../types/matrix/accountData';
+import { getStateEvent } from './room';
+import { StateEvent } from '../../types/matrix/room';
 
 export const matchMxId = (id: string): RegExpMatchArray | null =>
     id.match(/^([@!$+#])(\S+):(\S+)$/);
@@ -45,6 +49,16 @@ export const getCanonicalAliasRoomId = (mx: MatrixClient, alias: string): string
 export const getCanonicalAliasOrRoomId = (mx: MatrixClient, roomId: string): string =>
     mx.getRoom(roomId)?.getCanonicalAlias() || roomId;
 
+export const getRoomNameOrId = (mx: MatrixClient, roomId: string): string =>
+    mx.getRoom(roomId)?.name || roomId;
+
+export const getRoomTopic = (mx: MatrixClient, room: Room): string | undefined => {
+    const topicEvent = getStateEvent(room, StateEvent.RoomTopic);
+    if (!topicEvent) return;
+    const content = topicEvent.getContent();
+    return typeof content.topic === 'string' ? content.topic : undefined;
+};
+
 export const getImageInfo = (img: HTMLImageElement, fileOrBlob: File | Blob): IImageInfo => {
     const info: IImageInfo = {};
     info.w = img.width;
@@ -52,6 +66,19 @@ export const getImageInfo = (img: HTMLImageElement, fileOrBlob: File | Blob): II
     info.mimetype = fileOrBlob.type;
     info.size = fileOrBlob.size;
     return info;
+};
+
+export const searchRoom = (mx: MatrixClient, term: string): Room[] => {
+    const rooms: Room[] = [];
+    term = term.toLowerCase();
+    for (const room of mx.getRooms()) {
+        const topic = getRoomTopic(mx, room)?.toLowerCase() || '';
+        if (room.name.toLowerCase().includes(term) || term.includes(room.name.toLowerCase())
+            || (topic && (topic?.includes(term) || term.includes(topic)))) {
+            rooms.push(room);
+        }
+    }
+    return rooms;
 };
 
 export const getVideoInfo = (video: HTMLVideoElement, fileOrBlob: File | Blob): IVideoInfo => {

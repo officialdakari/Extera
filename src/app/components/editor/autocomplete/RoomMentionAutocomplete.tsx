@@ -109,7 +109,7 @@ export function RoomMentionAutocomplete({
         if (!ta) return;
 
         // И это будет лежать на гитхабе...
-        const result = `{${name.replaceAll('|', '')}|${roomIdOrAlias}}`;
+        const result = `{${roomIdOrAlias}}`;
 
         var v = ta.value;
         v = `${v.slice(0, query.range.index)}${result}${v.slice(query.range.index + query.range.length)}`;

@@ -30,7 +30,7 @@ import { generateConferenceID } from '../../../util/conferenceID';
 import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
 import wallpaperDB from '../../utils/wallpaper';
 
-export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?: string; threadRootId?: string; }) {
+export function RoomView({ room, eventId }: { room: Room; eventId?: string; }) {
     const roomInputRef = useRef(null);
     const roomViewRef = useRef(null);
 
@@ -49,22 +49,18 @@ export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?
     const taRef: React.RefObject<HTMLTextAreaElement> = useRef(null);
     const [style, setStyle] = useState<CSSProperties>({});
 
-    const [mxCall, setMxCall] = useState<MatrixCall | undefined>(undefined);
-
     const [callWindow, setCallWindow] = useRoomCall();
 
     const handleCall = async () => {
         if (callWindow) return console.error('A call is already going on');
         const newCall = mx.createCall(room.roomId);
         if (!newCall) return alert('Calls are not supported in your browser!');
-        setMxCall(newCall);
 
         if (!newCall) return;
 
         await newCall.placeVoiceCall();
 
         newCall.on(CallEvent.Hangup, () => {
-            setMxCall(undefined);
             setCallWindow(undefined);
         });
 
@@ -146,7 +142,6 @@ export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?
     };
 
     const onHangup = () => {
-        setMxCall(undefined);
         setCallWindow(undefined);
     };
 
@@ -178,7 +173,6 @@ export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?
 
                     console.debug(`Call offer!!!`, content.offer);
 
-                    setMxCall(call);
                     setCallWindow(
                         <RoomCall room={room} call={call} onHangup={onHangup} invitation={true} video={content.offer.sdp.includes('video')} />
                     );
@@ -215,12 +209,10 @@ export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?
                     eventId={eventId}
                     roomInputRef={roomInputRef}
                     textAreaRef={taRef}
-                    threadRootId={threadRootId}
                 />
                 <RoomViewTyping room={room} />
             </Box>
             <Box shrink="No" direction="Column">
-                {newDesignInput && (<RoomViewFollowing room={room} />)}
                 <div style={!newDesignInput ? { padding: `0 ${config.space.S400}` } : {}}>
                     {tombstoneEvent ? (
                         <RoomTombstone
@@ -238,7 +230,6 @@ export function RoomView({ room, eventId, threadRootId }: { room: Room; eventId?
                                     fileDropContainerRef={roomViewRef}
                                     newDesign={newDesignInput}
                                     ref={roomInputRef}
-                                    threadRootId={threadRootId}
                                 />
                             )}
                         </>

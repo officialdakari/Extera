@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import './Settings.scss';
 
-// Holy shit this code will be worser than yandere simulator's :catstare:
 import '../profile-viewer/Banner.scss';
 
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import settings from '../../../client/state/settings';
 import navigation from '../../../client/state/navigation';
-import { Button as FoldsButton, IconButton as FoldsIconButton, Text as FoldsText } from 'folds';
 import {
     toggleSystemTheme,
     toggleNotifications, toggleNotificationSounds,
@@ -16,14 +14,9 @@ import {
 import { usePermission } from '../../hooks/usePermission';
 
 import Text from '../../atoms/text/Text';
-import IconButton from '../../atoms/button/IconButton';
-import Button from '../../atoms/button/Button';
-import Toggle from '../../atoms/button/Toggle';
-import Tabs from '../../atoms/tabs/Tabs';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
 import SegmentedControls from '../../atoms/segmented-controls/SegmentedControls';
 
-import PopupWindow from '../../molecules/popup-window/PopupWindow';
 import SettingTile from '../../molecules/setting-tile/SettingTile';
 import ImportE2ERoomKeys from '../../molecules/import-export-e2e-room-keys/ImportE2ERoomKeys';
 import ExportE2ERoomKeys from '../../molecules/import-export-e2e-room-keys/ExportE2ERoomKeys';
@@ -37,6 +30,8 @@ import CrossSigning from './CrossSigning';
 import KeyBackup from './KeyBackup';
 import DeviceManage from './DeviceManage';
 
+import { Switch, Button, ToggleButtonGroup, ToggleButton, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog, AppBar, IconButton, Tab, Tabs, useTheme } from '@mui/material';
+
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { useSetting } from '../../state/hooks/settings';
@@ -44,7 +39,7 @@ import { settingsAtom } from '../../state/settings';
 import { isMacOS } from '../../utils/user-agent';
 import { KeySymbol } from '../../utils/key-symbol';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
-import { Box, config, Dialog, Header, Input, Overlay, OverlayBackdrop, OverlayCenter } from 'folds';
+import { Box, config, Header } from 'folds';
 import Banner from '../profile-editor/Banner';
 import { getText } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
@@ -56,6 +51,12 @@ import FocusTrap from 'focus-trap-react';
 import getCachedURL from '../../utils/cache';
 import wallpaperDB from '../../utils/wallpaper';
 import { useAccountData } from '../../hooks/useAccountData';
+import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
+import { Close, HideImage, Image, Logout } from '@mui/icons-material';
+import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
+import { AnimatePresence } from 'framer-motion';
+import { AnimatedLayout } from '../../components/page';
+import useCordova from '../../hooks/cordova';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
@@ -124,39 +125,29 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.system_theme.title')}
                     options={(
-                        <Toggle
-                            isActive={settings.useSystemTheme}
-                            onToggle={() => { toggleSystemTheme(); updateState({}); }}
+                        <Switch
+                            checked={settings.useSystemTheme}
+                            onClick={() => { toggleSystemTheme(); updateState({}); }}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.system_theme.desc')}</Text>}
                 />
                 <SettingTile
-                    title="Theme"
-                    content={(
-                        <SegmentedControls
-                            selected={settings.useSystemTheme ? -1 : settings.getThemeIndex()}
-                            segments={[
-                                { text: 'Light' },
-                                { text: 'Silver' },
-                                { text: 'Dark' },
-                                { text: 'Butter' },
-                                { text: 'Purple Dark' },
-                            ]}
-                            onSelect={(index) => {
-                                if (settings.useSystemTheme) toggleSystemTheme();
-                                settings.setTheme(index);
-                                updateState({});
-                            }}
+                    title={getText('settings.dark_theme.title')}
+                    options={(
+                        <Switch
+                            checked={settings.getThemeIndex() === 2}
+                            onClick={() => { settings.setTheme(settings.getThemeIndex() === 2 ? 0 : 2); updateState({}); }}
                         />
                     )}
+                    content={<Text variant="b3">{getText('settings.dark_theme.desc')}</Text>}
                 />
                 <SettingTile
                     title={getText('settings.twemoji.title')}
                     options={(
-                        <Toggle
-                            isActive={twitterEmoji}
-                            onToggle={() => setTwitterEmoji(!twitterEmoji)}
+                        <Switch
+                            checked={twitterEmoji}
+                            onClick={() => setTwitterEmoji(!twitterEmoji)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.twemoji.desc')}</Text>}
@@ -166,11 +157,12 @@ function AppearanceSection() {
                     options={(
                         <>
                             <Button
-                                variant='primary'
+                                variant='contained'
                                 onClick={handleSetWallpaper}
                             >{getText(wallpaperURL ? 'btn.settings.wallpaper.change' : 'btn.settings.wallpaper.add')}</Button>
                             {wallpaperURL && <>&nbsp;<Button
-                                variant='danger'
+                                variant='outlined'
+                                color='error'
                                 onClick={handleDeleteWallpaper}
                             >{getText('btn.settings.wallpaper.delete')}</Button></>}
                             <input accept='image/*' onChange={uploadImage} type='file' ref={wallpaperInputRef} style={{ display: 'none' }} />
@@ -184,42 +176,46 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.msg_layout.title')}
                     content={
-                        <SegmentedControls
-                            selected={messageLayout}
-                            segments={[
-                                { text: getText('settings.msg_layout.modern') },
-                                { text: getText('settings.msg_layout.compact') },
-                                { text: getText('settings.msg_layout.bubble') },
-                            ]}
-                            onSelect={(index) => setMessageLayout(index)}
-                        />
+                        <ToggleButtonGroup
+                            exclusive
+                            value={messageLayout}
+                            onChange={(evt, value) => setMessageLayout(value)}
+                        >
+                            <ToggleButton value={0}>
+                                {getText('settings.msg_layout.modern')}
+                            </ToggleButton>
+                            <ToggleButton value={1}>
+                                {getText('settings.msg_layout.compact')}
+                            </ToggleButton>
+                            <ToggleButton value={2}>
+                                {getText('settings.msg_layout.bubble')}
+                            </ToggleButton>
+                        </ToggleButtonGroup>
                     }
                 />
                 <SettingTile
                     title={getText('settings.msg_spacing.title')}
                     content={
-                        <SegmentedControls
-                            selected={spacings.findIndex((s) => s === messageSpacing)}
-                            segments={[
-                                { text: 'No' },
-                                { text: 'XXS' },
-                                { text: 'XS' },
-                                { text: 'S' },
-                                { text: 'M' },
-                                { text: 'L' },
-                            ]}
-                            onSelect={(index) => {
-                                setMessageSpacing(spacings[index])
-                            }}
-                        />
+                        <ToggleButtonGroup
+                            exclusive
+                            value={spacings.findIndex((s) => s === messageSpacing)}
+                            onChange={(evt, value) => setMessageSpacing(spacings[value])}
+                        >
+                            <ToggleButton value={0}>No</ToggleButton>
+                            <ToggleButton value={1}>XXS</ToggleButton>
+                            <ToggleButton value={2}>XS</ToggleButton>
+                            <ToggleButton value={3}>S</ToggleButton>
+                            <ToggleButton value={4}>M</ToggleButton>
+                            <ToggleButton value={5}>L</ToggleButton>
+                        </ToggleButtonGroup>
                     }
                 />
                 <SettingTile
                     title={getText('settings.enter_newline.title')}
                     options={(
-                        <Toggle
-                            isActive={enterForNewline}
-                            onToggle={() => setEnterForNewline(!enterForNewline)}
+                        <Switch
+                            checked={enterForNewline}
+                            onClick={() => setEnterForNewline(!enterForNewline)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.enter_newline.desc', isMacOS() ? KeySymbol.Command : 'Ctrl')}</Text>}
@@ -227,9 +223,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.voice_messages.title')}
                     options={(
-                        <Toggle
-                            isActive={voiceMessages}
-                            onToggle={() => setVoiceMessages(!voiceMessages)}
+                        <Switch
+                            checked={voiceMessages}
+                            onClick={() => setVoiceMessages(!voiceMessages)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.voice_messages.desc')}</Text>}
@@ -237,9 +233,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.new_design_input.title')}
                     options={(
-                        <Toggle
-                            isActive={newDesignInput}
-                            onToggle={() => setNewDesignInput(!newDesignInput)}
+                        <Switch
+                            checked={newDesignInput}
+                            onClick={() => setNewDesignInput(!newDesignInput)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.new_design_input.desc')}</Text>}
@@ -247,9 +243,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.md_formatting.title')}
                     options={(
-                        <Toggle
-                            isActive={isMarkdown}
-                            onToggle={() => setIsMarkdown(!isMarkdown)}
+                        <Switch
+                            checked={isMarkdown}
+                            onClick={() => setIsMarkdown(!isMarkdown)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.md_formatting.desc')}</Text>}
@@ -257,9 +253,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.hide_membership.title')}
                     options={(
-                        <Toggle
-                            isActive={hideMembershipEvents}
-                            onToggle={() => setHideMembershipEvents(!hideMembershipEvents)}
+                        <Switch
+                            checked={hideMembershipEvents}
+                            onClick={() => setHideMembershipEvents(!hideMembershipEvents)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.hide_membership.desc')}</Text>}
@@ -267,9 +263,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.hide_profile.title')}
                     options={(
-                        <Toggle
-                            isActive={hideNickAvatarEvents}
-                            onToggle={() => setHideNickAvatarEvents(!hideNickAvatarEvents)}
+                        <Switch
+                            checked={hideNickAvatarEvents}
+                            onClick={() => setHideNickAvatarEvents(!hideNickAvatarEvents)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.hide_profile.desc')}</Text>}
@@ -277,9 +273,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.no_media_autoload.title')}
                     options={(
-                        <Toggle
-                            isActive={!mediaAutoLoad}
-                            onToggle={() => setMediaAutoLoad(!mediaAutoLoad)}
+                        <Switch
+                            checked={!mediaAutoLoad}
+                            onClick={() => setMediaAutoLoad(!mediaAutoLoad)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.no_media_autoload.desc')}</Text>}
@@ -287,9 +283,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.url_preview.title')}
                     options={(
-                        <Toggle
-                            isActive={urlPreview}
-                            onToggle={() => setUrlPreview(!urlPreview)}
+                        <Switch
+                            checked={urlPreview}
+                            onClick={() => setUrlPreview(!urlPreview)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.url_preview.desc')}</Text>}
@@ -297,9 +293,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.url_preview_enc.title')}
                     options={(
-                        <Toggle
-                            isActive={encUrlPreview}
-                            onToggle={() => setEncUrlPreview(!encUrlPreview)}
+                        <Switch
+                            checked={encUrlPreview}
+                            onClick={() => setEncUrlPreview(!encUrlPreview)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.url_preview_enc.desc')}</Text>}
@@ -307,9 +303,9 @@ function AppearanceSection() {
                 <SettingTile
                     title={getText('settings.hidden_events.title')}
                     options={(
-                        <Toggle
-                            isActive={showHiddenEvents}
-                            onToggle={() => setShowHiddenEvents(!showHiddenEvents)}
+                        <Switch
+                            checked={showHiddenEvents}
+                            onClick={() => setShowHiddenEvents(!showHiddenEvents)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.hidden_events.desc')}</Text>}
@@ -322,17 +318,21 @@ function AppearanceSection() {
 function PresenceSection() {
     const mx = useMatrixClient();
     const [status, setStatus] = useSetting(settingsAtom, 'extera_status');
-    const [statusMsg, setStatusMsg] = useSetting(settingsAtom, 'extera_status_message');
+    const statusMsg = mx.getUser(mx.getUserId()).presenceStatusMsg || '';
+    const statusMsgRef = useRef();
     const [ghostMode, setGhostMode] = useSetting(settingsAtom, 'extera_ghostMode');
+    const statuses = [
+        'online', 'offline', 'unavailable'
+    ];
 
     const updateStatusMessage = (evt) => {
         evt.preventDefault();
-        const { statusInput } = evt.target.elements;
+        const { statusInput } = evt.currentTarget.elements;
         const value = statusInput.value.trim();
         if (value === '') return;
-        setStatusMsg(value);
         mx.setPresence({
-            status_msg: statusMsg
+            presence: statuses[status],
+            status_msg: value
         });
     };
 
@@ -341,21 +341,14 @@ function PresenceSection() {
         <SettingTile
             title={getText('settings.presence.title')}
             content={(
-                <SegmentedControls
-                    selected={status}
-                    segments={[
-                        { text: getText('settings.status.online') },
-                        { text: getText('settings.status.offline') },
-                        { text: getText('settings.status.unavailable') }
-                    ]}
-                    onSelect={(index) => {
-                        const statuses = [
-                            'online', 'offline', 'unavailable'
-                        ];
+                <ToggleButtonGroup
+                    exclusive
+                    value={status}
+                    onChange={(evt, index) => {
                         mx.setSyncPresence(statuses[index]);
                         mx.setPresence({
                             presence: statuses[index],
-                            status_msg: index != 1 ? statusMsg : undefined
+                            status_msg: index != 1 ? statusMsgRef.current?.value?.trim() : undefined
                         }).then(() => {
                             console.log('Presence updated');
                         }).catch(err => {
@@ -363,15 +356,31 @@ function PresenceSection() {
                         });
                         setStatus(index);
                     }}
-                />
+                >
+                    <ToggleButton
+                        value={0}
+                    >
+                        {getText('settings.status.online')}
+                    </ToggleButton>
+                    <ToggleButton
+                        value={1}
+                    >
+                        {getText('settings.status.offline')}
+                    </ToggleButton>
+                    <ToggleButton
+                        value={2}
+                    >
+                        {getText('settings.status.unavailable')}
+                    </ToggleButton>
+                </ToggleButtonGroup>
             )}
         />
         <SettingTile
             title={getText('settings.ghost.title')}
             options={(
-                <Toggle
-                    isActive={ghostMode}
-                    onToggle={() => setGhostMode(!ghostMode)}
+                <Switch
+                    checked={ghostMode}
+                    onClick={() => setGhostMode(!ghostMode)}
                 />
             )}
             content={<Text variant="b3">{getText('settings.ghost.desc')}</Text>}
@@ -382,8 +391,8 @@ function PresenceSection() {
                 <div className='settings-presence__status'>
                     <Text variant="b3">{getText('settings.status_message.text')}</Text>
                     <form onSubmit={updateStatusMessage}>
-                        <Input required name="statusInput" placeholder={statusMsg} />
-                        <Button variant="primary" type="submit">{getText('btn.status_message.set')}</Button>
+                        <TextField inputRef={statusMsgRef} size='small' autoComplete='off' variant='filled' label={getText('settings.status_message.title')} required name="statusInput" defaultValue={statusMsg} />
+                        <Button variant="contained" size='small' type="submit">{getText('btn.status_message.set')}</Button>
                     </form>
                 </div>
             )}
@@ -407,9 +416,9 @@ function ExteraSection() {
                 <SettingTile
                     title={getText('settings.hide_ads.title')}
                     options={(
-                        <Toggle
-                            isActive={hideTgAds}
-                            onToggle={() => setHideTgAds(!hideTgAds)}
+                        <Switch
+                            checked={hideTgAds}
+                            onClick={() => setHideTgAds(!hideTgAds)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.hide_ads.desc')}</Text>}
@@ -417,9 +426,9 @@ function ExteraSection() {
                 <SettingTile
                     title={getText('settings.captions.title')}
                     options={(
-                        <Toggle
-                            isActive={enableCaptions}
-                            onToggle={() => setEnableCaptions(!enableCaptions)}
+                        <Switch
+                            checked={enableCaptions}
+                            onClick={() => setEnableCaptions(!enableCaptions)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.captions.desc')}</Text>}
@@ -427,9 +436,9 @@ function ExteraSection() {
                 <SettingTile
                     title={getText('settings.smooth_scroll.title')}
                     options={(
-                        <Toggle
-                            isActive={smoothScroll}
-                            onToggle={() => setSmoothScroll(!smoothScroll)}
+                        <Switch
+                            checked={smoothScroll}
+                            onClick={() => setSmoothScroll(!smoothScroll)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.smooth_scroll.desc')}</Text>}
@@ -437,27 +446,23 @@ function ExteraSection() {
                 <SettingTile
                     title={getText('settings.msc3382.title')}
                     options={(
-                        <Toggle isActive={false} onToggle={() => null} disabled />
+                        <Switch disabled />
                     )}
                     content={<Text variant="b3">{getText('settings.msc3382.desc')}</Text>}
                 />
                 <SettingTile
                     title={getText('settings.ignore_policies.title')}
                     options={(
-                        <Toggle
-                            isActive={ignorePolicies}
-                            onToggle={() => setIgnorePolicies(!ignorePolicies)}
-                            disabled
-                        />
+                        <Switch disabled />
                     )}
                     content={<Text variant="b3">{getText('settings.ignore_policies.desc')}</Text>}
                 />
                 <SettingTile
                     title={getText('settings.rename_tg_bot.title')}
                     options={(
-                        <Toggle
-                            isActive={renameTgBot}
-                            onToggle={() => setRenameTgBot(!renameTgBot)}
+                        <Switch
+                            checked={renameTgBot}
+                            onClick={() => setRenameTgBot(!renameTgBot)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.rename_tg_bot.desc')}</Text>}
@@ -465,9 +470,9 @@ function ExteraSection() {
                 <SettingTile
                     title={getText('settings.reply_fallbacks.title')}
                     options={(
-                        <Toggle
-                            isActive={replyFallbacks}
-                            onToggle={() => setReplyFallbacks(!replyFallbacks)}
+                        <Switch
+                            checked={replyFallbacks}
+                            onClick={() => setReplyFallbacks(!replyFallbacks)}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.reply_fallbacks.desc')}</Text>}
@@ -482,6 +487,7 @@ function NotificationsSection() {
     const [pushes, setPushes] = useSetting(settingsAtom, 'pushesEnabled');
 
     const [, updateState] = useState({});
+    const cordova = useCordova();
 
     const requestPermissions = () => {
         if (typeof window.Notification !== 'undefined') window.Notification?.requestPermission().then(setPermission);
@@ -501,9 +507,9 @@ function NotificationsSection() {
 
         if (permission) {
             return (
-                <Toggle
-                    isActive={settings._showNotifications}
-                    onToggle={() => {
+                <Switch
+                    checked={settings._showNotifications}
+                    onClick={() => {
                         toggleNotifications();
                         setPermission(window.Notification?.permission);
                         updateState({});
@@ -514,7 +520,7 @@ function NotificationsSection() {
 
         return (
             <Button
-                variant="primary"
+                variant="contained"
                 onClick={requestPermissions}
             >
                 {getText('btn.notifications.request_permission')}
@@ -534,6 +540,12 @@ function NotificationsSection() {
         }
     };
 
+    const isBg = useMemo(() => cordova?.plugins?.backgroundMode?.isActive() || false, [cordova]);
+
+    const toggleBg = () => {
+        cordova?.plugins?.backgroundMode.setEnabled(!isBg);
+    };
+
     return (
         <>
             <div className="settings-notifications">
@@ -546,19 +558,31 @@ function NotificationsSection() {
                 <SettingTile
                     title={getText('settings.notification_sound.title')}
                     options={(
-                        <Toggle
-                            isActive={settings.isNotificationSounds}
-                            onToggle={() => { toggleNotificationSounds(); updateState({}); }}
+                        <Switch
+                            checked={settings.isNotificationSounds}
+                            onClick={() => { toggleNotificationSounds(); updateState({}); }}
                         />
                     )}
                     content={<Text variant="b3">{getText('settings.notification_sound.desc')}</Text>}
                 />
+                {cordova?.plugins?.backgroundMode && (
+                    <SettingTile
+                        title={getText('settings.bgmode.title')}
+                        options={(
+                            <Switch
+                                checked={isBg}
+                                onClick={toggleBg}
+                            />
+                        )}
+                        content={<Text variant='b3'>{getText('settings.bgmode.desc')}</Text>}
+                    />
+                )}
                 <SettingTile
                     title='Push Notifications'
                     options={(
-                        <Toggle
-                            isActive={pushes}
-                            onToggle={() => { togglePushes(); }}
+                        <Switch
+                            checked={pushes}
+                            onClick={() => { togglePushes(); }}
                         />
                     )}
                 />
@@ -606,53 +630,33 @@ function SecuritySection() {
 
     return (
         <>
-            <Overlay open={open} backdrop={<OverlayBackdrop />}>
-                <OverlayCenter>
-                    <FocusTrap
-                        focusTrapOptions={{
-                            initialFocus: false,
-                            onDeactivate: handleClose,
-                            clickOutsideDeactivates: true,
-                        }}
-                    >
-                        <Dialog variant="Surface">
-                            <Header
-                                style={{
-                                    padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
-                                    borderBottomWidth: config.borderWidth.B300,
-                                }}
-                                variant="Surface"
-                                size="500"
-                            >
-                                <Box grow="Yes">
-                                    <Text size="H4">{getText('change_password.header')}</Text>
-                                </Box>
-                                <FoldsIconButton size="300" onClick={handleClose} radii="300">
-                                    <Icon size={1} path={mdiClose} />
-                                </FoldsIconButton>
-                            </Header>
-                            <Box
-                                as="form"
-                                style={{ padding: config.space.S400 }}
-                                direction="Column"
-                                gap="400"
-                                onSubmit={changePassword}
-                            >
-                                <Box direction="Column" gap="100">
-                                    <Input name="passwordInput" placeholder={getText('change_password.title')} type='password' variant="Secondary" autoComplete='off' />
-                                </Box>
-                                <FoldsButton
-                                    type="submit"
-                                    variant="Critical"
-                                    disabled={disableBtn}
-                                >
-                                    {getText('change_password.btn')}
-                                </FoldsButton>
-                            </Box>
-                        </Dialog>
-                    </FocusTrap>
-                </OverlayCenter>
-            </Overlay>
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: changePassword,
+                }}
+            >
+                <DialogTitle>
+                    {getText('change_password.header')}
+                </DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        required
+                        margin='dense'
+                        name='passwordInput'
+                        label={getText('change_password.title')}
+                        fullWidth
+                        type='password'
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color='primary'>{getText('btn.cancel')}</Button>
+                    <Button type='submit' color='error'>{getText('change_password.btn')}</Button>
+                </DialogActions>
+            </Dialog>
             <div className="settings-security">
                 <div className="settings-security__card">
                     <MenuHeader>{getText('settings.cross_signing.header')}</MenuHeader>
@@ -664,7 +668,7 @@ function SecuritySection() {
                     <SettingTile
                         title={getText('settings.change_password.title')}
                         options={(
-                            <Button onClick={openChangePassword} variant='danger'>{getText('change_password.btn')}</Button>
+                            <Button onClick={openChangePassword} variant='contained' color='error'>{getText('change_password.btn')}</Button>
                         )}
                     />
                 </div>
@@ -710,9 +714,9 @@ function AboutSection() {
                         <Text>Fork of Cinny</Text>
 
                         <div className="settings-about__btns">
-                            <Button onClick={() => window.open('https://git.cycloneteam.space/OfficialDakari/Extera')}>Source code</Button>
-                            <Button onClick={() => window.open('https://extera.officialdakari.ru/static/#sponsor')}>Support</Button>
-                            <Button onClick={() => initMatrix.clearCacheAndReload()} variant="danger">Clear cache & reload</Button>
+                            <Button variant='contained' onClick={() => window.open('https://github.com/OfficialDakari/Extera')}>Source code</Button>
+                            <Button variant='contained' onClick={() => window.open('https://officialdakari.ru/sponsor/')}>Support</Button>
+                            <Button variant='outlined' color='error' onClick={() => initMatrix.clearCacheAndReload()}>Clear cache & reload</Button>
                         </div>
                     </div>
                 </div>
@@ -811,15 +815,16 @@ function useWindowToggle(setSelectedTab) {
 }
 
 function Settings() {
-    const [selectedTab, setSelectedTab] = useState(tabItems[0]);
+    const [selectedTab, setSelectedTab] = useState(0);
     const [isOpen, requestClose] = useWindowToggle(setSelectedTab);
     const exteraProfileEvent = useAccountData('ru.officialdakari.extera_profile');
+    const screenSize = useScreenSize();
 
     const mx = useMatrixClient();
 
     const handleTabChange = (tabItem) => setSelectedTab(tabItem);
     const handleLogout = async () => {
-        if (await confirmDialog(getText('logout.title'), getText('logout.confirm'), getText('btn.logout.confirm'), 'danger')) {
+        if (await confirmDialog(getText('logout.title'), getText('logout.confirm'), getText('btn.logout.confirm'), 'error')) {
             initMatrix.logout();
         }
     };
@@ -846,6 +851,30 @@ function Settings() {
         }
     };
 
+    const uploadImageRef = useRef(null);
+    const [uploadPromise, setUploadPromise] = useState(null);
+
+    async function uploadImage(e) {
+        const file = e.target.files.item(0);
+        if (file === null) return;
+        try {
+            const uPromise = mx.uploadContent(file);
+            setUploadPromise(uPromise);
+
+            const res = await uPromise;
+            if (typeof res?.content_uri === 'string') handleBannerChange(res.content_uri);
+            setUploadPromise(null);
+        } catch {
+            setUploadPromise(null);
+        }
+        uploadImageRef.current.value = null;
+    }
+
+    function handleClick() {
+        if (uploadPromise !== null) return;
+        uploadImageRef.current?.click();
+    };
+
     const handleBannerRemove = async () => {
         try {
             if (await confirmDialog(getText('remove_banner.title'), getText('remove_banner.desc'), getText('btn.remove_banner.confirm'), 'primary')) {
@@ -859,46 +888,102 @@ function Settings() {
         }
     };
 
+    const theme = useTheme();
+    const bannerUrl = useMemo(() => {
+        return mx.mxcUrlToHttp(bannerSrc, null, null, null, false, true, true);
+    }, [mx, bannerSrc]);
+
     useBackButton(requestClose);
 
     return (
-        <PopupWindow
-            isOpen={isOpen}
-            className="settings-window"
-            title={<Text variant="s1" weight="medium" primary>{getText('settings.title')}</Text>}
-            contentOptions={(
-                <>
-                    {bannerSrc && <Button variant='surface' iconSrc={mdiClose} onClick={handleBannerRemove}>
-                        {getText('btn.remove_banner')}
-                    </Button>}
-                    <Button variant="danger" iconSrc={mdiArrowLeft} onClick={handleLogout}>
-                        {getText('btn.logout_session')}
-                    </Button>
-                    <IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />
-                </>
-            )}
-            onRequestClose={requestClose}
+        <Dialog
+            open={isOpen}
+            onClose={requestClose}
+            fullScreen={screenSize === ScreenSize.Mobile}
+            scroll='body'
+            sx={{ overscrollBehaviorY: 'none', backdropFilter: 'blur(3px)' }}
         >
+            <input type='file' accept='image/*' onChange={uploadImage} ref={uploadImageRef} style={{ display: 'none' }} />
+            {isOpen && (
+                <AppBar
+                    position='sticky'
+                    sx={bannerSrc && {
+                        background: `url(${bannerUrl}), #00000060`,
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: 'cover',
+                        backgroundBlendMode: 'darken'
+                    }}
+                >
+                    <ProminientToolbar>
+                        {/* {
+                            bannerSrc ?
+                                <Banner noBorder={true} url={bannerSrc} onUpload={handleBannerChange} /> :
+                                <Banner noBorder={true} emptyBanner='transparent' onUpload={handleBannerChange} />
+                        } */}
+                        <Box grow='Yes'>
+                            <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
+                        </Box>
+                        <IconButton
+                            size='large'
+                            edge='end'
+                            onClick={() => uploadImageRef.current?.click()}
+                        >
+                            <Image />
+                        </IconButton>
+                        <IconButton
+                            size='large'
+                            edge='end'
+                            color='error'
+                            onClick={handleBannerRemove}
+                        >
+                            <HideImage />
+                        </IconButton>
+                        <IconButton
+                            size='large'
+                            edge='end'
+                            color='error'
+                            onClick={handleLogout}
+                        >
+                            <Logout />
+                        </IconButton>
+                        <IconButton
+                            size='large'
+                            edge='end'
+                            onClick={requestClose}
+                        >
+                            <Close />
+                        </IconButton>
+                    </ProminientToolbar>
+                </AppBar>
+            )}
             {isOpen && (
                 <div className="settings-window__content">
-                    {
-                        bannerSrc ?
-                            <Banner noBorder={true} url={bannerSrc} onUpload={handleBannerChange} /> :
-                            <Banner noBorder={true} emptyBanner='transparent' onUpload={handleBannerChange} />
-                    }
-                    <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
-                    <Tabs
-                        items={tabItems}
-                        defaultSelected={tabItems.findIndex((tab) => tab.text === selectedTab.text)}
-                        onSelect={handleTabChange}
-                    />
-                    <div className="settings-window__cards-wrapper">
-                        {selectedTab.render()}
+                    <Box style={{ borderBottom: '1px', borderColor: theme.palette.divider, backgroundColor: theme.palette.background.default }}>
+                        <Tabs
+                            value={selectedTab}
+                            onChange={handleTabChange}
+                            variant='scrollable'
+                            scrollButtons='auto'
+                        >
+                            {tabItems.map((tabItem, index) => (
+                                <Tab label={tabItem.text} {...a11yProps(index)} onClick={() => handleTabChange(index)} />
+                            ))}
+                        </Tabs>
+                    </Box>
+                    <div className="settings-window__cards-wrapper" style={{ backgroundColor: theme.palette.background.default }}>
+                        {tabItems[selectedTab].render()}
                     </div>
                 </div>
             )}
-        </PopupWindow>
+        </Dialog>
     );
+}
+
+function a11yProps(index) {
+    return {
+        id: `simple-tab-${index}`,
+        'aria-controls': `simple-tabpanel-${index}`,
+    };
 }
 
 export default Settings;

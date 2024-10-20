@@ -1,35 +1,20 @@
-import React, { FormEventHandler, MouseEventHandler, ReactNode, forwardRef, useEffect, useMemo, useState } from 'react';
+import React, { FormEventHandler, MouseEventHandler, ReactNode, forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import FocusTrap from 'focus-trap-react';
 import {
     Box,
     Avatar,
     Text,
-    Overlay,
-    OverlayCenter,
-    OverlayBackdrop,
-    IconButton,
-    Tooltip,
-    TooltipProvider,
-    Menu,
-    MenuItem,
     toRem,
     config,
-    Line,
-    PopOut,
     RectCords,
-    Modal,
-    Header,
-    Chip,
     Scroll,
-    Input,
-    Button,
 } from 'folds';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { EventTimeline, EventType, JoinRule, MatrixEvent, Room } from 'matrix-js-sdk';
 import { useAtomValue } from 'jotai';
 
 import { useStateEvent } from '../../hooks/useStateEvent';
-import { PageHeader } from '../../components/page';
+import { AnimatedLayout, AnimatedNode, PageHeader } from '../../components/page';
 import { RoomAvatar, RoomIcon } from '../../components/room-avatar';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { RoomTopicViewer } from '../../components/room-topic-viewer';
@@ -79,14 +64,24 @@ import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
 import { nameInitials } from '../../utils/common';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
+import { AppBar, Dialog, DialogContent, DialogContentText, DialogTitle, Divider, Fab, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Pagination, Toolbar, Tooltip, Typography, useTheme } from '@mui/material';
+import { ArrowBack, CallEnd, Close, DoneAll, KeyboardArrowUp, Link, MessageOutlined, MoreVert, People, PersonAdd, Phone, PushPin, Search, Settings, VideoCall, Widgets } from '@mui/icons-material';
+import { BackRouteHandler } from '../../components/BackRouteHandler';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { VirtualTile } from '../../components/virtualizer';
+import { ScrollTopContainer } from '../../components/scroll-top-container';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import AsyncLoadMessage from './AsyncLoadMessage';
+import PinnedMessages from './PinnedMessages';
 
 type RoomMenuProps = {
     room: Room;
     linkPath: string;
     requestClose: () => void;
+    anchorEl: HTMLElement | null;
 };
 const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
-    ({ room, linkPath, requestClose }, ref) => {
+    ({ room, linkPath, anchorEl, requestClose }, ref) => {
         const mx = useMatrixClient();
         const { hashRouter } = useClientConfig();
         const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
@@ -136,100 +131,88 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
         };
 
         return (
-            <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
-                <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                    <MenuItem
-                        onClick={handleMarkAsRead}
-                        size="300"
-                        after={<Icon size={1} path={mdiCheckAll} />}
-                        radii="300"
-                        disabled={!unread}
-                    >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                            {getText('room_header.mark_as_read')}
-                        </Text>
-                    </MenuItem>
-                </Box>
-                <Line variant="Surface" size="300" />
-                <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                    <MenuItem
-                        onClick={handleInvite}
-                        variant="Primary"
-                        fill="None"
-                        size="300"
-                        after={<Icon size={1} path={mdiAccountPlus} />}
-                        radii="300"
-                        disabled={!canInvite}
-                    >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                            {getText('room_header.invite')}
-                        </Text>
-                    </MenuItem>
-                    <MenuItem
-                        onClick={handleCopyLink}
-                        size="300"
-                        after={<Icon size={1} path={mdiLinkVariant} />}
-                        radii="300"
-                    >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                            {getText('room_header.copy_link')}
-                        </Text>
-                    </MenuItem>
-                    <MenuItem
-                        onClick={handleRoomSettings}
-                        size="300"
-                        after={<Icon size={1} path={mdiCog} />}
-                        radii="300"
-                    >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                            {getText('room_header.settings')}
-                        </Text>
-                    </MenuItem>
-                </Box>
-                <Line variant="Surface" size="300" />
-                <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                    <UseStateProvider initial={false}>
-                        {(promptLeave, setPromptLeave) => (
-                            <>
-                                <MenuItem
-                                    onClick={() => setPromptLeave(true)}
-                                    variant="Critical"
-                                    fill="None"
-                                    size="300"
-                                    after={<Icon size={1} path={mdiArrowLeft} />}
-                                    radii="300"
-                                    aria-pressed={promptLeave}
-                                >
-                                    <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                                        {getText('room_header.leave')}
-                                    </Text>
-                                </MenuItem>
-                                {promptLeave && (
-                                    <LeaveRoomPrompt
-                                        roomId={room.roomId}
-                                        onDone={requestClose}
-                                        onCancel={() => setPromptLeave(false)}
-                                    />
-                                )}
-                            </>
-                        )}
-                    </UseStateProvider>
-                    {canRedact && videoCallEvent && (
-                        <MenuItem
-                            onClick={endJitsi}
-                            variant="Critical"
-                            fill="None"
-                            size="300"
-                            after={<Icon size={1} path={mdiVideoOff} />}
-                            radii="300"
-                            disabled={!canInvite}
-                        >
-                            <Text style={{ flexGrow: 1 }} as="span" size="T300">
-                                {getText('room_header.end_meeting')}
-                            </Text>
-                        </MenuItem>
+            <Menu ref={ref} open={!!anchorEl} anchorEl={anchorEl} onClose={requestClose}>
+                <MenuItem
+                    disabled={!unread}
+                    onClick={handleMarkAsRead}
+                >
+                    <ListItemIcon>
+                        <DoneAll />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('room_header.mark_as_read')}
+                    </ListItemText>
+                </MenuItem>
+                <Divider />
+                <MenuItem
+                    disabled={!canInvite}
+                    onClick={handleInvite}
+                >
+                    <ListItemIcon>
+                        <PersonAdd />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('room_header.invite')}
+                    </ListItemText>
+                </MenuItem>
+                <MenuItem
+                    onClick={handleCopyLink}
+                >
+                    <ListItemIcon>
+                        <Link />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('room_header.copy_link')}
+                    </ListItemText>
+                </MenuItem>
+                <MenuItem
+                    onClick={handleRoomSettings}
+                >
+                    <ListItemIcon>
+                        <Settings />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('room_header.settings')}
+                    </ListItemText>
+                </MenuItem>
+                <Divider />
+                <UseStateProvider initial={false}>
+                    {(promptLeave, setPromptLeave) => (
+                        <>
+                            <MenuItem
+                                onClick={() => setPromptLeave(true)}
+                                aria-pressed={promptLeave}
+                            >
+                                <ListItemIcon>
+                                    <ArrowBack />
+                                </ListItemIcon>
+                                <ListItemText>
+                                    {getText('room_header.leave')}
+                                </ListItemText>
+                            </MenuItem>
+                            {promptLeave && (
+                                <LeaveRoomPrompt
+                                    roomId={room.roomId}
+                                    onDone={requestClose}
+                                    onCancel={() => setPromptLeave(false)}
+                                />
+                            )}
+                        </>
                     )}
-                </Box>
+                </UseStateProvider>
+                {canRedact && videoCallEvent && (
+                    <MenuItem
+                        onClick={endJitsi}
+                        disabled={!canRedact}
+                    >
+                        <ListItemIcon>
+                            <CallEnd />
+                        </ListItemIcon>
+                        <ListItemText>
+                            {getText('room_header.end_meeting')}
+                        </ListItemText>
+                    </MenuItem>
+                )}
             </Menu>
         );
     }
@@ -245,12 +228,12 @@ export function RoomViewHeader({
     handleVideoCall
 }: RoomViewHeaderProps) {
     const navigate = useNavigate();
-    const { threadRootId } = useParams();
     const mx = useMatrixClient();
+    const theme = useTheme();
     const screenSize = useScreenSizeContext();
     const room = useRoom();
     const space = useSpaceOptionally();
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
+    const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
     const mDirects = useAtomValue(mDirectAtom);
 
     const encryptionEvent = useStateEvent(room, StateEvent.RoomEncryption);
@@ -259,9 +242,9 @@ export function RoomViewHeader({
     const name = useRoomName(room);
     const topic = useRoomTopic(room);
     const [statusMessage, setStatusMessage] = useState('');
+    const [topicColor, setTopicColor] = useState('textSecondary');
     const [showPinned, setShowPinned] = useState(false);
     const [showWidgets, setShowWidgets] = useState(false);
-    const [pinned, setPinned] = useState<ReactNode[]>([]);
     const [widgets, setWidgets] = useState<ReactNode[]>([]);
     const avatarUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
     const roomToParents = useAtomValue(roomToParentsAtom);
@@ -282,7 +265,7 @@ export function RoomViewHeader({
         ? canDoAction('redact', getPowerLevel(myUserId))
         : false;
 
-    const videoCallEvent = widgetsEvents.find(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
+    const videoCallEvent = widgetsEvents.find(x => x && (x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi'));
 
     const showVideoCallButton = canEditWidgets || videoCallEvent;
 
@@ -302,54 +285,15 @@ export function RoomViewHeader({
 
     const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
         if (!menuAnchor)
-            setMenuAnchor(evt.currentTarget.getBoundingClientRect());
+            setMenuAnchor(evt.currentTarget);
         else
-            setMenuAnchor(undefined);
+            setMenuAnchor(null);
     };
 
     const handleAvClick = () => {
         toggleRoomSettings(room.roomId);
     };
 
-    const [messageLayout] = useSetting(settingsAtom, 'messageLayout');
-    const [messageSpacing] = useSetting(settingsAtom, 'messageSpacing');
-    const { navigateRoom, navigateSpace } = useRoomNavigate();
-    const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
-
-    const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
-        () =>
-            getReactCustomHtmlParser(mx, room, {
-                handleSpoilerClick: (evt) => {
-                    const target = evt.currentTarget;
-                    if (target.getAttribute('aria-pressed') === 'true') {
-                        evt.stopPropagation();
-                        target.setAttribute('aria-pressed', 'false');
-                        target.style.cursor = 'initial';
-                    }
-                },
-                handleMentionClick: (evt) => {
-                    const target = evt.currentTarget;
-                    const mentionId = target.getAttribute('data-mention-id');
-                    if (typeof mentionId !== 'string') return;
-                    if (isUserId(mentionId)) {
-                        openProfileViewer(mentionId, room.roomId);
-                        return;
-                    }
-                    if (isRoomId(mentionId) && mx.getRoom(mentionId)) {
-                        if (mx.getRoom(mentionId)?.isSpaceRoom()) navigateSpace(mentionId);
-                        else navigateRoom(mentionId);
-                        return;
-                    }
-                    openJoinAlias(mentionId);
-                },
-            }),
-        [mx, room, navigateRoom, navigateSpace]
-    );
-
-    const [pinnedPages, setPinnedPages] = useState(1);
-    const [jumpAnchor, setJumpAnchor] = useState<RectCords>();
-    const [pageNo, setPageNo] = useState(1);
-    const [loadingPinList, setLoadingPinList] = useState(true);
     const modals = useModals();
 
     // officialdakari 24.07.2024 - надо зарефакторить это всё, но мне пока лень
@@ -419,7 +363,7 @@ export function RoomViewHeader({
                         getText('confirm.remove_widget.title'),
                         getText('confirm.remove_widget.question'),
                         getText('btn.widget.remove'),
-                        'danger'
+                        'error'
                     ))) return;
                     const evId = ev.getId();
                     if (!evId) return;
@@ -435,146 +379,11 @@ export function RoomViewHeader({
         setShowWidgets(true);
     };
 
-    const updatePinnedList = async () => {
-        const pinnedMessages = [];
-        const timeline = room.getLiveTimeline();
-        const state = timeline.getState(EventTimeline.FORWARDS);
-        const pinnedEvents = state?.getStateEvents('m.room.pinned_events');
-
-        setLoadingPinList(true);
-
-        if (!pinnedEvents || pinnedEvents.length < 1) {
-            return setPinned(
-                [
-                    <Text>
-                        {getText('pinned.none')}
-                    </Text>
-                ]
-            );
-        }
-
-        var { pinned }: { pinned: string[] } = pinnedEvents[pinnedEvents.length - 1].getContent();
-        pinned = pinned.reverse();
-        setPinnedPages(Math.ceil(pinned.length / 10));
-        const index = (pageNo - 1) * 10;
-        // todo optimize this
-        setPinned([
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />,
-            <DefaultPlaceholder />
-        ]);
-        for (const eventId of pinned.slice(index, index + 10)) {
-            try {
-                var mEvent: MatrixEvent = room.getTimelineForEvent(eventId)?.getEvents().find(x => x.getId() === eventId) ?? new MatrixEvent(await mx.fetchRoomEvent(room.roomId, eventId));
-                console.log(eventId, mEvent);
-                if (!mEvent) continue;
-                pinnedMessages.push(
-                    <Message
-                        key={mEvent.getId()}
-                        data-message-id={mEvent.getId()}
-                        room={room}
-                        mEvent={mEvent}
-                        edit={false}
-                        canDelete={false}
-                        canSendReaction={false}
-                        collapse={false}
-                        highlight={false}
-                        messageSpacing={messageSpacing}
-                        messageLayout={messageLayout}
-                        onReactionToggle={(evt: any) => null}
-                        onReplyClick={(evt: any) => null}
-                        onDiscussClick={(evt: any) => null}
-                        onUserClick={(evt: any) => null}
-                        onUsernameClick={(evt: any) => null}
-                        showGoTo
-                    >
-                        {mEvent.getType() == 'm.room.message' && <RenderMessageContent
-                            displayName={mEvent.sender?.rawDisplayName || mEvent.sender?.userId || getText('generic.unknown')}
-                            msgType={mEvent.getContent().msgtype ?? ''}
-                            ts={mEvent.getTs()}
-                            edited={false}
-                            getContent={mEvent.getContent.bind(mEvent) as GetContentCallback}
-                            mediaAutoLoad={true}
-                            urlPreview={false}
-                            htmlReactParserOptions={htmlReactParserOptions}
-                        />}
-                        {mEvent.getType() == 'm.sticker' && <MSticker
-                            content={mEvent.getContent()}
-                            renderImageContent={(props) => (
-                                <ImageContent
-                                    {...props}
-                                    autoPlay={mediaAutoLoad}
-                                    renderImage={(p) => <Image loading="lazy" />}
-                                    renderViewer={(p) => <ImageViewer {...p} />}
-                                />
-                            )}
-                        />}
-                    </Message>
-                );
-            } catch (error) {
-                console.error(`Failed loading ${eventId}`, error);
-            }
-        }
-        setPinned(pinnedMessages);
-        setLoadingPinList(false);
-    };
-
     const handlePinnedClick = () => {
-        setPageNo(1);
         setShowPinned(true);
-        updatePinnedList();
-    };
-
-    const handlePinnedClose = () => {
-        setShowPinned(false);
-    };
-
-    const handleWidgetsClose = () => {
-        setShowWidgets(false);
     };
 
     const getPresenceFn = usePresences();
-
-    const handlePrevPage = () => {
-        if (pageNo <= 1 || loadingPinList) return;
-        setPageNo(pageNo - 1);
-        updatePinnedList();
-    };
-
-    const handleNextPage = () => {
-        if (pageNo >= pinnedPages || loadingPinList) return;
-        setPageNo(pageNo + 1);
-        updatePinnedList();
-    };
-
-    const handleJumpSubmit: FormEventHandler<HTMLFormElement> = (evt) => {
-        evt.preventDefault();
-        const jumpInput = evt.currentTarget.jumpInput as HTMLInputElement;
-        if (!jumpInput) return;
-        const jumpTo = parseInt(jumpInput.value, 10);
-        setPageNo(Math.max(1, Math.min(pinnedPages, jumpTo)));
-        setJumpAnchor(undefined);
-        updatePinnedList();
-    };
-
-    const handleOpenJump: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        setJumpAnchor(evt.currentTarget.getBoundingClientRect());
-    };
-
-    const handleBack: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        history.back();
-    };
 
     const handleScalar = async () => {
         setShowWidgets(false);
@@ -602,336 +411,195 @@ export function RoomViewHeader({
         if (isDm) {
             const userId = room.guessDMUserId();
             const presence = getPresenceFn(userId);
-            if (presence)
+            if (presence) {
                 setStatusMessage(presence.presenceStatusMsg ?? presence.presence ?? 'offline');
+                if (presence.presence === 'online') setTopicColor(theme.palette.success.main);
+            }
         }
-    }, [mx]);
+    }, [mx, theme]);
+
+    const pinnedEvents = state?.getStateEvents('m.room.pinned_events');
+    const pinned = useMemo<string[]>(() => (pinnedEvents && pinnedEvents[0] && pinnedEvents[0].getContent().pinned) || [], [pinnedEvents, state, mx, room]);
+    const [eventN, setEventN] = useState<number>(0);
+
+    useEffect(() => { }, [eventN]);
 
     return (
-        <PageHeader>
-            <Overlay open={showPinned} backdrop={<OverlayBackdrop />}>
-                <OverlayCenter>
-                    <FocusTrap
-                        focusTrapOptions={{
-                            initialFocus: false,
-                            onDeactivate: handlePinnedClose,
-                            clickOutsideDeactivates: true
-                        }}
-                    >
-                        <Modal variant="Surface" size="500">
-                            <Header
-                                style={{
-                                    padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
-                                    borderBottomWidth: config.borderWidth.B300,
-                                }}
-                                variant="Surface"
-                                size="500"
-                            >
-                                <Box grow="Yes">
-                                    <Text size="H4">{getText('pinned.title')}</Text>
-                                </Box>
-                                <IconButton size="300" onClick={handlePinnedClose} radii="300">
-                                    <Icon size={1} path={mdiClose} />
-                                </IconButton>
-                            </Header>
-                            <Box tabIndex={-1} direction='Column' style={{ height: 'inherit' }}>
-                                <Scroll>
-                                    {pinned}
-                                </Scroll>
-                            </Box>
-                            <Header
-                                as='footer'
-                                className={css.PinListFooter}
-                            >
-                                <Chip
-                                    variant="Secondary"
-                                    radii="300"
-                                    before={<Icon size={1} path={mdiChevronLeft} />}
-                                    onClick={handlePrevPage}
-                                    aria-disabled={pageNo <= 1 || loadingPinList}
-                                >
-                                    <Text size="B300">{getText('btn.prev')}</Text>
-                                </Chip>
-                                <Box grow="Yes" justifyContent="Center" alignItems="Center" gap="200">
-                                    <PopOut
-                                        anchor={jumpAnchor}
-                                        align="Center"
-                                        position="Top"
-                                        content={
-                                            <FocusTrap
-                                                focusTrapOptions={{
-                                                    initialFocus: false,
-                                                    onDeactivate: () => setJumpAnchor(undefined),
-                                                    clickOutsideDeactivates: true,
-                                                }}
-                                            >
-                                                <Menu variant="Surface">
-                                                    <Box
-                                                        as="form"
-                                                        onSubmit={handleJumpSubmit}
-                                                        style={{ padding: config.space.S200 }}
-                                                        direction="Column"
-                                                        gap="200"
-                                                    >
-                                                        <Input
-                                                            name="jumpInput"
-                                                            size="300"
-                                                            variant="Background"
-                                                            defaultValue={pageNo}
-                                                            min={1}
-                                                            max={pinnedPages}
-                                                            step={1}
-                                                            outlined
-                                                            type="number"
-                                                            radii="300"
-                                                            aria-label={getText('aria.page_number')}
-                                                        />
-                                                        <Button type="submit" size="300" variant="Primary" radii="300">
-                                                            <Text size="B300">{getText('btn.jump_to_page')}</Text>
-                                                        </Button>
-                                                    </Box>
-                                                </Menu>
-                                            </FocusTrap>
-                                        }
-                                    >
-                                        <Chip
-                                            onClick={handleOpenJump}
-                                            variant="SurfaceVariant"
-                                            aria-pressed={jumpAnchor !== undefined || loadingPinList}
-                                            radii="300"
-                                        >
-                                            <Text size="B300">{`${pageNo}/${pinnedPages}`}</Text>
-                                        </Chip>
-                                    </PopOut>
-                                </Box>
-                                <Chip
-                                    variant="Primary"
-                                    radii="300"
-                                    after={<Icon size={1} path={mdiChevronRight} />}
-                                    onClick={handleNextPage}
-                                    aria-disabled={pageNo >= pinnedPages || loadingPinList}
-                                >
-                                    <Text size="B300">{getText('btn.next')}</Text>
-                                </Chip>
-                            </Header>
-                        </Modal>
-                    </FocusTrap>
-                </OverlayCenter>
-            </Overlay>
-            <Overlay open={showWidgets} backdrop={<OverlayBackdrop />}>
-                <OverlayCenter>
-                    <FocusTrap
-                        focusTrapOptions={{
-                            initialFocus: false,
-                            onDeactivate: handleWidgetsClose,
-                            clickOutsideDeactivates: true
-                        }}
-                    >
-                        <Modal variant="Surface" size="500">
-                            <Header
-                                style={{
-                                    padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
-                                    borderBottomWidth: config.borderWidth.B300,
-                                }}
-                                variant="Surface"
-                                size="500"
-                            >
-                                <Box grow="Yes">
-                                    <Text size="H4">{getText('widgets.title')}</Text>
-                                </Box>
-                                <IconButton size="300" onClick={handleScalar} radii="300">
-                                    <Icon size={1} path={mdiPlus} />
-                                </IconButton>
-                                <IconButton size="300" onClick={handleWidgetsClose} radii="300">
-                                    <Icon size={1} path={mdiClose} />
-                                </IconButton>
-                            </Header>
-                            <Box tabIndex={-1} direction='Column' style={{ width: 'auto', height: 'inherit' }}>
-                                {widgets}
-                            </Box>
-                        </Modal>
-                    </FocusTrap>
-                </OverlayCenter>
-            </Overlay>
-            <Box grow="Yes" gap="300">
-                <Box shrink="No">
-                    <IconButton
-                        variant="Background"
-                        fill="None"
-                        size="300"
-                        radii="300"
-                        onClick={handleBack}
-                    >
-                        <Icon size={1} path={mdiArrowLeft} />
-                    </IconButton>
-                </Box>
-                <Box grow="Yes" alignItems="Center" gap="300">
-                    <Avatar onClick={handleAvClick} size="300">
-                        <RoomAvatar
-                            roomId={room.roomId}
-                            src={avatarUrl}
-                            alt={name}
-                            renderFallback={() => nameInitials(name)}
+        <>
+            <Dialog
+                open={showPinned}
+                onClose={() => setShowPinned(false)}
+                scroll='body'
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar>
+                        <Typography flexGrow={1} component='div' variant='h6'>
+                            {getText('pinned.title')}
+                        </Typography>
+                        <IconButton
+                            onClick={() => setShowPinned(false)}
+                        >
+                            <Close />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent>
+                    {pinned[eventN] ? (
+                        <AsyncLoadMessage
+                            room={room}
+                            eventId={pinned[eventN]}
                         />
-                    </Avatar>
-                    <Box direction="Column">
-                        <Text size={(topic ?? statusMessage) ? 'H5' : 'H3'} truncate>
-                            {name}
-                        </Text>
-                        {(topic ?? statusMessage) && (
-                            <UseStateProvider initial={false}>
-                                {(viewTopic, setViewTopic) => (
-                                    <>
-                                        <Overlay open={viewTopic} backdrop={<OverlayBackdrop />}>
-                                            <OverlayCenter>
-                                                <FocusTrap
-                                                    focusTrapOptions={{
-                                                        initialFocus: false,
-                                                        clickOutsideDeactivates: true,
-                                                        onDeactivate: () => setViewTopic(false),
-                                                    }}
+                    ) : (
+                        <DefaultPlaceholder />
+                    )}
+                    <Box justifyContent='Center'>
+                        <Pagination count={pinned.length} page={eventN + 1} onChange={(evt, page) => setEventN(page - 1)} />
+                    </Box>
+                </DialogContent>
+            </Dialog>
+            <Dialog
+                open={showWidgets}
+                onClose={() => setShowWidgets(false)}
+                scroll='body'
+            >
+                <AppBar sx={{ position: 'relative' }}>
+                    <Toolbar>
+                        <Typography flexGrow={1} variant='h6' component='div'>
+                            {getText('widgets.title')}
+                        </Typography>
+                        <IconButton
+                            onClick={handleScalar}
+                            disabled={!canEditWidgets}
+                        >
+                            <Widgets />
+                        </IconButton>
+                        <IconButton
+                            onClick={() => setShowWidgets(false)}
+                        >
+                            <Close />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
+                <DialogContent sx={{ minWidth: '500px', minHeight: '300px' }} dividers>
+                    {widgets}
+                </DialogContent>
+            </Dialog>
+            <AppBar position='relative'>
+                <Toolbar>
+                    <Box grow="Yes" gap="300">
+                        <Box shrink="No">
+                            <BackRouteHandler>
+                                {(goBack) => (
+                                    <IconButton
+                                        color='inherit'
+                                        onClick={goBack}
+                                    >
+                                        <ArrowBack />
+                                    </IconButton>
+                                )}
+                            </BackRouteHandler>
+                        </Box>
+                        <Box grow="Yes" alignItems="Center" gap="300">
+                            <AnimatedNode
+                                whileHover={{
+                                    scale: 1.2,
+                                    boxShadow: '5px 5px #00000050',
+                                }}
+                                style={{ borderRadius: '50%' }}
+                            >
+                                <Avatar onClick={handleAvClick} size="400">
+                                    <RoomAvatar
+                                        roomId={room.roomId}
+                                        src={avatarUrl}
+                                        alt={name}
+                                        renderFallback={() => nameInitials(name)}
+                                    />
+                                </Avatar>
+                            </AnimatedNode>
+                            <Box direction="Column">
+                                <Text size={(topic ?? statusMessage) ? 'H5' : 'H3'} truncate>
+                                    {name}
+                                </Text>
+                                {(topic ?? statusMessage) && (
+                                    <UseStateProvider initial={false}>
+                                        {(viewTopic, setViewTopic) => (
+                                            <>
+                                                <Dialog
+                                                    open={viewTopic}
+                                                    onClose={() => setViewTopic(false)}
                                                 >
                                                     <RoomTopicViewer
                                                         name={name}
                                                         topic={topic ?? statusMessage}
                                                         requestClose={() => setViewTopic(false)}
                                                     />
-                                                </FocusTrap>
-                                            </OverlayCenter>
-                                        </Overlay>
-                                        <Text
-                                            as="button"
-                                            type="button"
-                                            onClick={() => setViewTopic(true)}
-                                            className={css.HeaderTopic}
-                                            size="T200"
-                                            priority="300"
-                                            truncate
-                                        >
-                                            {topic ?? statusMessage}
-                                        </Text>
-                                    </>
+                                                </Dialog>
+                                                <Text
+                                                    onClick={() => setViewTopic(true)}
+                                                    as='button'
+                                                    type='button'
+                                                    truncate
+                                                    size='T200'
+                                                    color={topicColor}
+                                                >
+                                                    {topic ?? statusMessage}
+                                                </Text>
+                                            </>
+                                        )}
+                                    </UseStateProvider>
                                 )}
-                            </UseStateProvider>
-                        )}
+                            </Box>
+                        </Box>
+                        <Box shrink="No">
+                            {!encryptedRoom && (
+                                <Tooltip title={getText('tooltip.search')}>
+                                    <IconButton color='inherit' onClick={handleSearchClick}>
+                                        <Search />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
+                            <Tooltip title={getText('tooltip.widgets')}>
+                                <IconButton color='inherit' onClick={handleWidgetsClick}>
+                                    <Widgets />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={getText('tooltip.pinned')}>
+                                <IconButton color='inherit' onClick={handlePinnedClick}>
+                                    <PushPin />
+                                </IconButton>
+                            </Tooltip>
+                            {screenSize === ScreenSize.Desktop && (
+                                <Tooltip title={getText('tooltip.members')}>
+                                    <IconButton color='inherit' onClick={() => setPeopleDrawer((drawer) => !drawer)}>
+                                        <People />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
+                            {!mDirects.has(room.roomId) && showVideoCallButton && (
+                                <IconButton color='inherit' onClick={handleVideoCall}>
+                                    <VideoCall />
+                                </IconButton>
+                            )}
+                            {mDirects.has(room.roomId) && (
+                                <IconButton color='inherit' onClick={handleCall}>
+                                    <Phone />
+                                </IconButton>
+                            )}
+                            <Tooltip title={getText('tooltip.more_options')}>
+                                <IconButton color='inherit' onClick={handleOpenMenu} aria-pressed={!!menuAnchor}>
+                                    <MoreVert />
+                                </IconButton>
+                            </Tooltip>
+                            <RoomMenu
+                                room={room}
+                                linkPath={currentPath}
+                                requestClose={() => setMenuAnchor(null)}
+                                anchorEl={menuAnchor}
+                            />
+                        </Box>
                     </Box>
-                </Box>
-                <Box shrink="No">
-                    {!encryptedRoom && (
-                        <TooltipProvider
-                            position="Bottom"
-                            offset={4}
-                            tooltip={
-                                <Tooltip>
-                                    <Text>{getText('tooltip.search')}</Text>
-                                </Tooltip>
-                            }
-                        >
-                            {(triggerRef) => (
-                                <IconButton ref={triggerRef} onClick={handleSearchClick}>
-                                    <Icon size={1} path={mdiMagnify} />
-                                </IconButton>
-                            )}
-                        </TooltipProvider>
-                    )}
-                    <TooltipProvider
-                        position="Bottom"
-                        offset={4}
-                        tooltip={
-                            <Tooltip>
-                                <Text>{getText('tooltip.widgets')}</Text>
-                            </Tooltip>
-                        }
-                    >
-                        {(triggerRef) => (
-                            <IconButton ref={triggerRef} onClick={handleWidgetsClick}>
-                                <Icon size={1} path={mdiWidgets} />
-                            </IconButton>
-                        )}
-                    </TooltipProvider>
-                    <TooltipProvider
-                        position="Bottom"
-                        offset={4}
-                        tooltip={
-                            <Tooltip>
-                                <Text>{getText('tooltip.pinned')}</Text>
-                            </Tooltip>
-                        }
-                    >
-                        {(triggerRef) => (
-                            <IconButton ref={triggerRef} onClick={handlePinnedClick}>
-                                <Icon size={1} path={mdiPin} />
-                            </IconButton>
-                        )}
-                    </TooltipProvider>
-                    {screenSize === ScreenSize.Desktop && (
-                        <TooltipProvider
-                            position="Bottom"
-                            offset={4}
-                            tooltip={
-                                <Tooltip>
-                                    <Text>{getText('tooltip.members')}</Text>
-                                </Tooltip>
-                            }
-                        >
-                            {(triggerRef) => (
-                                <IconButton ref={triggerRef} onClick={() => setPeopleDrawer((drawer) => !drawer)}>
-                                    <Icon size={1} path={mdiAccount} />
-                                </IconButton>
-                            )}
-                        </TooltipProvider>
-                    )}
-                    {!mDirects.has(room.roomId) && showVideoCallButton && (
-                        <IconButton onClick={handleVideoCall}>
-                            <Icon size={1} path={mdiVideo} />
-                        </IconButton>
-                    )}
-                    {mDirects.has(room.roomId) && (
-                        <IconButton onClick={handleCall}>
-                            <Icon size={1} path={mdiPhone} />
-                        </IconButton>
-                    )}
-                    <TooltipProvider
-                        position="Bottom"
-                        align="End"
-                        offset={4}
-                        tooltip={
-                            <Tooltip>
-                                <Text>{getText('tooltip.more_options')}</Text>
-                            </Tooltip>
-                        }
-                    >
-                        {(triggerRef) => (
-                            <IconButton onClick={handleOpenMenu} ref={triggerRef} aria-pressed={!!menuAnchor}>
-                                <Icon size={1} path={mdiDotsVertical} />
-                            </IconButton>
-                        )}
-                    </TooltipProvider>
-                    <PopOut
-                        anchor={menuAnchor}
-                        position="Bottom"
-                        align="End"
-                        content={
-                            <FocusTrap
-                                focusTrapOptions={{
-                                    initialFocus: false,
-                                    returnFocusOnDeactivate: false,
-                                    onDeactivate: () => setMenuAnchor(undefined),
-                                    clickOutsideDeactivates: true,
-                                    isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                                    isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                                }}
-                            >
-                                <RoomMenu
-                                    room={room}
-                                    linkPath={currentPath}
-                                    requestClose={() => setMenuAnchor(undefined)}
-                                />
-                            </FocusTrap>
-                        }
-                    />
-                </Box>
-            </Box>
-        </PageHeader>
+                </Toolbar>
+            </AppBar>
+        </>
     );
 }

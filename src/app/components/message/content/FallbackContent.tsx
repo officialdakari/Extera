@@ -1,7 +1,7 @@
 import { Box, Text, as, color, config } from 'folds';
 import React from 'react';
 import { getText } from '../../../../lang';
-import { mdiAlert, mdiDelete, mdiLock, mdiLockAlert } from '@mdi/js';
+import { mdiAlert, mdiDelete, mdiEyeOff, mdiLock, mdiLockAlert } from '@mdi/js';
 import Icon from '@mdi/react';
 
 const warningStyle = { color: color.Warning.Main, opacity: config.opacity.P300 };
@@ -16,6 +16,15 @@ export const MessageDeletedContent = as<'div', { children?: never; reason?: stri
             ) : (
                 <i>{getText('msg.redacted')}</i>
             )}
+        </Box>
+    )
+);
+
+export const MessageBlockedContent = as<'div', { children?: never }>(
+    ({ ...props }, ref) => (
+        <Box as="span" alignItems="Center" gap="100" style={warningStyle} {...props} ref={ref}>
+            <Icon size={0.85} path={mdiEyeOff} />
+            <i>{getText('msg.blocked')}</i>
         </Box>
     )
 );

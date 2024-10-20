@@ -35,22 +35,28 @@ export type _SearchPathSearchParams = {
     senders?: string;
 };
 export const _SEARCH_PATH = 'search/';
-export const _ROOM_PATH = ':roomIdOrAlias/:eventId?/:threadRootId?/';
+export const _THREAD_PATH = 'thread/:roomIdOrAlias/:threadId/:eventId?/';
+export const _ROOM_PATH = ':roomIdOrAlias/:eventId?/';
 
 export const HOME_PATH = '/home/';
 export const HOME_CREATE_PATH = `/home/${_CREATE_PATH}`;
 export const HOME_JOIN_PATH = `/home/${_JOIN_PATH}`;
 export const HOME_SEARCH_PATH = `/home/${_SEARCH_PATH}`;
 export const HOME_ROOM_PATH = `/home/${_ROOM_PATH}`;
+export const HOME_THREAD_PATH = `/home/${_THREAD_PATH}`;
 
 export const DIRECT_PATH = '/direct/';
 export const DIRECT_CREATE_PATH = `/direct/${_CREATE_PATH}`;
 export const DIRECT_ROOM_PATH = `/direct/${_ROOM_PATH}`;
+export const DIRECT_THREAD_PATH = `/direct/${_THREAD_PATH}`;
+
+export const SEARCH_PATH = '/search/';
 
 export const SPACE_PATH = '/:spaceIdOrAlias/';
 export const SPACE_LOBBY_PATH = `/:spaceIdOrAlias/${_LOBBY_PATH}`;
 export const SPACE_SEARCH_PATH = `/:spaceIdOrAlias/${_SEARCH_PATH}`;
 export const SPACE_ROOM_PATH = `/:spaceIdOrAlias/${_ROOM_PATH}`;
+export const SPACE_THREAD_PATH = `/:spaceIdOrAlias/${_THREAD_PATH}`;
 
 export const _FEATURED_PATH = 'featured/';
 export const _SERVER_PATH = ':server/';

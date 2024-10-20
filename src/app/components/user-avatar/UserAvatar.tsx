@@ -2,6 +2,7 @@ import { AvatarFallback, AvatarImage, color } from 'folds';
 import React, { ReactEventHandler, ReactNode, useState } from 'react';
 import * as css from './UserAvatar.css';
 import colorMXID from '../../../util/colorMXID';
+import FallbackAvatar from '../../molecules/fallback-avatar/FallbackAvatar';
 
 type UserAvatarProps = {
     userId: string;
@@ -18,12 +19,10 @@ export function UserAvatar({ userId, src, alt, renderFallback }: UserAvatarProps
 
     if (!src || error) {
         return (
-            <AvatarFallback
-                style={{ backgroundColor: colorMXID(userId), color: color.Surface.Container }}
-                className={css.UserAvatar}
-            >
-                {renderFallback()}
-            </AvatarFallback>
+            <FallbackAvatar
+                userId={userId}
+                name={alt}
+            />
         );
     }
 

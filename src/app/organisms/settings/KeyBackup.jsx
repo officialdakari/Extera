@@ -268,7 +268,7 @@ function KeyBackup() {
                     onClick={openRestoreKeyBackup}
                     tooltip={getText('tooltip.restore_backup')}
                 />
-                <IconButton src={mdiDelete} onClick={openDeleteKeyBackup} tooltip="Delete backup" />
+                <IconButton variant='danger' src={mdiDelete} onClick={openDeleteKeyBackup} tooltip="Delete backup" />
             </>
         );
     };

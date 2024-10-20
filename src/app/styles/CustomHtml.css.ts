@@ -1,3 +1,4 @@
+import { blue, blueGrey, green, grey, yellow } from '@mui/material/colors';
 import { style } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
 import { color, config, DefaultReset, toRem } from 'folds';
@@ -36,7 +37,6 @@ export const BlockQuote = style([
     {
         paddingLeft: config.space.S200,
         borderLeft: `${config.borderWidth.B700} solid ${color.SurfaceVariant.ContainerLine}`,
-        backgroundColor: color.Background.ContainerHover,
         padding: '5px',
         borderRadius: config.radii.R300,
         borderStyle: 'solid',
@@ -123,25 +123,21 @@ export const Mention = recipe({
     base: [
         DefaultReset,
         {
-            backgroundColor: color.SurfaceVariant.Container,
-            color: color.SurfaceVariant.OnContainer,
-            boxShadow: `0 0 0 ${config.borderWidth.B300} ${color.SurfaceVariant.ContainerLine}`,
-            padding: `0 ${toRem(2)}`,
-            borderRadius: config.radii.R300,
-            fontWeight: config.fontWeight.W500,
+            color: blue[400],
         },
     ],
     variants: {
         highlight: {
             true: {
-                backgroundColor: color.Success.Container,
-                color: color.Success.OnContainer,
-                boxShadow: `0 0 0 ${config.borderWidth.B300} ${color.Success.ContainerLine}`,
+                //backgroundColor: color.Success.Container,
+                //color: color.Success.OnContainer,
+                //boxShadow: `0 0 0 ${config.borderWidth.B300} ${color.Success.ContainerLine}`,
+                color: yellow[900]
             },
         },
         focus: {
             true: {
-                boxShadow: `0 0 0 ${config.borderWidth.B300} ${color.SurfaceVariant.OnContainer}`,
+                //boxShadow: `0 0 0 ${config.borderWidth.B300} ${color.SurfaceVariant.OnContainer}`,
             },
         },
     },

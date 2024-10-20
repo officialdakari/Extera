@@ -21,23 +21,27 @@
       }
     }
   }
-  
+
   &__search-status {
     margin-top: var(--sp-extra-loose);
     margin-bottom: var(--sp-tight);
+
     & .donut-spinner {
       margin: 0 var(--sp-tight);
     }
   }
+
   &__search-error {
     color: var(--bg-danger);
   }
+
   &__content {
-    border-top: 1px solid var(--bg-surface-border);
+    margin-top: 10px;
   }
 
   & .room-tile {
     margin-top: var(--sp-normal);
+
     &__options {
       align-self: flex-end;
     }

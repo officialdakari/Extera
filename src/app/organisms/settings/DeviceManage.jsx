@@ -7,12 +7,7 @@ import { isCrossVerified } from '../../../util/matrixUtil';
 import { openReusableDialog, openEmojiVerification } from '../../../client/action/navigation';
 
 import Text from '../../atoms/text/Text';
-import Button from '../../atoms/button/Button';
-import IconButton from '../../atoms/button/IconButton';
-import Input from '../../atoms/input/Input';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
-import InfoCard from '../../atoms/card/InfoCard';
-import Spinner from '../../atoms/spinner/Spinner';
 import SettingTile from '../../molecules/setting-tile/SettingTile';
 
 import { authRequest } from './AuthRequest';
@@ -24,6 +19,8 @@ import { useCrossSigningStatus } from '../../hooks/useCrossSigningStatus';
 import { accessSecretStorage } from './SecretStorageAccess';
 import { getText, translate } from '../../../lang';
 import { mdiDelete, mdiInformationOutline, mdiPencil } from '@mdi/js';
+import { Alert, Button, CircularProgress, DialogActions, DialogContent, IconButton, LinearProgress, TextField } from '@mui/material';
+import { Delete, Edit, Remove } from '@mui/icons-material';
 
 const promptDeviceName = async (deviceName) => new Promise((resolve) => {
     let isCompleted = false;
@@ -36,18 +33,22 @@ const promptDeviceName = async (deviceName) => new Promise((resolve) => {
             onComplete(name);
         };
         return (
-            <form className="device-manage__rename" onSubmit={handleSubmit}>
-                <Input value={deviceName} label={getText('label.session_name')} name="session" />
-                <div className="device-manage__rename-btn">
-                    <Button variant="primary" type="submit">{getText('btn.save_device_name')}</Button>
-                    <Button onClick={() => onComplete(null)}>{getText('btn.cancel')}</Button>
-                </div>
-            </form>
+            <>
+                <form onSubmit={handleSubmit}>
+                    <DialogContent>
+                        <TextField defaultValue={deviceName} label={getText('label.session_name')} name="session" />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => onComplete(null)}>{getText('btn.cancel')}</Button>
+                        <Button color='primary' type='submit'>{getText('btn.save_device_name')}</Button>
+                    </DialogActions>
+                </form>
+            </>
         );
     };
 
     openReusableDialog(
-        <Text variant="s1" weight="medium">{getText('text.edit_session_name')}</Text>,
+        getText('text.edit_session_name'),
         (requestClose) => renderContent((name) => {
             isCompleted = true;
             resolve(name);
@@ -88,8 +89,7 @@ function DeviceManage() {
         return (
             <div className="device-manage">
                 <div className="device-manage__loading">
-                    <Spinner size="small" />
-                    <Text>{getText('loading_sessions')}</Text>
+                    <LinearProgress />
                 </div>
             </div>
         );
@@ -115,7 +115,7 @@ function DeviceManage() {
             getText('device_manage.logout.title', device.display_name),
             getText('device_manage.logout.warning', device.display_name),
             getText('btn.logout'),
-            'danger',
+            'error',
         );
         if (!isConfirmed) return;
         addToProcessing(device);
@@ -167,12 +167,12 @@ function DeviceManage() {
                 )}
                 options={
                     processing.includes(deviceId)
-                        ? <Spinner size="small" />
+                        ? <CircularProgress />
                         : (
                             <>
-                                {(isCSEnabled && canVerify) && <Button onClick={() => verify(deviceId, isCurrentDevice)} variant="positive">Verify</Button>}
-                                <IconButton size="small" onClick={() => handleRename(device)} src={mdiPencil} tooltip={getText('tooltip.rename_session')} />
-                                <IconButton size="small" onClick={() => handleRemove(device)} src={mdiDelete} tooltip={getText('tooltip.remove_session')} />
+                                {(isCSEnabled && canVerify) && <Button onClick={() => verify(deviceId, isCurrentDevice)} variant='outlined' color="positive">{getText('btn.verify')}</Button>}
+                                <IconButton onClick={() => handleRename(device)}><Edit /></IconButton>
+                                <IconButton onClick={() => handleRemove(device)} color='error'><Delete /></IconButton>
                             </>
                         )
                 }
@@ -221,32 +221,29 @@ function DeviceManage() {
                 <MenuHeader>{getText('text.session.unverified')}</MenuHeader>
                 {!isMeVerified && isCSEnabled && (
                     <div style={{ padding: 'var(--sp-extra-tight) var(--sp-normal)' }}>
-                        <InfoCard
-                            rounded
-                            variant="primary"
-                            iconSrc={mdiInformationOutline}
-                            title={getText('device_manage.verify.title')}
-                        />
+                        <Alert
+                            severity='info'
+                        >
+                            {getText('device_manage.verify.title')}
+                        </Alert>
                     </div>
                 )}
                 {isMeVerified && unverified.length > 0 && (
                     <div style={{ padding: 'var(--sp-extra-tight) var(--sp-normal)' }}>
-                        <InfoCard
-                            rounded
-                            variant="surface"
-                            iconSrc={mdiInformationOutline}
-                            title={getText('device_manage.tip')}
-                        />
+                        <Alert
+                            severity='info'
+                        >
+                            {getText('device_manage.tip')}
+                        </Alert>
                     </div>
                 )}
                 {!isCSEnabled && (
                     <div style={{ padding: 'var(--sp-extra-tight) var(--sp-normal)' }}>
-                        <InfoCard
-                            rounded
-                            variant="caution"
-                            iconSrc={mdiInformationOutline}
-                            title={getText('device_manage.crosssigning_tip')}
-                        />
+                        <Alert
+                            severity='warning'
+                        >
+                            {getText('device_manage.crosssigning_tip')}
+                        </Alert>
                     </div>
                 )}
                 {
@@ -262,7 +259,7 @@ function DeviceManage() {
                 </div>
             )}
             <div>
-                <MenuHeader>Verified sessions</MenuHeader>
+                <MenuHeader>{getText('text.session.verified')}</MenuHeader>
                 {
                     verified.length > 0
                         ? verified.map((device, index) => {
@@ -272,7 +269,7 @@ function DeviceManage() {
                         : <Text className="device-manage__info">{getText('text.session.no_verified')}</Text>
                 }
                 {verified.length > TRUNCATED_COUNT && (
-                    <Button className="device-manage__info" onClick={() => setTruncated(!truncated)}>
+                    <Button fullWidth variant='text' onClick={() => setTruncated(!truncated)}>
                         {
                             getText(
                                 truncated ? 'generic.view_more.count' : 'generic.view_less',

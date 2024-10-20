@@ -11,17 +11,9 @@ import React, {
     useRef,
 } from 'react';
 import {
-    Badge,
     Box,
-    Button,
-    Chip,
-    IconButton,
-    Input,
-    Line,
     Scroll,
     Text,
-    Tooltip,
-    TooltipProvider,
     as,
     config,
     toRem,
@@ -54,6 +46,9 @@ import { settingsAtom } from '../../state/settings';
 import { openJoinAlias } from '../../../client/action/navigation';
 import Icon from '@mdi/react';
 import { mdiArrowRight, mdiHistory, mdiMagnify, mdiSticker, mdiStickerOutline } from '@mdi/js';
+import { Divider, IconButton, Tab, Tabs, Theme, Tooltip, useTheme } from '@mui/material';
+import { SearchContainer, SearchIcon, SearchIconWrapper, SearchInputBase } from '../../atoms/search/Search';
+import { MotionBox } from '../../atoms/motion/Animated';
 
 const RECENT_GROUP_ID = 'recent_group';
 const SEARCH_GROUP_ID = 'search_group';
@@ -121,7 +116,7 @@ const SidebarStack = as<'div'>(({ className, children, ...props }, ref) => (
     </Box>
 ));
 function SidebarDivider() {
-    return <Line className={css.SidebarDivider} size="300" variant="Surface" />;
+    return <Divider orientation='vertical' />;
 }
 
 function Header({ children }: { children: ReactNode }) {
@@ -151,12 +146,14 @@ const EmojiBoardLayout = as<
         sidebar?: ReactNode;
         footer?: ReactNode;
         children: ReactNode;
+        theme: Theme;
     }
->(({ className, header, sidebar, footer, children, ...props }, ref) => (
+>(({ className, header, sidebar, footer, children, theme, ...props }, ref) => (
     <Box
         display="InlineFlex"
         className={classNames(css.Base, className)}
         direction="Row"
+        style={{ backgroundColor: theme.palette.background.paper, color: theme.palette.text.primary }}
         {...props}
         ref={ref}
     >
@@ -165,7 +162,7 @@ const EmojiBoardLayout = as<
             {children}
             {footer}
         </Box>
-        <Line size="300" direction="Vertical" />
+        <SidebarDivider />
         {sidebar}
     </Box>
 ));
@@ -178,32 +175,13 @@ function EmojiBoardTabs({
     onTabChange: (tab: EmojiBoardTab) => void;
 }) {
     return (
-        <Box gap="100">
-            <Badge
-                className={css.EmojiBoardTab}
-                as="button"
-                variant="Secondary"
-                fill={tab === EmojiBoardTab.Sticker ? 'Solid' : 'None'}
-                size="500"
-                onClick={() => onTabChange(EmojiBoardTab.Sticker)}
-            >
-                <Text as="span" size="L400">
-                    {getText('emojiboard.stickers')}
-                </Text>
-            </Badge>
-            <Badge
-                className={css.EmojiBoardTab}
-                as="button"
-                variant="Secondary"
-                fill={tab === EmojiBoardTab.Emoji ? 'Solid' : 'None'}
-                size="500"
-                onClick={() => onTabChange(EmojiBoardTab.Emoji)}
-            >
-                <Text as="span" size="L400">
-                    {getText('emojiboard.emojis')}
-                </Text>
-            </Badge>
-        </Box>
+        <Tabs
+            value={tab === EmojiBoardTab.Emoji ? 1 : 0}
+            onChange={(evt, v) => onTabChange(v === 0 ? EmojiBoardTab.Sticker : EmojiBoardTab.Emoji)}
+        >
+            <Tab label={getText('emojiboard.stickers')} id='emojiboard-tab-0' aria-controls='emojibord-tab-stickers' />
+            <Tab label={getText('emojiboard.emojis')} id='emojiboard-tab-1' aria-controls='emojibord-tab-emojis' />
+        </Tabs>
     );
 }
 
@@ -221,29 +199,15 @@ export function SidebarBtn<T extends string>({
     children: ReactNode;
 }) {
     return (
-        <TooltipProvider
-            delay={500}
-            position="Left"
-            tooltip={
-                <Tooltip id={`SidebarStackItem-${id}-label`}>
-                    <Text size="T300">{label}</Text>
-                </Tooltip>
-            }
-        >
-            {(ref) => (
-                <IconButton
-                    aria-pressed={active}
-                    aria-labelledby={`SidebarStackItem-${id}-label`}
-                    ref={ref}
-                    onClick={() => onItemClick(id)}
-                    size="400"
-                    radii="300"
-                    variant="Surface"
-                >
-                    {children}
-                </IconButton>
-            )}
-        </TooltipProvider>
+        <Tooltip title={label}>
+            <IconButton
+                aria-pressed={active}
+                aria-labelledby={`SidebarStackItem-${id}-label`}
+                onClick={() => onItemClick(id)}
+            >
+                {children}
+            </IconButton>
+        </Tooltip>
     );
 }
 
@@ -289,7 +253,7 @@ export function EmojiItem({
     children: ReactNode;
 }) {
     return (
-        <Box
+        <MotionBox
             as="button"
             className={css.EmojiItem}
             type="button"
@@ -300,9 +264,10 @@ export function EmojiItem({
             data-emoji-type={type}
             data-emoji-data={data}
             data-emoji-shortcode={shortcode}
+            whileHover={{ scale: 1.2 }}
         >
             {children}
-        </Box>
+        </MotionBox>
     );
 }
 
@@ -320,7 +285,7 @@ export function StickerItem({
     children: ReactNode;
 }) {
     return (
-        <Box
+        <MotionBox
             as="button"
             className={css.StickerItem}
             type="button"
@@ -331,9 +296,12 @@ export function StickerItem({
             data-emoji-type={type}
             data-emoji-data={data}
             data-emoji-shortcode={shortcode}
+            whileHover={{
+                scale: 1.2
+            }}
         >
             {children}
-        </Box>
+        </MotionBox>
     );
 }
 
@@ -659,6 +627,8 @@ export function EmojiBoard({
     const emojiPreviewRef = useRef<HTMLDivElement>(null);
     const emojiPreviewTextRef = useRef<HTMLParagraphElement>(null);
 
+    const theme = useTheme();
+
     // Remove #emoji:officialdakari.ru advertisement
     const [hideAdvert, setHideAdvert] = useSetting(settingsAtom, 'hideEmojiAdvert');
 
@@ -795,42 +765,22 @@ export function EmojiBoard({
             }}
         >
             <EmojiBoardLayout
+                theme={theme}
                 header={
                     <Header>
                         <Box direction="Column" gap="200">
                             {onTabChange && <EmojiBoardTabs tab={tab} onTabChange={onTabChange} />}
-                            <Input
-                                data-emoji-board-search
-                                variant="SurfaceVariant"
-                                size="400"
-                                placeholder={allowTextCustomEmoji ? getText('emojiboard.search_or_text_reaction') : getText('emojiboard.search')}
-                                maxLength={50}
-                                after={
-                                    allowTextCustomEmoji && result?.query ? (
-                                        <Chip
-                                            variant="Primary"
-                                            radii="Pill"
-                                            after={<Icon size={1} path={mdiArrowRight} />}
-                                            outlined
-                                            onClick={() => {
-                                                const searchInput = document.querySelector<HTMLInputElement>(
-                                                    '[data-emoji-board-search="true"]'
-                                                );
-                                                const textReaction = searchInput?.value.trim();
-                                                if (!textReaction) return;
-                                                onCustomEmojiSelect?.(textReaction, textReaction);
-                                                requestClose();
-                                            }}
-                                        >
-                                            <Text size="L400">{getText('emojiboard.react')}</Text>
-                                        </Chip>
-                                    ) : (
-                                        <Icon size={1} path={mdiMagnify} />
-                                    )
-                                }
-                                onChange={handleOnChange}
-                                autoFocus={!mobileOrTablet()}
-                            />
+                            <SearchContainer>
+                                <SearchIconWrapper>
+                                    <SearchIcon />
+                                </SearchIconWrapper>
+                                <SearchInputBase
+                                    data-emoji-board-search
+                                    autoFocus={!mobileOrTablet()}
+                                    onChange={handleOnChange}
+                                    placeholder={allowTextCustomEmoji ? getText('emojiboard.search_or_text_reaction') : getText('emojiboard.search')}
+                                />
+                            </SearchContainer>
                         </Box>
                     </Header>
                 }
@@ -883,7 +833,7 @@ export function EmojiBoard({
                                 </Footer>
                             )
                         )}
-                        {!hideAdvert && (
+                        {/* {!hideAdvert && (
                             <Box shrink="No" className={css.Footer} display='InlineFlex' justifyContent='SpaceBetween' gap="300" alignItems="Center">
                                 <Text size="H5">
                                     Free cool emojis
@@ -894,7 +844,7 @@ export function EmojiBoard({
                                     <Button size='300' variant='Secondary' onClick={handleDismissFreeEmojis}>Dismiss</Button>
                                 </div>
                             </Box>
-                        )}
+                        )} */}
                     </>
                 }
             >

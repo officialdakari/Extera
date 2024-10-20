@@ -5,16 +5,12 @@ import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import { decryptMegolmKeyFile } from '../../../util/cryptE2ERoomKeys';
 
-import Text from '../../atoms/text/Text';
-import IconButton from '../../atoms/button/IconButton';
-import Button from '../../atoms/button/Button';
-import Input from '../../atoms/input/Input';
-import Spinner from '../../atoms/spinner/Spinner';
-
-
 import { useStore } from '../../hooks/useStore';
 import { getText } from '../../../lang';
 import { mdiPlusCircle } from '@mdi/js';
+import { Button, CircularProgress, IconButton, TextField, Typography } from '@mui/material';
+import { Close } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 
 function ImportE2ERoomKeys() {
     const isMountStore = useStore();
@@ -111,22 +107,22 @@ function ImportE2ERoomKeys() {
             <form className="import-e2e-room-keys__form" onSubmit={(e) => { e.preventDefault(); importE2ERoomKeys(); }}>
                 {keyFile !== null && (
                     <div className="import-e2e-room-keys__file">
-                        <IconButton onClick={removeImportKeysFile} src={mdiPlusCircle} tooltip={getText('tooltip.remove_file')} />
-                        <Text>{keyFile.name}</Text>
+                        <IconButton onClick={removeImportKeysFile}><Close /></IconButton>
+                        <Typography>{keyFile.name}</Typography>
                     </div>
                 )}
                 {keyFile === null && <Button onClick={() => inputRef.current.click()}>{getText('btn.import_keys')}</Button>}
-                <Input forwardRef={passwordRef} type="password" placeholder="Password" required />
-                <Button disabled={status.isOngoing} variant="primary" type="submit">{getText('btn.import_keys.decrypt')}</Button>
+                <TextField sx={{ flexGrow: 1 }} size='small' variant='filled' forwardRef={passwordRef} type="password" label="Password" required />
+                <LoadingButton disabled={status.isOngoing} size='small' variant="contained" type="submit">{getText('btn.import_keys.decrypt')}</LoadingButton>
             </form>
             {status.type === cons.status.IN_FLIGHT && (
                 <div className="import-e2e-room-keys__process">
-                    <Spinner size="small" />
-                    <Text variant="b2">{status.msg}</Text>
+                    <CircularProgress />
+                    <Typography fontWeight='bold'>{status.msg}</Typography>
                 </div>
             )}
-            {status.type === cons.status.SUCCESS && <Text className="import-e2e-room-keys__success" variant="b2">{status.msg}</Text>}
-            {status.type === cons.status.ERROR && <Text className="import-e2e-room-keys__error" variant="b2">{status.msg}</Text>}
+            {status.type === cons.status.SUCCESS && <Typography color='success'>{status.msg}</Typography>}
+            {status.type === cons.status.ERROR && <Typography color='error'>{status.msg}</Typography>}
         </div>
     );
 }

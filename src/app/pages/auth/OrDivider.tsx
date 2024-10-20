@@ -1,13 +1,14 @@
 import React from 'react';
-import { Box, Line, Text } from 'folds';
+import { Box } from 'folds';
+import { Chip, Divider } from '@mui/material';
 import { getText } from '../../../lang';
 
 export function OrDivider() {
     return (
-        <Box gap="400" alignItems="Center">
-            <Line style={{ flexGrow: 1 }} direction="Horizontal" size="300" variant="Surface" />
-            <Text>{getText('generic.OR')}</Text>
-            <Line style={{ flexGrow: 1 }} direction="Horizontal" size="300" variant="Surface" />
+        <Box grow='Yes' gap="400" alignItems="Center" style={{ width: '100%' }}>
+            <Divider style={{ width: '100%' }}>
+                <Chip label={getText('generic.OR')} size="small" />
+            </Divider>
         </Box>
     );
 }

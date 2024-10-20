@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import './AuthRequest.scss';
 
 import initMatrix from '../../../client/initMatrix';
 import { openReusableDialog } from '../../../client/action/navigation';
 
-import Text from '../../atoms/text/Text';
-import Button from '../../atoms/button/Button';
-import Input from '../../atoms/input/Input';
-import Spinner from '../../atoms/spinner/Spinner';
-
 import { useStore } from '../../hooks/useStore';
 import { getText } from '../../../lang';
+import { Alert, Button, DialogActions, DialogContent, DialogContentText, LinearProgress, TextField } from '@mui/material';
+import { Error } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 
 let lastUsedPassword;
 const getAuthId = (password) => ({
@@ -27,10 +25,12 @@ function AuthRequest({ onComplete, makeRequest }) {
     const [status, setStatus] = useState(false);
     const mountStore = useStore();
 
+    const inputRef = useRef(null);
+
     const handleForm = async (e) => {
         mountStore.setItem(true);
         e.preventDefault();
-        const password = e.target.password.value;
+        const password = inputRef.current?.value;
         if (password.trim() === '') return;
         try {
             setStatus({ ongoing: true });
@@ -54,20 +54,50 @@ function AuthRequest({ onComplete, makeRequest }) {
     };
 
     return (
-        <div className="auth-request">
-            <form onSubmit={handleForm}>
-                <Input
-                    name="password"
-                    label={getText('label.auth_request.password')}
-                    type="password"
-                    onChange={handleChange}
+        <>
+            <DialogContent>
+                <DialogContentText>
+                    {getText('authrequest.desc')}
+                </DialogContentText>
+                <TextField
+                    autoFocus
                     required
+                    label={getText('label.auth_request.password')}
+                    onChange={handleChange}
+                    type='password'
+                    inputRef={inputRef}
+                    fullWidth
                 />
-                {status.ongoing && <Spinner size="small" />}
-                {status.error && <Text variant="b3">{status.error}</Text>}
-                {(status === false || status.error) && <Button variant="primary" type="submit" disabled={!!status.error}>{getText('btn.auth_request.continue')}</Button>}
-            </form>
-        </div>
+                {status.error && (
+                    <Alert icon={<Error />} severity='error'>
+                        {status.error}
+                    </Alert>
+                )}
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton
+                    onClick={handleForm}
+                    disabled={!!status.error}
+                    loading={status.ongoing}
+                >
+                    {getText('btn.auth_request.continue')}
+                </LoadingButton>
+            </DialogActions>
+        </>
+        // <div className="auth-request">
+        //     <form onSubmit={handleForm}>
+        //         <Input
+        //             name="password"
+        //             label={getText('label.auth_request.password')}
+        //             type="password"
+        //             onChange={handleChange}
+        //             required
+        //         />
+        //         {status.ongoing && <Spinner size="small" />}
+        //         {status.error && <Text variant="b3">{status.error}</Text>}
+        //         {(status === false || status.error) && <Button variant="primary" type="submit" disabled={!!status.error}>{getText('btn.auth_request.continue')}</Button>}
+        //     </form>
+        // </div>
     );
 }
 AuthRequest.propTypes = {
@@ -96,7 +126,7 @@ export const authRequest = async (title, makeRequest) => {
         return new Promise((resolve) => {
             let isCompleted = false;
             openReusableDialog(
-                <Text variant="s1" weight="medium">{title}</Text>,
+                title,
                 (requestClose) => (
                     <AuthRequest
                         onComplete={(done) => {

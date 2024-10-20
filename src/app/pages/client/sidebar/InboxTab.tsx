@@ -21,6 +21,8 @@ import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { useNavToActivePathAtom } from '../../../state/hooks/navToActivePath';
 import { getText } from '../../../../lang';
 import { mdiInbox, mdiInboxOutline } from '@mdi/js';
+import { Badge, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import { Inbox } from '@mui/icons-material';
 
 export function InboxTab() {
     const screenSize = useScreenSizeContext();
@@ -46,19 +48,18 @@ export function InboxTab() {
     };
 
     return (
-        <SidebarItem active={inboxSelected}>
-            <SidebarItemTooltip tooltip={getText('inbox.title')}>
-                {(triggerRef) => (
-                    <SidebarAvatar as="button" ref={triggerRef} outlined onClick={handleInboxClick}>
-                        <MDIcon path={inboxSelected ? mdiInbox : mdiInboxOutline} size={1} />
-                    </SidebarAvatar>
-                )}
-            </SidebarItemTooltip>
-            {inviteCount > 0 && (
-                <SidebarItemBadge hasCount>
-                    <UnreadBadge highlight count={inviteCount} />
-                </SidebarItemBadge>
-            )}
-        </SidebarItem>
+        <ListItemButton
+            selected={inboxSelected}
+            onClick={handleInboxClick}
+        >
+            <ListItemIcon>
+                <Badge badgeContent={inviteCount} color='error' max={99}>
+                    <Inbox />
+                </Badge>
+            </ListItemIcon>
+            <ListItemText>
+                {getText('inbox.title')}
+            </ListItemText>
+        </ListItemButton>
     );
 }

@@ -5,9 +5,10 @@ import './RoomHistoryVisibility.scss';
 import initMatrix from '../../../client/initMatrix';
 
 import Text from '../../atoms/text/Text';
-import RadioButton from '../../atoms/button/RadioButton';
 import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 import { getText } from '../../../lang';
+import { ListItem, ListItemIcon, ListItemText, Radio } from '@mui/material';
+import Icon from '@mdi/react';
 
 const visibility = {
     WORLD_READABLE: 'world_readable',
@@ -76,18 +77,14 @@ function RoomHistoryVisibility({ roomId }) {
         <div className="room-history-visibility">
             {
                 items.map((item) => (
-                    <MenuItem
-                        variant={activeType === item.type ? 'positive' : 'surface'}
+                    <ListItem
                         key={item.type}
-                        iconSrc={item.iconSrc}
-                        onClick={() => setVisibility(item)}
-                        disabled={(!canChange)}
                     >
-                        <Text varient="b1">
-                            <span>{item.text}</span>
-                            <RadioButton isActive={activeType === item.type} />
-                        </Text>
-                    </MenuItem>
+                        <ListItemText>
+                            {item.text}
+                        </ListItemText>
+                        <Radio disabled={(!canChange)} onClick={() => setVisibility(item)} checked={activeType === item.type} />
+                    </ListItem>
                 ))
             }
             <Text variant="b3">{getText('history_visibility.tip')}</Text>

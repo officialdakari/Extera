@@ -1,16 +1,8 @@
 import FileSaver from "file-saver";
 import initMatrix from "../../client/initMatrix";
 import { useEffect, useState } from "react";
-
-if (window.cordova && typeof window.downloader !== 'undefined') {
-    document.addEventListener('deviceready', () => {
-        downloader.init({
-            folder: 'Extera',
-            unzip: false,
-            noMedia: false
-        });
-    }, false);
-}
+import { roomIdToHash } from "./notifications";
+import { getText } from "../../lang";
 
 const downloadStatus = {};
 
@@ -22,16 +14,32 @@ export function useDownloadStatus(src) {
     return status;
 }
 
+function onDownloaded(fileName) {
+    cordova.plugins.notification.local.hasPermission(granted => {
+        if (granted) {
+            cordova.plugins.notification.local.schedule({
+                id: roomIdToHash(fileName),
+                title: fileName,
+                text: getText('downloaded')
+            });
+        }
+    });
+}
+
 export async function saveFile(src, name) {
     const mx = initMatrix.matrixClient;
+    console.log(`Saving file ${src} ${name}`);
     const setState = (state) => {
         downloadStatus[src] = state;
     };
     if (!window.cordova || cordova.platformId === 'browser') {
+        const token = mx.getAccessToken();
+        if (!src.includes(token)) {
+            src += `${src.includes('?') ? '&' : '?'}access_token=${token}`;
+        }
         FileSaver.saveAs(src, name);
         return;
     }
-    console.log(`Saving file ${src} ${name}`);
 
     try {
         const spl = name.split('.');
@@ -59,7 +67,7 @@ export async function saveFile(src, name) {
                             writer.onwriteend = function () {
                                 console.debug(`Downloaded!!!`);
                                 setState('done');
-                                alert(`Saved to Download/${targetName}`);
+                                onDownloaded(targetName);
                             };
                             writer.onerror = function (e) {
                                 console.error('Write failed: ' + e.toString());
@@ -82,7 +90,7 @@ export async function saveFile(src, name) {
                 `/storage/emulated/0/Download/${targetName}`,
                 function (entry) {
                     console.debug(`Downloaded!!!`);
-                    alert(`Saved to Download/${targetName}`);
+                    onDownloaded(targetName);
                     setState('done');
                 },
                 function (error) {

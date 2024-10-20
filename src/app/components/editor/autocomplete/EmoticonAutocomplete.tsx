@@ -1,5 +1,4 @@
 import React, { MouseEventHandler, KeyboardEvent as ReactKeyboardEvent, useEffect, useMemo } from 'react';
-// slate кал
 import { Box, MenuItem, Text, toRem } from 'folds';
 import { Room } from 'matrix-js-sdk';
 
@@ -17,7 +16,6 @@ import { useRelevantImagePacks } from '../../../hooks/useImagePacks';
 import { IEmoji, emojis } from '../../../plugins/emoji';
 import { ExtendedPackImage, PackUsage } from '../../../plugins/custom-emoji';
 import { useKeyDown } from '../../../hooks/useKeyDown';
-import ReactQuill, { Quill } from 'react-quill';
 
 type EmoticonCompleteHandler = (key: string, shortcode: string) => void;
 
@@ -28,6 +26,11 @@ type EmoticonAutocompleteProps = {
     query: AutocompleteQuery<string>;
     requestClose: () => void;
     textAreaRef: React.RefObject<HTMLTextAreaElement>;
+};
+
+type Range = {
+    index: number;
+    length: number;
 };
 
 const SEARCH_OPTIONS: UseAsyncSearchOptions = {
@@ -74,7 +77,7 @@ export function EmoticonAutocomplete({
         const mxc = key.startsWith('mxc://');
         const src = mxc ? mx.mxcUrlToHttp(key) : key;
         console.log(src, key, shortcode);
-        
+
         var v = ta.value;
         console.log(v, v.slice(0, query.range.index), v.slice(query.range.index + query.range.length));
         const result: string = (mxc ? `{:${shortcode}:${key}:}` : src) ?? '';

@@ -8,7 +8,6 @@ import { openReusableContextMenu } from '../../../client/action/navigation';
 import { getEventCords } from '../../../util/common';
 
 import Text from '../../atoms/text/Text';
-import Button from '../../atoms/button/Button';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
 import PowerLevelSelector from '../power-level-selector/PowerLevelSelector';
 import SettingTile from '../setting-tile/SettingTile';
@@ -17,6 +16,8 @@ import SettingTile from '../setting-tile/SettingTile';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { getText } from '../../../lang';
 import { mdiChevronDown } from '@mdi/js';
+import { Button } from '@mui/material';
+import { KeyboardArrowDown } from '@mui/icons-material';
 
 const permissionsInfo = {
     users_default: {
@@ -183,6 +184,7 @@ function RoomPermissions({ roomId }) {
     useRoomStateUpdate(roomId);
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(roomId);
+    if (!room) return null;
     const pLEvent = room.currentState.getStateEvents('m.room.power_levels')[0];
     const permissions = pLEvent.getContent();
     const canChangePermission = room.currentState.maySendStateEvent('m.room.power_levels', mx.getUserId());
@@ -263,11 +265,10 @@ function RoomPermissions({ roomId }) {
                                                             ? (e) => handlePowerSelector(e, permKey, permInfo.parent, powerLevel)
                                                             : null
                                                     }
-                                                    iconSrc={canChangePermission ? mdiChevronDown : null}
+                                                    endIcon={canChangePermission ? <KeyboardArrowDown /> : null}
+                                                    color='inherit'
                                                 >
-                                                    <Text variant="b2">
-                                                        {`${getPowerLabel(powerLevel) || getText('generic.pl_member')} - ${powerLevel}`}
-                                                    </Text>
+                                                    {`${getPowerLabel(powerLevel) || getText('generic.pl_member')} - ${powerLevel}`}
                                                 </Button>
                                             )}
                                         />

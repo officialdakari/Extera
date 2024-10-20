@@ -38,7 +38,15 @@ const copyFiles = {
             dest: 'public/',
         },
         {
-            src: 'public/cacher.js',
+            src: 'public/ring.mp3',
+            dest: ''
+        },
+        {
+            src: 'public/incoming.mp3',
+            dest: ''
+        },
+        {
+            src: 'public/background.jpg',
             dest: ''
         }
     ],

@@ -13,7 +13,7 @@ self.addEventListener('install', (event) => {
 export type { };
 declare const self: ServiceWorkerGlobalScope;
 
-async function askForAccessToken(client: Client): Promise<string | undefined> {
+function askForAccessToken(client: Client): Promise<string | undefined> {
     return new Promise((resolve) => {
         const responseKey = Math.random().toString(36);
         const listener = (event: ExtendableMessageEvent) => {
@@ -38,9 +38,10 @@ function fetchConfig(token?: string): RequestInit | undefined {
 
 self.addEventListener('fetch', (event: FetchEvent) => {
     const { url, method } = event.request;
+    console.log(event.request);
     if (method !== 'GET') return;
-    const isAuthedMedia = url.includes('/_matrix/client/v1/media/');
-    const shouldCache = url.includes('/_matrix/client/versions') || url.startsWith('https://ecs.extera.xyz/');
+    const isAuthedMedia = url.includes('/_matrix/client/v1/media/download') || url.includes('/_matrix/client/v1/media/thumbnail');
+    const shouldCache = url.includes('/_matrix/client/versions');
     const isMedia = url.includes('/_matrix/media/');
     if (
         !isAuthedMedia &&
@@ -60,7 +61,7 @@ self.addEventListener('fetch', (event: FetchEvent) => {
             let token: string | undefined;
             if (client) token = await askForAccessToken(client);
 
-            const res = await fetch(url, isAuthedMedia ? fetchConfig(token) : undefined);
+            const res = await fetch(url, fetchConfig(token));
 
             if (res?.ok) {
                 await cache.put(url, res.clone());

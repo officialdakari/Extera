@@ -22,7 +22,9 @@ import { CallProvider } from '../../hooks/useCall';
 import { createModals, ModalsProvider } from '../../hooks/useModals';
 import { Modals } from '../../components/modal/Modal';
 import { getText } from '../../../lang';
-import ClientAlert from './ClientAlert';
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, LinearProgress } from '@mui/material';
+import Icon from '@mdi/react';
+import { mdiPlus } from '@mdi/js';
 
 function SystemEmojiFeature() {
     const [twitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
@@ -40,7 +42,7 @@ function ClientRootLoading() {
     return (
         <SplashScreen>
             <Box direction="Column" grow="Yes" alignItems="Center" justifyContent="Center" gap="400">
-                <Spinner variant="Secondary" size="600" />
+                <CircularProgress />
                 <Text>
                     {getText('loading')}
                 </Text>
@@ -55,6 +57,7 @@ type ClientRootProps = {
 export function ClientRoot({ children }: ClientRootProps) {
     const [loading, setLoading] = useState(true);
     const [syncing, setSyncing] = useState(true);
+    const [isError, setError] = useState(false);
     const { baseUrl } = getSecret();
 
     useEffect(() => {
@@ -67,7 +70,7 @@ export function ClientRoot({ children }: ClientRootProps) {
         };
         initMatrix.once('client_ready', handleStart);
         initMatrix.once('init_loading_finished', handleReady);
-        if (!initMatrix.matrixClient) initMatrix.init();
+        if (!initMatrix.matrixClient) initMatrix.init().catch(() => setError(true));
         return () => {
             initMatrix.removeListener('client_ready', handleStart);
             initMatrix.removeListener('init_loading_finished', handleReady);
@@ -76,15 +79,31 @@ export function ClientRoot({ children }: ClientRootProps) {
 
     const callWindowState = useState<any>(null);
     const modals = createModals();
-    
+
     useEffect(() => {
-    
+
     }, [syncing, loading]);
+
 
     return (
         <SpecVersions baseUrl={baseUrl!}>
             {loading ? (
                 <ClientRootLoading />
+            ) : isError ? (
+                <Dialog open={true}>
+                    <DialogTitle>
+                        Error
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Failed initializing Matrix client.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => location.reload()}>Reload</Button>
+                        <Button onClick={() => initMatrix.clearCacheAndReload()} color='error'>Clear cache</Button>
+                    </DialogActions>
+                </Dialog>
             ) : (
                 <CallProvider value={callWindowState}>
                     <ModalsProvider value={modals}>
@@ -118,11 +137,6 @@ export function ClientRoot({ children }: ClientRootProps) {
                                                         </Modal>
                                                     </div>
                                                 </Draggable>
-                                            )}
-                                            {syncing && (
-                                                <ClientAlert>
-                                                    {getText('syncing')}
-                                                </ClientAlert>
                                             )}
                                             {children}
                                             <Windows />

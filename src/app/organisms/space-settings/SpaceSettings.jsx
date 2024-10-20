@@ -7,8 +7,6 @@ import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
 
 import Text from '../../atoms/text/Text';
-import IconButton from '../../atoms/button/IconButton';
-import Tabs from '../../atoms/tabs/Tabs';
 import { MenuHeader, MenuItem } from '../../atoms/context-menu/ContextMenu';
 import PopupWindow from '../../molecules/popup-window/PopupWindow';
 import RoomProfile from '../../molecules/room-profile/RoomProfile';
@@ -23,6 +21,10 @@ import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { getText, translate } from '../../../lang';
 import { useBackButton } from '../../hooks/useBackButton';
 import { mdiAccount, mdiArrowLeft, mdiClose, mdiCog, mdiEmoticon, mdiShield } from '@mdi/js';
+import { AppBar, Box, Dialog, DialogContent, DialogTitle, IconButton, styled, Tab, Tabs, Toolbar, Typography, useTheme } from '@mui/material';
+import { Close } from '@mui/icons-material';
+import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
+import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -59,34 +61,10 @@ function GeneralSettings({ roomId }) {
     const mx = useMatrixClient();
 
     return (
-        <>
-            <div className="room-settings__card">
-                <MenuHeader>Options</MenuHeader>
-                <MenuItem
-                    variant="danger"
-                    onClick={async () => {
-                        const isConfirmed = await confirmDialog(
-                            getText('leavespace.title'),
-                            getText('leavespace.text.2', roomName),
-                            getText('btn.leave'),
-                            'danger'
-                        );
-                        if (isConfirmed) mx.leave(roomId);
-                    }}
-                    iconSrc={mdiArrowLeft}
-                >
-                    {getText('btn.leave')}
-                </MenuItem>
-            </div>
-            <div className="space-settings__card">
-                <MenuHeader>{getText('space_settings.visibility')}</MenuHeader>
-                <RoomVisibility roomId={roomId} />
-            </div>
-            <div className="space-settings__card">
-                <MenuHeader>{getText('space_settings.addresses')}</MenuHeader>
-                <RoomAliases roomId={roomId} />
-            </div>
-        </>
+        <div className='space-settings__card'>
+            <RoomVisibility roomId={roomId} />
+            <RoomAliases roomId={roomId} />
+        </div>
     );
 }
 
@@ -114,54 +92,100 @@ function useWindowToggle(setSelectedTab) {
     return [window, requestClose];
 }
 
+function allyProps(index) {
+    return {
+        id: `vertical-tab-${index}`,
+        'aria-controls': `vertical-tabpanel-${index}`,
+    };
+}
+
 function SpaceSettings() {
-    const [selectedTab, setSelectedTab] = useState(tabItems[0]);
+    const [selectedTab, setSelectedTab] = useState(0);
     const [window, requestClose] = useWindowToggle(setSelectedTab);
     const isOpen = window !== null;
     const roomId = window?.roomId;
+    const theme = useTheme();
+    const screenSize = useScreenSize();
 
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(roomId);
 
-    const handleTabChange = (tabItem) => {
+    const handleTabChange = (event, tabItem) => {
         setSelectedTab(tabItem);
     };
 
     useBackButton(requestClose);
 
     return (
-        <PopupWindow
-            isOpen={isOpen}
-            className="space-settings"
-            title={
-                <Text variant="s1" weight="medium" primary>
-                    {translate(
-                        'space_settings.title',
-                        room?.name,
-                        getText('space_settings.title.1')
-                    )}
-                </Text>
-            }
-            contentOptions={<IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />}
-            onRequestClose={requestClose}
+        <Dialog
+            open={isOpen}
+            onClose={requestClose}
+            scroll='body'
+            fullScreen={screenSize === ScreenSize.Mobile}
+            sx={{ backdropFilter: 'blur(3px)' }}
         >
-            {isOpen && (
-                <div className="space-settings__content">
-                    <RoomProfile roomId={roomId} />
-                    <Tabs
-                        items={tabItems}
-                        defaultSelected={tabItems.findIndex((tab) => tab.text === selectedTab.text)}
-                        onSelect={handleTabChange}
-                    />
-                    <div className="space-settings__cards-wrapper">
-                        {selectedTab.text === tabText.GENERAL && <GeneralSettings roomId={roomId} />}
-                        {selectedTab.text === tabText.MEMBERS && <RoomMembers roomId={roomId} />}
-                        {selectedTab.text === tabText.EMOJIS && <RoomEmojis roomId={roomId} />}
-                        {selectedTab.text === tabText.PERMISSIONS && <RoomPermissions roomId={roomId} />}
+            <AppBar sx={{ position: 'relative' }}>
+                <ProminientToolbar>
+                    <div style={{ flexGrow: 1, alignSelf: 'flex-end' }}>
+                        {
+                            isOpen && roomId && (
+                                <RoomProfile roomId={roomId} />
+                            )
+                        }
                     </div>
+                    <IconButton
+                        size='large'
+                        edge='end'
+                        onClick={requestClose}
+                    >
+                        <Close />
+                    </IconButton>
+                </ProminientToolbar>
+            </AppBar>
+            <Box
+                sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}
+            >
+                <Tabs
+                    orientation='horizontal'
+                    variant='scrollable'
+                    value={selectedTab}
+                    onChange={handleTabChange}
+                    scrollButtons="auto"
+                >
+                    {tabItems.map((tabItem, index) => (
+                        <Tab label={tabItem.text} {...allyProps(index)} />
+                    ))}
+                </Tabs>
+            </Box>
+            {isOpen && tabItems.map((tabItem, index) => (
+                <div
+                    role='tabpanel'
+                    hidden={selectedTab !== index}
+                    id={`vertical-tabpanel-${index}`}
+                    aria-labelledby={`vertical-tab-${index}`}
+                    style={{ maxWidth: '100%', flexGrow: 1, backgroundColor: theme.palette.background.paper, padding: 1 }}
+                >
+                    {selectedTab === index && (
+                        <Box
+                            sx={{ maxWidth: '100%' }}
+                        >
+                            {selectedTab === 0 && (
+                                <GeneralSettings roomId={roomId} />
+                            )}
+                            {selectedTab === 1 && (
+                                <RoomMembers roomId={roomId} />
+                            )}
+                            {selectedTab === 2 && (
+                                <RoomEmojis roomId={roomId} />
+                            )}
+                            {selectedTab === 3 && (
+                                <RoomPermissions roomId={roomId} />
+                            )}
+                        </Box>
+                    )}
                 </div>
-            )}
-        </PopupWindow>
+            ))}
+        </Dialog>
     );
 }
 

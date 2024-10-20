@@ -80,7 +80,7 @@ export function UploadBoardHeader({
     const handleCancel = () => onCancel(uploads);
 
     return (
-        <Header size="400">
+        <Box className={css.UploadBoardHeader}>
             <Box
                 as="button"
                 style={{ cursor: 'pointer' }}
@@ -119,14 +119,13 @@ export function UploadBoardHeader({
                     </Chip>
                 )}
             </Box>
-        </Header>
+        </Box>
     );
 }
 
 export const UploadBoardContent = as<'div'>(({ className, children, ...props }, ref) => (
     <Box
         className={classNames(css.UploadBoardContent, className)}
-        direction="Column"
         gap="200"
         {...props}
         ref={ref}

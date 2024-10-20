@@ -6,12 +6,13 @@ import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 
 import Text from '../../atoms/text/Text';
-import RadioButton from '../../atoms/button/RadioButton';
-import { MenuItem } from '../../atoms/context-menu/ContextMenu';
 
 import { getNotificationType } from '../../utils/room';
 import { getText } from '../../../lang';
 import { mdiBell, mdiBellAlert, mdiBellOff, mdiBellRing } from '@mdi/js';
+import { Accordion, AccordionDetails, AccordionSummary, List, ListItem, ListItemIcon, ListItemText, Radio } from '@mui/material';
+import Icon from '@mdi/react';
+import { ExpandMore } from '@mui/icons-material';
 
 const items = [
     {
@@ -127,21 +128,30 @@ function RoomNotification({ roomId }) {
     const [activeType, setNotification] = useNotifications(roomId);
 
     return (
-        <div className="room-notification">
-            {items.map((item) => (
-                <MenuItem
-                    variant={activeType === item.type ? 'positive' : 'surface'}
-                    key={item.type}
-                    iconSrc={item.iconSrc}
-                    onClick={() => setNotification(item)}
-                >
-                    <Text varient="b1">
-                        <span>{item.text}</span>
-                        <RadioButton isActive={activeType === item.type} />
-                    </Text>
-                </MenuItem>
-            ))}
-        </div>
+        <Accordion>
+            <AccordionSummary
+                expandIcon={<ExpandMore />}
+            >
+                {getText('room_notification')}
+            </AccordionSummary>
+            <AccordionDetails>
+                <List>
+                    {items.map((item) => (
+                        <ListItem
+                            key={item.type}
+                            secondaryAction={<Radio onClick={() => setNotification(item)} checked={activeType === item.type} />}
+                        >
+                            <ListItemIcon>
+                                <Icon size={1} path={item.iconSrc} />
+                            </ListItemIcon>
+                            <ListItemText>
+                                {item.text}
+                            </ListItemText>
+                        </ListItem>
+                    ))}
+                </List>
+            </AccordionDetails>
+        </Accordion>
     );
 }
 

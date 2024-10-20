@@ -56,7 +56,10 @@ export const Reactions = as<'div', ReactionsProps>(
                 ref={ref}
             >
                 {reactions.map(([key, events]) => {
-                    const rEvents = Array.from(events);
+                    const evtArr = Array.from(events);
+                    const rEvents = evtArr
+                        .filter(event => !event.isRedacted())
+                        .filter((ev, i) => evtArr.findIndex(ev2 => ev2.sender?.userId === ev.sender?.userId) === i);
                     if (rEvents.length === 0 || typeof key !== 'string') return null;
                     const myREvent = myUserId ? rEvents.find(factoryEventSentBy(myUserId)) : undefined;
                     const isPressed = !!myREvent?.getRelation();
@@ -81,7 +84,7 @@ export const Reactions = as<'div', ReactionsProps>(
                                     key={key}
                                     mx={mx}
                                     reaction={key}
-                                    count={events.size}
+                                    count={rEvents.length}
                                     onClick={canSendReaction ? () => onReactionToggle(mEventId, key) : undefined}
                                     onContextMenu={handleViewReaction}
                                     aria-disabled={!canSendReaction}

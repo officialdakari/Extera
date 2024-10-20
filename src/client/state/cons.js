@@ -86,6 +86,7 @@ const cons = {
         },
         settings: {
             SYSTEM_THEME_TOGGLED: 'SYSTEM_THEME_TOGGLED',
+            THEME_CHANGED: 'THEME_CHANGED',
             MARKDOWN_TOGGLED: 'MARKDOWN_TOGGLED',
             PEOPLE_DRAWER_TOGGLED: 'PEOPLE_DRAWER_TOGGLED',
             MEMBERSHIP_EVENTS_TOGGLED: 'MEMBERSHIP_EVENTS_TOGGLED',
@@ -110,9 +111,24 @@ const cons = {
         '☑'
     ],
     avatarStyles: {
-        'online': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#079d16', borderRadius: '50%' },
-        'offline': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#737373', borderRadius: '50%' },
-        'unavailable': { borderStyle: 'solid', borderWidth: '3px', borderColor: '#b9a12d', borderRadius: '50%' }
+        'online': {
+            borderStyle: 'solid',
+            borderWidth: '2px',
+            borderColor: '#079d16',
+            borderRadius: '50%'
+        },
+        'offline': {
+            borderStyle: 'solid',
+            borderWidth: '2px',
+            borderColor: '#737373',
+            borderRadius: '50%'
+        },
+        'unavailable': {
+            borderStyle: 'solid',
+            borderWidth: '2px',
+            borderColor: '#b9a12d',
+            borderRadius: '50%'
+        }
     },
     trustedDomains: [
         'extera.xyz',

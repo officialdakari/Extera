@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/media-has-caption */
 import React, { ReactNode, useCallback, useRef, useState } from 'react';
-import { Badge, Chip, IconButton, ProgressBar, Spinner, Text, toRem } from 'folds';
+import { Text, toRem } from 'folds';
 import { EncryptedAttachmentInfo } from 'browser-encrypt-attachment';
 import { Range } from 'react-range';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
@@ -19,6 +19,8 @@ import { useThrottle } from '../../../hooks/useThrottle';
 import { secondsToMinutesAndSeconds } from '../../../utils/common';
 import Icon from '@mdi/react';
 import { mdiPause, mdiPlayOutline, mdiVolumeHigh, mdiVolumeMute } from '@mdi/js';
+import { CircularProgress, IconButton, Slider } from '@mui/material';
+import { AccessTime, Pause, PlayArrow } from '@mui/icons-material';
 
 const PLAY_TIME_THROTTLE_OPS = {
     wait: 500,
@@ -49,7 +51,7 @@ export function AudioContent({
 
     const [srcState, loadSrc] = useAsyncCallback(
         useCallback(
-            () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo, mx),
+            () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo, mx, true),
             [mx, url, mimeType, encInfo]
         )
     );
@@ -85,59 +87,26 @@ export function AudioContent({
 
     return renderMediaControl({
         after: (
-            <Range
-                step={1}
-                min={0}
+            <Slider
+                size='small'
+                value={currentTime}
                 max={duration || 1}
-                values={[currentTime]}
-                onChange={(values) => seek(values[0])}
-                renderTrack={(params) => (
-                    <div {...params.props}>
-                        {params.children}
-                        <ProgressBar
-                            as="div"
-                            variant="Secondary"
-                            size="300"
-                            min={0}
-                            max={duration}
-                            value={currentTime}
-                            radii="300"
-                        />
-                    </div>
-                )}
-                renderThumb={(params) => (
-                    <Badge
-                        size="300"
-                        variant="Secondary"
-                        fill="Solid"
-                        radii="Pill"
-                        outlined
-                        {...params.props}
-                        style={{
-                            ...params.props.style,
-                            zIndex: 0,
-                        }}
-                    />
-                )}
+                min={0}
+                onChange={(evt, value) => seek(typeof value === 'number' ? value : value[0])}
             />
         ),
         leftControl: (
             <>
-                <Chip
+                <IconButton
                     onClick={handlePlay}
-                    variant="Secondary"
-                    radii="300"
                     disabled={srcState.status === AsyncStatus.Loading}
-                    before={
-                        srcState.status === AsyncStatus.Loading || loading ? (
-                            <Spinner variant="Secondary" size="50" />
-                        ) : (
-                            <Icon size={0.8} path={playing ? mdiPause : mdiPlayOutline} />
-                        )
-                    }
                 >
-                    <Text size="B300">{playing ? 'Pause' : 'Play'}</Text>
-                </Chip>
+                    {srcState.status === AsyncStatus.Loading || loading ? (
+                        <AccessTime />
+                    ) : (
+                        playing ? <Pause /> : <PlayArrow />
+                    )}
+                </IconButton>
 
                 <Text size="T200">{`${secondsToMinutesAndSeconds(
                     currentTime
@@ -147,48 +116,18 @@ export function AudioContent({
         rightControl: (
             <>
                 <IconButton
-                    variant="SurfaceVariant"
-                    size="300"
-                    radii="Pill"
                     onClick={() => setMute(!mute)}
                     aria-pressed={mute}
                 >
                     <Icon size={0.8} path={mute ? mdiVolumeMute : mdiVolumeHigh} />
                 </IconButton>
-                <Range
+                <Slider
+                    size='small'
                     step={0.1}
                     min={0}
                     max={1}
-                    values={[volume]}
-                    onChange={(values) => setVolume(values[0])}
-                    renderTrack={(params) => (
-                        <div {...params.props}>
-                            {params.children}
-                            <ProgressBar
-                                style={{ width: toRem(48) }}
-                                variant="Secondary"
-                                size="300"
-                                min={0}
-                                max={1}
-                                value={volume}
-                                radii="300"
-                            />
-                        </div>
-                    )}
-                    renderThumb={(params) => (
-                        <Badge
-                            size="300"
-                            variant="Secondary"
-                            fill="Solid"
-                            radii="Pill"
-                            outlined
-                            {...params.props}
-                            style={{
-                                ...params.props.style,
-                                zIndex: 0,
-                            }}
-                        />
-                    )}
+                    value={volume}
+                    onChange={(evt, value) => setVolume(typeof value === 'number' ? value : value[0])}
                 />
             </>
         ),

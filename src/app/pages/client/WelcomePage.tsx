@@ -1,11 +1,13 @@
 import React from 'react';
-import { Box, Button, Text, config, toRem } from 'folds';
+import { Box, Text, config, toRem } from 'folds';
 import { Page, PageHero, PageHeroSection } from '../../components/page';
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 import cons from '../../../client/state/cons';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiCodeBraces, mdiHeart } from '@mdi/js';
+import { Button } from '@mui/material';
+import { AttachMoney, Code } from '@mui/icons-material';
 
 export function WelcomePage() {
     return (
@@ -36,27 +38,24 @@ export function WelcomePage() {
                         <Box justifyContent="Center">
                             <Box grow="Yes" style={{ maxWidth: toRem(300) }} direction="Column" gap="300">
                                 <Button
-                                    as="a"
-                                    href="https://github.com/OfficialDakari/Extera"
-                                    target="_blank"
-                                    rel="noreferrer noopener"
-                                    before={<Icon size={1} path={mdiCodeBraces} />}
+                                    variant='contained'
+                                    color='primary'
+                                    href='https://github.com/OfficialDakari/Extera'
+                                    target='_blank'
+                                    rel='noreferrer noopener'
+                                    startIcon={<Code />}
                                 >
-                                    <Text as="span" size="B400">
-                                        {getText('btn.source_code')}
-                                    </Text>
+                                    {getText('btn.source_code')}
                                 </Button>
                                 <Button
-                                    as="a"
+                                    variant='outlined'
+                                    color='info'
                                     href="https://officialdakari.ru/sponsor/"
-                                    target="_blank"
-                                    rel="noreferrer noopener"
-                                    fill="Soft"
-                                    before={<Icon size={1} path={mdiHeart} />}
+                                    target='_blank'
+                                    rel='noreferrer noopener'
+                                    startIcon={<AttachMoney />}
                                 >
-                                    <Text as="span" size="B400">
-                                        {getText('btn.sponsor')}
-                                    </Text>
+                                    {getText('btn.sponsor')}
                                 </Button>
                             </Box>
                         </Box>

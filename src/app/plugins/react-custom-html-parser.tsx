@@ -19,6 +19,7 @@ import { getMemberDisplayName } from '../utils/room';
 import { EMOJI_PATTERN, URL_NEG_LB } from '../utils/regex';
 import { getHexcodeForEmoji, getShortcodeFor } from './emoji';
 import { findAndReplace } from '../utils/findAndReplace';
+import colorMXID, { colorMXIDReplyBg } from '../../util/colorMXID';
 
 const ReactPrism = lazy(() => import('./react-prism/ReactPrism'));
 
@@ -87,7 +88,6 @@ export const getReactCustomHtmlParser = (
         replace: (domNode) => {
             if (domNode instanceof Element && 'name' in domNode) {
                 const { name, attribs, children, parent } = domNode;
-                if (name === 'blockquote') console.debug(`!!! ${name}`, domNode);
                 const props = attributesToProps(attribs);
 
                 if (name === 'h1') {
@@ -163,8 +163,13 @@ export const getReactCustomHtmlParser = (
                 }
 
                 if (name === 'blockquote') {
+                    const borderColor = props['data-blockquote-color'] && props['data-blockquote-color'].length === 7 && props['data-blockquote-color'].startsWith('#')
+                        ? `${props['data-blockquote-color']}`
+                        : undefined;
+                    const roomColor = colorMXID(room.roomId);
+                    const roomColorBg = colorMXIDReplyBg(room.roomId);
                     return (
-                        <Text {...props} size="Inherit" as="blockquote" className={css.BlockQuote} style={props['data-blockquote-color'] ? { borderColor: props['data-blockquote-color'] } : undefined}>
+                        <Text {...props} size="Inherit" as="blockquote" className={css.BlockQuote} style={borderColor ? { borderColor } : { borderColor: roomColor, backgroundColor: roomColorBg }}>
                             {domToReact(children, opts)}
                         </Text>
                     );

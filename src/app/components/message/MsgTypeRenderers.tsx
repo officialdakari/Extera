@@ -6,6 +6,7 @@ import { trimReplyFromBody } from '../../utils/room';
 import { MessageTextBody } from './layout';
 import {
     MessageBadEncryptedContent,
+    MessageBlockedContent,
     MessageBrokenContent,
     MessageDeletedContent,
     MessageEditedContent,
@@ -33,6 +34,12 @@ import { RenderBody } from './RenderBody';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiOpenInNew } from '@mdi/js';
+import { AppBar, Button, DialogActions, DialogContent, Toolbar, Typography } from '@mui/material';
+import { OpenInNew, TravelExplore } from '@mui/icons-material';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
+
+import "leaflet/dist/leaflet.css";
+import { openReusableDialog } from '../../../client/action/navigation';
 
 export function MBadEncrypted() {
     return (
@@ -49,6 +56,14 @@ export function RedactedContent({ reason }: RedactedContentProps) {
     return (
         <Text>
             <MessageDeletedContent reason={reason} />
+        </Text>
+    );
+}
+
+export function BlockedContent() {
+    return (
+        <Text>
+            <MessageBlockedContent />
         </Text>
     );
 }
@@ -114,14 +129,10 @@ export function MPoll({ edited, content, event }: MPollProps) {
     if (!content['org.matrix.msc3381.poll.start']) return <BrokenContent />;
 
     return (
-        <>
-            <PollContent
-                content={content}
-                event={event}
-            >
-
-            </PollContent>
-        </>
+        <PollContent
+            content={content}
+            event={event}
+        />
     );
 }
 
@@ -224,7 +235,7 @@ export function MImage({ content, renderImageContent, renderBody, outlined }: MI
 
     return (
         <>
-            <Attachment ref={attachmentRef} outlined={outlined}>
+            <Attachment ref={attachmentRef} >
                 <AttachmentBox
                     style={{
                         height: toRem(height < 48 ? 48 : height),
@@ -287,7 +298,7 @@ export function MVideo({ content, renderAsFile, renderVideoContent, renderBody, 
 
     return (
         <>
-            <Attachment ref={attachmentRef} outlined={outlined}>
+            <Attachment ref={attachmentRef} >
                 <AttachmentBox
                     style={{
                         height: toRem(height < 48 ? 48 : height),
@@ -346,7 +357,7 @@ export function MAudio({ content, renderAsFile, renderAudioContent, renderBody, 
     const attachmentRef = useRef<HTMLDivElement>(null);
 
     return voiceMessage ? (
-        <div style={{margin: '5px'}}>
+        <div style={{ margin: '5px' }}>
             {renderAudioContent({
                 info: audioInfo,
                 mimeType: safeMimeType,
@@ -356,7 +367,7 @@ export function MAudio({ content, renderAsFile, renderAudioContent, renderBody, 
         </div>
     ) : (
         <>
-            <Attachment ref={attachmentRef} outlined={outlined}>
+            <Attachment ref={attachmentRef} >
                 <AttachmentHeader>
                     <FileHeader body={content.filename ?? content.body ?? 'Audio'} mimeType={safeMimeType} />
                 </AttachmentHeader>
@@ -415,7 +426,7 @@ export function MFile({ content, renderFileContent, renderBody, outlined, htmlRe
 
     return (
         <>
-            <Attachment ref={attachmentRef} outlined={outlined}>
+            <Attachment ref={attachmentRef} >
                 <AttachmentHeader>
                     <FileHeader
                         body={content.filename ?? content.body ?? 'Unnamed File'}
@@ -460,21 +471,61 @@ export function MLocation({ content }: MLocationProps) {
     const geoUri = content.geo_uri;
     if (typeof geoUri !== 'string') return <BrokenContent />;
     const location = parseGeoUri(geoUri);
+    const pos = {
+        lat: parseInt(location.latitude),
+        lng: parseInt(location.longitude)
+    };
+    const openDialog = () => {
+        openReusableDialog(
+            getText('title.map'),
+            (requestClose: () => void) => (
+                <>
+                    <DialogContent>
+                        <MapContainer style={{ width: '100%', height: '600px' }} center={[pos.lat, pos.lng]} zoom={13} scrollWheelZoom>
+                            <TileLayer
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
+                            <Marker position={pos} />
+                        </MapContainer>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={requestClose}>{getText('btn.close')}</Button>
+                    </DialogActions>
+                </>
+            ),
+            null,
+            () => (
+                {
+                    fullScreen: true
+                }
+            )
+        );
+    };
+
     return (
         <Box direction="Column" alignItems="Start" gap="100">
-            <Text size="T400">{geoUri}</Text>
-            <Chip
-                as="a"
-                size="400"
+            <Button
+                onClick={openDialog}
+                variant="contained"
+                startIcon={<TravelExplore />}
+                size='small'
+                fullWidth
+            >
+                {getText('btn.open_location')}
+            </Button>
+            <Button
                 href={`https://www.openstreetmap.org/?mlat=${location.latitude}&mlon=${location.longitude}#map=16/${location.latitude}/${location.longitude}`}
                 target="_blank"
                 rel="noreferrer noopener"
-                variant="Primary"
-                radii="Pill"
-                before={<Icon size={1} path={mdiOpenInNew} />}
+                variant="outlined"
+                color='secondary'
+                startIcon={<OpenInNew />}
+                size='small'
+                fullWidth
             >
-                <Text size="B300">{getText('btn.open_location')}</Text>
-            </Chip>
+                {getText('btn.open_location_in_new')}
+            </Button>
         </Box>
     );
 }

@@ -4,12 +4,6 @@ import {
     Avatar,
     Badge,
     Box,
-    Button,
-    Dialog,
-    Overlay,
-    OverlayBackdrop,
-    OverlayCenter,
-    Spinner,
     Text,
     as,
     color,
@@ -33,6 +27,8 @@ import { useStateEventCallback } from '../../hooks/useStateEventCallback';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccount } from '@mdi/js';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Paper, useTheme } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 
 type GridColumnCount = '1' | '2' | '3';
 const getGridColumnCount = (gridWidth: number): GridColumnCount => {
@@ -60,15 +56,22 @@ export function RoomCardGrid({ children }: { children: ReactNode }) {
     );
 }
 
-export const RoomCardBase = as<'div'>(({ className, ...props }, ref) => (
-    <Box
-        direction="Column"
-        gap="300"
-        className={classNames(css.RoomCardBase, className)}
-        {...props}
-        ref={ref}
-    />
-));
+export const RoomCardBase = as<'div'>(({ className, ...props }, ref) => {
+    const theme = useTheme();
+    return (
+        <Paper
+            sx={{
+                flexDirection: 'column',
+                gap: theme.spacing(2),
+                display: 'flex',
+                padding: theme.spacing(3),
+                borderRadius: theme.shape.borderRadius
+            }}
+            {...props}
+            ref={ref}
+        />
+    );
+});
 
 export const RoomCardName = as<'h6'>(({ ...props }, ref) => (
     <Text as="h6" size="H6" truncate {...props} ref={ref} />
@@ -101,31 +104,21 @@ function ErrorDialog({
     return (
         <>
             {children(openError)}
-            <Overlay open={viewError} backdrop={<OverlayBackdrop />}>
-                <OverlayCenter>
-                    <FocusTrap
-                        focusTrapOptions={{
-                            initialFocus: false,
-                            clickOutsideDeactivates: true,
-                            onDeactivate: closeError,
-                        }}
-                    >
-                        <Dialog variant="Surface">
-                            <Box style={{ padding: config.space.S400 }} direction="Column" gap="400">
-                                <Box direction="Column" gap="100">
-                                    <Text>{title}</Text>
-                                    <Text style={{ color: color.Critical.Main }} size="T300" priority="400">
-                                        {message}
-                                    </Text>
-                                </Box>
-                                <Button size="400" variant="Secondary" fill="Soft" onClick={closeError}>
-                                    <Text size="B400">{getText('btn.cancel')}</Text>
-                                </Button>
-                            </Box>
-                        </Dialog>
-                    </FocusTrap>
-                </OverlayCenter>
-            </Overlay>
+            <Dialog open={viewError} onClose={closeError}>
+                <DialogTitle>
+                    {title}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        {message}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeError}>
+                        {getText('btn.cancel')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }
@@ -201,6 +194,14 @@ export const RoomCard = as<'div', RoomCardProps>(
         const joining =
             joinState.status === AsyncStatus.Loading || joinState.status === AsyncStatus.Success;
 
+        const [knockState, knock] = useAsyncCallback<{ room_id: string }, MatrixError, []>(
+            useCallback(() => {
+                return mx.knockRoom(roomIdOrAlias);
+            }, [mx, roomIdOrAlias])
+        );
+        const knocking =
+            knockState.status === AsyncStatus.Loading || knockState.status === AsyncStatus.Success;
+
         const [viewTopic, setViewTopic] = useState(false);
         const closeTopic = () => setViewTopic(false);
         const openTopic = () => setViewTopic(true);
@@ -232,19 +233,9 @@ export const RoomCard = as<'div', RoomCardProps>(
                         {roomTopic}
                     </RoomCardTopic>
 
-                    <Overlay open={viewTopic} backdrop={<OverlayBackdrop />}>
-                        <OverlayCenter>
-                            <FocusTrap
-                                focusTrapOptions={{
-                                    initialFocus: false,
-                                    clickOutsideDeactivates: true,
-                                    onDeactivate: closeTopic,
-                                }}
-                            >
-                                {renderTopicViewer(roomName, roomTopic, closeTopic)}
-                            </FocusTrap>
-                        </OverlayCenter>
-                    </Overlay>
+                    <Dialog open={viewTopic} onClose={closeTopic}>
+                        {renderTopicViewer(roomName, roomTopic, closeTopic)}
+                    </Dialog>
                 </Box>
                 {typeof joinedMemberCount === 'number' && (
                     <Box gap="100">
@@ -255,40 +246,37 @@ export const RoomCard = as<'div', RoomCardProps>(
                 {typeof joinedRoomId === 'string' && (
                     <Button
                         onClick={onView ? () => onView(joinedRoomId) : undefined}
-                        variant="Secondary"
-                        fill="Soft"
-                        size="300"
+                        variant="outlined"
                     >
-                        <Text size="B300">
-                            {getText('btn.view')}
-                        </Text>
+                        {getText('btn.view')}
                     </Button>
                 )}
                 {typeof joinedRoomId !== 'string' && joinState.status !== AsyncStatus.Error && (
-                    <Button
+                    <LoadingButton
                         onClick={join}
-                        variant="Secondary"
-                        size="300"
-                        disabled={joining}
-                        before={joining && <Spinner size="50" variant="Secondary" fill="Soft" />}
+                        variant='contained'
+                        loading={joining}
                     >
-                        <Text size="B300" truncate>
-                            {getText(joining ? 'room_card.joining' : 'btn.join')}
-                        </Text>
-                    </Button>
+                        {getText(joining ? 'room_card.joining' : 'btn.join')}
+                    </LoadingButton>
+                )}
+                {typeof joinedRoomId !== 'string' && knockState.status !== AsyncStatus.Error && (
+                    <LoadingButton
+                        onClick={knock}
+                        variant='contained'
+                        loading={knocking}
+                    >
+                        {getText(knocking ? 'room_card.knocking' : 'btn.knock')}
+                    </LoadingButton>
                 )}
                 {typeof joinedRoomId !== 'string' && joinState.status === AsyncStatus.Error && (
                     <Box gap="200">
                         <Button
                             onClick={join}
-                            className={css.ActionButton}
-                            variant="Critical"
-                            fill="Solid"
-                            size="300"
+                            color="error"
+                            variant='contained'
                         >
-                            <Text size="B300">
-                                {getText('btn.retry')}
-                            </Text>
+                            {getText('btn.retry')}
                         </Button>
                         <ErrorDialog
                             title="Join Error"
@@ -297,15 +285,10 @@ export const RoomCard = as<'div', RoomCardProps>(
                             {(openError) => (
                                 <Button
                                     onClick={openError}
-                                    className={css.ActionButton}
-                                    variant="Critical"
-                                    fill="Soft"
-                                    outlined
-                                    size="300"
+                                    variant="outlined"
+                                    color='error'
                                 >
-                                    <Text size="B300">
-                                        {getText('btn.error_details')}
-                                    </Text>
+                                    {getText('btn.error_details')}
                                 </Button>
                             )}
                         </ErrorDialog>

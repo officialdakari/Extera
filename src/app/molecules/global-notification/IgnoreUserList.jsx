@@ -5,9 +5,6 @@ import initMatrix from '../../../client/initMatrix';
 import * as roomActions from '../../../client/action/room';
 
 import Text from '../../atoms/text/Text';
-import Chip from '../../atoms/chip/Chip';
-import Input from '../../atoms/input/Input';
-import Button from '../../atoms/button/Button';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
 import SettingTile from '../setting-tile/SettingTile';
 
@@ -15,6 +12,8 @@ import { useAccountData } from '../../hooks/useAccountData';
 import { mdiClose, mdiEqual, mdiEqualBox, mdiRegex } from '@mdi/js';
 import { getText } from '../../../lang';
 import cons from '../../../client/state/cons';
+import { Button, Chip, TextField } from '@mui/material';
+import { Close } from '@mui/icons-material';
 
 function IgnoreUserList() {
     useAccountData('m.ignored_user_list');
@@ -39,16 +38,16 @@ function IgnoreUserList() {
                     <div className="ignore-user-list__users">
                         <Text variant="b3">{getText('ignore_user.tip')}</Text>
                         <form onSubmit={handleSubmit}>
-                            <Input name="ignoreInput" required />
-                            <Button variant="primary" type="submit">{getText('btn.ignore')}</Button>
+                            <TextField sx={{ flexGrow: 1 }} label={getText('label.ignore_user')} variant='outlined' size='small' name="ignoreInput" required />
+                            <Button variant="contained" size='small' type="submit">{getText('btn.ignore')}</Button>
                         </form>
                         {ignoredUsers.length > 0 && (
                             <div>
                                 {ignoredUsers.map((uId) => (
                                     <Chip
-                                        iconSrc={mdiClose}
+                                        icon={<Close />}
                                         key={uId}
-                                        text={uId}
+                                        label={uId}
                                         onClick={() => roomActions.unignore([uId])}
                                     />
                                 ))}
@@ -84,16 +83,16 @@ function IgnorePolicyList() {
                     <div className="ignore-user-list__users">
                         <Text variant="b3">{getText('ignore_policies.tip')}</Text>
                         <form onSubmit={handleSubmit}>
-                            <Input name="ignoreInput" required />
-                            <Button variant="primary" type="submit">{getText('btn.add_ignore_policy')}</Button>
+                            <TextField sx={{ flexGrow: 1 }} variant='outlined' size='small' label={getText('label.ignore_regex')} name="ignoreInput" required />
+                            <Button variant="contained" size='small' type="submit">{getText('btn.add_ignore_policy')}</Button>
                         </form>
                         {policies.length > 0 && (
                             <div>
                                 {policies.map(({ type, content }) => (
                                     <Chip
-                                        iconSrc={type === 'regex' ? mdiRegex : mdiEqualBox}
+                                        icon={<Close />}
                                         key={content}
-                                        text={content}
+                                        label={content}
                                         onClick={() => roomActions.removeIgnorePolicy([{ type, content }])}
                                     />
                                 ))}

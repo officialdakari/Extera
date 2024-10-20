@@ -1,6 +1,7 @@
 import { createVar, keyframes, style, styleVariants } from '@vanilla-extract/css';
 import { recipe, RecipeVariants } from '@vanilla-extract/recipes';
 import { DefaultReset, color, config, toRem } from 'folds';
+import { HTMLMotionProps, Variants } from 'framer-motion';
 
 export const StickySection = style({
     position: 'sticky',
@@ -82,6 +83,17 @@ const AutoCollapse = style({
     },
 });
 
+export const MessageBaseAnimationVariants: Variants = {
+    initial: {
+        translateX: 0
+    },
+    replySwipe: {
+        translateX: '-30px',
+        translateY: '-2px',
+        scale: 1.1,
+    }
+};
+
 export const MessageBase = recipe({
     base: [
         DefaultReset,
@@ -141,25 +153,31 @@ export const BubbleBefore = style([ModernBefore]);
 export const BubbleContent = style({
     maxWidth: '75%',
     padding: config.space.S200,
-    backgroundColor: color.SurfaceVariant.Container,
-    color: color.SurfaceVariant.OnContainer,
-    borderRadius: config.radii.R400,
     position: 'relative',
 });
 
-export const BubbleContentRightAligned = style([
-    BubbleContent,
-    {
-        backgroundColor: color.Surface.ContainerLine,
-    }
-]);
+export const BubbleContentTransparent = style({
+    background: 'transparent'
+});
 
 export const BubbleAfter = style({
-    color: color.SurfaceVariant.OnContainer,
-    whiteSpace: 'nowrap',
-    fontSize: 'small',
-    alignSelf: 'flex-end',
-    marginLeft: 'auto',
+    //@ts-ignore
+    '> time': {
+        position: 'relative',
+        bottom: 'auto !important',
+        float: 'right',
+        lineHeight: 1.35,
+        marginLeft: '.4375rem',
+        flexGrow: 0,
+    },
+    width: 'min-content',
+    alignSelf: 'end',
+    flexGrow: 0,
+    right: 0,
+    display: 'flex',
+    padding: '0 0',
+    float: 'right',
+    position: 'relative'
 });
 
 
@@ -180,6 +198,7 @@ export const Username = style({
 export const MessageTextBody = recipe({
     base: {
         wordBreak: 'break-word',
+        userSelect: 'text'
     },
     variants: {
         preWrap: {

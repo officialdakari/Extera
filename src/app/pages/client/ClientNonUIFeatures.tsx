@@ -336,9 +336,9 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                 }
             }
             if (ev.target.tagName?.toLowerCase() === 'a') {
-                if (!cons.trustedDomains.includes(url.host!) && !cons.trustedDomains.includes(url.hostname!)) {
+                if (url.host && !cons.trustedDomains.includes(url.host!) && !cons.trustedDomains.includes(url.hostname!)) {
                     ev.preventDefault();
-                    if (await confirmDialog(getText('go_link.title'), `${getText('go_link.desc')}\n\n${href}`, getText('go_link.yes'), 'danger')) {
+                    if (await confirmDialog(getText('go_link.title'), `${getText('go_link.desc')}\n\n${href}`, getText('go_link.yes'), 'error')) {
                         window.open(href, '_blank');
                     }
                 }
@@ -379,7 +379,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                 const [perms, setPerms] = usePermission(widgetKey, {});
                 const getPermission = async (key: keyof Permissions) => {
                     if (typeof perms[key] === 'undefined') {
-                        const result = await confirmDialog('Widget permission', `Allow ${iframe.dataset.widgetRoomName} to ${key}?`, 'Yes', 'positive');
+                        const result = await confirmDialog('Widget permission', `Allow ${iframe.dataset.widgetRoomName} to ${key}?`, 'Yes', 'success');
                         setPerms((x: Permissions) => {
                             x[key] = result;
                             return x;
@@ -387,8 +387,6 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                     }
                     return perms[key];
                 };
-
-                console.debug('!!!!', data);
 
                 if (data.api === 'fromWidget') {
                     if (data.action === 'supported_api_versions') {

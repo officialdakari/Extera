@@ -16,7 +16,7 @@ export const Reply = style({
             cursor: 'pointer',
         },
     },
-    backgroundColor: color.Background.ContainerHover,
+    backgroundColor: color.Background.ContainerLine,
     padding: '5px',
     borderRadius: config.radii.R300,
     borderStyle: 'solid',
@@ -33,5 +33,6 @@ export const ReplyContent = style({
             opacity: config.opacity.P500,
         },
     },
-    overflow: 'hidden'
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
 });

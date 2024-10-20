@@ -4,6 +4,7 @@ import { SpecVersionsLoader } from '../../components/SpecVersionsLoader';
 import { SpecVersionsProvider } from '../../hooks/useSpecVersions';
 import { SplashScreen } from '../../components/splash-screen';
 import { getText } from '../../../lang';
+import { CircularProgress } from '@mui/material';
 
 export function SpecVersions({ baseUrl, children }: { baseUrl: string; children: ReactNode }) {
     return (
@@ -12,7 +13,7 @@ export function SpecVersions({ baseUrl, children }: { baseUrl: string; children:
             fallback={() => (
                 <SplashScreen>
                     <Box direction="Column" grow="Yes" alignItems="Center" justifyContent="Center" gap="400">
-                        <Spinner variant="Secondary" size="600" />
+                        <CircularProgress />
                         <Text>{getText('connecting')}</Text>
                     </Box>
                 </SplashScreen>

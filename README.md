@@ -1,5 +1,5 @@
 # Extera
-[Discussion on Matrix](https://matrix.to/#/#extera:officialdakari.ru)
+[Discussion on Matrix](https://matrix.to/#/#extera:extera.xyz)
 
 This is a fork of Cinny with some improvements and new features:
 - New commands: /lenny /tableflip /unflip

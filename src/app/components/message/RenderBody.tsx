@@ -8,6 +8,7 @@ import {
     highlightText,
     scaleSystemEmoji,
 } from '../../plugins/react-custom-html-parser';
+import { Box } from 'folds';
 
 type RenderBodyProps = {
     body: string;

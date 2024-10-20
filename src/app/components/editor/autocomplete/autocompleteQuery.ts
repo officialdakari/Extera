@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactQuill, { Range } from 'react-quill';
 
 export enum AutocompletePrefix {
     RoomMention = '#',
@@ -13,6 +12,11 @@ export const AUTOCOMPLETE_PREFIXES: readonly AutocompletePrefix[] = [
     AutocompletePrefix.Emoticon,
     AutocompletePrefix.Command,
 ];
+
+export type Range = {
+    index: number;
+    length: number;
+};
 
 export type AutocompleteQuery<TPrefix extends string> = {
     range: Range;

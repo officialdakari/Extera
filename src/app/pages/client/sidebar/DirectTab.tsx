@@ -1,6 +1,6 @@
 import React, { MouseEventHandler, forwardRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Menu, MenuItem, PopOut, RectCords, Text, config, toRem } from 'folds';
+import { Box, config, toRem } from 'folds';
 import { Icon as MDIcon } from '@mdi/react';
 import FocusTrap from 'focus-trap-react';
 import { useAtomValue } from 'jotai';
@@ -25,11 +25,14 @@ import { useDirectRooms } from '../direct/useDirectRooms';
 import { markAsRead } from '../../../../client/action/notifications';
 import { getText } from '../../../../lang';
 import { mdiAccount, mdiAccountOutline, mdiCheckAll } from '@mdi/js';
+import { Badge, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
+import { DoneAll, Person } from '@mui/icons-material';
 
 type DirectMenuProps = {
     requestClose: () => void;
+    anchorEl: HTMLElement | null;
 };
-const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ requestClose }, ref) => {
+const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ requestClose, anchorEl }, ref) => {
     const orphanRooms = useDirectRooms();
     const unread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
 
@@ -40,20 +43,18 @@ const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ requestClose }
     };
 
     return (
-        <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
-            <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                <MenuItem
-                    onClick={handleMarkAsRead}
-                    size="300"
-                    after={<MDIcon path={mdiCheckAll} size={1} />}
-                    radii="300"
-                    aria-disabled={!unread}
-                >
-                    <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                        {getText('chats.mark_as_read')}
-                    </Text>
-                </MenuItem>
-            </Box>
+        <Menu ref={ref} anchorEl={anchorEl} open={!!anchorEl}>
+            <MenuItem
+                onClick={handleMarkAsRead}
+                disabled={!unread}
+            >
+                <ListItemIcon>
+                    <DoneAll />
+                </ListItemIcon>
+                <ListItemText>
+                    {getText('chats.mark_as_read')}
+                </ListItemText>
+            </MenuItem>
         </Menu>
     );
 });
@@ -67,7 +68,7 @@ export function DirectTab() {
     const mDirects = useAtomValue(mDirectAtom);
     const directs = useDirects(mx, allRoomsAtom, mDirects);
     const directUnread = useRoomsUnread(directs, roomToUnreadAtom);
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
+    const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
     const directSelected = useDirectSelected();
 
@@ -81,55 +82,28 @@ export function DirectTab() {
         navigate(getDirectPath());
     };
 
-    const handleContextMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
+    const handleContextMenu: MouseEventHandler<HTMLAnchorElement> = (evt) => {
         evt.preventDefault();
-        const cords = evt.currentTarget.getBoundingClientRect();
-        setMenuAnchor((currentState) => {
-            if (currentState) return undefined;
-            return cords;
-        });
+        setMenuAnchor(evt.currentTarget);
     };
     return (
-        <SidebarItem active={directSelected}>
-            <SidebarItemTooltip tooltip={getText('direct_menu.title')}>
-                {(triggerRef) => (
-                    <SidebarAvatar
-                        as="button"
-                        ref={triggerRef}
-                        outlined
-                        onClick={handleDirectClick}
-                        onContextMenu={handleContextMenu}
-                    >
-                        <MDIcon size={1} path={directSelected ? mdiAccount : mdiAccountOutline} />
-                    </SidebarAvatar>
-                )}
-            </SidebarItemTooltip>
-            {directUnread && (
-                <SidebarItemBadge hasCount={directUnread.total > 0}>
-                    <UnreadBadge highlight={directUnread.highlight > 0} count={directUnread.total} />
-                </SidebarItemBadge>
-            )}
-            {menuAnchor && (
-                <PopOut
-                    anchor={menuAnchor}
-                    position="Right"
-                    align="Start"
-                    content={
-                        <FocusTrap
-                            focusTrapOptions={{
-                                initialFocus: false,
-                                returnFocusOnDeactivate: false,
-                                onDeactivate: () => setMenuAnchor(undefined),
-                                clickOutsideDeactivates: true,
-                                isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                                isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                            }}
-                        >
-                            <DirectMenu requestClose={() => setMenuAnchor(undefined)} />
-                        </FocusTrap>
-                    }
-                />
-            )}
-        </SidebarItem>
+        <>
+            <ListItemButton
+                component='a'
+                selected={directSelected}
+                onClick={handleDirectClick}
+                onContextMenu={handleContextMenu}
+            >
+                <ListItemIcon>
+                    <Badge badgeContent={directUnread?.total} max={99} color={directUnread?.highlight ? 'error' : 'primary'}>
+                        <Person />
+                    </Badge>
+                </ListItemIcon>
+                <ListItemText>
+                    {getText('direct_menu.title')}
+                </ListItemText>
+            </ListItemButton>
+            <DirectMenu anchorEl={menuAnchor} requestClose={() => setMenuAnchor(null)} />
+        </>
     );
 }

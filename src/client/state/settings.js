@@ -76,6 +76,7 @@ class Settings extends EventEmitter {
         document.body.classList.add(this.themeClasses[themeIndex]);
         document.body.classList.add(this.fontWeightClasses[themeIndex]);
         document.body.classList.add(themeIndex < 2 ? 'prism-light' : 'prism-dark');
+        this.emit(cons.events.settings.THEME_CHANGED, themeIndex);
     }
 
     setTheme(themeIndex) {
@@ -96,8 +97,8 @@ class Settings extends EventEmitter {
         if (typeof this.useSystemTheme === 'boolean') return this.useSystemTheme;
 
         const settings = getSettings();
-        if (settings === null) return true;
-        if (typeof settings.useSystemTheme === 'undefined') return true;
+        if (settings === null) return false;
+        if (typeof settings.useSystemTheme === 'undefined') return false;
         return settings.useSystemTheme;
     }
 

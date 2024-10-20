@@ -10,9 +10,6 @@ import colorMXID from '../../../util/colorMXID';
 
 import Text from '../../atoms/text/Text';
 import Avatar from '../../atoms/avatar/Avatar';
-import Button from '../../atoms/button/Button';
-import Input from '../../atoms/input/Input';
-import IconButton from '../../atoms/button/IconButton';
 import ImageUpload from '../image-upload/ImageUpload';
 
 import { useStore } from '../../hooks/useStore';
@@ -22,6 +19,8 @@ import { mDirectAtom } from '../../state/mDirectList';
 import { LINKIFY_OPTS } from '../../plugins/react-custom-html-parser';
 import { getText } from '../../../lang';
 import { mdiPencil } from '@mdi/js';
+import { Button, IconButton, TextField } from '@mui/material';
+import { Edit } from '@mui/icons-material';
 
 function RoomProfile({ roomId }) {
     const isMountStore = useStore();
@@ -137,20 +136,22 @@ function RoomProfile({ roomId }) {
     const renderEditNameAndTopic = () => (
         <form className="room-profile__edit-form" onSubmit={handleOnSubmit}>
             {canChangeName && (
-                <Input
-                    value={roomName}
+                <TextField
+                    defaultValue={roomName}
                     name="room-name"
                     disabled={status.type === cons.status.IN_FLIGHT}
                     label="Name"
+                    fullWidth
                 />
             )}
             {canChangeTopic && (
-                <Input
-                    value={roomTopic}
+                <TextField
+                    defaultValue={roomTopic}
                     name="room-topic"
                     disabled={status.type === cons.status.IN_FLIGHT}
                     minHeight={100}
-                    resizable
+                    fullWidth
+                    multiline
                     label="Topic"
                 />
             )}
@@ -176,7 +177,7 @@ function RoomProfile({ roomId }) {
             )}
             {status.type !== cons.status.IN_FLIGHT && (
                 <div>
-                    <Button type="submit" variant="primary">
+                    <Button type="submit" variant='contained' color="primary">
                         {getText('btn.room_profile.save')}
                     </Button>
                     <Button onClick={handleCancelEditing}>{getText('btn.cancel')}</Button>
@@ -196,11 +197,12 @@ function RoomProfile({ roomId }) {
                 </Text>
                 {(canChangeName || canChangeTopic) && (
                     <IconButton
-                        src={mdiPencil}
-                        size="extra-small"
+                        size="small"
                         tooltip="Edit"
                         onClick={() => setIsEditing(true)}
-                    />
+                    >
+                        <Edit />
+                    </IconButton>
                 )}
             </div>
             <Text variant="b3">{room.getCanonicalAlias() || room.roomId}</Text>

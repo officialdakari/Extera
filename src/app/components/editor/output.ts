@@ -1,11 +1,9 @@
 import { sanitizeText } from '../../utils/sanitize';
-import { BlockType } from './types';
-import { CustomElement } from './slate';
 import { parseBlockMD, parseInlineMD } from '../../plugins/markdown';
 import { findAndReplace } from '../../utils/findAndReplace';
-import { Delta, Op } from 'quill/core';
-import { Marked } from 'marked';
 import { v4 } from 'uuid';
+import { getCanonicalAliasRoomId, getRoomNameOrId } from '../../utils/matrix';
+import initMatrix from '../../../client/initMatrix';
 
 export type OutputOptions = {
     allowTextFormatting?: boolean;
@@ -24,7 +22,7 @@ const ignoreHTMLParseInlineMD = (text: string): string =>
 
 export const emojiRegexp = /{:([a-zA-Z0-9\-_\.]+):(mxc:\/\/[a-z0-9\.\-]+\.[a-z]{2,}\/[a-zA-Z0-9_\-]+):}/g;
 export const userMentionRegexp = /{(@[a-zA-Z0-9\._=\-]+:[a-z0-9\.\-]+\.[a-z]{2,})}/gi;
-export const roomMentionRegexp = /{([^\|]+)\|([#!][^}:]+:[a-z0-9\.\-]+\.[a-z]{2,})}/gi;
+export const roomMentionRegexp = /{([#!][^}:]+:[a-z0-9\.\-]+\.[a-z]{2,})}/gi;
 export const anyTagRegexp = /{(:([a-zA-Z0-9\-_\.]+):(mxc:\/\/[a-z0-9\.\-]+\.[a-z]{2,}\/[a-zA-Z0-9_\-]+):|(@[a-zA-Z0-9\._=\-]+:[a-z0-9\.\-]+\.[a-z]{2,})|([^\|]+)\|([#!][A-Za-z0-9\._%#\+\-]+:[a-z0-9\.\-]+\.[a-z]{2,}))}/gi;
 export const deleteEndRegexp = /{(:([a-zA-Z0-9\-_\.]+):(mxc:\/\/[a-z0-9\.\-]+\.[a-z]{2,}\/[a-zA-Z0-9_\-]+):|(@[a-zA-Z0-9\._=\-]+:[a-z0-9\.\-]+\.[a-z]{2,})|([^\|]+)\|([#!][A-Za-z0-9\._%#\+\-]+:[a-z0-9\.\-]+\.[a-z]{2,}))([^}]|$)/gi;
 export const deleteStartRegexp = /(^|[^{])(:([a-zA-Z0-9\-_\.]+):(mxc:\/\/[a-z0-9\.\-]+\.[a-z]{2,}\/[a-zA-Z0-9_\-]+):|(@[a-zA-Z0-9\._=\-]+:[a-z0-9\.\-]+\.[a-z]{2,})|([^\|]+)\|([#!][A-Za-z0-9\._%#\+\-]+:[a-z0-9\.\-]+\.[a-z]{2,}))}/gi;
@@ -48,9 +46,15 @@ export const toMatrixCustomHTML = (
                 table[id] = `<a href="https://matrix.to/#/${mxId}">${getDisplayName(mxId)}</a>`;
                 return id;
             })
-            .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => {
+            .replaceAll(roomMentionRegexp, (match: string, id: string) => {
                 const oid = `{[${v4()}]}`;
-                table[oid] = `<a href="https://matrix.to/#/${id}">#${name}</a>`;
+                var roomName = `${id}`;
+                if (id.startsWith('!')) roomName = getRoomNameOrId(initMatrix.matrixClient!, id);
+                else if (id.startsWith('#')) {
+                    const roomId = getCanonicalAliasRoomId(initMatrix.matrixClient!, id);
+                    if (roomId) roomName = getRoomNameOrId(initMatrix.matrixClient!, roomId);
+                }
+                table[oid] = `<a href="https://matrix.to/#/${id}">#${roomName}</a>`;
                 return oid;
             })
             .replaceAll(everyoneMentionRegexp, '@room'),
@@ -66,7 +70,15 @@ export const toPlainText = (content: string, getDisplayName: any): string => {
     // и этот кал будет лежать на гитхабе
     return content.replaceAll(emojiRegexp, (match: string, shortcode: string, mxc: string) => `:${shortcode}:`)
         .replaceAll(userMentionRegexp, (match: string, mxId: string) => `${getDisplayName(mxId)}`)
-        .replaceAll(roomMentionRegexp, (match: string, name: string, id: string) => `#${name}`)
+        .replaceAll(roomMentionRegexp, (match: string, id: string) => {
+            var roomName = `${id}`;
+            if (id.startsWith('!')) roomName = getRoomNameOrId(initMatrix.matrixClient!, id);
+            else if (id.startsWith('#')) {
+                const roomId = getCanonicalAliasRoomId(initMatrix.matrixClient!, id);
+                if (roomId) roomName = getRoomNameOrId(initMatrix.matrixClient!, roomId);
+            }
+            return `#${roomName}`;
+        })
         .replaceAll(everyoneMentionRegexp, '@room');
 };
 

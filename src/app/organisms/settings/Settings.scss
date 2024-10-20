@@ -3,9 +3,7 @@
 @use '../../partials/screen';
 
 .settings-window {
-    & .pw {
-        background-color: var(--bg-surface-low);
-    }
+    overscroll-behavior-y: none;
 
     .header .btn-danger {
         margin: 0 var(--sp-tight);
@@ -13,7 +11,7 @@
     }
 
     & .profile-editor {
-        padding: var(--sp-loose) var(--sp-extra-loose);
+        padding: var(--sp-loose) var(--sp-extraloose);
     }
 
     & .tabs__content {
@@ -21,17 +19,20 @@
     }
 
     &__cards-wrapper {
-        padding: 0 var(--sp-normal);
-        @include dir.side(padding, var(--sp-normal), var(--sp-extra-tight));
+        padding: var(--sp-normal);
+        height: min-content;
+    }
+
+    &__content {
+        min-height: 100%;
+        overscroll-behavior-y: none;
     }
 }
 
 .settings-window__card {
     margin: var(--sp-normal) 0;
-    background-color: var(--bg-surface);
-    border-radius: var(--bo-radius);
-    box-shadow: var(--bs-surface-border);
     overflow: hidden;
+    overscroll-behavior-y: none;
 
     &>.context-menu__header:first-child {
         margin-top: 2px;
@@ -68,7 +69,6 @@
         margin: 0 var(--sp-normal);
         margin-top: var(--sp-normal);
         padding-bottom: 16px;
-        border-bottom: 1px solid var(--bg-surface-border);
 
         &:last-child {
             border-bottom: none;

@@ -7,6 +7,7 @@ import { getHexcodeForEmoji, getShortcodeFor } from '../../plugins/emoji';
 import { getMemberDisplayName } from '../../utils/room';
 import { eventWithShortcode, getMxIdLocalPart } from '../../utils/matrix';
 import { getText } from '../../../lang';
+import { useTheme } from '@mui/material';
 
 export const Reaction = as<
     'button',
@@ -15,34 +16,37 @@ export const Reaction = as<
         count: number;
         reaction: string;
     }
->(({ className, mx, count, reaction, ...props }, ref) => (
-    <Box
-        as="button"
-        className={classNames(css.Reaction, className)}
-        alignItems="Center"
-        shrink="No"
-        gap="200"
-        {...props}
-        ref={ref}
-    >
-        <Text className={css.ReactionText} as="span" size="T400">
-            {reaction.startsWith('mxc://') ? (
-                <img
-                    className={css.ReactionImg}
-                    src={mx.mxcUrlToHttp(reaction) ?? reaction}
-                    alt={reaction}
-                />
-            ) : (
-                <Text as="span" size="Inherit" truncate>
-                    {reaction}
-                </Text>
-            )}
-        </Text>
-        <Text as="span" size="T300">
-            {count}
-        </Text>
-    </Box>
-));
+>(({ className, mx, count, reaction, ...props }, ref) => {
+    const theme = useTheme();
+    return (
+        <Box
+            as="button"
+            className={classNames(css.Reaction, className)}
+            alignItems="Center"
+            shrink="No"
+            gap="200"
+            {...props}
+            ref={ref}
+        >
+            <Text className={css.ReactionText} as="span" size="T400">
+                {reaction.startsWith('mxc://') ? (
+                    <img
+                        className={css.ReactionImg}
+                        src={mx.mxcUrlToHttp(reaction) ?? reaction}
+                        alt={reaction}
+                    />
+                ) : (
+                    <Text as="span" size="Inherit" truncate>
+                        {reaction}
+                    </Text>
+                )}
+            </Text>
+            <Text as="span" size="T300">
+                {count}
+            </Text>
+        </Box>
+    );
+});
 
 type ReactionTooltipMsgProps = {
     room: Room;

@@ -16,16 +16,16 @@ function PeopleSelector({ avatarSrc, name, color, peopleRole, onClick, avStyle, 
                 onClick={onClick}
                 type="button"
             >
-                <Avatar imageSrc={avatarSrc} text={name} bgColor={color} size="small" style={avStyle} />
+                <Avatar imageSrc={avatarSrc} text={name} bgColor={color} size="small" className={`presence-${avStyle}`} />
                 <div className='people-selector__name_status_container'>
                     <Text className="people-selector__name" variant="b1">
                         {name} {verificationBadge}
                     </Text>
                     {status && (
-                    <Text className="people-selector__status" variant="b3">
-                        {status}
-                    </Text>
-                )}
+                        <Text className="people-selector__status" variant="b3">
+                            {status}
+                        </Text>
+                    )}
                 </div>
                 {peopleRole !== null && (
                     <Text className="people-selector__role" variant="b3">

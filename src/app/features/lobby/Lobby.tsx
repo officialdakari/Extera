@@ -3,7 +3,7 @@ import { Box, IconButton, Line, Scroll, config } from 'folds';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useAtom, useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
-import { IJoinRuleEventContent, JoinRule, RestrictedAllowType, Room } from 'matrix-js-sdk';
+import { JoinRule, RestrictedAllowType, Room } from 'matrix-js-sdk';
 import { useSpace } from '../../hooks/useSpace';
 import { Page, PageContent, PageContentCenter, PageHeroSection } from '../../components/page';
 import { HierarchyItem, useSpaceHierarchy } from '../../hooks/useSpaceHierarchy';
@@ -50,6 +50,7 @@ import { AccountDataEvent } from '../../../types/matrix/accountData';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiChevronUp } from '@mdi/js';
+import { RoomJoinRulesEventContent } from 'matrix-js-sdk/lib/types';
 
 export function Lobby() {
     const navigate = useNavigate();
@@ -224,6 +225,7 @@ export function Lobby() {
                 if (canEdit && orderKey !== currentOrders[index]) {
                     mx.sendStateEvent(
                         itm.parentId,
+                        //@ts-ignore
                         StateEvent.SpaceChild,
                         { ...itm.content, order: orderKey },
                         itm.roomId
@@ -246,6 +248,7 @@ export function Lobby() {
             const itemContent = item.content;
 
             if (item.parentId !== containerParentId) {
+                //@ts-ignore
                 mx.sendStateEvent(item.parentId, StateEvent.SpaceChild, {}, item.roomId);
             }
 
@@ -259,12 +262,13 @@ export function Lobby() {
                 const joinRuleContent = getStateEvent(
                     itemRoom,
                     StateEvent.RoomJoinRules
-                )?.getContent<IJoinRuleEventContent>();
+                )?.getContent<RoomJoinRulesEventContent>();
 
                 if (joinRuleContent) {
                     const allow =
                         joinRuleContent.allow?.filter((allowRule) => allowRule.room_id !== item.parentId) ?? [];
                     allow.push({ type: RestrictedAllowType.RoomMembership, room_id: containerParentId });
+                    //@ts-ignore
                     mx.sendStateEvent(itemRoom.roomId, StateEvent.RoomJoinRules, {
                         ...joinRuleContent,
                         allow,
@@ -300,6 +304,7 @@ export function Lobby() {
                 if (itm && orderKey !== currentOrders[index]) {
                     mx.sendStateEvent(
                         containerParentId,
+                        //@ts-ignore
                         StateEvent.SpaceChild,
                         { ...itm.content, order: orderKey },
                         itm.roomId

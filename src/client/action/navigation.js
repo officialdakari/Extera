@@ -50,7 +50,6 @@ export function openInviteUser(roomId, searchTerm) {
 }
 
 export function openProfileViewer(userId, roomId) {
-    console.log(`opening profiel viewer !!! ${userId} ${roomId}`);
     appDispatcher.dispatch({
         type: cons.actions.navigation.OPEN_PROFILE_VIEWER,
         userId,
@@ -101,12 +100,13 @@ export function openNavigation() {
     });
 }
 
-export function openReusableDialog(title, render, afterClose) {
+export function openReusableDialog(title, render, afterClose, props) {
     appDispatcher.dispatch({
         type: cons.actions.navigation.OPEN_REUSABLE_DIALOG,
         title,
         render,
         afterClose,
+        props
     });
 }
 

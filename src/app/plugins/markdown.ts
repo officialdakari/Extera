@@ -291,7 +291,6 @@ const BlockQuoteRule: BlockMDRule = {
     match: (text) => text.match(BLOCKQUOTE_REG_1),
     html: (match, parseInline) => {
         const [blockquoteText] = match;
-        console.log(`!!! blockquote`, match);
         const lines = blockquoteText
             .replace(BLOCKQUOTE_TRAILING_NEWLINE, '')
             .split('\n')

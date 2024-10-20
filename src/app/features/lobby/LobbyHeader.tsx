@@ -2,15 +2,8 @@ import React, { MouseEventHandler, forwardRef, useState } from 'react';
 import {
     Avatar,
     Box,
-    IconButton,
-    Line,
-    Menu,
-    MenuItem,
-    PopOut,
     RectCords,
     Text,
-    Tooltip,
-    TooltipProvider,
     config,
     toRem,
 } from 'folds';
@@ -31,14 +24,18 @@ import { LeaveSpacePrompt } from '../../components/leave-space-prompt';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCog, mdiDotsVertical } from '@mdi/js';
+import { AppBar, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
+import { ArrowBack, MoreVert, Person, PersonAdd, Settings } from '@mui/icons-material';
+import { BackRouteHandler } from '../../components/BackRouteHandler';
 
 type LobbyMenuProps = {
     roomId: string;
     powerLevels: IPowerLevels;
     requestClose: () => void;
+    anchorEl: HTMLElement | null;
 };
 const LobbyMenu = forwardRef<HTMLDivElement, LobbyMenuProps>(
-    ({ roomId, powerLevels, requestClose }, ref) => {
+    ({ roomId, powerLevels, requestClose, anchorEl }, ref) => {
         const mx = useMatrixClient();
         const { getPowerLevel, canDoAction } = usePowerLevelsAPI(powerLevels);
         const canInvite = canDoAction('invite', getPowerLevel(mx.getUserId() ?? ''));
@@ -54,61 +51,53 @@ const LobbyMenu = forwardRef<HTMLDivElement, LobbyMenuProps>(
         };
 
         return (
-            <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
-                <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                    <MenuItem
-                        onClick={handleInvite}
-                        variant="Primary"
-                        fill="None"
-                        size="300"
-                        after={<Icon size={0.8} path={mdiAccountPlus} />}
-                        radii="300"
-                        disabled={!canInvite}
-                    >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                            {getText('btn.space_lobby.invite')}
-                        </Text>
-                    </MenuItem>
-                    <MenuItem
-                        onClick={handleRoomSettings}
-                        size="300"
-                        after={<Icon size={0.8} path={mdiCog} />}
-                        radii="300"
-                    >
-                        <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                            {getText('btn.space_lobby.settings')}
-                        </Text>
-                    </MenuItem>
-                </Box>
-                <Line variant="Surface" size="300" />
-                <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                    <UseStateProvider initial={false}>
-                        {(promptLeave, setPromptLeave) => (
-                            <>
-                                <MenuItem
-                                    onClick={() => setPromptLeave(true)}
-                                    variant="Critical"
-                                    fill="None"
-                                    size="300"
-                                    after={<Icon size={0.8} path={mdiArrowLeft} />}
-                                    radii="300"
-                                    aria-pressed={promptLeave}
-                                >
-                                    <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                                        {getText('space.action.leave')}
-                                    </Text>
-                                </MenuItem>
-                                {promptLeave && (
-                                    <LeaveSpacePrompt
-                                        roomId={roomId}
-                                        onDone={requestClose}
-                                        onCancel={() => setPromptLeave(false)}
-                                    />
-                                )}
-                            </>
-                        )}
-                    </UseStateProvider>
-                </Box>
+            <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={requestClose}>
+                <MenuItem
+                    onClick={handleInvite}
+                    disabled={!!canInvite}
+                >
+                    <ListItemIcon>
+                        <PersonAdd />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('btn.space_lobby.invite')}
+                    </ListItemText>
+                </MenuItem>
+                <MenuItem
+                    onClick={handleRoomSettings}
+                >
+                    <ListItemIcon>
+                        <Settings />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('btn.space_lobby.settings')}
+                    </ListItemText>
+                </MenuItem>
+                <Divider />
+                <UseStateProvider initial={false}>
+                    {(promptLeave, setPromptLeave) => (
+                        <>
+                            <MenuItem
+                                onClick={() => setPromptLeave(true)}
+                                aria-pressed={promptLeave}
+                            >
+                                <ListItemIcon>
+                                    <ArrowBack />
+                                </ListItemIcon>
+                                <ListItemText>
+                                    {getText('space.action.leave')}
+                                </ListItemText>
+                            </MenuItem>
+                            {promptLeave && (
+                                <LeaveSpacePrompt
+                                    roomId={roomId}
+                                    onDone={requestClose}
+                                    onCancel={() => setPromptLeave(false)}
+                                />
+                            )}
+                        </>
+                    )}
+                </UseStateProvider>
             </Menu>
         );
     }
@@ -122,19 +111,28 @@ export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
     const mx = useMatrixClient();
     const space = useSpace();
     const setPeopleDrawer = useSetSetting(settingsAtom, 'isPeopleDrawer');
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
+    const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
     const name = useRoomName(space);
     const avatarMxc = useRoomAvatar(space);
     const avatarUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
 
     const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        setMenuAnchor(evt.currentTarget.getBoundingClientRect());
+        setMenuAnchor(evt.currentTarget);
     };
 
     return (
-        <PageHeader className={showProfile ? undefined : css.Header}>
-            <Box grow="Yes" alignItems="Center" gap="200">
+        <AppBar position='static'>
+            <Toolbar>
+                <BackRouteHandler>
+                    {(goBack) => (
+                        <IconButton
+                            onClick={goBack}
+                        >
+                            <ArrowBack />
+                        </IconButton>
+                    )}
+                </BackRouteHandler>
                 <Box grow="Yes" basis="No" />
                 <Box justifyContent="Center" alignItems="Center" gap="300">
                     {showProfile && (
@@ -144,7 +142,6 @@ export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
                                     roomId={space.roomId}
                                     src={avatarUrl}
                                     alt={name}
-                                    renderFallback={() => <Text size="H4">{nameInitials(name)}</Text>}
                                 />
                             </Avatar>
                             <Text size="H3" truncate>
@@ -154,62 +151,24 @@ export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
                     )}
                 </Box>
                 <Box shrink="No" grow="Yes" basis="No" justifyContent="End">
-                    <TooltipProvider
-                        position="Bottom"
-                        offset={4}
-                        tooltip={
-                            <Tooltip>
-                                <Text>{getText('generic.members')}</Text>
-                            </Tooltip>
-                        }
-                    >
-                        {(triggerRef) => (
-                            <IconButton ref={triggerRef} onClick={() => setPeopleDrawer((drawer) => !drawer)}>
-                                <Icon size={1} path={mdiAccount} />
-                            </IconButton>
-                        )}
-                    </TooltipProvider>
-                    <TooltipProvider
-                        position="Bottom"
-                        align="End"
-                        offset={4}
-                        tooltip={
-                            <Tooltip>
-                                <Text>{getText('generic.more_options')}</Text>
-                            </Tooltip>
-                        }
-                    >
-                        {(triggerRef) => (
-                            <IconButton onClick={handleOpenMenu} ref={triggerRef} aria-pressed={!!menuAnchor}>
-                                <Icon size={1} path={mdiDotsVertical} />
-                            </IconButton>
-                        )}
-                    </TooltipProvider>
-                    <PopOut
-                        anchor={menuAnchor}
-                        position="Bottom"
-                        align="End"
-                        content={
-                            <FocusTrap
-                                focusTrapOptions={{
-                                    initialFocus: false,
-                                    returnFocusOnDeactivate: false,
-                                    onDeactivate: () => setMenuAnchor(undefined),
-                                    clickOutsideDeactivates: true,
-                                    isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                                    isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                                }}
-                            >
-                                <LobbyMenu
-                                    roomId={space.roomId}
-                                    powerLevels={powerLevels}
-                                    requestClose={() => setMenuAnchor(undefined)}
-                                />
-                            </FocusTrap>
-                        }
+                    <Tooltip title={getText('generic.members')}>
+                        <IconButton onClick={() => setPeopleDrawer((drawer) => !drawer)}>
+                            <Person />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title={getText('generic.more_options')}>
+                        <IconButton onClick={handleOpenMenu} aria-pressed={!!menuAnchor}>
+                            <MoreVert />
+                        </IconButton>
+                    </Tooltip>
+                    <LobbyMenu
+                        roomId={space.roomId}
+                        powerLevels={powerLevels}
+                        anchorEl={menuAnchor}
+                        requestClose={() => setMenuAnchor(null)}
                     />
                 </Box>
-            </Box>
-        </PageHeader>
+            </Toolbar>
+        </AppBar>
     );
 }
