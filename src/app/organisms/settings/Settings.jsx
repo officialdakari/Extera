@@ -56,6 +56,7 @@ import { Close, HideImage, Image, Logout } from '@mui/icons-material';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 import { AnimatePresence } from 'framer-motion';
 import { AnimatedLayout } from '../../components/page';
+import useCordova from '../../hooks/cordova';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
@@ -486,6 +487,7 @@ function NotificationsSection() {
     const [pushes, setPushes] = useSetting(settingsAtom, 'pushesEnabled');
 
     const [, updateState] = useState({});
+    const cordova = useCordova();
 
     const requestPermissions = () => {
         if (typeof window.Notification !== 'undefined') window.Notification?.requestPermission().then(setPermission);
@@ -538,6 +540,12 @@ function NotificationsSection() {
         }
     };
 
+    const isBg = useMemo(() => cordova?.plugins?.backgroundMode?.isActive() || false, [cordova]);
+
+    const toggleBg = () => {
+        cordova?.plugins?.backgroundMode.setEnabled(!isBg);
+    };
+
     return (
         <>
             <div className="settings-notifications">
@@ -557,6 +565,18 @@ function NotificationsSection() {
                     )}
                     content={<Text variant="b3">{getText('settings.notification_sound.desc')}</Text>}
                 />
+                {cordova?.plugins?.backgroundMode && (
+                    <SettingTile
+                        title={getText('settings.bgmode.title')}
+                        options={(
+                            <Switch
+                                checked={isBg}
+                                onClick={toggleBg}
+                            />
+                        )}
+                        content={<Text variant='b3'>{getText('settings.bgmode.desc')}</Text>}
+                    />
+                )}
                 <SettingTile
                     title='Push Notifications'
                     options={(

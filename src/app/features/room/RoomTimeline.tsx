@@ -1060,10 +1060,6 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 const senderDisplayName =
                     getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
                 const hideReason = ((getContent() as any)['space.0x1a8510f2.msc3368.tags'] ?? [])[0];
-
-                // Кажется, я начинаю по-тихоньку разбираться в этом коде.
-                // Вообще кайф если это первый чужой код, в котором я смог разобраться
-                // OfficialDakari, 3.07.2024 20:27 (UTC+5)
                 const ed = mEvent.event;
                 var hideMessage = false;
                 if (ed.content?.msgtype == 'm.notice' && typeof ed.content?.body === 'string') {

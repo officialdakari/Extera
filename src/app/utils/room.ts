@@ -356,6 +356,13 @@ export const getEventReactions = (timelineSet: EventTimelineSet, eventId: string
         EventType.Reaction
     );
 
+export const getPollResponses = (timelineSet: EventTimelineSet, eventId: string) =>
+    timelineSet.relations.getChildEventsForEvent(
+        eventId,
+        RelationType.Reference,
+        'org.matrix.msc3381.poll.response'
+    );
+
 export const getEventEdits = (timelineSet: EventTimelineSet, eventId: string, eventType: string) =>
     timelineSet.relations.getChildEventsForEvent(eventId, RelationType.Replace, eventType);
 

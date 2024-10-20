@@ -996,5 +996,11 @@
     "room_visibility.knock": "Knock",
     "title.map": "Map",
     "authrequest.desc": "Performing this action requires verifying your identity.",
-    "downloaded": "Saved to Downloads."
+    "downloaded": "Saved to Downloads.",
+    "settings.bgmode.title": "Background mode",
+    "settings.bgmode.desc": "Extera will continue syncing in background.",
+    "btn.unvote": "Unvote",
+    "btn.vote": "Vote",
+    "btn.vote.submit": "Submit",
+    "btn.vote.cancel": "Cancel"
 }
