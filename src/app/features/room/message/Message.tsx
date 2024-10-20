@@ -1285,19 +1285,13 @@ export const Message = as<'div', MessageProps>(
         };
 
         const handleOpenEmojiBoard: MouseEventHandler<HTMLButtonElement> = (evt) => {
-            const target = evt.currentTarget.parentElement?.parentElement ?? evt.currentTarget;
+            const target = evt.currentTarget.parentElement ?? evt.currentTarget;
             setEmojiBoardAnchor(target);
         };
 
-        const handleAddReactions: MouseEventHandler<HTMLLIElement> = () => {
-            const rect = menuAnchor;
-            closeMenu();
-            // open it with timeout because closeMenu
-            // FocusTrap will return focus from emojiBoard
-
-            setTimeout(() => {
-                setEmojiBoardAnchor(rect);
-            }, 100);
+        const handleAddReactions: MouseEventHandler<HTMLLIElement> = (evt) => {
+            const target = evt.currentTarget.parentElement?.parentElement ?? evt.currentTarget;
+setEmojiBoardAnchor(target);
         };
 
         const handleEndPoll: MouseEventHandler<HTMLLIElement> = () => {
@@ -1344,12 +1338,12 @@ export const Message = as<'div', MessageProps>(
                 {!edit && (hover || !!menuAnchor || !!emojiBoardAnchor) && (
                     <div
                         className={css.MessageOptionsBase}
-                        style={{
+                        style={!isTouch ? {
                             backgroundColor: theme.palette.background.paper,
                             borderColor: theme.palette.divider,
                             borderWidth: '1px',
                             borderRadius: theme.shape.borderRadius,
-                        }}
+                        } : {}}
                     >
                         {!isTouch && (
                             <>
