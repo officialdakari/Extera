@@ -957,8 +957,8 @@ function Settings() {
                 </AppBar>
             )}
             {isOpen && (
-                <div className="settings-window__content">
-                    <Box style={{ borderBottom: '1px', borderColor: theme.palette.divider, backgroundColor: theme.palette.background.default }}>
+                <div className="settings-window__content" style={{ backgroundColor: theme.palette.background.default }}>
+                    <Box style={{ borderBottom: '1px', borderColor: theme.palette.divider }}>
                         <Tabs
                             value={selectedTab}
                             onChange={handleTabChange}
@@ -970,7 +970,7 @@ function Settings() {
                             ))}
                         </Tabs>
                     </Box>
-                    <div className="settings-window__cards-wrapper" style={{ backgroundColor: theme.palette.background.default }}>
+                    <div className="settings-window__cards-wrapper">
                         {tabItems[selectedTab].render()}
                     </div>
                 </div>
