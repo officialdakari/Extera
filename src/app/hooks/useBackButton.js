@@ -1,6 +1,13 @@
 import { useEffect } from "react";
 import { v4 } from "uuid";
 
+var handlers = [];
+
+const handle = () => {
+    handlers[0]();
+    handlers.shift();
+};
+
 export const useBackButton = (callback) => {
     const routeId = `fake-route-${v4()}`;
 
@@ -16,6 +23,7 @@ export const useBackButton = (callback) => {
             // If we left without using the back button, aka by using a button on the page, we need to clear out that fake history event
             if (window.history.state === routeId) {
                 window.history.back();
+                //handlers = handlers.filter(x => x != callback);
             }
         };
     }, []);
