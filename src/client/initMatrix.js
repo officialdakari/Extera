@@ -61,7 +61,7 @@ class InitMatrix extends EventEmitter {
 
         await indexedDBStore.startup();
 
-        await this.matrixClient.initRustCrypto();
+        await this.matrixClient.initCrypto();
 
         await this.matrixClient.startClient({
             lazyLoadMembers: true,
