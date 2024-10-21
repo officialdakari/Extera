@@ -158,8 +158,6 @@ function RoomMembers({ roomId }) {
         fetchMemberAvStylesAndStatus();
     }, [members, mList, mx]);
 
-    const theme = useTheme();
-
     return (
         <div className="room-members">
             <SearchContainer>

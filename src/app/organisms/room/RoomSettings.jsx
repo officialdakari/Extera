@@ -126,7 +126,6 @@ function a11yProps(index) {
 function RoomSettings() {
     const [selectedTab, setSelectedTab] = useState(0);
     const [window, requestClose] = useWindowToggle(setSelectedTab);
-    const isOpen = window !== null;
     const roomId = window?.roomId;
     const room = initMatrix.matrixClient.getRoom(roomId);
     const screenSize = useScreenSize();
@@ -141,12 +140,12 @@ function RoomSettings() {
     return (
         <Dialog
             fullScreen={screenSize === ScreenSize.Mobile}
-            open={isOpen}
+            open={window !== null}
             onClose={requestClose}
             scroll='body'
             sx={{ backdropFilter: 'blur(3px)' }}
         >
-            {isOpen && (
+            {window !== null && (
                 <AppBar position='relative'>
                     <ProminientToolbar>
                         <Box flexGrow={1}>
@@ -162,7 +161,7 @@ function RoomSettings() {
                     </ProminientToolbar>
                 </AppBar>
             )}
-            {isOpen && (
+            {window !== null && (
                 <div className="room-settings__content" style={{ minHeight: '100%', backgroundColor: theme.palette.background.default }}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <Tabs value={selectedTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
