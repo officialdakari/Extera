@@ -31,7 +31,7 @@ export const BubbleLayout = as<'div', BubbleLayoutProps>(({ before, rightAligned
                 style={{
                     backgroundColor: !transparent
                         ? (rightAligned
-                            ? purple[900]
+                            ? (isDark ? purple[900] : theme.palette.info.light)
                             : (isDark ? theme.palette.grey[800] : theme.palette.background.paper))
                         : 'transparent',
                     borderRadius: theme.shape.borderRadius
