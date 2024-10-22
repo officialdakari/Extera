@@ -207,9 +207,7 @@ export function Home() {
 
     const sortedRooms = useMemo(() => {
         const items = Array.from(rooms).sort(
-            closedCategories.has(DEFAULT_CATEGORY_ID)
-                ? factoryRoomIdByActivity(mx)
-                : factoryRoomIdByAtoZ(mx)
+            factoryRoomIdByActivity(mx)
         );
         if (closedCategories.has(DEFAULT_CATEGORY_ID)) {
             return items.filter((rId) => roomToUnread.has(rId) || rId === selectedRoomId);

@@ -413,7 +413,7 @@ function SpaceTab({
                         onClick={(evt) => onClick(evt as any)}
                     >
                         <ListItemIcon>
-                            <Badge badgeContent={unread?.total} max={99}>
+                            <Badge color={unread?.highlight ? 'error' : 'info'} badgeContent={unread?.total} max={99}>
                                 <SidebarAvatar
                                     as="button"
                                     size={folder ? '300' : '400'}
@@ -424,9 +424,6 @@ function SpaceTab({
                                         roomId={space.roomId}
                                         src={space.getAvatarUrl(mx.baseUrl, 96, 96, 'crop') ?? undefined}
                                         alt={space.name}
-                                        renderFallback={() => (
-                                            <Text size={folder ? 'H6' : 'H4'}>{nameInitials(space.name, 2)}</Text>
-                                        )}
                                     />
                                 </SidebarAvatar>
                             </Badge>
