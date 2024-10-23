@@ -17,7 +17,7 @@ import Dialog from '../../molecules/dialog/Dialog';
 import { useStore } from '../../hooks/useStore';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getText } from '../../../lang';
-import { useBackButton } from '../../hooks/useBackButton';
+import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
 import { mdiClose } from '@mdi/js';
 
 const ALIAS_OR_ID_REG = /^[#|!].+:.+\..+$/;
@@ -126,8 +126,6 @@ function useWindowToggle() {
 function JoinAlias() {
     const [data, requestClose] = useWindowToggle();
 
-    useBackButton(requestClose);
-
     return (
         <Dialog
             isOpen={data !== null}
@@ -139,6 +137,7 @@ function JoinAlias() {
             contentOptions={<IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />}
             onRequestClose={requestClose}
         >
+            {data !== null && <BackButtonHandler callback={requestClose} />}
             {data ? <JoinAliasContent term={data.term} requestClose={requestClose} /> : <div />}
         </Dialog>
     );

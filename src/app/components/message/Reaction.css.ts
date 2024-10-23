@@ -1,50 +1,27 @@
+import { colors } from '@mui/material';
 import { createVar, style } from '@vanilla-extract/css';
-import { DefaultReset, FocusOutline, color, config, toRem } from 'folds';
-
-const Container = createVar();
-const ContainerHover = createVar();
-const ContainerActive = createVar();
-const ContainerLine = createVar();
-const OnContainer = createVar();
+import { DefaultReset, FocusOutline, config, toRem } from 'folds';
 
 export const Reaction = style([
     FocusOutline,
     {
-        vars: {
-            [Container]: color.SurfaceVariant.Container,
-            [ContainerHover]: color.SurfaceVariant.ContainerHover,
-            [ContainerActive]: color.SurfaceVariant.ContainerActive,
-            [ContainerLine]: color.SurfaceVariant.ContainerLine,
-            [OnContainer]: color.SurfaceVariant.OnContainer,
-        },
         padding: `${toRem(2)} ${config.space.S200} ${toRem(2)} ${config.space.S100}`,
-        backgroundColor: Container,
-        border: `${config.borderWidth.B300} solid ${ContainerLine}`,
-        borderRadius: config.radii.R300,
+        backgroundColor: colors.green[700],
+        color: colors.common.white,
+        borderRadius: config.radii.Pill,
 
         selectors: {
             'button&': {
                 cursor: 'pointer',
             },
             '&[aria-pressed=true]': {
-                vars: {
-                    [Container]: color.Primary.Container,
-                    [ContainerHover]: color.Primary.ContainerHover,
-                    [ContainerActive]: color.Primary.ContainerActive,
-                    [ContainerLine]: color.Primary.ContainerLine,
-                    [OnContainer]: color.Primary.OnContainer,
-                },
-                backgroundColor: Container,
-            },
-            '&[aria-selected=true]': {
-                borderColor: color.Secondary.Main,
-                borderWidth: config.borderWidth.B400,
+                backgroundColor: colors.green[500],
             },
             '&:hover, &:focus-visible': {
-                backgroundColor: ContainerHover,
+                backgroundColor: colors.green[500],
             },
             '&:active': {
-                backgroundColor: ContainerActive,
+                backgroundColor: colors.green[500],
             },
             '&[aria-disabled=true], &:disabled': {
                 cursor: 'not-allowed',
@@ -60,7 +37,7 @@ export const ReactionText = style([
         maxWidth: toRem(150),
         display: 'inline-flex',
         alignItems: 'center',
-        lineHeight: toRem(20),
+        lineHeight: toRem(25),
     },
 ]);
 

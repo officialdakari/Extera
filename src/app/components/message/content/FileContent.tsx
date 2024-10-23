@@ -1,15 +1,11 @@
 import React, { ReactNode, useCallback, useState } from 'react';
 import {
     Box,
-    Button,
     Modal,
     Overlay,
     OverlayBackdrop,
     OverlayCenter,
-    Spinner,
     Text,
-    Tooltip,
-    TooltipProvider,
     as,
 } from 'folds';
 import FileSaver from 'file-saver';
@@ -33,34 +29,19 @@ import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiAlert, mdiArrowDownBold, mdiArrowRight, mdiDownload } from '@mdi/js';
 import { saveFile, useDownloadStatus } from '../../../utils/saveFile';
+import { Button, Tooltip } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 
 const renderErrorButton = (retry: () => void, text: string) => (
-    <TooltipProvider
-        tooltip={
-            <Tooltip variant="Critical">
-                <Text>{getText('msg.file.failed')}</Text>
-            </Tooltip>
-        }
-        position="Top"
-        align="Center"
-    >
-        {(triggerRef) => (
-            <Button
-                ref={triggerRef}
-                size="400"
-                variant="Critical"
-                fill="Soft"
-                outlined
-                radii="300"
-                onClick={retry}
-                before={<Icon size={1} path={mdiAlert} />}
-            >
-                <Text size="B400" truncate>
-                    {text}
-                </Text>
-            </Button>
-        )}
-    </TooltipProvider>
+    <Tooltip title={getText('msg.file.failed')}>
+        <Button
+            onClick={retry}
+            color='error'
+            variant='outlined'
+        >
+            {text}
+        </Button>
+    </Tooltip>
 );
 
 type RenderTextViewerProps = {
@@ -131,27 +112,16 @@ export function ReadTextFile({ body, mimeType, url, encInfo, renderViewer, forma
             {textState.status === AsyncStatus.Error ? (
                 renderErrorButton(loadText, getText('btn.open_file'))
             ) : (
-                <Button
-                    variant="Secondary"
-                    fill="Solid"
-                    radii="300"
-                    size="400"
+                <LoadingButton
+                    variant='contained'
+                    color='primary'
                     onClick={() =>
                         textState.status === AsyncStatus.Success ? setTextViewer(true) : loadText()
                     }
-                    disabled={textState.status === AsyncStatus.Loading}
-                    before={
-                        textState.status === AsyncStatus.Loading ? (
-                            <Spinner fill="Solid" size="100" variant="Secondary" />
-                        ) : (
-                            <Icon size={1} path={mdiArrowRight} />
-                        )
-                    }
+                    loading={textState.status === AsyncStatus.Loading}
                 >
-                    <Text size="B400">
-                        {getText('btn.open_file')}
-                    </Text>
-                </Button>
+                    {getText('btn.open_file')}
+                </LoadingButton>
             )}
         </>
     );
@@ -214,25 +184,16 @@ export function ReadPdfFile({ body, mimeType, url, encInfo, renderViewer, format
             {pdfState.status === AsyncStatus.Error ? (
                 renderErrorButton(loadPdf, getText('btn.open_pdf'))
             ) : (
-                <Button
-                    variant="Secondary"
-                    fill="Solid"
-                    radii="300"
-                    size="400"
+                <LoadingButton
+                    variant='contained'
+                    color='secondary'
                     onClick={() => (pdfState.status === AsyncStatus.Success ? setPdfViewer(true) : loadPdf())}
-                    disabled={pdfState.status === AsyncStatus.Loading}
-                    before={
-                        pdfState.status === AsyncStatus.Loading ? (
-                            <Spinner fill="Solid" size="100" variant="Secondary" />
-                        ) : (
-                            <Icon size={1} path={mdiArrowRight} />
-                        )
-                    }
+                    loading={pdfState.status === AsyncStatus.Loading}
                 >
                     <Text size="B400">
                         {getText('btn.open_pdf')}
                     </Text>
-                </Button>
+                </LoadingButton>
             )}
         </>
     );
@@ -261,27 +222,18 @@ export function DownloadFile({ body, mimeType, url, info, encInfo, filename }: D
         renderErrorButton(download, getText('btn.retry_download', bytesToSize(info.size ?? 0)))
     ) : (
         <>
-            <Button
-                variant="Secondary"
-                fill="Soft"
-                radii="300"
-                size="400"
+            <LoadingButton
+                color='success'
+                variant='outlined'
                 onClick={() =>
                     downloadState.status === AsyncStatus.Success
-                        ? FileSaver.saveAs(downloadState.data, filename ?? body)
+                        ? saveFile(downloadState.data, filename ?? body)
                         : download()
                 }
-                disabled={downloadState.status === AsyncStatus.Loading}
-                before={
-                    downloadState.status === AsyncStatus.Loading ? (
-                        <Spinner fill="Soft" size="100" variant="Secondary" />
-                    ) : (
-                        <Icon size={1} path={mdiDownload} />
-                    )
-                }
+                loading={downloadState.status === AsyncStatus.Loading}
             >
-                <Text size="B400">{getText('btn.download_size', bytesToSize(info.size ?? 0))}</Text>
-            </Button>
+                {getText('btn.download_size', bytesToSize(info.size ?? 0))}
+            </LoadingButton>
         </>
     );
 }

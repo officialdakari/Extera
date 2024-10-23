@@ -12,7 +12,7 @@ export const Attachment = as<'div'>(
                 display="InlineFlex"
                 direction="Column"
                 className={classNames(css.Attachment, className)}
-                style={{ backgroundColor: theme.palette.background.paper }}
+                style={{ backgroundColor: theme.palette.background.paper, borderRadius: theme.shape.borderRadius }}
                 {...props}
                 ref={ref}
             />

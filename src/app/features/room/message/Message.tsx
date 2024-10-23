@@ -66,7 +66,7 @@ import { Image } from '../../../components/media';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccount, mdiAlertCircleOutline, mdiArrowRight, mdiCancel, mdiCheck, mdiCheckAll, mdiCheckOutline, mdiClock, mdiClockOutline, mdiClose, mdiCloseCircle, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiDownload, mdiEmoticon, mdiEmoticonPlus, mdiExclamation, mdiExclamationThick, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReload, mdiRepeat, mdiReply, mdiRestore, mdiShare, mdiTranslate } from '@mdi/js';
-import { useBackButton } from '../../../hooks/useBackButton';
+import { BackButtonHandler, useBackButton } from '../../../hooks/useBackButton';
 import { translateContent } from '../../../utils/translation';
 import { VerificationBadge } from '../../../components/verification-badge/VerificationBadge';
 import { saveFile } from '../../../utils/saveFile';
@@ -172,14 +172,13 @@ export const MessageReadReceiptItem = as<
         onClose?.();
     };
 
-    useBackButton(handleClose);
-
     return (
         <>
             <Dialog
                 open={open}
                 onClose={handleClose}
             >
+                {open && <BackButtonHandler callback={handleClose} />}
                 <AppBar position='relative'>
                     <Toolbar>
                         <Typography
@@ -526,14 +525,13 @@ export const MessageRecoverItem = as<
         onClose?.();
     };
 
-    useBackButton(handleClose);
-
     return (
         <>
             <Dialog
                 open={open}
                 onClose={handleClose}
             >
+                {open && <BackButtonHandler callback={handleClose} />}
                 <DialogTitle>{getText('recovered.title')}</DialogTitle>
                 <DialogContent>
                     {message}
@@ -658,14 +656,13 @@ export const MessageTranslateItem = as<
         onClose?.();
     };
 
-    useBackButton(handleClose);
-
     return (
         <>
             <Dialog
                 open={open}
                 onClose={handleClose}
             >
+                {open && <BackButtonHandler callback={handleClose} />}
                 <DialogTitle>{getText('translated.title')}</DialogTitle>
                 <DialogContent>
                     {message}
@@ -840,8 +837,6 @@ export const MessageDeleteItem = as<
         }
     }, [deleteState.status, onClose]);
 
-    useBackButton(handleClose);
-
     return (
         <>
             <Dialog
@@ -852,6 +847,7 @@ export const MessageDeleteItem = as<
                     onSubmit: handleSubmit
                 }}
             >
+                {open && <BackButtonHandler callback={handleClose} />}
                 <DialogTitle>
                     {getText('msg_redact.title')}
                 </DialogTitle>

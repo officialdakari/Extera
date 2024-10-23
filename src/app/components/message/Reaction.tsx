@@ -7,7 +7,7 @@ import { getHexcodeForEmoji, getShortcodeFor } from '../../plugins/emoji';
 import { getMemberDisplayName } from '../../utils/room';
 import { eventWithShortcode, getMxIdLocalPart } from '../../utils/matrix';
 import { getText } from '../../../lang';
-import { useTheme } from '@mui/material';
+import { Typography, useTheme } from '@mui/material';
 
 export const Reaction = as<
     'button',
@@ -41,9 +41,9 @@ export const Reaction = as<
                     </Text>
                 )}
             </Text>
-            <Text as="span" size="T300">
+            <Typography variant='button'>
                 {count}
-            </Text>
+            </Typography>
         </Box>
     );
 });

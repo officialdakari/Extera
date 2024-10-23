@@ -11,7 +11,7 @@ import { getEventCords } from '../../../util/common';
 
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getText } from '../../../lang';
-import { useBackButton } from '../../hooks/useBackButton';
+import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
 import { Alert, AppBar, Autocomplete, Box, Button, CircularProgress, Dialog, IconButton, Switch, TextField, Toolbar, Typography } from '@mui/material';
 import { Add, Close } from '@mui/icons-material';
 import SettingTile from '../../molecules/setting-tile/SettingTile';
@@ -256,13 +256,12 @@ function CreateRoom() {
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(parentId);
 
-    useBackButton(onRequestClose);
-
     return (
         <Dialog
             open={create !== null}
             onRequestClose={onRequestClose}
         >
+            {create !== null && <BackButtonHandler callback={onRequestClose} />}
             <AppBar position='relative'>
                 <Toolbar>
                     <Typography variant='h6' component='div' flexGrow={1}>

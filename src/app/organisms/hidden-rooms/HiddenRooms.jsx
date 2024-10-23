@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { useBackButton } from "../../hooks/useBackButton";
+import { BackButtonHandler, useBackButton } from "../../hooks/useBackButton";
 import { isHidden, useDirects, useRooms } from "../../state/hooks/roomList";
 import { mDirectAtom } from "../../state/mDirectList";
 import { allRoomsAtom } from "../../state/room-list/roomList";
@@ -106,8 +106,6 @@ function HiddenRooms() {
         );
     };
 
-    useBackButton(requestClose);
-
     return (
         <RawModal
             className="hidden-rooms-dialog__modal dialog-modal"
@@ -116,6 +114,7 @@ function HiddenRooms() {
             onRequestClose={requestClose}
             size="small"
         >
+            {isOpen && <BackButtonHandler callback={requestClose} />}
             <div className="hidden-rooms-dialog">
                 <div className="hidden-rooms-dialog__content-wrapper">
                     <ScrollView autoHide>

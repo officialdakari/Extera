@@ -42,7 +42,7 @@ import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { Box, config, Header } from 'folds';
 import Banner from '../profile-editor/Banner';
 import { getText } from '../../../lang';
-import { useBackButton } from '../../hooks/useBackButton';
+import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
 import { disablePush, enablePush } from '../../../push';
 import { mdiArrowLeft, mdiBell, mdiClose, mdiCog, mdiEmoticon, mdiEye, mdiInformationSlabCircle, mdiInformationSlabCircleOutline, mdiLock, mdiStar } from '@mdi/js';
 import { authRequest } from './AuthRequest';
@@ -893,8 +893,6 @@ function Settings() {
         return mx.mxcUrlToHttp(bannerSrc, null, null, null, false, true, true);
     }, [mx, bannerSrc]);
 
-    useBackButton(requestClose);
-
     return (
         <Dialog
             open={isOpen}
@@ -903,6 +901,7 @@ function Settings() {
             scroll='body'
             sx={{ overscrollBehaviorY: 'none', backdropFilter: 'blur(3px)' }}
         >
+            {isOpen && <BackButtonHandler callback={requestClose} />}
             <input type='file' accept='image/*' onChange={uploadImage} ref={uploadImageRef} style={{ display: 'none' }} />
             {isOpen && (
                 <AppBar

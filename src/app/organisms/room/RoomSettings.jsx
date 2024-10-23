@@ -21,7 +21,7 @@ import RoomEmojis from '../../molecules/room-emojis/RoomEmojis';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import PopupWindow from '../../molecules/popup-window/PopupWindow';
 import { getText, translate } from '../../../lang';
-import { useBackButton } from '../../hooks/useBackButton';
+import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
 import { mdiAccount, mdiArrowLeft, mdiClose, mdiCog, mdiEmoticon, mdiLock, mdiShield } from '@mdi/js';
 import Icon from '@mdi/react';
 import { AppBar, Box, Dialog, IconButton, List, ListSubheader, Tab, Tabs, useTheme } from '@mui/material';
@@ -135,8 +135,6 @@ function RoomSettings() {
         setSelectedTab(tabItem);
     };
 
-    useBackButton(requestClose);
-
     return (
         <Dialog
             fullScreen={screenSize === ScreenSize.Mobile}
@@ -145,6 +143,7 @@ function RoomSettings() {
             scroll='body'
             sx={{ backdropFilter: 'blur(3px)' }}
         >
+            {window !== null && <BackButtonHandler callback={requestClose} />}
             {window !== null && (
                 <AppBar position='relative'>
                     <ProminientToolbar>

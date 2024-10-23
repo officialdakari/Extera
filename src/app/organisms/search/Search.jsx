@@ -24,7 +24,7 @@ import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { allRoomsAtom } from '../../state/room-list/roomList';
 import { mDirectAtom } from '../../state/mDirectList';
 import { getText } from '../../../lang';
-import { useBackButton } from '../../hooks/useBackButton';
+import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
 import { mdiClose, mdiMagnify } from '@mdi/js';
 import Icon from '@mdi/react';
 
@@ -200,8 +200,6 @@ function Search() {
         );
     };
 
-    useBackButton(requestClose);
-
     return (
         <RawModal
             className="search-dialog__modal dialog-modal"
@@ -211,6 +209,7 @@ function Search() {
             onRequestClose={requestClose}
             size="small"
         >
+            {isOpen && <BackButtonHandler callback={requestClose} />}
             <div className="search-dialog">
                 <form
                     className="search-dialog__input"

@@ -3,7 +3,6 @@ import { RecipeVariants, recipe } from '@vanilla-extract/recipes';
 import { DefaultReset, color, config, toRem } from 'folds';
 
 export const Attachment = style({
-    borderRadius: config.radii.R400,
     overflow: 'hidden',
     maxWidth: '100%',
     width: toRem(400),

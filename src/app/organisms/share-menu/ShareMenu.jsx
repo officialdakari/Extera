@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { useBackButton } from "../../hooks/useBackButton";
+import { BackButtonHandler, useBackButton } from "../../hooks/useBackButton";
 import { isHidden, useDirects, useRooms } from "../../state/hooks/roomList";
 import { mDirectAtom } from "../../state/mDirectList";
 import { allRoomsAtom } from "../../state/room-list/roomList";
@@ -159,8 +159,6 @@ function ShareMenu() {
         );
     };
 
-    useBackButton(requestClose);
-
     useEffect(() => {
 
     }, [mx, rooms, directs, mDirects, allRoomsAtom, mDirectAtom]);
@@ -170,29 +168,13 @@ function ShareMenu() {
             open={isOpen}
             onClose={requestClose}
         >
+            {isOpen && <BackButtonHandler callback={requestClose} />}
             <ScrollView autoHide>
                 <div className="share-menu-dialog__content">
                     {Array.isArray(result) && result.map(renderRoomSelector)}
                 </div>
             </ScrollView>
         </Dialog>
-        // <RawModal
-        //     className="share-menu-dialog__modal dialog-modal"
-        //     isOpen={isOpen}
-        //     onAfterOpen={handleAfterOpen}
-        //     onRequestClose={requestClose}
-        //     size="small"
-        // >
-        //     <div className="share-menu-dialog">
-        //         <div className="share-menu-dialog__content-wrapper">
-        //             <ScrollView autoHide>
-        //                 <div className="share-menu-dialog__content">
-        //                     {Array.isArray(result) && result.map(renderRoomSelector)}
-        //                 </div>
-        //             </ScrollView>
-        //         </div>
-        //     </div>
-        // </RawModal>
     );
 }
 

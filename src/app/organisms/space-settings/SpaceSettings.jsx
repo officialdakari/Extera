@@ -19,7 +19,7 @@ import RoomEmojis from '../../molecules/room-emojis/RoomEmojis';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { getText, translate } from '../../../lang';
-import { useBackButton } from '../../hooks/useBackButton';
+import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
 import { mdiAccount, mdiArrowLeft, mdiClose, mdiCog, mdiEmoticon, mdiShield } from '@mdi/js';
 import { AppBar, Box, Dialog, DialogContent, DialogTitle, IconButton, styled, Tab, Tabs, Toolbar, Typography, useTheme } from '@mui/material';
 import { Close } from '@mui/icons-material';
@@ -114,8 +114,6 @@ function SpaceSettings() {
         setSelectedTab(tabItem);
     };
 
-    useBackButton(requestClose);
-
     return (
         <Dialog
             open={isOpen}
@@ -124,6 +122,7 @@ function SpaceSettings() {
             fullScreen={screenSize === ScreenSize.Mobile}
             sx={{ backdropFilter: 'blur(3px)' }}
         >
+            {isOpen && <BackButtonHandler callback={requestClose} />}
             <AppBar sx={{ position: 'relative' }}>
                 <ProminientToolbar>
                     <div style={{ flexGrow: 1, alignSelf: 'flex-end' }}>

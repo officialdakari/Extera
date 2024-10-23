@@ -12,7 +12,7 @@ import RoomTile from '../../molecules/room-tile/RoomTile';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getDMRoomFor, getRoomNameOrId } from '../../utils/matrix';
 import { getText } from '../../../lang';
-import { useBackButton } from '../../hooks/useBackButton';
+import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
 import { mdiAccount, mdiClose } from '@mdi/js';
 import { AppBar, Button, CircularProgress, Dialog, DialogContent, Divider, IconButton, LinearProgress, TextField, Toolbar, Typography } from '@mui/material';
 import { Close } from '@mui/icons-material';
@@ -245,13 +245,12 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
         };
     }, [isOpen, searchTerm]);
 
-    useBackButton(onRequestClose);
-
     return (
         <Dialog
             open={isOpen}
             onClose={onRequestClose}
         >
+            {isOpen && <BackButtonHandler callback={onRequestClose} />}
             <AppBar position='relative'>
                 <Toolbar>
                     <Typography

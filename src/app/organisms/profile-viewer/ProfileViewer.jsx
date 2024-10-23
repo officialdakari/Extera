@@ -29,7 +29,7 @@ import { getDMRoomFor, getMxIdLocalPart, getMxIdServer } from '../../utils/matri
 import { EventTimeline } from 'matrix-js-sdk';
 import Banner from './Banner';
 import { getText, translate } from '../../../lang';
-import { useBackButton } from '../../hooks/useBackButton';
+import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
 import { VerificationBadge } from '../../components/verification-badge/VerificationBadge';
 import { Box } from 'folds';
 import { mdiAccountCancelOutline, mdiAccountMinusOutline, mdiAccountPlusOutline, mdiBlockHelper, mdiCheck, mdiChevronDown, mdiChevronRight, mdiClose, mdiMessageOutline, mdiPlusCircleOutline, mdiShieldOutline } from '@mdi/js';
@@ -621,15 +621,12 @@ function ProfileViewer() {
         );
     };
 
-    useBackButton(closeDialog);
-
     return (
         <Dialog
-            //fullScreen={screenSize === ScreenSize.Mobile}
             open={isOpen}
             onClose={closeDialog}
-
         >
+            {isOpen && <BackButtonHandler callback={closeDialog} />}
             {roomId ? renderProfile() : <div />}
         </Dialog>
     );
