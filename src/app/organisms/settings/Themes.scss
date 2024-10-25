@@ -1,0 +1,11 @@
+@import '../../partials/dir';
+@import '../../partials/flex';
+@import '../../partials/screen';
+@import '../../partials/text';
+
+form {
+    margin: var(--sp-extra-tight) 0 var(--sp-normal);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-tight);
+}

@@ -1002,5 +1002,10 @@
     "btn.unvote": "Unvote",
     "btn.vote": "Vote",
     "btn.vote.submit": "Submit",
-    "btn.vote.cancel": "Cancel"
+    "btn.vote.cancel": "Cancel",
+    "title.add_theme": "New theme",
+    "label.theme_name": "Name",
+    "label.theme_url": "URL",
+    "btn.add_theme": "Add",
+    "header.extera_customization.themes": "Themes"
 }

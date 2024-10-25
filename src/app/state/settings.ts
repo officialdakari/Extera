@@ -5,6 +5,18 @@ const STORAGE_KEY = 'settings';
 export type MessageSpacing = '0' | '100' | '200' | '300' | '400' | '500';
 export type MessageLayout = 0 | 1 | 2;
 
+type Plugin = {
+    url: string;
+    name: string;
+    enabled: boolean;
+};
+
+type Theme = {
+    url: string;
+    name: string;
+    enabled: boolean;
+};
+
 export interface Settings {
     themeIndex: number;
     useSystemTheme: boolean;
@@ -41,6 +53,9 @@ export interface Settings {
     replyFallbacks: boolean;
     voiceMessages: boolean;
     ignorePolicies: boolean;
+
+    plugins: Plugin[];
+    themes: Theme[];
 }
 
 const defaultSettings: Settings = {
@@ -78,7 +93,10 @@ const defaultSettings: Settings = {
     hideEmojiAdvert: false,
     replyFallbacks: false,
     voiceMessages: true,
-    ignorePolicies: false
+    ignorePolicies: false,
+
+    plugins: [],
+    themes: [],
 };
 
 export const getSettings = () => {

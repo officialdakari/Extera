@@ -8,6 +8,7 @@ import 'tippy.js/animations/scale-extreme.css';
 import Text from '../text/Text';
 import Button from '../button/Button';
 import ScrollView from '../scroll/ScrollView';
+import { Typography } from '@mui/material';
 
 function ContextMenu({
     content, placement, maxWidth, render, afterToggle,
@@ -61,7 +62,7 @@ ContextMenu.propTypes = {
 function MenuHeader({ children }) {
     return (
         <div className="context-menu__header">
-            <Text variant="b3">{children}</Text>
+            <Typography variant='subtitle2' color='textDisabled'>{children}</Typography>
         </div>
     );
 }

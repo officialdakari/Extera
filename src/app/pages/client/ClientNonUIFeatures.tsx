@@ -117,6 +117,16 @@ function InviteNotifications() {
     );
 }
 
+function CustomThemes() {
+    const [themes, setThemes] = useSetting(settingsAtom, 'themes');
+
+    return themes.map(
+        theme => (
+            theme.enabled && <link rel='stylesheet' href={theme.url} />
+        )
+    );
+}
+
 function MessageNotifications() {
     const audioRef = useRef<HTMLAudioElement>(null);
     const notifRef = useRef<Notification>();
@@ -637,6 +647,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
     return (
         <>
             <FaviconUpdater />
+            <CustomThemes />
 
             {!pushes && (typeof window.Notification !== 'undefined' || typeof (window as any).cordova?.plugins?.notification?.local) && (
                 <>

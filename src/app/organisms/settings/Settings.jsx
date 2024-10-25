@@ -57,6 +57,7 @@ import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 import { AnimatePresence } from 'framer-motion';
 import { AnimatedLayout } from '../../components/page';
 import useCordova from '../../hooks/cordova';
+import Themes from './Themes';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
@@ -477,6 +478,12 @@ function ExteraSection() {
                     )}
                     content={<Text variant="b3">{getText('settings.reply_fallbacks.desc')}</Text>}
                 />
+            </div>
+            <div className='settings-extera__card'>
+                <MenuHeader>
+                    {getText('header.extera_customization.themes')}
+                </MenuHeader>
+                <Themes />
             </div>
         </div>
     );
