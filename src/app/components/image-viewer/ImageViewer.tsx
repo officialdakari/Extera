@@ -7,7 +7,7 @@ import * as css from './ImageViewer.css';
 import { useZoom } from '../../hooks/useZoom';
 import { usePan } from '../../hooks/usePan';
 import { getText } from '../../../lang';
-import { useBackButton } from '../../hooks/useBackButton';
+import { useBackButton, BackButtonHandler } from '../../hooks/useBackButton';
 import { saveFile } from '../../utils/saveFile';
 import Icon from '@mdi/react';
 import { mdiArrowLeft, mdiClose, mdiDownload, mdiMinus, mdiPlus } from '@mdi/js';
@@ -29,10 +29,6 @@ export const ImageViewer = as<'div', ImageViewerProps>(
             saveFile(src, alt);
         };
 
-        useBackButton(() => {
-            requestClose();
-        });
-
         return (
             <Box
                 className={classNames(css.ImageViewer, className)}
@@ -40,6 +36,7 @@ export const ImageViewer = as<'div', ImageViewerProps>(
                 {...props}
                 ref={ref}
             >
+                <BackButtonHandler callback={requestClose} />
                 <AppBar position='static'>
                     <Toolbar>
                         <IconButton onClick={requestClose}>

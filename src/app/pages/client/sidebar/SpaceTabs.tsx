@@ -413,7 +413,7 @@ function SpaceTab({
                         onClick={(evt) => onClick(evt as any)}
                     >
                         <ListItemIcon>
-                            <Badge color={unread?.highlight ? 'error' : 'info'} badgeContent={unread?.total} max={99}>
+                            <Badge color={unread?.highlight ? 'error' : 'primary'} badgeContent={unread?.total} max={99}>
                                 <SidebarAvatar
                                     as="button"
                                     size={folder ? '300' : '400'}
