@@ -209,7 +209,7 @@ function Search() {
             onRequestClose={requestClose}
             size="small"
         >
-            {isOpen && <BackButtonHandler callback={requestClose} />}
+            {isOpen && <BackButtonHandler callback={requestClose} id='ck-search' />}
             <div className="search-dialog">
                 <form
                     className="search-dialog__input"

@@ -168,7 +168,7 @@ function ShareMenu() {
             open={isOpen}
             onClose={requestClose}
         >
-            {isOpen && <BackButtonHandler callback={requestClose} />}
+            {isOpen && <BackButtonHandler callback={requestClose} id='share-menu' />}
             <ScrollView autoHide>
                 <div className="share-menu-dialog__content">
                     {Array.isArray(result) && result.map(renderRoomSelector)}

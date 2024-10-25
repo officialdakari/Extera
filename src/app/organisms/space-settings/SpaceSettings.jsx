@@ -122,7 +122,7 @@ function SpaceSettings() {
             fullScreen={screenSize === ScreenSize.Mobile}
             sx={{ backdropFilter: 'blur(3px)' }}
         >
-            {isOpen && <BackButtonHandler callback={requestClose} />}
+            {isOpen && <BackButtonHandler callback={requestClose} id='space-settings' />}
             <AppBar sx={{ position: 'relative' }}>
                 <ProminientToolbar>
                     <div style={{ flexGrow: 1, alignSelf: 'flex-end' }}>

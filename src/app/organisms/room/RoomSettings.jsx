@@ -143,7 +143,7 @@ function RoomSettings() {
             scroll='body'
             sx={{ backdropFilter: 'blur(3px)' }}
         >
-            {window !== null && <BackButtonHandler callback={requestClose} />}
+            {window !== null && <BackButtonHandler callback={requestClose} id='room-settings' />}
             {window !== null && (
                 <AppBar position='relative'>
                     <ProminientToolbar>

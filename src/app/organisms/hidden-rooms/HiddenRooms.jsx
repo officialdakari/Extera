@@ -114,7 +114,7 @@ function HiddenRooms() {
             onRequestClose={requestClose}
             size="small"
         >
-            {isOpen && <BackButtonHandler callback={requestClose} />}
+            {isOpen && <BackButtonHandler callback={requestClose} id='hidden-rooms' />}
             <div className="hidden-rooms-dialog">
                 <div className="hidden-rooms-dialog__content-wrapper">
                     <ScrollView autoHide>

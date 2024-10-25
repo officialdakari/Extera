@@ -43,6 +43,36 @@
 <body id="appBody">
     <script>
         window.global ||= window;
+        (function () {
+            let stateSymbol = "__state__index__";
+            history.stateIndex = -1;
+            history.states = [];
+            let pushState = history.pushState;
+            function add(data, title, url) {
+                if (data == null) data = {};
+                if (typeof data != "object") data = { data: data };
+                data[stateSymbol] = (history.stateIndex + 1);
+                history.states.splice(history.stateIndex + 1, 0, [data, title, url])
+                history.states.splice(history.stateIndex + 2)
+                history.stateIndex++;
+            }
+            history.pushState = function (data, title, url = null) {
+                add(data, title, url);
+                pushState.bind(history)(data, title, url);
+            }
+            addEventListener("popstate", function (e) {
+                var eventObject = {};
+                var newStateIndex = e.state != null ? e.state[stateSymbol] : -1;
+                eventObject.from = history.states[history.stateIndex];
+                eventObject.to = newStateIndex > -1 ? history.states[newStateIndex] : null;
+                eventObject.side = history.stateIndex > newStateIndex ? "back" : "forward";
+                if (newStateIndex > -1 && !(newStateIndex in history.states)) {
+                    add(history.state, "", window.location.href);
+                }
+                window.dispatchEvent(new CustomEvent("historyChange", { detail: eventObject }))
+                history.stateIndex = e.state != null ? e.state[stateSymbol] : -1;
+            });
+        })();
     </script>
     <div id="root"></div>
     <script type="module" src="./src/index.tsx"></script>

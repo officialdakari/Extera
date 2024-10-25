@@ -901,7 +901,7 @@ function Settings() {
             scroll='body'
             sx={{ overscrollBehaviorY: 'none', backdropFilter: 'blur(3px)' }}
         >
-            {isOpen && <BackButtonHandler callback={requestClose} />}
+            {isOpen && <BackButtonHandler callback={requestClose} id='settings' />}
             <input type='file' accept='image/*' onChange={uploadImage} ref={uploadImageRef} style={{ display: 'none' }} />
             {isOpen && (
                 <AppBar

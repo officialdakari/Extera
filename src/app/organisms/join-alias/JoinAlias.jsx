@@ -137,7 +137,7 @@ function JoinAlias() {
             contentOptions={<IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />}
             onRequestClose={requestClose}
         >
-            {data !== null && <BackButtonHandler callback={requestClose} />}
+            {data !== null && <BackButtonHandler callback={requestClose} id='join-alias' />}
             {data ? <JoinAliasContent term={data.term} requestClose={requestClose} /> : <div />}
         </Dialog>
     );

@@ -626,7 +626,7 @@ function ProfileViewer() {
             open={isOpen}
             onClose={closeDialog}
         >
-            {isOpen && <BackButtonHandler callback={closeDialog} />}
+            {isOpen && <BackButtonHandler callback={closeDialog} id='profile-viewer' />}
             {roomId ? renderProfile() : <div />}
         </Dialog>
     );

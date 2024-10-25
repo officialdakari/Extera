@@ -178,7 +178,7 @@ export const MessageReadReceiptItem = as<
                 open={open}
                 onClose={handleClose}
             >
-                {open && <BackButtonHandler callback={handleClose} />}
+                {open && <BackButtonHandler callback={handleClose} id='msg-readers-list' />}
                 <AppBar position='relative'>
                     <Toolbar>
                         <Typography
@@ -255,7 +255,7 @@ export const MessageSourceCodeItem = as<
         onClose?.();
     };
 
-    useBackButton(handleClose);
+    useBackButton(handleClose, 'source-code');
 
     return (
         <>
@@ -531,7 +531,7 @@ export const MessageRecoverItem = as<
                 open={open}
                 onClose={handleClose}
             >
-                {open && <BackButtonHandler callback={handleClose} />}
+                {open && <BackButtonHandler callback={handleClose} id='msg-recover' />}
                 <DialogTitle>{getText('recovered.title')}</DialogTitle>
                 <DialogContent>
                     {message}
@@ -662,7 +662,7 @@ export const MessageTranslateItem = as<
                 open={open}
                 onClose={handleClose}
             >
-                {open && <BackButtonHandler callback={handleClose} />}
+                {open && <BackButtonHandler callback={handleClose} id='msg-translated' />}
                 <DialogTitle>{getText('translated.title')}</DialogTitle>
                 <DialogContent>
                     {message}
@@ -847,7 +847,7 @@ export const MessageDeleteItem = as<
                     onSubmit: handleSubmit
                 }}
             >
-                {open && <BackButtonHandler callback={handleClose} />}
+                {open && <BackButtonHandler callback={handleClose} id='meg-delete' />}
                 <DialogTitle>
                     {getText('msg_redact.title')}
                 </DialogTitle>

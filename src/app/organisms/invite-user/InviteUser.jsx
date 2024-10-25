@@ -250,7 +250,7 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
             open={isOpen}
             onClose={onRequestClose}
         >
-            {isOpen && <BackButtonHandler callback={onRequestClose} />}
+            {isOpen && <BackButtonHandler callback={onRequestClose} id='invite-user' />}
             <AppBar position='relative'>
                 <Toolbar>
                     <Typography

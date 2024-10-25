@@ -36,7 +36,7 @@ export const ImageViewer = as<'div', ImageViewerProps>(
                 {...props}
                 ref={ref}
             >
-                <BackButtonHandler callback={requestClose} />
+                <BackButtonHandler callback={requestClose} id='image-viewer' />
                 <AppBar position='static'>
                     <Toolbar>
                         <IconButton onClick={requestClose}>

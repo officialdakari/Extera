@@ -261,7 +261,7 @@ function CreateRoom() {
             open={create !== null}
             onRequestClose={onRequestClose}
         >
-            {create !== null && <BackButtonHandler callback={onRequestClose} />}
+            {create !== null && <BackButtonHandler callback={onRequestClose} id='create-room' />}
             <AppBar position='relative'>
                 <Toolbar>
                     <Typography variant='h6' component='div' flexGrow={1}>
