@@ -1,5 +1,5 @@
 import React, { MouseEventHandler, useCallback, useMemo, useRef, useState } from 'react';
-import { Box, IconButton, Line, Scroll, config } from 'folds';
+import { Box, Scroll, config } from 'folds';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useAtom, useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router-dom';
@@ -51,6 +51,9 @@ import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiChevronUp } from '@mdi/js';
 import { RoomJoinRulesEventContent } from 'matrix-js-sdk/lib/types';
+import { Divider, Fab, IconButton } from '@mui/material';
+import { ArrowUpward } from '@mui/icons-material';
+import { AnimatePresence } from 'framer-motion';
 
 export function Lobby() {
     const navigate = useNavigate();
@@ -378,16 +381,13 @@ export function Lobby() {
                                         anchorRef={heroSectionRef}
                                         onVisibilityChange={setOnTop}
                                     >
-                                        <IconButton
-                                            onClick={() => virtualizer.scrollToOffset(0)}
-                                            variant="SurfaceVariant"
-                                            radii="Pill"
-                                            outlined
-                                            size="300"
+                                        <Fab
+                                            size='small'
                                             aria-label={getText('aria.scroll_to_top')}
+                                            onClick={() => virtualizer.scrollToOffset(0)}
                                         >
-                                            <Icon size={1} path={mdiChevronUp} />
-                                        </IconButton>
+                                            <ArrowUpward />
+                                        </Fab>
                                     </ScrollTopContainer>
                                     <div
                                         style={{
@@ -524,12 +524,14 @@ export function Lobby() {
                         </Scroll>
                     </Box>
                 </Page>
-                {screenSize === ScreenSize.Desktop && isDrawer && (
-                    <>
-                        <Line variant="Background" direction="Vertical" size="300" />
-                        <MembersDrawer room={space} />
-                    </>
-                )}
+                <AnimatePresence>
+                    {screenSize === ScreenSize.Desktop && isDrawer && (
+                        <>
+                            <Divider orientation='vertical' />
+                            <MembersDrawer room={space} />
+                        </>
+                    )}
+                </AnimatePresence>
             </Box>
         </PowerLevelsContextProvider>
     );

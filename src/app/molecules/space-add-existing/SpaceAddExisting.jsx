@@ -10,14 +10,6 @@ import { joinRuleToIconSrc, getIdServer, genRoomVia } from '../../../util/matrix
 import { Debounce } from '../../../util/common';
 
 import Text from '../../atoms/text/Text';
-import RawIcon from '../../atoms/system-icons/RawIcon';
-import Button from '../../atoms/button/Button';
-import IconButton from '../../atoms/button/IconButton';
-import Checkbox from '../../atoms/button/Checkbox';
-import Input from '../../atoms/input/Input';
-import Spinner from '../../atoms/spinner/Spinner';
-import RoomSelector from '../room-selector/RoomSelector';
-import Dialog from '../dialog/Dialog';
 
 import { useStore } from '../../hooks/useStore';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
@@ -27,6 +19,12 @@ import { mDirectAtom } from '../../state/mDirectList';
 import { getText } from '../../../lang';
 import { mdiClose, mdiMagnify } from '@mdi/js';
 import Icon from '@mdi/react';
+import { AppBar, Box, Button, Checkbox, CircularProgress, Dialog, IconButton, Toolbar, Typography, useTheme } from '@mui/material';
+import { SearchContainer, SearchIcon, SearchIconWrapper, SearchInputBase } from '../../atoms/search/Search';
+import RoomSelector from '../room-selector/RoomSelector';
+import { Close } from '@mui/icons-material';
+import { BackButtonHandler } from '../../hooks/useBackButton';
+import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 
 function SpaceAddExistingContent({ roomId, spaces: onlySpaces }) {
     const mountStore = useStore(roomId);
@@ -121,19 +119,29 @@ function SpaceAddExistingContent({ roomId, spaces: onlySpaces }) {
         btn.parentElement.searchInput.value = '';
         setSearchIds(null);
     };
+    const theme = useTheme();
 
     return (
-        <>
+        <Box bgcolor='background.paper'>
             <form
                 onSubmit={(ev) => {
                     ev.preventDefault();
                 }}
+                style={{ backgroundColor: theme.palette.background.paper }}
             >
-                <Icon size={0.7} path={mdiMagnify} />
-                <Input name="searchInput" onChange={handleSearch} placeholder={getText('placeholder.search_room')} autoFocus />
-                <IconButton size="small" type="button" onClick={handleSearchClear} src={mdiClose} />
+                <SearchContainer sx={{ flexGrow: 1 }}>
+                    <SearchIconWrapper>
+                        <SearchIcon />
+                    </SearchIconWrapper>
+                    <SearchInputBase
+                        name='searchInput'
+                        onChange={handleSearch}
+                        placeholder={getText('placeholder.search_room')}
+                        autoFocus
+                    />
+                </SearchContainer>
             </form>
-            {searchIds?.length === 0 && <Text>{getText('generic.no_results.2')}</Text>}
+            {searchIds?.length === 0 && <Typography color='error'>{getText('generic.no_results.2')}</Typography>}
             {(searchIds || allRoomIds).map((rId) => {
                 const room = mx.getRoom(rId);
                 let imageSrc =
@@ -164,9 +172,8 @@ function SpaceAddExistingContent({ roomId, spaces: onlySpaces }) {
                         onClick={handleSelect}
                         options={
                             <Checkbox
-                                isActive={selected.includes(rId)}
-                                variant="positive"
-                                onToggle={handleSelect}
+                                checked={selected.includes(rId)}
+                                onClick={handleSelect}
                                 tabIndex={-1}
                                 disabled={process !== null}
                             />
@@ -175,17 +182,17 @@ function SpaceAddExistingContent({ roomId, spaces: onlySpaces }) {
                 );
             })}
             {selected.length !== 0 && (
-                <div className="space-add-existing__footer">
-                    {process && <Spinner size="small" />}
-                    <Text weight="medium">{process || getText('space_add_existing.item_selected', selected.length)}</Text>
+                <div className="space-add-existing__footer" style={{ backgroundColor: theme.palette.background.paper }}>
+                    {process && <CircularProgress />}
+                    <Typography flexGrow={1}>{process || getText('space_add_existing.item_selected', selected.length)}</Typography>
                     {!process && (
-                        <Button onClick={handleAdd} variant="primary">
+                        <Button onClick={handleAdd} variant="contained">
                             {getText('btn.space_add_existing.add')}
                         </Button>
                     )}
                 </div>
             )}
-        </>
+        </Box>
     );
 }
 SpaceAddExistingContent.propTypes = {
@@ -217,15 +224,20 @@ function SpaceAddExisting() {
     const [data, requestClose] = useVisibilityToggle();
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(data?.roomId);
+    const screenSize = useScreenSize();
 
     return (
         <Dialog
-            isOpen={!!room}
+            open={!!room}
             className="space-add-existing"
-            title={
-                <Text variant="s1" weight="medium" primary>
-                    {room && room.name}
-                    <span style={{ color: 'var(--tc-surface-low)' }}>
+            onRequestClose={requestClose}
+            fullScreen={screenSize === ScreenSize.Mobile}
+        >
+            <BackButtonHandler callback={requestClose} id='space-add-existing' />
+            <AppBar position='static'>
+                <Toolbar>
+                    <Typography variant='h6' component='div' flexGrow={1}>
+                        {room && room.name}
                         {
                             getText(
                                 'space_add_existing.tip',
@@ -236,12 +248,12 @@ function SpaceAddExisting() {
                                 )
                             )
                         }
-                    </span>
-                </Text>
-            }
-            contentOptions={<IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />}
-            onRequestClose={requestClose}
-        >
+                    </Typography>
+                    <IconButton onClick={requestClose}>
+                        <Close />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
             {room ? <SpaceAddExistingContent roomId={room.roomId} spaces={data.spaces} /> : <div />}
         </Dialog>
     );

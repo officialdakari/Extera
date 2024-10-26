@@ -73,6 +73,7 @@ import { ScrollTopContainer } from '../../components/scroll-top-container';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import AsyncLoadMessage from './AsyncLoadMessage';
 import PinnedMessages from './PinnedMessages';
+import { BackButtonHandler } from '../../hooks/useBackButton';
 
 type RoomMenuProps = {
     room: Room;
@@ -528,6 +529,7 @@ export function RoomViewHeader({
                                                     open={viewTopic}
                                                     onClose={() => setViewTopic(false)}
                                                 >
+                                                    <BackButtonHandler callback={() => setViewTopic(false)} id='room-topic' />
                                                     <RoomTopicViewer
                                                         name={name}
                                                         topic={topic ?? statusMessage}

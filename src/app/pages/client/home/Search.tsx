@@ -6,6 +6,8 @@ import { MessageSearch } from '../../../features/message-search';
 import { useHomeRooms } from './useHomeRooms';
 import { getText } from '../../../../lang';
 import { mdiMagnify } from '@mdi/js';
+import { AppBar, IconButton, Toolbar, Typography } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
 
 export function HomeSearch() {
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -13,14 +15,16 @@ export function HomeSearch() {
 
     return (
         <Page>
-            <PageHeader>
-                <Box grow="Yes" justifyContent="Center" alignItems="Center" gap="200">
-                    <MDIcon size={1} path={mdiMagnify} />
-                    <Text size="H3">
+            <AppBar position='static'>
+                <Toolbar>
+                    <IconButton onClick={() => history.back()}>
+                        <ArrowBack />
+                    </IconButton>
+                    <Typography variant='h6'>
                         {getText('msg_search.title')}
-                    </Text>
-                </Box>
-            </PageHeader>
+                    </Typography>
+                </Toolbar>
+            </AppBar>
             <Box style={{ position: 'relative' }} grow="Yes">
                 <Scroll ref={scrollRef} hideTrack visibility="Hover">
                     <PageContent>

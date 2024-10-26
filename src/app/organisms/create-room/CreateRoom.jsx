@@ -150,6 +150,7 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                         )
                     )} />}
                     onChange={handleJoinRule}
+                    fullWidth
                 />
                 {joinRule === 'public' && (
                     <>
