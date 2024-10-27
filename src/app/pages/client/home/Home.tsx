@@ -19,7 +19,7 @@ import Icon, { Icon as MDIcon } from '@mdi/react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useAtom, useAtomValue } from 'jotai';
 import FocusTrap from 'focus-trap-react';
-import { factoryRoomIdByActivity, factoryRoomIdByAtoZ } from '../../../utils/sort';
+import { factoryRoomIdByActivity, factoryRoomIdByAtoZ, factoryRoomIdByUnreadCount } from '../../../utils/sort';
 import {
     NavButton,
     NavCategory,
@@ -201,25 +201,20 @@ export function Home() {
     const roomToUnread = useAtomValue(roomToUnreadAtom);
 
     const selectedRoomId = useSelectedRoom();
-    const searchSelected = useHomeSearchSelected();
     const noRoomToDisplay = rooms.length === 0;
-    const [closedCategories, setClosedCategories] = useAtom(useClosedNavCategoriesAtom());
 
     const sortedRooms = useMemo(() => {
         const items = Array.from(rooms).sort(
-            factoryRoomIdByActivity(mx)
+            factoryRoomIdByUnreadCount((roomId: string) => (roomToUnread.get(roomId)?.total || 0))
         );
-        if (closedCategories.has(DEFAULT_CATEGORY_ID)) {
-            return items.filter((rId) => roomToUnread.has(rId) || rId === selectedRoomId);
-        }
-        return items.filter((room) => !isHidden(mx, room));
-    }, [mx, rooms, closedCategories, roomToUnread, selectedRoomId]);
+        return items;
+    }, [mx, rooms, roomToUnread, selectedRoomId]);
 
     const virtualizer = useVirtualizer({
         count: sortedRooms.length,
         getScrollElement: () => scrollRef.current,
         estimateSize: () => 38,
-        overscan: 10,
+        overscan: 10
     });
 
     return (
@@ -252,7 +247,7 @@ export function Home() {
                                             <RoomNavItem
                                                 room={room}
                                                 selected={selected}
-                                                showAvatar={true}
+                                                showAvatar
                                                 linkPath={getHomeRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
                                                 muted={mutedRooms.includes(roomId)}
                                             />

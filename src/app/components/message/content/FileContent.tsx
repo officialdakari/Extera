@@ -29,8 +29,9 @@ import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiAlert, mdiArrowDownBold, mdiArrowRight, mdiDownload } from '@mdi/js';
 import { saveFile, useDownloadStatus } from '../../../utils/saveFile';
-import { Button, Tooltip } from '@mui/material';
+import { Button, Dialog, Tooltip } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { BackButtonHandler } from '../../../hooks/useBackButton';
 
 const renderErrorButton = (retry: () => void, text: string) => (
     <Tooltip title={getText('msg.file.failed')}>
@@ -82,32 +83,20 @@ export function ReadTextFile({ body, mimeType, url, encInfo, renderViewer, forma
     return (
         <>
             {textState.status === AsyncStatus.Success && (
-                <Overlay open={textViewer} backdrop={<OverlayBackdrop />}>
-                    <OverlayCenter>
-                        <FocusTrap
-                            focusTrapOptions={{
-                                initialFocus: false,
-                                onDeactivate: () => setTextViewer(false),
-                                clickOutsideDeactivates: true,
-                            }}
-                        >
-                            <Modal
-                                className={css.ModalWide}
-                                size="500"
-                                onContextMenu={(evt: any) => evt.stopPropagation()}
-                            >
-                                {renderViewer({
-                                    name: filename ?? body,
-                                    text: textState.data,
-                                    langName: READABLE_TEXT_MIME_TYPES.includes(mimeType)
-                                        ? mimeTypeToExt(mimeType)
-                                        : mimeTypeToExt(READABLE_EXT_TO_MIME_TYPE[getFileNameExt(body)] ?? mimeType),
-                                    requestClose: () => setTextViewer(false),
-                                })}
-                            </Modal>
-                        </FocusTrap>
-                    </OverlayCenter>
-                </Overlay>
+                <Dialog
+                    open={textViewer}
+                    onClose={() => setTextViewer(false)}
+                >
+                    {textViewer && <BackButtonHandler callback={() => setTextViewer(false)} id='file-viewer' />}
+                    {renderViewer({
+                        name: filename ?? body,
+                        text: textState.data,
+                        langName: READABLE_TEXT_MIME_TYPES.includes(mimeType)
+                            ? mimeTypeToExt(mimeType)
+                            : mimeTypeToExt(READABLE_EXT_TO_MIME_TYPE[getFileNameExt(body)] ?? mimeType),
+                        requestClose: () => setTextViewer(false),
+                    })}
+                </Dialog>
             )}
             {textState.status === AsyncStatus.Error ? (
                 renderErrorButton(loadText, getText('btn.open_file'))

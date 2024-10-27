@@ -20,7 +20,7 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import FocusTrap from 'focus-trap-react';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { factoryRoomIdByActivity } from '../../../utils/sort';
+import { factoryRoomIdByActivity, factoryRoomIdByUnreadCount } from '../../../utils/sort';
 import {
     NavButton,
     NavCategory,
@@ -160,7 +160,6 @@ function DirectEmpty() {
     );
 }
 
-const DEFAULT_CATEGORY_ID = makeNavCategoryId('direct', 'direct');
 export function Direct() {
     const mx = useMatrixClient();
     useNavToActivePathMapper('direct');
@@ -173,15 +172,13 @@ export function Direct() {
 
     const selectedRoomId = useSelectedRoom();
     const noRoomToDisplay = directs.length === 0;
-    const [closedCategories, setClosedCategories] = useAtom(useClosedNavCategoriesAtom());
 
     const sortedDirects = useMemo(() => {
-        const items = Array.from(directs).sort(factoryRoomIdByActivity(mx));
-        if (closedCategories.has(DEFAULT_CATEGORY_ID)) {
-            return items.filter((rId) => roomToUnread.has(rId) || rId === selectedRoomId);
-        }
-        return items.filter((room) => !isHidden(mx, room));
-    }, [mx, directs, closedCategories, roomToUnread, selectedRoomId]);
+        const items = Array.from(directs).sort(
+            factoryRoomIdByUnreadCount((roomId: string) => (roomToUnread.get(roomId)?.total || 0))
+        );
+        return items;
+    }, [mx, directs, roomToUnread, selectedRoomId]);
 
     const virtualizer = useVirtualizer({
         count: sortedDirects.length,
@@ -189,10 +186,6 @@ export function Direct() {
         estimateSize: () => 38,
         overscan: 10,
     });
-
-    const handleCategoryClick = useCategoryHandler(setClosedCategories, (categoryId) =>
-        closedCategories.has(categoryId)
-    );
 
     return (
         <PageNav header={<DirectHeader />}>
