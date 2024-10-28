@@ -532,6 +532,8 @@
     "perms.avatar.desc": "Set minimum power level to change room/space avatar.",
     "perms.name.title": "Change room name",
     "perms.name.desc": "Set minimum power level to change room/space name.",
+    "perms.banner.title": "Change room banner",
+    "perms.banner.desc": "Set minimum power level to change room/space banner.",
     "perms.topic.title": "Change room topic",
     "perms.topic.desc": "Set minimum power level to change room/space topic.",
     "perms.state.title": "Change settings",
