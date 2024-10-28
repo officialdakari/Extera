@@ -299,11 +299,6 @@ async function unban(roomId, userId) {
 }
 
 async function ignore(userIds) {
-    const [ignorePolicies] = useSetting(settingsAtom, 'ignorePolicies');
-    if (ignorePolicies) {
-        addIgnorePolicy(userIds.map(x => ({ type: 'exact', content: x })));
-        return;
-    }
     const mx = initMatrix.matrixClient;
 
     let ignoredUsers = mx.getIgnoredUsers().concat(userIds);
@@ -312,11 +307,6 @@ async function ignore(userIds) {
 }
 
 async function unignore(userIds) {
-    const [ignorePolicies] = useSetting(settingsAtom, 'ignorePolicies');
-    if (ignorePolicies) {
-        removeIgnorePolicy([roomActions.isIgnored(userId)]);
-        return;
-    }
     const mx = initMatrix.matrixClient;
 
     const ignoredUsers = mx.getIgnoredUsers();

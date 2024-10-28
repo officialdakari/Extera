@@ -229,10 +229,6 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
     const [isUserIgnored, setIsUserIgnored] = useState(ignorePolicies ? (roomActions.isIgnored(userId) ? true : false) : initMatrix.matrixClient.isUserIgnored(userId));
     const [isAdmin, setIsAdmin] = useState(false);
 
-    if (ignorePolicies) {
-        useAccountData(cons.IGNORE_POLICIES);
-    }
-
     const isMountedRef = useRef(true);
     const mx = initMatrix.matrixClient;
     const { navigateRoom } = useRoomNavigate();
