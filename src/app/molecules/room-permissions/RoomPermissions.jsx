@@ -81,6 +81,12 @@ const permissionsInfo = {
         description: getText('perms.avatar.desc'),
         default: 50,
     },
+    'page.codeberg.everypizza.room.banner': {
+        parent: 'events',
+        name: getText('perms.banner.title'),
+        description: getText('perms.banner.desc'),
+        default: 50
+    },
     'm.room.name': {
         parent: 'events',
         name: getText('perms.name.title'),
@@ -151,7 +157,7 @@ const permissionsInfo = {
 const roomPermsGroups = {
     [getText('room_perms.general')]: ['users_default', 'events_default', 'm.reaction', 'redact', 'm.room.redaction', 'notifications'],
     [getText('room_perms.members')]: ['invite', 'kick', 'ban'],
-    [getText('room_perms.room_profile')]: ['m.room.avatar', 'm.room.name', 'm.room.topic'],
+    [getText('room_perms.room_profile')]: ['m.room.avatar', 'page.codeberg.everypizza.room.banner', 'm.room.name', 'm.room.topic'],
     [getText('room_perms.settings')]: ['state_default', 'm.room.canonical_alias', 'm.room.power_levels', 'm.room.encryption', 'm.room.history_visibility'],
     [getText('room_perms.other')]: ['m.room.tombstone', 'm.room.pinned_events', 'm.room.server_acl', 'im.vector.modular.widgets'],
 };
@@ -159,7 +165,7 @@ const roomPermsGroups = {
 const spacePermsGroups = {
     [getText('room_perms.general')]: ['users_default', 'm.space.child'],
     [getText('room_perms.members')]: ['invite', 'kick', 'ban'],
-    [getText('space_perms.space_profile')]: ['m.room.avatar', 'm.room.name', 'm.room.topic'],
+    [getText('space_perms.space_profile')]: ['m.room.avatar', 'page.codeberg.everypizza.room.banner', 'm.room.name', 'm.room.topic'],
     [getText('room_perms.settings')]: ['state_default', 'm.room.canonical_alias', 'm.room.power_levels'],
 };
 

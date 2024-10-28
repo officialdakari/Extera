@@ -26,8 +26,9 @@ import { mdiAccount, mdiArrowLeft, mdiClose, mdiCog, mdiEmoticon, mdiLock, mdiSh
 import Icon from '@mdi/react';
 import { AppBar, Box, Dialog, IconButton, List, ListSubheader, Tab, Tabs, useTheme } from '@mui/material';
 import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
-import { Close } from '@mui/icons-material';
+import { Close, HideImage, Image } from '@mui/icons-material';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
+import { useMatrixClient } from '../../hooks/useMatrixClient';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -124,12 +125,15 @@ function a11yProps(index) {
 }
 
 function RoomSettings() {
+    const mx = useMatrixClient();
     const [selectedTab, setSelectedTab] = useState(0);
     const [window, requestClose] = useWindowToggle(setSelectedTab);
     const roomId = window?.roomId;
     const room = initMatrix.matrixClient.getRoom(roomId);
     const screenSize = useScreenSize();
     const theme = useTheme();
+    const bannerMxc = room ? room.currentState.getStateEvents('page.codeberg.everypizza')[0]?.getContent().url : null;
+    const bannerURL = bannerMxc ? mx.mxcUrlToHttp(bannerMxc, false, false, false, false, true, true) : null;
 
     const handleTabChange = (tabItem) => {
         setSelectedTab(tabItem);
@@ -146,7 +150,7 @@ function RoomSettings() {
             {window !== null && <BackButtonHandler callback={requestClose} id='room-settings' />}
             {window !== null && (
                 <AppBar position='relative'>
-                    <ProminientToolbar>
+                    <ProminientToolbar sx={{ background: bannerURL && `url(${bannerURL})` }}>
                         <Box flexGrow={1}>
                             <RoomProfile roomId={roomId} />
                         </Box>

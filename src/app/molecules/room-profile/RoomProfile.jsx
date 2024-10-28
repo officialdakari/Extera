@@ -48,6 +48,7 @@ function RoomProfile({ roomId }) {
     const canChangeAvatar = currentState.maySendStateEvent('m.room.avatar', userId);
     const canChangeName = currentState.maySendStateEvent('m.room.name', userId);
     const canChangeTopic = currentState.maySendStateEvent('m.room.topic', userId);
+    const canChangeBanner = currentState.maySendStateEvent('page.codeberg.everypizza.room.banner', userId);
 
     useEffect(() => {
         isMountStore.setItem(true);
