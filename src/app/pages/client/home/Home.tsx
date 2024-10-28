@@ -205,7 +205,7 @@ export function Home() {
 
     const sortedRooms = useMemo(() => {
         const items = Array.from(rooms).sort(
-            factoryRoomIdByUnreadCount((roomId: string) => (roomToUnread.get(roomId)?.total || 0))
+            factoryRoomIdByActivity(mx)
         );
         return items;
     }, [mx, rooms, roomToUnread, selectedRoomId]);

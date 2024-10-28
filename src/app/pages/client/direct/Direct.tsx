@@ -175,7 +175,7 @@ export function Direct() {
 
     const sortedDirects = useMemo(() => {
         const items = Array.from(directs).sort(
-            factoryRoomIdByUnreadCount((roomId: string) => (roomToUnread.get(roomId)?.total || 0))
+            factoryRoomIdByActivity(mx)
         );
         return items;
     }, [mx, directs, roomToUnread, selectedRoomId]);

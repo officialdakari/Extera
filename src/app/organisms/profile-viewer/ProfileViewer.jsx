@@ -302,8 +302,9 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
             if (isMountedRef.current === false) return;
             setIsUserIgnored(!isIgnored);
             setIsIgnoring(false);
-        } catch {
+        } catch (err) {
             setIsIgnoring(false);
+            console.error('Failed ignore', err);
         }
     };
 
