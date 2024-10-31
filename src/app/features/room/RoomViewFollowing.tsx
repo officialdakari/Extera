@@ -23,9 +23,11 @@ import { EventReaders } from '../../components/event-readers';
 import { getText, translate } from '../../../lang';
 import { mdiCheckAll } from '@mdi/js';
 import Icon from '@mdi/react';
-import { useTheme } from '@mui/material';
+import { AppBar, Dialog, DialogContent, IconButton, Toolbar, Typography, useTheme } from '@mui/material';
 import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
+import { BackButtonHandler } from '../../hooks/useBackButton';
+import { Close } from '@mui/icons-material';
 
 export type RoomViewFollowingProps = {
     room: Room;
@@ -49,21 +51,29 @@ export const RoomViewFollowing = as<'div', RoomViewFollowingProps>(
         return (
             <>
                 {eventId && (
-                    <Overlay open={open} backdrop={<OverlayBackdrop />}>
-                        <OverlayCenter>
-                            <FocusTrap
-                                focusTrapOptions={{
-                                    initialFocus: false,
-                                    onDeactivate: () => setOpen(false),
-                                    clickOutsideDeactivates: true,
-                                }}
-                            >
-                                <Modal variant="Surface" size="300">
-                                    <EventReaders room={room} eventId={eventId} requestClose={() => setOpen(false)} />
-                                </Modal>
-                            </FocusTrap>
-                        </OverlayCenter>
-                    </Overlay>
+                    <Dialog
+                        open={open}
+                        onClose={() => setOpen(false)}
+                    >
+                        {open && <BackButtonHandler callback={() => setOpen(false)} id='room-view-following' />}
+                        <AppBar position='relative'>
+                            <Toolbar>
+                                <Typography
+                                    variant='h6'
+                                    component='div'
+                                    flexGrow={1}
+                                >
+                                    {getText('event_readers.seen_by')}
+                                </Typography>
+                                <IconButton onClick={() => setOpen(false)} edge='end'>
+                                    <Close />
+                                </IconButton>
+                            </Toolbar>
+                        </AppBar>
+                        <DialogContent sx={{ minWidth: '500px' }}>
+                            <EventReaders room={room} eventId={eventId} requestClose={() => setOpen(false)} />
+                        </DialogContent>
+                    </Dialog>
                 )}
                 <Box
                     as={names.length > 0 ? 'button' : 'div'}

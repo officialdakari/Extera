@@ -70,7 +70,6 @@ export function ThreadView({ room, eventId, thread }: { room: Room; eventId?: st
                 <ThreadViewTyping room={room} thread={thread} />
             </Box>
             <Box shrink="No" direction="Column">
-                {newDesignInput && (<ThreadViewFollowing room={room} thread={thread} />)}
                 <div style={!newDesignInput ? { padding: `0 ${config.space.S400}` } : {}}>
                     {tombstoneEvent ? (
                         <RoomTombstone
@@ -94,7 +93,7 @@ export function ThreadView({ room, eventId, thread }: { room: Room; eventId?: st
                         </>
                     )}
                 </div>
-                {!newDesignInput && (<ThreadViewFollowing room={room} thread={thread} />)}
+                {!newDesignInput && <ThreadViewFollowing room={room} thread={thread} />}
             </Box>
         </Page>
     );
