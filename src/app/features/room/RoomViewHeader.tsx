@@ -485,7 +485,7 @@ export function RoomViewHeader({
                     {widgets}
                 </DialogContent>
             </Dialog>
-            <AppBar position='relative'>
+            <AppBar position='relative' >
                 <Toolbar>
                     <Box grow="Yes" gap="300">
                         <Box shrink="No">
