@@ -481,7 +481,7 @@ export function RoomViewHeader({
                         </IconButton>
                     </Toolbar>
                 </AppBar>
-                <DialogContent sx={{ minWidth: '500px', minHeight: '300px' }} dividers>
+                <DialogContent sx={{ minWidth: '500px', minHeight: '300px' }}>
                     {widgets}
                 </DialogContent>
             </Dialog>
