@@ -78,36 +78,36 @@ export default function BottomNav() {
     const handleHomeClick = () => {
         const activePath = navToActivePath.get('home');
         if (activePath && screenSize !== ScreenSize.Mobile) {
-            nav(joinPathComponent(activePath), { state: { prev: value } });
+            nav(joinPathComponent(activePath), { state: { prev: value || 'bottomNav' } });
             return;
         }
 
-        nav(getHomePath(), { replace: true, state: { prev: value } });
+        nav(getHomePath(), { replace: true, state: { prev: value || 'bottomNav' } });
     };
 
     const handleDirectClick = () => {
         const activePath = navToActivePath.get('direct');
         if (activePath && screenSize !== ScreenSize.Mobile) {
-            nav(joinPathComponent(activePath), { replace: true, state: { prev: value } });
+            nav(joinPathComponent(activePath), { replace: true, state: { prev: value || 'bottomNav' } });
             return;
         }
 
-        nav(getDirectPath(), { replace: true, state: { prev: value } });
+        nav(getDirectPath(), { replace: true, state: { prev: value || 'bottomNav' } });
     };
 
     const handleInboxClick = () => {
         if (screenSize === ScreenSize.Mobile) {
-            nav(getInboxPath(), { replace: true, state: { prev: value } });
+            nav(getInboxPath(), { replace: true, state: { prev: value || 'bottomNav' } });
             return;
         }
         const activePath = navToActivePath.get('inbox');
         if (activePath) {
-            nav(joinPathComponent(activePath), { replace: true, state: { prev: value } });
+            nav(joinPathComponent(activePath), { replace: true, state: { prev: value || 'bottomNav' } });
             return;
         }
 
         const path = inviteCount > 0 ? getInboxInvitesPath() : getInboxNotificationsPath();
-        nav(path, { state: { prev: value } });
+        nav(path, { state: { prev: value || 'bottomNav' } });
     };
 
     return (

@@ -172,6 +172,7 @@ export function Direct() {
 
     const selectedRoomId = useSelectedRoom();
     const noRoomToDisplay = directs.length === 0;
+    const prev = history.state?.usr?.prev || '';
 
     const sortedDirects = useMemo(() => {
         const items = Array.from(directs).sort(
@@ -184,11 +185,29 @@ export function Direct() {
         count: sortedDirects.length,
         getScrollElement: () => scrollRef.current,
         estimateSize: () => 38,
-        overscan: 10,
+        overscan: 10
     });
 
     return (
-        <PageNav header={<DirectHeader />}>
+        <PageNav
+            header={<DirectHeader />}
+            variants={{
+                exit: {
+                    translateX: prev == 'rooms' ? '20px' : '-20px',
+                    opacity: 0.3,
+                    transition: {
+                        ease: 'linear'
+                    },
+                },
+                final: {
+                    translateX: 0,
+                    opacity: 1,
+                    transition: {
+                        ease: 'linear'
+                    },
+                }
+            }}
+        >
             <SyncStateAlert />
             {noRoomToDisplay ? (
                 <DirectEmpty />

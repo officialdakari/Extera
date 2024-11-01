@@ -26,8 +26,9 @@ import { VirtualTile } from '../../components/virtualizer';
 import { getText, translate } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiAlertCircleOutline, mdiChevronUp, mdiMessageOutline } from '@mdi/js';
-import { CircularProgress, Divider, Fab, IconButton, LinearProgress } from '@mui/material';
-import { KeyboardArrowUp } from '@mui/icons-material';
+import { Alert, CircularProgress, Divider, Fab, IconButton, LinearProgress, Paper } from '@mui/material';
+import { KeyboardArrowUp, MessageOutlined } from '@mui/icons-material';
+import { SearchIcon } from '../../atoms/search/Search';
 
 const useSearchPathSearchParams = (searchParams: URLSearchParams): _SearchPathSearchParams =>
     useMemo(
@@ -224,40 +225,31 @@ export function MessageSearch({
             </Box>
 
             {!msgSearchParams.term && status === 'pending' && (
-                <Box
-                    className={ContainerColor({ variant: 'SurfaceVariant' })}
-                    style={{
+                <Paper
+                    sx={{
                         padding: config.space.S400,
                         borderRadius: config.radii.R400,
                         minHeight: toRem(450),
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        display: 'flex',
+                        flexDirection: 'column'
                     }}
-                    direction="Column"
-                    alignItems="Center"
-                    justifyContent="Center"
-                    gap="200"
                 >
                     <PageHeroSection>
                         <PageHero
-                            icon={<Icon size={0.8} path={mdiMessageOutline} />}
+                            icon={<SearchIcon />}
                             title={getText('msg_search.title.2')}
                             subTitle={getText('msg_search.subtitle.2')}
                         />
                     </PageHeroSection>
-                </Box>
+                </Paper>
             )}
 
             {msgSearchParams.term && groups.length === 0 && status === 'success' && (
-                <Box
-                    className={ContainerColor({ variant: 'Warning' })}
-                    style={{ padding: config.space.S300, borderRadius: config.radii.R400 }}
-                    alignItems="Center"
-                    gap="200"
-                >
-                    <Icon size={0.8} path={mdiAlertCircleOutline} />
-                    <Text>
-                        {translate('generic.no_results', <b>{`"${msgSearchParams.term}"`}</b>)}
-                    </Text>
-                </Box>
+                <Alert severity='warning'>
+                    {translate('generic.no_results', <b>{`"${msgSearchParams.term}"`}</b>)}
+                </Alert>
             )}
 
             {((msgSearchParams.term && status === 'pending') ||

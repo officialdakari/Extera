@@ -75,11 +75,12 @@ export function PageNavContent({
     children: ReactNode;
     scrollRef?: MutableRefObject<HTMLDivElement | null>;
 }) {
+    const theme = useTheme();
     return (
         <Box grow="Yes" direction="Column">
             <Scroll
+                style={{ backgroundColor: theme.palette.background.default }}
                 ref={scrollRef}
-                variant="Background"
                 direction="Vertical"
                 size="300"
                 hideTrack

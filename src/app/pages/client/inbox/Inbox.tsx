@@ -14,7 +14,7 @@ import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMappe
 import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page';
 import { getText } from '../../../../lang';
 import { mdiEmail, mdiEmailOutline, mdiMail, mdiMailboxOutline, mdiMessageAlert, mdiMessageAlertOutline } from '@mdi/js';
-import { AppBar, IconButton, Toolbar, Typography } from '@mui/material';
+import { AppBar, Badge, IconButton, Toolbar, Typography } from '@mui/material';
 import { ArrowBack, Menu } from '@mui/icons-material';
 import { useNavHidden } from '../../../hooks/useHideableNav';
 import BottomNav from '../BottomNav';
@@ -26,7 +26,7 @@ function InvitesNavItem() {
 
     return (
         <NavItem
-            variant="Background"
+            style={{ background: 'transparent' }}
             radii="400"
             highlight={inviteCount > 0}
             aria-selected={invitesSelected}
@@ -34,15 +34,16 @@ function InvitesNavItem() {
             <NavLink to={getInboxInvitesPath()}>
                 <NavItemContent>
                     <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                        <Avatar size="200" radii="400">
-                            <MDIcon size={1} path={invitesSelected ? mdiEmail : mdiEmailOutline} />
-                        </Avatar>
+                        <Badge max={99} color='error' badgeContent={inviteCount}>
+                            <Avatar size="200" radii="400">
+                                <MDIcon size={1} path={invitesSelected ? mdiEmail : mdiEmailOutline} />
+                            </Avatar>
+                        </Badge>
                         <Box as="span" grow="Yes">
                             <Text as="span" size="Inherit" truncate>
                                 {getText('inbox.invites')}
                             </Text>
                         </Box>
-                        {inviteCount > 0 && <UnreadBadge highlight count={inviteCount} />}
                     </Box>
                 </NavItemContent>
             </NavLink>
@@ -54,26 +55,45 @@ export function Inbox() {
     useNavToActivePathMapper('inbox');
     const notificationsSelected = useInboxNotificationsSelected();
     const [navHidden, setNavHidden] = useNavHidden();
+    const prev = history.state?.usr?.prev;
 
     return (
-        <PageNav>
-            <AppBar color='inherit' enableColorOnDark position='static'>
-                <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
-                    <IconButton
-                        onClick={() => setNavHidden(false)}
-                    >
-                        <Menu />
-                    </IconButton>
-                    <Typography component='div' variant='h6' flexGrow={1}>
-                        {getText('inbox.title')}
-                    </Typography>
-                </Toolbar>
-            </AppBar>
-
+        <PageNav
+            variants={{
+                exit: {
+                    translateX: (prev == 'rooms' || prev == 'dm') ? '20px' : '-20px',
+                    opacity: 0.3,
+                    transition: {
+                        ease: 'linear'
+                    },
+                },
+                final: {
+                    translateX: 0,
+                    opacity: 1,
+                    transition: {
+                        ease: 'linear'
+                    },
+                }
+            }}
+            header={
+                <AppBar color='inherit' enableColorOnDark position='static'>
+                    <Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
+                        <IconButton
+                            onClick={() => setNavHidden(false)}
+                        >
+                            <Menu />
+                        </IconButton>
+                        <Typography component='div' variant='h6' flexGrow={1}>
+                            {getText('inbox.title')}
+                        </Typography>
+                    </Toolbar>
+                </AppBar>
+            }
+        >
             <PageNavContent>
                 <Box direction="Column" gap="300">
                     <NavCategory>
-                        <NavItem variant="Background" radii="400" aria-selected={notificationsSelected}>
+                        <NavItem style={{ background: 'transparent' }} radii="400" aria-selected={notificationsSelected}>
                             <NavLink to={getInboxNotificationsPath()}>
                                 <NavItemContent>
                                     <Box as="span" grow="Yes" alignItems="Center" gap="200">

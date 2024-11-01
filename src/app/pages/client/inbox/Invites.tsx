@@ -2,9 +2,6 @@ import React, { useCallback, useId, useRef, useState } from 'react';
 import {
     Avatar,
     Box,
-    Overlay,
-    OverlayBackdrop,
-    OverlayCenter,
     Scroll,
     Text,
     color,
@@ -39,11 +36,13 @@ import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
 import { useRoomTopic } from '../../../hooks/useRoomMeta';
 import { getText, translate } from '../../../../lang';
 import { mdiMail } from '@mdi/js';
-import { AppBar, Button, CircularProgress, IconButton, Toolbar, Typography } from '@mui/material';
+import { AppBar, Button, CircularProgress, Dialog, IconButton, Toolbar, Typography } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import BottomNav from '../BottomNav';
 import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../../components/BackRouteHandler';
+import { BackButtonHandler } from '../../../hooks/useBackButton';
+import { LoadingButton } from '@mui/lab';
 
 const COMPACT_CARD_WIDTH = 548;
 
@@ -148,23 +147,14 @@ function InviteCard({ room, userId, direct, compact, onNavigate }: InviteCardPro
                                     {topic}
                                 </Text>
                             )}
-                            <Overlay open={viewTopic} backdrop={<OverlayBackdrop />}>
-                                <OverlayCenter>
-                                    <FocusTrap
-                                        focusTrapOptions={{
-                                            initialFocus: false,
-                                            clickOutsideDeactivates: true,
-                                            onDeactivate: closeTopic,
-                                        }}
-                                    >
-                                        <RoomTopicViewer
-                                            name={roomName}
-                                            topic={topic ?? ''}
-                                            requestClose={closeTopic}
-                                        />
-                                    </FocusTrap>
-                                </OverlayCenter>
-                            </Overlay>
+                            <Dialog open={viewTopic} onClose={closeTopic}>
+                                {viewTopic && <BackButtonHandler callback={closeTopic} id='topic-viewer-invites' />}
+                                <RoomTopicViewer
+                                    name={roomName}
+                                    topic={topic || ''}
+                                    requestClose={closeTopic}
+                                />
+                            </Dialog>
                         </Box>
                         {joinState.status === AsyncStatus.Error && (
                             <Text size="T200" style={{ color: color.Critical.Main }}>
@@ -178,33 +168,33 @@ function InviteCard({ room, userId, direct, compact, onNavigate }: InviteCardPro
                         )}
                     </Box>
                     <Box gap="200" shrink="No" alignItems="Center">
-                        <Button
+                        <LoadingButton
                             onClick={leave}
                             color="secondary"
                             variant='outlined'
                             disabled={joining || leaving || ignoring}
-                            startIcon={leaving ? <CircularProgress size='25px' /> : undefined}
+                            loading={leaving}
                         >
                             {getText('btn.decline')}
-                        </Button>
-                        <Button
+                        </LoadingButton>
+                        <LoadingButton
                             onClick={ignore}
                             color="error"
                             variant='outlined'
                             disabled={joining || leaving || ignoring}
-                            startIcon={ignoring ? <CircularProgress size='25px' /> : undefined}
+                            loading={ignoring}
                         >
                             {getText('btn.decline_and_ignore')}
-                        </Button>
-                        <Button
+                        </LoadingButton>
+                        <LoadingButton
                             onClick={join}
                             color="success"
                             variant='contained'
                             disabled={joining || leaving || ignoring}
-                            startIcon={joining ? <CircularProgress size='25px' /> : undefined}
+                            loading={joining}
                         >
                             {getText('btn.accept')}
-                        </Button>
+                        </LoadingButton>
                     </Box>
                 </Box>
             </Box>

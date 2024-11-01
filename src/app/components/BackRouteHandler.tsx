@@ -29,7 +29,7 @@ export function BackRouteHandler({ children }: BackRouteHandlerProps) {
         );
 
         if (threadMatch && threadMatch.params.roomIdOrAlias) {
-            navigateRoom(threadMatch.params.roomIdOrAlias, undefined, { replace: true });
+            navigateRoom(threadMatch.params.roomIdOrAlias, undefined, { replace: true, state: 'back-route' });
             return;
         }
         if (
@@ -42,7 +42,7 @@ export function BackRouteHandler({ children }: BackRouteHandlerProps) {
                 location.pathname
             )
         ) {
-            navigate(getHomePath(), { replace: true });
+            navigate(getHomePath(), { replace: true, state: 'back-route' });
             return;
         }
         if (
@@ -55,7 +55,7 @@ export function BackRouteHandler({ children }: BackRouteHandlerProps) {
                 location.pathname
             )
         ) {
-            navigate(getDirectPath(), { replace: true });
+            navigate(getDirectPath(), { replace: true, state: 'back-route' });
             return;
         }
         const spaceMatch = matchPath(
@@ -80,7 +80,7 @@ export function BackRouteHandler({ children }: BackRouteHandlerProps) {
                 location.pathname
             )
         ) {
-            navigate(getExplorePath(), { replace: true });
+            navigate(getExplorePath(), { replace: true, state: 'back-route' });
             return;
         }
         if (
@@ -93,7 +93,7 @@ export function BackRouteHandler({ children }: BackRouteHandlerProps) {
                 location.pathname
             )
         ) {
-            navigate(getInboxPath(), { replace: true });
+            navigate(getInboxPath(), { replace: true, state: 'back-route' });
         }
     }, [navigate, location]);
 

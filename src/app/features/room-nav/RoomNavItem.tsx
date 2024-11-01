@@ -226,7 +226,7 @@ export function RoomNavItem({
 
     return (
         <NavItem
-            variant="Background"
+            style={{ background: 'transparent' }}
             radii="400"
             highlight={unread !== undefined}
             aria-selected={selected}
