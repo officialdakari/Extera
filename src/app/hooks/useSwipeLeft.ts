@@ -30,7 +30,11 @@ export const useSwipeLeft = (handleReplyId: () => void) => {
                     //  || sideVelocity <= -(window.innerWidth * 0.05 / 250)
                     if ((sideMoved - sideMovedInit) < -(window.innerWidth * 0.15)) {
                         event.preventDefault();
-                        setTimeout(() => handleReplyId(), 100);
+                        setTimeout(() => {
+                            handleReplyId();
+                            setTouchingSide(false);
+                            setAnimate(false);
+                        }, 100);
                     }
                     return 0;
                 });
