@@ -7,7 +7,6 @@ export const Editor = style([
         // backgroundColor: color.SurfaceVariant.Container,
         // color: color.SurfaceVariant.OnContainer,
         boxShadow: `inset 0 0 0 ${config.borderWidth.B300} ${color.SurfaceVariant.ContainerLine}`,
-        borderRadius: config.radii.R400,
         overflow: 'hidden',
     },
 ]);
@@ -31,7 +30,8 @@ export const EditorOptions = style([
 ]);
 
 export const EditorTextareaScroll = style({
-    alignSelf: 'center'
+    alignSelf: 'center',
+    background: 'transparent'
 });
 
 export const EditorTextarea = style([

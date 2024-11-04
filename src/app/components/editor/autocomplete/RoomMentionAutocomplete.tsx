@@ -1,5 +1,5 @@
 import React, { KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect } from 'react';
-import { Avatar, MenuItem, Text } from 'folds';
+import { Avatar, Text } from 'folds';
 import { JoinRule, MatrixClient } from 'matrix-js-sdk';
 import { useAtomValue } from 'jotai';
 
@@ -17,6 +17,8 @@ import { factoryRoomIdByActivity } from '../../../utils/sort';
 import { RoomAvatar, RoomIcon } from '../../room-avatar';
 import Icon from '@mdi/react';
 import { mdiPound } from '@mdi/js';
+import { ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { Tag } from '@mui/icons-material';
 
 type MentionAutoCompleteHandler = (roomAliasOrId: string, name: string) => void;
 
@@ -38,22 +40,18 @@ function UnknownRoomMentionItem({
     const handleSelect = () => handleAutocomplete(roomAlias, roomAlias);
 
     return (
-        <MenuItem
-            as="button"
-            radii="300"
-            onKeyDown={(evt: ReactKeyboardEvent<HTMLButtonElement>) => onTabPress(evt, handleSelect)}
+        <ListItemButton
+            onKeyDown={(evt: ReactKeyboardEvent) => onTabPress(evt, handleSelect)}
             onClick={handleSelect}
             onMouseDown={(evt: any) => { evt.preventDefault() }}
-            before={
-                <Avatar size="200">
-                    <Icon size={0.7} path={mdiPound} />
-                </Avatar>
-            }
         >
+            <ListItemIcon>
+                <Tag />
+            </ListItemIcon>
             <Text style={{ flexGrow: 1 }} size="B400">
                 {roomAlias}
             </Text>
-        </MenuItem>
+        </ListItemButton>
     );
 }
 
@@ -151,22 +149,16 @@ export function RoomMentionAutocomplete({
                     const handleSelect = () => handleAutocomplete(room.getCanonicalAlias() ?? rId, room.name);
 
                     return (
-                        <MenuItem
+                        <ListItemButton
                             key={rId}
-                            as="button"
-                            radii="300"
-                            onKeyDown={(evt: ReactKeyboardEvent<HTMLButtonElement>) =>
+                            onKeyDown={(evt: ReactKeyboardEvent) =>
                                 onTabPress(evt, handleSelect)
                             }
                             onClick={handleSelect}
                             onMouseDown={(evt: any) => { evt.preventDefault() }}
-                            after={
-                                <Text size="T200" priority="300" truncate>
-                                    {room.getCanonicalAlias() ?? ''}
-                                </Text>
-                            }
-                            before={
-                                <Avatar size="200">
+                        >
+                            <ListItemIcon>
+                                <Avatar size="300">
                                     <RoomAvatar
                                         roomId={room.roomId}
                                         src={getDirectRoomAvatarUrl(mx, room)}
@@ -179,12 +171,14 @@ export function RoomMentionAutocomplete({
                                         )}
                                     />
                                 </Avatar>
-                            }
-                        >
-                            <Text style={{ flexGrow: 1 }} size="B400" truncate>
+                            </ListItemIcon>
+                            <ListItemText sx={{ flexGrow: 1 }}>
                                 {room.name}
-                            </Text>
-                        </MenuItem>
+                                <Typography color='textSecondary' variant='subtitle2'>
+                                    {room.getCanonicalAlias() ?? ''}
+                                </Typography>
+                            </ListItemText>
+                        </ListItemButton>
                     );
                 })
             )}

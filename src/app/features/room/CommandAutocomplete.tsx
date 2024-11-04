@@ -1,6 +1,6 @@
 import React, { KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useMemo } from 'react';
 import { Editor } from 'slate';
-import { Box, MenuItem, Text } from 'folds';
+import { Box, Text } from 'folds';
 import { Room } from 'matrix-js-sdk';
 import { Command, useCommands } from '../../hooks/useCommands';
 import {
@@ -12,6 +12,7 @@ import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useKeyDown } from '../../hooks/useKeyDown';
 import { onTabPress } from '../../utils/keyboard';
 import { getText } from '../../../lang';
+import { ListItem, ListItemButton } from '@mui/material';
 
 type CommandAutoCompleteHandler = (commandName: string) => void;
 
@@ -89,11 +90,9 @@ export function CommandAutocomplete({
             requestClose={requestClose}
         >
             {autoCompleteNames.map((commandName) => (
-                <MenuItem
+                <ListItemButton
                     key={commandName}
-                    as="button"
-                    radii="300"
-                    onKeyDown={(evt: ReactKeyboardEvent<HTMLButtonElement>) =>
+                    onKeyDown={(evt: ReactKeyboardEvent) =>
                         onTabPress(evt, () => {
                             handleAutocomplete(commandName);
                             evt.preventDefault();
@@ -111,7 +110,7 @@ export function CommandAutocomplete({
                             {commands[commandName].description}
                         </Text>
                     </Box>
-                </MenuItem>
+                </ListItemButton>
             ))}
         </AutocompleteMenu>
     );

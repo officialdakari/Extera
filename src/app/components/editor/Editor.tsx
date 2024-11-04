@@ -96,8 +96,9 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
                 ref={ref}
                 className={newDesign ? css.EditorNew : css.Editor}
                 style={{
-                    background: theme.palette.background.default,
-                    color: theme.palette.text.primary
+                    backgroundColor: theme.palette.background.paper,
+                    color: theme.palette.text.primary,
+                    borderRadius: !newDesign ? theme.shape.borderRadius : undefined
                 }}
             >
                 {top}

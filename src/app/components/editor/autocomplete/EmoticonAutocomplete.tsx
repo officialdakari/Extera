@@ -1,5 +1,5 @@
 import React, { MouseEventHandler, KeyboardEvent as ReactKeyboardEvent, useEffect, useMemo } from 'react';
-import { Box, MenuItem, Text, toRem } from 'folds';
+import { Box, Text, toRem } from 'folds';
 import { Room } from 'matrix-js-sdk';
 
 import { AutocompleteQuery } from './autocompleteQuery';
@@ -16,6 +16,7 @@ import { useRelevantImagePacks } from '../../../hooks/useImagePacks';
 import { IEmoji, emojis } from '../../../plugins/emoji';
 import { ExtendedPackImage, PackUsage } from '../../../plugins/custom-emoji';
 import { useKeyDown } from '../../../hooks/useKeyDown';
+import { ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 
 type EmoticonCompleteHandler = (key: string, shortcode: string) => void;
 
@@ -109,11 +110,9 @@ export function EmoticonAutocomplete({
                 const isCustomEmoji = 'url' in emoticon;
                 const key = isCustomEmoji ? emoticon.url : emoticon.unicode;
                 return (
-                    <MenuItem
+                    <ListItemButton
                         key={emoticon.shortcode + key}
-                        as="button"
-                        radii="300"
-                        onKeyDown={(evt: ReactKeyboardEvent<HTMLButtonElement>) =>
+                        onKeyDown={(evt: ReactKeyboardEvent) =>
                             onTabPress(evt, () => {
                                 handleAutocomplete(key, emoticon.shortcode);
                                 evt.preventDefault();
@@ -121,31 +120,35 @@ export function EmoticonAutocomplete({
                         }
                         onClick={() => handleAutocomplete(key, emoticon.shortcode)}
                         onMouseDown={(evt: any) => { evt.preventDefault(); }}
-                        before={
-                            isCustomEmoji ? (
-                                <Box
-                                    shrink="No"
-                                    as="img"
-                                    src={mx.mxcUrlToHttp(key) || key}
-                                    alt={emoticon.shortcode}
-                                    style={{ width: toRem(24), height: toRem(24), objectFit: 'contain' }}
-                                />
-                            ) : (
-                                <Box
-                                    shrink="No"
-                                    as="span"
-                                    display="InlineFlex"
-                                    style={{ fontSize: toRem(24), lineHeight: toRem(24) }}
-                                >
-                                    {key}
-                                </Box>
-                            )
-                        }
                     >
-                        <Text style={{ flexGrow: 1 }} size="B400" truncate>
-                            :{emoticon.shortcode}:
-                        </Text>
-                    </MenuItem>
+                        <ListItemIcon>
+                            {
+                                isCustomEmoji ? (
+                                    <Box
+                                        shrink="No"
+                                        as="img"
+                                        src={mx.mxcUrlToHttp(key) || key}
+                                        alt={emoticon.shortcode}
+                                        style={{ width: toRem(24), height: toRem(24), objectFit: 'contain' }}
+                                    />
+                                ) : (
+                                    <Box
+                                        shrink="No"
+                                        as="span"
+                                        display="InlineFlex"
+                                        style={{ fontSize: toRem(24), lineHeight: toRem(24) }}
+                                    >
+                                        {key}
+                                    </Box>
+                                )
+                            }
+                        </ListItemIcon>
+                        <ListItemText>
+                            <Typography flexGrow={1}>
+                                :{emoticon.shortcode}:
+                            </Typography>
+                        </ListItemText>
+                    </ListItemButton>
                 );
             })}
         </AutocompleteMenu>

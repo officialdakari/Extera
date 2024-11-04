@@ -1,5 +1,5 @@
 import React, { useEffect, KeyboardEvent as ReactKeyboardEvent } from 'react';
-import { Avatar, MenuItem, Text } from 'folds';
+import { Avatar, Text } from 'folds';
 import { MatrixClient, Room, RoomMember } from 'matrix-js-sdk';
 
 import { AutocompleteQuery } from './autocompleteQuery';
@@ -18,6 +18,7 @@ import { getMemberDisplayName, getMemberSearchStr } from '../../../utils/room';
 import { UserAvatar } from '../../user-avatar';
 import { mdiAccount } from '@mdi/js';
 import Icon from '@mdi/react';
+import { ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 
 type MentionAutoCompleteHandler = (userId: string, name: string) => void;
 
@@ -36,27 +37,25 @@ function UnknownMentionItem({
     handleAutocomplete: MentionAutoCompleteHandler;
 }) {
     return (
-        <MenuItem
-            as="button"
-            radii="300"
-            onKeyDown={(evt: ReactKeyboardEvent<HTMLButtonElement>) =>
+        <ListItemButton
+            onKeyDown={(evt: ReactKeyboardEvent) =>
                 onTabPress(evt, () => handleAutocomplete(userId, name))
             }
             onClick={() => handleAutocomplete(userId, name)}
             onMouseDown={(evt: any) => { evt.preventDefault() }}
-            before={
+        >
+            <ListItemIcon>
                 <Avatar size="200">
                     <UserAvatar
                         userId={userId}
                         renderFallback={() => <Icon size={0.7} path={mdiAccount} />}
                     />
                 </Avatar>
-            }
-        >
-            <Text style={{ flexGrow: 1 }} size="B400">
+            </ListItemIcon>
+            <ListItemText>
                 {name}
-            </Text>
-        </MenuItem>
+            </ListItemText>
+        </ListItemButton>
     );
 }
 
@@ -149,11 +148,9 @@ export function UserMentionAutocomplete({
                 autoCompleteMembers.map((roomMember) => {
                     const avatarUrl = roomMember.getAvatarUrl(mx.baseUrl, 32, 32, 'crop', undefined, false);
                     return (
-                        <MenuItem
+                        <ListItemButton
                             key={roomMember.userId}
-                            as="button"
-                            radii="300"
-                            onKeyDown={(evt: ReactKeyboardEvent<HTMLButtonElement>) =>
+                            onKeyDown={(evt: ReactKeyboardEvent) =>
                                 onTabPress(evt, () => {
                                     handleAutocomplete(roomMember.userId, getName(roomMember));
                                     evt.preventDefault();
@@ -161,13 +158,9 @@ export function UserMentionAutocomplete({
                             }
                             onClick={() => handleAutocomplete(roomMember.userId, getName(roomMember))}
                             onMouseDown={(evt: any) => { evt.preventDefault(); }}
-                            after={
-                                <Text size="T200" priority="300" truncate>
-                                    {roomMember.userId}
-                                </Text>
-                            }
-                            before={
-                                <Avatar size="200">
+                        >
+                            <ListItemIcon>
+                                <Avatar size="300">
                                     <UserAvatar
                                         userId={roomMember.userId}
                                         src={avatarUrl ?? undefined}
@@ -175,12 +168,14 @@ export function UserMentionAutocomplete({
                                         renderFallback={() => <Icon size={0.7} path={mdiAccount} />}
                                     />
                                 </Avatar>
-                            }
-                        >
-                            <Text style={{ flexGrow: 1 }} size="B400" truncate>
+                            </ListItemIcon>
+                            <ListItemText>
                                 {getName(roomMember)}
-                            </Text>
-                        </MenuItem>
+                                <Typography variant='subtitle2' color='textSecondary'>
+                                    {roomMember.userId}
+                                </Typography>
+                            </ListItemText>
+                        </ListItemButton>
                     );
                 })
             )}
