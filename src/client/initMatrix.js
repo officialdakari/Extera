@@ -6,6 +6,7 @@ import { logger } from 'matrix-js-sdk/lib/logger';
 import { getSecret } from './state/auth';
 import { cryptoCallbacks } from './state/secretStorageKeys';
 import { SlidingSync } from 'matrix-js-sdk/lib/sliding-sync';
+import indexedDBFactory from './workers/IndexedDBFactory';
 
 global.Olm = Olm;
 
@@ -38,6 +39,7 @@ class InitMatrix extends EventEmitter {
             indexedDB: global.indexedDB,
             localStorage: global.localStorage,
             dbName: 'web-sync-store',
+            workerFactory: indexedDBFactory
         });
         const secret = getSecret();
 
