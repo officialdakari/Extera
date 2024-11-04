@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { useSelectedRoom } from '../../../hooks/router/useSelectedRoom';
@@ -43,6 +43,10 @@ export function SpaceRouteThreadProvider({ children }: { children: ReactNode }) 
     const room = useRoom();
 
     const thread = threadId ? room.getThread(threadId) : null;
+
+    useEffect(() => {
+
+    }, [threadId, thread]);
 
     if (!thread) return null;
 
