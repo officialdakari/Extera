@@ -8,17 +8,14 @@ import navigation from '../../../client/state/navigation';
 import { join } from '../../../client/action/room';
 
 import Text from '../../atoms/text/Text';
-import IconButton from '../../atoms/button/IconButton';
-import Button from '../../atoms/button/Button';
-import Input from '../../atoms/input/Input';
-import Spinner from '../../atoms/spinner/Spinner';
-import Dialog from '../../molecules/dialog/Dialog';
 
 import { useStore } from '../../hooks/useStore';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getText } from '../../../lang';
 import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
-import { mdiClose } from '@mdi/js';
+import { Alert, AppBar, Button, CircularProgress, Dialog, IconButton, TextField, Toolbar, Typography } from '@mui/material';
+import { Close } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
 
 const ALIAS_OR_ID_REG = /^[#|!].+:.+\..+$/;
 
@@ -76,24 +73,15 @@ function JoinAliasContent({ term, requestClose }) {
 
     return (
         <form className="join-alias" onSubmit={handleSubmit}>
-            <Input label="Address" value={term} name="alias" required />
+            <TextField label={getText('join_alias.label')} value={term} name="alias" variant='outlined' size='small' required />
             {error && (
-                <Text className="join-alias__error" variant="b3">
+                <Alert severity='error'>
                     {error}
-                </Text>
+                </Alert>
             )}
-            <div className="join-alias__btn">
-                {process ? (
-                    <>
-                        <Spinner size="small" />
-                        <Text>{process}</Text>
-                    </>
-                ) : (
-                    <Button variant="primary" type="submit">
-                        {getText('btn.join_alias.join')}
-                    </Button>
-                )}
-            </div>
+            <LoadingButton size='small' loading={process} variant="contained" type="submit">
+                {getText('btn.join_alias.join')}
+            </LoadingButton>
         </form>
     );
 }
@@ -128,15 +116,19 @@ function JoinAlias() {
 
     return (
         <Dialog
-            isOpen={data !== null}
-            title={
-                <Text variant="s1" weight="medium" primary>
-                    {getText('join_alias.title')}
-                </Text>
-            }
-            contentOptions={<IconButton src={mdiClose} onClick={requestClose} tooltip="Close" />}
-            onRequestClose={requestClose}
+            open={data !== null}
+            onClose={requestClose}
         >
+            <AppBar position='relative'>
+                <Toolbar>
+                    <Typography variant='h6' component='div' flexGrow={1}>
+                        {getText('join_alias.title')}
+                    </Typography>
+                    <IconButton onClick={requestClose}>
+                        <Close />
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
             {data !== null && <BackButtonHandler callback={requestClose} id='join-alias' />}
             {data ? <JoinAliasContent term={data.term} requestClose={requestClose} /> : <div />}
         </Dialog>

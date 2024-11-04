@@ -12,6 +12,7 @@ import { HierarchyItem } from '../../hooks/useSpaceHierarchy';
 import * as css from './DnD.css';
 import Icon from '@mdi/react';
 import { mdiDotsVertical } from '@mdi/js';
+import { DragIndicator } from '@mui/icons-material';
 
 export type DropContainerData = {
     item: HierarchyItem;
@@ -59,7 +60,7 @@ export const ItemDraggableTarget = as<'div'>(({ className, ...props }, ref) => (
         ref={ref}
         {...props}
     >
-        <Icon size={1} path={mdiDotsVertical} />
+        <DragIndicator />
     </Box>
 ));
 

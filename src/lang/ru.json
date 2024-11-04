@@ -1009,5 +1009,7 @@
 	"btn.add_theme": "Добавить",
 	"header.extera_customization.themes": "Темы",
 	"perms.banner.title": "Изменить баннер комнаты",
-	"perms.banner.desc": "Минимальный уровень прав чтобы изменить баннер комнаты/пространства."
+	"perms.banner.desc": "Минимальный уровень прав чтобы изменить баннер комнаты/пространства.",
+	"join_alias.label": "Адрес комнаты",
+	"btn.open_location_in_new": "Открыть в браузере"
 }

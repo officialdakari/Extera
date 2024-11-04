@@ -2,17 +2,12 @@ import React, { MouseEventHandler, ReactNode, useCallback, useRef, useState } fr
 import {
     Box,
     Avatar,
-    Text,
-    Chip,
     as,
-    Badge,
     toRem,
-    Spinner,
-    PopOut,
-    Menu,
-    MenuItem,
-    RectCords,
     config,
+    Chip,
+    Text,
+    Badge,
 } from 'folds';
 import FocusTrap from 'focus-trap-react';
 import classNames from 'classnames';
@@ -35,6 +30,8 @@ import { openCreateRoom, openSpaceAddExisting } from '../../../client/action/nav
 import { getText } from '../../../lang';
 import { mdiChevronDown, mdiChevronRight, mdiPlus } from '@mdi/js';
 import Icon from '@mdi/react';
+import { Button, CircularProgress, ListItemText, Menu, MenuItem } from '@mui/material';
+import { Add } from '@mui/icons-material';
 
 function SpaceProfileLoading() {
     return (
@@ -145,7 +142,7 @@ function UnknownSpaceProfile({
                 </Avatar>
             }
             after={
-                canJoin ? <Icon size={0.8} path={mdiPlus} /> : <Spinner variant="Secondary" size="200" />
+                canJoin ? <Icon size={0.8} path={mdiPlus} /> : <CircularProgress />
             }
         >
             <Box alignItems="Center" gap="200">
@@ -235,7 +232,6 @@ function RootSpaceProfile({ closed, categoryId, handleClose }: RootSpaceProfileP
             data-category-id={categoryId}
             onClick={handleClose}
             className={css.HeaderChip}
-            variant="Surface"
             size="500"
             after={<Icon size={0.8} path={closed ? mdiChevronRight : mdiChevronDown} />}
         >
@@ -249,125 +245,89 @@ function RootSpaceProfile({ closed, categoryId, handleClose }: RootSpaceProfileP
 }
 
 function AddRoomButton({ item }: { item: HierarchyItem }) {
-    const [cords, setCords] = useState<RectCords>();
+    const [anchorEl, setAnchorEl] = useState<HTMLElement>();
 
     const handleAddRoom: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        setCords(evt.currentTarget.getBoundingClientRect());
+        setAnchorEl(evt.currentTarget);
     };
 
     const handleCreateRoom = () => {
         openCreateRoom(false, item.roomId as any);
-        setCords(undefined);
+        setAnchorEl(undefined);
     };
 
     const handleAddExisting = () => {
         openSpaceAddExisting(item.roomId);
-        setCords(undefined);
+        setAnchorEl(undefined);
     };
 
     return (
-        <PopOut
-            anchor={cords}
-            position="Bottom"
-            align="End"
-            content={
-                <FocusTrap
-                    focusTrapOptions={{
-                        initialFocus: false,
-                        onDeactivate: () => setCords(undefined),
-                        clickOutsideDeactivates: true,
-                        isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                        isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                    }}
-                >
-                    <Menu style={{ padding: config.space.S100 }}>
-                        <MenuItem
-                            size="300"
-                            radii="300"
-                            variant="Primary"
-                            fill="None"
-                            onClick={handleCreateRoom}
-                        >
-                            <Text size="T300">{getText('btn.space.new_room')}</Text>
-                        </MenuItem>
-                        <MenuItem size="300" radii="300" fill="None" onClick={handleAddExisting}>
-                            <Text size="T300">{getText('btn.space.existing_room')}</Text>
-                        </MenuItem>
-                    </Menu>
-                </FocusTrap>
-            }
-        >
-            <Chip
-                variant="Primary"
-                radii="Pill"
-                before={<Icon size={0.8} path={mdiPlus} />}
+        <>
+            <Button
+                aria-pressed={!!anchorEl}
                 onClick={handleAddRoom}
-                aria-pressed={!!cords}
+                startIcon={<Add />}
             >
-                <Text size="B300">{getText('btn.space.add_room')}</Text>
-            </Chip>
-        </PopOut>
+                {getText('btn.space.add_room')}
+            </Button>
+            <Menu
+                open={!!anchorEl}
+                anchorEl={anchorEl}
+                onClose={() => setAnchorEl(undefined)}
+            >
+                <MenuItem
+                    onClick={handleCreateRoom}
+                >
+                    <ListItemText>{getText('btn.space.new_room')}</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={handleAddExisting}>
+                    <ListItemText>{getText('btn.space.existing_room')}</ListItemText>
+                </MenuItem>
+            </Menu>
+        </>
     );
 }
 
 function AddSpaceButton({ item }: { item: HierarchyItem }) {
-    const [cords, setCords] = useState<RectCords>();
+    const [anchorEl, setAnchorEl] = useState<HTMLElement>();
 
     const handleAddSpace: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        setCords(evt.currentTarget.getBoundingClientRect());
+        setAnchorEl(evt.currentTarget);
     };
 
     const handleCreateSpace = () => {
         openCreateRoom(true, item.roomId as any);
-        setCords(undefined);
+        setAnchorEl(undefined);
     };
 
     const handleAddExisting = () => {
         openSpaceAddExisting(item.roomId, true);
-        setCords(undefined);
+        setAnchorEl(undefined);
     };
     return (
-        <PopOut
-            anchor={cords}
-            position="Bottom"
-            align="End"
-            content={
-                <FocusTrap
-                    focusTrapOptions={{
-                        initialFocus: false,
-                        onDeactivate: () => setCords(undefined),
-                        clickOutsideDeactivates: true,
-                        isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                        isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                    }}
-                >
-                    <Menu style={{ padding: config.space.S100 }}>
-                        <MenuItem
-                            size="300"
-                            radii="300"
-                            variant="Primary"
-                            fill="None"
-                            onClick={handleCreateSpace}
-                        >
-                            <Text size="T300">{getText('btn.space.new_space')}</Text>
-                        </MenuItem>
-                        <MenuItem size="300" radii="300" fill="None" onClick={handleAddExisting}>
-                            <Text size="T300">{getText('btn.space.existing_space')}</Text>
-                        </MenuItem>
-                    </Menu>
-                </FocusTrap>
-            }
-        >
-            <Chip
-                variant="SurfaceVariant"
-                radii="Pill"
-                before={<Icon size={0.8} path={mdiPlus} />}
+        <>
+            <Button
+                aria-pressed={!!anchorEl}
                 onClick={handleAddSpace}
-                aria-pressed={!!cords}
+                startIcon={<Add />}
             >
-                <Text size="B300">{getText('btn.space.add_space')}</Text>
-            </Chip>
-        </PopOut>
+                {getText('btn.space.add_space')}
+            </Button>
+            <Menu
+                open={!!anchorEl}
+                anchorEl={anchorEl}
+                onClose={() => setAnchorEl(undefined)}
+            >
+                <MenuItem
+                    onClick={handleCreateSpace}
+                >
+                    <ListItemText>{getText('btn.space.new_space')}</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={handleAddExisting}>
+                    <ListItemText>{getText('btn.space.existing_space')}</ListItemText>
+                </MenuItem>
+            </Menu>
+        </>
     );
 }
 

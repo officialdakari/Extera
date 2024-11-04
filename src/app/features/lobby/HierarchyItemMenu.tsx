@@ -2,15 +2,8 @@ import React, { MouseEventHandler, useCallback, useEffect, useState } from 'reac
 import FocusTrap from 'focus-trap-react';
 import {
     Box,
-    IconButton,
-    PopOut,
-    Menu,
-    MenuItem,
     Text,
-    RectCords,
     config,
-    Line,
-    Spinner,
     toRem,
 } from 'folds';
 import { HierarchyItem } from '../../hooks/useSpaceHierarchy';
@@ -27,7 +20,9 @@ import { LeaveSpacePrompt } from '../../components/leave-space-prompt';
 import { LeaveRoomPrompt } from '../../components/leave-room-prompt';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
-import { mdiArrowLeft, mdiDotsVertical } from '@mdi/js';
+import { mdiArrowLeft, mdiDotsVertical, mdiLightbulb, mdiLightbulbOff, mdiPin, mdiPinOff } from '@mdi/js';
+import { Divider, IconButton, ListItem, ListItemIcon, ListItemText, Menu, MenuItem, useTheme } from '@mui/material';
+import { ArrowBack, Close, MoreVert, PersonAdd, Settings } from '@mui/icons-material';
 
 type HierarchyItemWithParent = HierarchyItem & {
     parentId: string;
@@ -46,6 +41,7 @@ function SuggestMenuItem({
     const [toggleState, handleToggleSuggested] = useAsyncCallback(
         useCallback(() => {
             const newContent: MSpaceChildContent = { ...content, suggested: !content.suggested };
+            //@ts-ignore
             return mx.sendStateEvent(parentId, StateEvent.SpaceChild, newContent, roomId);
         }, [mx, parentId, roomId, content])
     );
@@ -59,14 +55,14 @@ function SuggestMenuItem({
     return (
         <MenuItem
             onClick={handleToggleSuggested}
-            size="300"
-            radii="300"
-            before={toggleState.status === AsyncStatus.Loading && <Spinner size="100" />}
             disabled={toggleState.status === AsyncStatus.Loading}
         >
-            <Text as="span" size="T300">
+            <ListItemIcon>
+                <Icon size={1} path={content.suggested ? mdiLightbulbOff : mdiLightbulb} />
+            </ListItemIcon>
+            <ListItemText>
                 {getText(content.suggested ? 'btn.space_lobby.unsuggest' : 'btn.space_lobby.suggest')}
-            </Text>
+            </ListItemText>
         </MenuItem>
     );
 }
@@ -83,6 +79,7 @@ function RemoveMenuItem({
 
     const [removeState, handleRemove] = useAsyncCallback(
         useCallback(
+            //@ts-ignore
             () => mx.sendStateEvent(parentId, StateEvent.SpaceChild, {}, roomId),
             [mx, parentId, roomId]
         )
@@ -97,20 +94,14 @@ function RemoveMenuItem({
     return (
         <MenuItem
             onClick={handleRemove}
-            variant="Critical"
-            fill="None"
-            size="300"
-            radii="300"
-            before={
-                removeState.status === AsyncStatus.Loading && (
-                    <Spinner variant="Critical" fill="Soft" size="100" />
-                )
-            }
             disabled={removeState.status === AsyncStatus.Loading}
         >
-            <Text as="span" size="T300" truncate>
+            <ListItemIcon>
+                <Close color='error' />
+            </ListItemIcon>
+            <ListItemText sx={{ color: 'error.main' }}>
                 {getText('btn.space_lobby.remove_room')}
-            </Text>
+            </ListItemText>
         </MenuItem>
     );
 }
@@ -132,15 +123,14 @@ function InviteMenuItem({
     return (
         <MenuItem
             onClick={handleInvite}
-            size="300"
-            radii="300"
-            variant="Primary"
-            fill="None"
             disabled={disabled}
         >
-            <Text as="span" size="T300" truncate>
+            <ListItemIcon>
+                <PersonAdd />
+            </ListItemIcon>
+            <ListItemText>
                 {getText('btn.space_lobby.invite')}
-            </Text>
+            </ListItemText>
         </MenuItem>
     );
 }
@@ -164,10 +154,13 @@ function SettingsMenuItem({
     };
 
     return (
-        <MenuItem onClick={handleSettings} size="300" radii="300" disabled={disabled}>
-            <Text as="span" size="T300" truncate>
+        <MenuItem onClick={handleSettings} disabled={disabled}>
+            <ListItemIcon>
+                <Settings />
+            </ListItemIcon>
+            <ListItemText>
                 {getText('btn.space_lobby.settings')}
-            </Text>
+            </ListItemText>
         </MenuItem>
     );
 }
@@ -190,10 +183,10 @@ export function HierarchyItemMenu({
     pinned,
     onTogglePin,
 }: HierarchyItemMenuProps) {
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
+    const [menuAnchor, setMenuAnchor] = useState<HTMLElement>();
 
     const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        setMenuAnchor(evt.currentTarget.getBoundingClientRect());
+        setMenuAnchor(evt.currentTarget);
     };
 
     const handleRequestClose = useCallback(() => setMenuAnchor(undefined), []);
@@ -206,102 +199,77 @@ export function HierarchyItemMenu({
         <Box gap="200" alignItems="Center" shrink="No">
             <IconButton
                 onClick={handleOpenMenu}
-                size="300"
-                variant="SurfaceVariant"
-                fill="None"
-                radii="300"
                 aria-pressed={!!menuAnchor}
             >
-               <Icon size={1} path={mdiDotsVertical} />
+                <MoreVert />
             </IconButton>
-            {menuAnchor && (
-                <PopOut
-                    anchor={menuAnchor}
-                    position="Bottom"
-                    align="End"
-                    content={
-                        <FocusTrap
-                            focusTrapOptions={{
-                                initialFocus: false,
-                                returnFocusOnDeactivate: false,
-                                onDeactivate: () => setMenuAnchor(undefined),
-                                clickOutsideDeactivates: true,
-                                isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
-                                isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
-                            }}
-                        >
-                            <Menu style={{ maxWidth: toRem(150), width: '100vw' }}>
-                                {joined && (
-                                    <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                                        {onTogglePin && (
-                                            <MenuItem
-                                                size="300"
-                                                radii="300"
-                                                onClick={() => {
-                                                    onTogglePin(item.roomId);
-                                                    handleRequestClose();
-                                                }}
-                                            >
-                                                <Text as="span" size="T300" truncate>
-                                                    {getText(pinned ? 'btn.space.unpin' : 'btn.space.pin')}
-                                                </Text>
-                                            </MenuItem>
-                                        )}
-                                        <InviteMenuItem
-                                            item={item}
-                                            requestClose={handleRequestClose}
-                                            disabled={!canInvite}
-                                        />
-                                        <SettingsMenuItem item={item} requestClose={handleRequestClose} />
-                                        <UseStateProvider initial={false}>
-                                            {(promptLeave, setPromptLeave) => (
-                                                <>
-                                                    <MenuItem
-                                                        onClick={() => setPromptLeave(true)}
-                                                        variant="Critical"
-                                                        fill="None"
-                                                        size="300"
-                                                        after={<Icon size={1} path={mdiArrowLeft} />}
-                                                        radii="300"
-                                                        aria-pressed={promptLeave}
-                                                    >
-                                                        <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                                                            {getText('btn.leave')}
-                                                        </Text>
-                                                    </MenuItem>
-                                                    {promptLeave &&
-                                                        (item.space ? (
-                                                            <LeaveSpacePrompt
-                                                                roomId={item.roomId}
-                                                                onDone={handleRequestClose}
-                                                                onCancel={() => setPromptLeave(false)}
-                                                            />
-                                                        ) : (
-                                                            <LeaveRoomPrompt
-                                                                roomId={item.roomId}
-                                                                onDone={handleRequestClose}
-                                                                onCancel={() => setPromptLeave(false)}
-                                                            />
-                                                        ))}
-                                                </>
-                                            )}
-                                        </UseStateProvider>
-                                    </Box>
-                                )}
-                                {(joined || canEditChild) && (
-                                    <Line size="300" variant="Surface" direction="Horizontal" />
-                                )}
-                                {canEditChild && (
-                                    <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
-                                        <SuggestMenuItem item={item} requestClose={handleRequestClose} />
-                                        <RemoveMenuItem item={item} requestClose={handleRequestClose} />
-                                    </Box>
-                                )}
-                            </Menu>
-                        </FocusTrap>
-                    }
-                />
-            )}
+            <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={handleRequestClose}>
+                {joined && (
+                    <>
+                        {onTogglePin && (
+                            <MenuItem
+                                onClick={() => {
+                                    onTogglePin(item.roomId);
+                                    handleRequestClose();
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <Icon size={1} path={pinned ? mdiPinOff : mdiPin} />
+                                </ListItemIcon>
+                                <ListItemText>
+                                    {getText(pinned ? 'btn.space.unpin' : 'btn.space.pin')}
+                                </ListItemText>
+                            </MenuItem>
+                        )}
+                        <InviteMenuItem
+                            item={item}
+                            requestClose={handleRequestClose}
+                            disabled={!canInvite}
+                        />
+                        <SettingsMenuItem item={item} requestClose={handleRequestClose} />
+                        <UseStateProvider initial={false}>
+                            {(promptLeave, setPromptLeave) => (
+                                <>
+                                    <MenuItem
+                                        onClick={() => setPromptLeave(true)}
+                                        aria-pressed={promptLeave}
+                                    >
+                                        <ListItemIcon>
+                                            <ArrowBack color='error' />
+                                        </ListItemIcon>
+                                        <ListItemText sx={{ color: 'error.main' }}>
+                                            {getText('btn.leave')}
+                                        </ListItemText>
+                                    </MenuItem>
+                                    {promptLeave &&
+                                        (item.space ? (
+                                            <LeaveSpacePrompt
+                                                roomId={item.roomId}
+                                                onDone={handleRequestClose}
+                                                onCancel={() => setPromptLeave(false)}
+                                            />
+                                        ) : (
+                                            <LeaveRoomPrompt
+                                                roomId={item.roomId}
+                                                onDone={handleRequestClose}
+                                                onCancel={() => setPromptLeave(false)}
+                                            />
+                                        ))}
+                                </>
+                            )}
+                        </UseStateProvider>
+                    </>
+                )}
+                {(joined && canEditChild) && (
+                    <Divider />
+                )}
+                {canEditChild && (
+                    <>
+                        <SuggestMenuItem item={item} requestClose={handleRequestClose} />
+                        <RemoveMenuItem item={item} requestClose={handleRequestClose} />
+                    </>
+                )}
+            </Menu>
         </Box>
     );
 }

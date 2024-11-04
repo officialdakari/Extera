@@ -462,7 +462,6 @@ export function Lobby() {
                                                                     />
                                                                 )
                                                             }
-                                                            before={item.parentId ? undefined : undefined}
                                                             after={
                                                                 <AfterItemDropTarget
                                                                     item={item}

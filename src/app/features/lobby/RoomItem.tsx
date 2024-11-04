@@ -1,19 +1,8 @@
 import React, { MouseEventHandler, ReactNode, useCallback, useEffect, useRef } from 'react';
 import {
     Avatar,
-    Badge,
     Box,
-    Chip,
-    Line,
-    Overlay,
-    OverlayBackdrop,
-    OverlayCenter,
-    Spinner,
-    Text,
-    Tooltip,
-    TooltipProvider,
     as,
-    color,
     toRem,
 } from 'folds';
 import FocusTrap from 'focus-trap-react';
@@ -40,6 +29,9 @@ import { ItemDraggableTarget, useDraggableItem } from './DnD';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiAlert, mdiArrowRight, mdiPlus } from '@mdi/js';
+import { Chip, Dialog, Divider, IconButton, Tooltip, Typography } from '@mui/material';
+import { ArrowForward, Warning } from '@mui/icons-material';
+import { BackButtonHandler } from '../../hooks/useBackButton';
 
 type RoomJoinButtonProps = {
     roomId: string;
@@ -57,43 +49,16 @@ function RoomJoinButton({ roomId, via }: RoomJoinButtonProps) {
     return (
         <Box shrink="No" gap="200" alignItems="Center">
             {joinState.status === AsyncStatus.Error && (
-                <TooltipProvider
-                    tooltip={
-                        <Tooltip variant="Critical" style={{ maxWidth: toRem(200) }}>
-                            <Box direction="Column" gap="100">
-                                <Text style={{ wordBreak: 'break-word' }} size="T400">
-                                    {joinState.error.data?.error || joinState.error.message}
-                                </Text>
-                                <Text size="T200">{joinState.error.name}</Text>
-                            </Box>
-                        </Tooltip>
-                    }
-                >
-                    {(triggerRef) => (
-                        <span ref={triggerRef}>
-                            <Icon
-                                style={{ color: color.Critical.Main, cursor: 'pointer' }}
-                                path={mdiAlert}
-                                size={1}
-                                aria-label={joinState.error.data?.error || joinState.error.message}
-                            />
-                        </span>
-                    )}
-                </TooltipProvider>
+                <Tooltip title={joinState.error.data?.error || joinState.error.message}>
+                    <Warning aria-label={joinState.error.data?.error || joinState.error.message} color='error' />
+                </Tooltip>
             )}
             <Chip
-                variant="Secondary"
-                fill="Soft"
-                size="400"
-                radii="Pill"
-                before={
-                    canJoin ? <Icon size={0.8} path={mdiPlus} /> : <Spinner variant="Secondary" size="100" />
-                }
+                size='small'
                 onClick={join}
                 disabled={!canJoin}
-            >
-                <Text size="B300">{getText('btn.join')}</Text>
-            </Chip>
+                label={getText('btn.join')}
+            />
         </Box>
     );
 }
@@ -147,34 +112,25 @@ function RoomProfileError({ roomId, suggested, error, via }: RoomProfileErrorPro
             </Avatar>
             <Box grow="Yes" direction="Column" className={css.ErrorNameContainer}>
                 <Box gap="200" alignItems="Center">
-                    <Text size="H5" truncate>
+                    <Typography>
                         {getText('generic.unknown')}
-                    </Text>
+                    </Typography>
                     {suggested && (
                         <Box shrink="No" alignItems="Center">
-                            <Badge variant="Success" fill="Soft" radii="Pill" outlined>
-                                <Text size="L400">{getText('space_room.suggested')}</Text>
-                            </Badge>
+                            <Chip size='small' label={getText('space_room.suggested')} />
                         </Box>
                     )}
                 </Box>
                 <Box gap="200" alignItems="Center">
                     {privateRoom && (
                         <>
-                            <Badge variant="Secondary" fill="Soft" radii="Pill" outlined>
-                                <Text size="L400">{getText('space_room.private')}</Text>
-                            </Badge>
-                            <Line
-                                variant="SurfaceVariant"
-                                style={{ height: toRem(12) }}
-                                direction="Vertical"
-                                size="400"
-                            />
+                            <Chip label={getText('space_room.private')} size='small' />
+                            <Divider orientation='vertical' />
                         </>
                     )}
-                    <Text size="T200" truncate>
+                    <Typography color='textSecondary' variant='subtitle2'>
                         {roomId}
-                    </Text>
+                    </Typography>
                 </Box>
             </Box>
             {!privateRoom && <RoomJoinButton roomId={roomId} via={via} />}
@@ -216,63 +172,48 @@ function RoomProfile({
             </Avatar>
             <Box grow="Yes" direction="Column">
                 <Box gap="200" alignItems="Center">
-                    <Text size="H5" truncate>
+                    <Typography variant='h6'>
                         {name}
-                    </Text>
+                    </Typography>
                     {suggested && (
                         <Box shrink="No" alignItems="Center">
-                            <Badge variant="Success" fill="Soft" radii="Pill" outlined>
-                                <Text size="L400">{getText('space_room.suggested')}</Text>
-                            </Badge>
+                            <Chip
+                                color='success'
+                                size='small'
+                                label={getText('space_room.suggested')}
+                            />
                         </Box>
                     )}
                 </Box>
                 <Box gap="200" alignItems="Center">
                     {memberCount && (
                         <Box shrink="No" gap="200">
-                            <Text size="T200" priority="300">{getText('generic.member_count', millify(memberCount))}</Text>
+                            <Typography color='textSecondary'>{getText('generic.member_count', millify(memberCount))}</Typography>
                         </Box>
                     )}
                     {memberCount && topic && (
-                        <Line
-                            variant="SurfaceVariant"
-                            style={{ height: toRem(12) }}
-                            direction="Vertical"
-                            size="400"
-                        />
+                        <Divider orientation='vertical' />
                     )}
                     {topic && (
                         <UseStateProvider initial={false}>
                             {(view, setView) => (
                                 <>
-                                    <Text
-                                        className={css.RoomProfileTopic}
-                                        size="T200"
-                                        priority="300"
-                                        truncate
+                                    <Typography
+                                        color='textSecondary'
+                                        variant='subtitle2'
                                         onClick={() => setView(true)}
                                         onKeyDown={onEnterOrSpace(() => setView(true))}
-                                        tabIndex={0}
                                     >
                                         {topic}
-                                    </Text>
-                                    <Overlay open={view} backdrop={<OverlayBackdrop />}>
-                                        <OverlayCenter>
-                                            <FocusTrap
-                                                focusTrapOptions={{
-                                                    initialFocus: false,
-                                                    clickOutsideDeactivates: true,
-                                                    onDeactivate: () => setView(false),
-                                                }}
-                                            >
-                                                <RoomTopicViewer
-                                                    name={name}
-                                                    topic={topic}
-                                                    requestClose={() => setView(false)}
-                                                />
-                                            </FocusTrap>
-                                        </OverlayCenter>
-                                    </Overlay>
+                                    </Typography>
+                                    <Dialog open={view} onClose={() => setView(false)}>
+                                        <BackButtonHandler id='room-item-topic-viewer' callback={() => setView(false)} />
+                                        <RoomTopicViewer
+                                            name={name}
+                                            topic={topic}
+                                            requestClose={() => setView(false)}
+                                        />
+                                    </Dialog>
                                 </>
                             )}
                         </UseStateProvider>
@@ -345,7 +286,6 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
                 className={css.RoomItemCard}
                 firstChild={firstChild}
                 lastChild={lastChild}
-                variant="SurfaceVariant"
                 gap="300"
                 alignItems="Center"
                 {...props}
@@ -370,17 +310,13 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
                                     options={
                                         joined ? (
                                             <Box shrink="No" gap="100" alignItems="Center">
-                                                <Chip
+                                                <IconButton
                                                     data-room-id={roomId}
                                                     onClick={onOpen}
-                                                    variant="Secondary"
-                                                    fill="None"
-                                                    size="400"
-                                                    radii="Pill"
                                                     aria-label="Open Room"
                                                 >
-                                                    <Icon size={0.8} path={mdiArrowRight} />
-                                                </Chip>
+                                                    <ArrowForward />
+                                                </IconButton>
                                             </Box>
                                         ) : (
                                             <RoomJoinButton roomId={roomId} via={content.via} />
