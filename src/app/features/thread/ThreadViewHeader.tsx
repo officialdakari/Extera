@@ -83,50 +83,18 @@ export function ThreadViewHeader({
     threadId
 }: ThreadViewHeaderProps) {
     const navigate = useNavigate();
-    const { threadRootId } = useParams();
     const mx = useMatrixClient();
     const screenSize = useScreenSizeContext();
     const room = useRoom();
     const space = useSpaceOptionally();
-    const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
-    const mDirects = useAtomValue(mDirectAtom);
 
     const encryptionEvent = useStateEvent(room, StateEvent.RoomEncryption);
     const encryptedRoom = !!encryptionEvent;
-    const avatarMxc = useRoomAvatar(room, mDirects.has(room.roomId));
     const name = useRoomName(room);
     const topic = useRoomTopic(room);
     const [statusMessage, setStatusMessage] = useState('');
-    const [showPinned, setShowPinned] = useState(false);
-    const [showWidgets, setShowWidgets] = useState(false);
-    const [pinned, setPinned] = useState<ReactNode[]>([]);
-    const [widgets, setWidgets] = useState<ReactNode[]>([]);
-    const avatarUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
-    const roomToParents = useAtomValue(roomToParentsAtom);
-    const powerLevels = usePowerLevelsContext();
-    const { getPowerLevel, canSendEvent, canSendStateEvent, canDoAction } = usePowerLevelsAPI(powerLevels);
-    const myUserId = mx.getUserId();
-    const timeline = room.getLiveTimeline();
-    const state = timeline.getState(EventTimeline.FORWARDS);
-    const widgetsEvents = [
-        ...(state?.getStateEvents('m.widget') ?? []),
-        ...(state?.getStateEvents('im.vector.modular.widgets') ?? [])
-    ];
-    const canEditWidgets = myUserId
-        ? canSendStateEvent('im.vector.modular.widgets', getPowerLevel(myUserId))
-        : false;
-
-    const canRedact = myUserId
-        ? canDoAction('redact', getPowerLevel(myUserId))
-        : false;
-
-    const videoCallEvent = widgetsEvents.find(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
-
-    const showVideoCallButton = canEditWidgets || videoCallEvent;
 
     const setPeopleDrawer = useSetSetting(settingsAtom, 'isPeopleDrawer');
-    const location = useLocation();
-    const currentPath = joinPathComponent(location);
 
     const handleSearchClick = () => {
         const searchParams: _SearchPathSearchParams = {
@@ -138,51 +106,9 @@ export function ThreadViewHeader({
         navigate(withSearchParam(path, searchParams));
     };
 
-    const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        if (!menuAnchor)
-            setMenuAnchor(evt.currentTarget);
-        else
-            setMenuAnchor(null);
-    };
-
     const handleAvClick = () => {
         toggleRoomSettings(room.roomId);
     };
-
-    const [messageLayout] = useSetting(settingsAtom, 'messageLayout');
-    const [messageSpacing] = useSetting(settingsAtom, 'messageSpacing');
-    const { navigateRoom, navigateSpace } = useRoomNavigate();
-    const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
-
-    const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
-        () =>
-            getReactCustomHtmlParser(mx, room, {
-                handleSpoilerClick: (evt) => {
-                    const target = evt.currentTarget;
-                    if (target.getAttribute('aria-pressed') === 'true') {
-                        evt.stopPropagation();
-                        target.setAttribute('aria-pressed', 'false');
-                        target.style.cursor = 'initial';
-                    }
-                },
-                handleMentionClick: (evt) => {
-                    const target = evt.currentTarget;
-                    const mentionId = target.getAttribute('data-mention-id');
-                    if (typeof mentionId !== 'string') return;
-                    if (isUserId(mentionId)) {
-                        openProfileViewer(mentionId, room.roomId);
-                        return;
-                    }
-                    if (isRoomId(mentionId) && mx.getRoom(mentionId)) {
-                        if (mx.getRoom(mentionId)?.isSpaceRoom()) navigateSpace(mentionId);
-                        else navigateRoom(mentionId);
-                        return;
-                    }
-                    openJoinAlias(mentionId);
-                },
-            }),
-        [mx, room, navigateRoom, navigateSpace]
-    );
 
     const getPresenceFn = usePresences();
 

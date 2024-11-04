@@ -19,17 +19,45 @@ export function BackRouteHandler({ children }: BackRouteHandlerProps) {
     const location = useLocation();
 
     const goBack = useCallback(() => {
-        const threadMatch = matchPath(
+        const homeThreadMatch = matchPath(
             {
-                path: _THREAD_PATH,
+                path: HOME_PATH + _THREAD_PATH,
                 caseSensitive: true,
                 end: false
             },
             location.pathname
         );
 
-        if (threadMatch && threadMatch.params.roomIdOrAlias) {
-            navigateRoom(threadMatch.params.roomIdOrAlias, undefined, { replace: true, state: 'back-route' });
+        if (homeThreadMatch && homeThreadMatch.params.roomIdOrAlias) {
+            navigateRoom(homeThreadMatch.params.roomIdOrAlias, undefined, { replace: true, state: 'back-route' });
+            return;
+        }
+
+        const directThreadMatch = matchPath(
+            {
+                path: DIRECT_PATH + _THREAD_PATH,
+                caseSensitive: true,
+                end: false
+            },
+            location.pathname
+        );
+
+        if (directThreadMatch && directThreadMatch.params.roomIdOrAlias) {
+            navigateRoom(directThreadMatch.params.roomIdOrAlias, undefined, { replace: true, state: 'back-route' });
+            return;
+        }
+
+        const spaceThreadMatch = matchPath(
+            {
+                path: SPACE_PATH + _THREAD_PATH,
+                caseSensitive: true,
+                end: false
+            },
+            location.pathname
+        );
+
+        if (spaceThreadMatch && spaceThreadMatch.params.roomIdOrAlias) {
+            navigateRoom(spaceThreadMatch.params.roomIdOrAlias, undefined, { replace: true, state: 'back-route' });
             return;
         }
         if (
