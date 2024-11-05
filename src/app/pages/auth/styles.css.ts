@@ -3,7 +3,7 @@ import { DefaultReset, color, config, toRem } from 'folds';
 
 export const AuthLayout = style({
     minHeight: '100%',
-    backgroundImage: 'url(/background.jpg)',
+    backgroundImage: 'url(/background.png)',
     backgroundSize: 'cover',
     color: color.Background.OnContainer,
     padding: config.space.S400,

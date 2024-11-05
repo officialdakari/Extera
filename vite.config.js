@@ -46,7 +46,7 @@ const copyFiles = {
             dest: ''
         },
         {
-            src: 'public/background.jpg',
+            src: 'public/background.png',
             dest: ''
         }
     ],
