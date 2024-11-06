@@ -542,6 +542,12 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 };
             }
 
+            if (thread) {
+                if (!content['m.relates_to']) content['m.relates_to'] = {};
+                content['m.relates_to'].rel_type = 'm.thread';
+                content['m.relates_to'].event_id = thread.rootEvent?.getId();
+            }
+
             // @ts-ignore
             mx.sendEvent(roomId, EventType.Sticker, content);
 
