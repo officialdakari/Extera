@@ -126,6 +126,7 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
                             onChange={handleChange}
                             disabled={disabled}
                             aria-disabled={disabled}
+                            data-editable-name={editableName}
                         />
                     </Scroll>
                     {after && (

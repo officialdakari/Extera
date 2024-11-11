@@ -877,12 +877,14 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
             const editMsgElement =
                 (scrollRef.current?.querySelector(`[data-message-id="${editId}"]`) as HTMLElement) ??
                 undefined;
+            const editMsgTA = (scrollRef.current?.querySelector(`[data-message-id="${editId}"] textarea`) as HTMLTextAreaElement) ?? undefined;
             if (editMsgElement) {
                 scrollToElement(editMsgElement, {
                     align: 'center',
                     behavior: smoothScroll ? 'smooth' : 'instant',
                     stopInView: true,
                 });
+                if (editMsgTA) editMsgTA.focus();
             }
         }
     }, [scrollToElement, editId]);

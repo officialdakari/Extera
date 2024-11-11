@@ -8,17 +8,12 @@ import React, {
 } from 'react';
 import {
     Box,
-    Chip,
-    IconButton,
     PopOut,
     RectCords,
-    Spinner,
     Text,
     as,
     config,
 } from 'folds';
-import { Editor, Transforms } from 'slate';
-import { ReactEditor } from 'slate-react';
 import { EventTimeline, IContent, MatrixEvent, RelationType, Room } from 'matrix-js-sdk';
 import { isKeyHotkey } from 'is-hotkey';
 import {
@@ -48,6 +43,7 @@ import { mobileOrTablet } from '../../../utils/user-agent';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiEmoticon, mdiEmoticonOutline } from '@mdi/js';
+import { Chip, IconButton } from '@mui/material';
 
 type MessageEditorProps = {
     roomId: string;
@@ -243,21 +239,17 @@ export const MessageEditor = as<'div', MessageEditorProps>(
                                 <Box gap="Inherit">
                                     <Chip
                                         onClick={handleSave}
-                                        variant="Primary"
-                                        radii="Pill"
+                                        variant="filled"
                                         disabled={saveState.status === AsyncStatus.Loading}
-                                        outlined
-                                        before={
-                                            saveState.status === AsyncStatus.Loading ? (
-                                                <Spinner variant="Primary" fill="Soft" size="100" />
-                                            ) : undefined
-                                        }
-                                    >
-                                        <Text size="B300">{getText('btn.msg_edit.save')}</Text>
-                                    </Chip>
-                                    <Chip onClick={onCancel} variant="SurfaceVariant" radii="Pill">
-                                        <Text size="B300">{getText('btn.cancel')}</Text>
-                                    </Chip>
+                                        label={getText('btn.msg_edit.save')}
+                                        color='primary'
+                                    />
+                                    <Chip
+                                        onClick={onCancel}
+                                        variant='outlined'
+                                        label={getText('btn.cancel')}
+                                        color='secondary'
+                                    />
                                 </Box>
                                 <Box gap="Inherit">
                                     <UseStateProvider initial={undefined}>
@@ -286,9 +278,6 @@ export const MessageEditor = as<'div', MessageEditorProps>(
                                                                 evt.currentTarget.getBoundingClientRect()
                                                             )) as MouseEventHandler<HTMLButtonElement>
                                                     }
-                                                    variant="SurfaceVariant"
-                                                    size="300"
-                                                    radii="300"
                                                 >
                                                     <Icon size={1} path={anchor !== undefined ? mdiEmoticon : mdiEmoticonOutline} />
                                                 </IconButton>
