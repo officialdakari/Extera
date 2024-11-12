@@ -10,12 +10,13 @@ import React, {
     useEffect,
     useState,
 } from 'react';
-import { Box, Scroll, Text } from 'folds';
+import { Box, PopOut, Scroll, Text } from 'folds';
 
 import 'quill/dist/quill.core.css';
 import * as css from './Editor.css';
 import './Editor.scss';
 import { useTheme } from '@mui/material';
+import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 // import * as MarkdownShortcuts from 'quill-markdown-shortcuts';
 
 // Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
@@ -36,6 +37,8 @@ type CustomEditorProps = {
     textAreaRef: React.RefObject<HTMLTextAreaElement>;
     newDesign?: boolean;
     disabled?: boolean;
+    emojiBoard?: ReactNode;
+    emojiBoardAnchor?: any;
 };
 
 export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
@@ -53,13 +56,16 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
         onPaste,
         textAreaRef,
         newDesign,
-        disabled
+        disabled,
+        emojiBoard,
+        emojiBoardAnchor
     }, ref) => {
         const theme = useTheme();
         const updateRows = (target: HTMLTextAreaElement) => {
             target.style.height = `auto`;
             target.style.height = `${target.scrollHeight}px`;
         };
+        const screenSize = useScreenSize();
         const handleChange = (evt: ChangeEvent<HTMLTextAreaElement>) => {
             const previousText = evt.target.dataset.previousText ?? '';
             var newText = evt.target.value;
@@ -98,10 +104,24 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
                 style={{
                     backgroundColor: theme.palette.background.paper,
                     color: theme.palette.text.primary,
-                    borderRadius: !newDesign ? theme.shape.borderRadius : undefined
+                    borderRadius: !newDesign ? theme.shape.borderRadius : undefined,
+                    borderColor: !newDesign ? theme.palette.divider : undefined
                 }}
             >
                 {top}
+                {screenSize !== ScreenSize.Mobile && (
+                    <PopOut
+                        offset={16}
+                        alignOffset={-44}
+                        position="Top"
+                        align="End"
+                        anchor={emojiBoardAnchor}
+                        content={
+                            emojiBoard
+                        }
+                        style={{ zIndex: 2 }}
+                    />
+                )}
                 <Box alignItems="Start">
                     {before && (
                         <Box className={css.EditorOptions} alignItems="Center" gap="100" shrink="No">
@@ -136,6 +156,7 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
                     )}
                 </Box>
                 {bottom}
+                {screenSize == ScreenSize.Mobile && emojiBoard}
             </div>
         );
     }

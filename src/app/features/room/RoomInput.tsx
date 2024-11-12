@@ -137,6 +137,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const [voiceMessages] = useSetting(settingsAtom, 'voiceMessages');
 
         const [msgContent, setMsgContent] = useState<IContent>();
+        const [emojiBoardTab, setEmojiBoardTab] = useState<EmojiBoardTab | undefined>(undefined);
         const [hideReason, setHideReason] = useState<string | undefined>(undefined);
         const [replyDraft, setReplyDraft] = useAtom(roomIdToReplyDraftAtomFamily(roomId));
         const [msgDraft, setMsgDraft] = useAtom(roomIdToMsgDraftAtomFamily(roomId));
@@ -645,12 +646,33 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     newDesign={newDesign}
                     // editor={editor}
                     textAreaRef={textAreaRef}
-                    disabled={ar.isRecording}
+                    disabled={ar.isRecording || (emojiBoardTab ? true : false)}
                     placeholder={ar.isRecording ? getText('placeholder.room_input.voice') : getText(canRedact ? 'placeholder.room_input' : 'placeholder.room_input.be_careful')}
                     onKeyDown={handleKeyDown}
                     onChange={handleChange}
                     onKeyUp={handleKeyUp}
                     onPaste={handlePaste}
+                    emojiBoardAnchor={emojiBoardTab === undefined
+                        ? undefined
+                        : emojiBtnRef.current?.getBoundingClientRect() ?? undefined}
+                    emojiBoard={
+                        emojiBoardTab && (
+                            <EmojiBoard
+                                tab={emojiBoardTab}
+                                onTabChange={setEmojiBoardTab}
+                                imagePackRooms={imagePackRooms}
+                                returnFocusOnDeactivate={false}
+                                onEmojiSelect={handleEmoticonSelect}
+                                onCustomEmojiSelect={handleCustomEmoticonSelect}
+                                onStickerSelect={handleStickerSelect}
+                                fullWidth={screenSize === ScreenSize.Mobile}
+                                requestClose={() => {
+                                    setEmojiBoardTab(undefined);
+                                    if (!mobileOrTablet()) textAreaRef.current?.focus();
+                                }}
+                            />
+                        )
+                    }
                     top={
                         <>
                             {selectedFiles.length > 0 && (
@@ -743,59 +765,25 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                     <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={handleHide}>
                                         <Icon size={1} path={hideReason ? mdiEyeOff : mdiEye} />
                                     </IconButton>
-                                    <UseStateProvider initial={undefined}>
-                                        {(emojiBoardTab: EmojiBoardTab | undefined, setEmojiBoardTab) => (
-                                            <PopOut
-                                                offset={16}
-                                                alignOffset={-44}
-                                                position="Top"
-                                                align="End"
-                                                anchor={
-                                                    emojiBoardTab === undefined
-                                                        ? undefined
-                                                        : emojiBtnRef.current?.getBoundingClientRect() ?? undefined
-                                                }
-                                                content={
-                                                    <EmojiBoard
-                                                        tab={emojiBoardTab}
-                                                        onTabChange={setEmojiBoardTab}
-                                                        imagePackRooms={imagePackRooms}
-                                                        returnFocusOnDeactivate={false}
-                                                        onEmojiSelect={handleEmoticonSelect}
-                                                        onCustomEmojiSelect={handleCustomEmoticonSelect}
-                                                        onStickerSelect={handleStickerSelect}
-                                                        requestClose={() => {
-                                                            setEmojiBoardTab(undefined);
-                                                            if (!mobileOrTablet()) textAreaRef.current?.focus();
-                                                        }}
-                                                    />
-                                                }
-                                                style={{ zIndex: 2 }}
-                                            >
-                                                {(
-                                                    <IconButton size='small'
-                                                        aria-pressed={
-                                                            !!emojiBoardTab
-                                                        }
-                                                        onClick={() => {
-                                                            if (emojiBoardTab) {
-                                                                setEmojiBoardTab(undefined);
-                                                            } else {
-                                                                setEmojiBoardTab(showStickerButton ? EmojiBoardTab.Sticker : EmojiBoardTab.Emoji)
-                                                            }
-                                                        }}
-                                                        onMouseDown={dontHideKeyboard}
-                                                        ref={emojiBtnRef}
-                                                    >
-                                                        <Icon
-                                                            size={1}
-                                                            path={showStickerButton ? (!!emojiBoardTab ? mdiSticker : mdiStickerOutline) : (!!emojiBoardTab ? mdiEmoticon : mdiEmoticonOutline)}
-                                                        />
-                                                    </IconButton>
-                                                )}
-                                            </PopOut>
-                                        )}
-                                    </UseStateProvider>
+                                    <IconButton size='small'
+                                        aria-pressed={
+                                            !!emojiBoardTab
+                                        }
+                                        onClick={() => {
+                                            if (emojiBoardTab) {
+                                                setEmojiBoardTab(undefined);
+                                            } else {
+                                                setEmojiBoardTab(showStickerButton ? EmojiBoardTab.Sticker : EmojiBoardTab.Emoji)
+                                            }
+                                        }}
+                                        onMouseDown={dontHideKeyboard}
+                                        ref={emojiBtnRef}
+                                    >
+                                        <Icon
+                                            size={1}
+                                            path={showStickerButton ? (!!emojiBoardTab ? mdiSticker : mdiStickerOutline) : (!!emojiBoardTab ? mdiEmoticon : mdiEmoticonOutline)}
+                                        />
+                                    </IconButton>
                                 </>
                             )}
                             {(isEmptyEditor(textAreaRef) && !ar.isRecording && voiceMessages) ? (

@@ -147,11 +147,12 @@ const EmojiBoardLayout = as<
         footer?: ReactNode;
         children: ReactNode;
         theme: Theme;
+        fullWidth?: boolean;
     }
->(({ className, header, sidebar, footer, children, theme, ...props }, ref) => (
+>(({ className, header, sidebar, footer, children, theme, fullWidth, ...props }, ref) => (
     <Box
         display="InlineFlex"
-        className={classNames(css.Base, className)}
+        className={classNames(fullWidth ? css.FullWidth : css.Base, className)}
         direction="Row"
         style={{ backgroundColor: theme.palette.background.paper, color: theme.palette.text.primary }}
         {...props}
@@ -601,6 +602,7 @@ export function EmojiBoard({
     onCustomEmojiSelect,
     onStickerSelect,
     allowTextCustomEmoji,
+    fullWidth
 }: {
     tab?: EmojiBoardTab;
     onTabChange?: (tab: EmojiBoardTab) => void;
@@ -611,6 +613,7 @@ export function EmojiBoard({
     onCustomEmojiSelect?: (mxc: string, shortcode: string) => void;
     onStickerSelect?: (mxc: string, shortcode: string, label: string) => void;
     allowTextCustomEmoji?: boolean;
+    fullWidth?: boolean;
 }) {
     const emojiTab = tab === EmojiBoardTab.Emoji;
     const stickerTab = tab === EmojiBoardTab.Sticker;
@@ -766,6 +769,7 @@ export function EmojiBoard({
         >
             <EmojiBoardLayout
                 theme={theme}
+                fullWidth={fullWidth}
                 header={
                     <Header>
                         <Box direction="Column" gap="200">

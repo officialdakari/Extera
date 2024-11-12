@@ -1,6 +1,13 @@
 import { style } from '@vanilla-extract/css';
 import { DefaultReset, FocusOutline, color, config, toRem } from 'folds';
 
+export const FullWidth = style({
+    width: `100%`,
+    height: toRem(450),
+    boxShadow: config.shadow.E200,
+    overflow: 'hidden',
+});
+
 export const Base = style({
     maxWidth: toRem(432),
     width: `calc(100vw - 2 * ${config.space.S400})`,

@@ -44,6 +44,7 @@ import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiEmoticon, mdiEmoticonOutline } from '@mdi/js';
 import { Chip, IconButton } from '@mui/material';
+import { Check, Close } from '@mui/icons-material';
 
 type MessageEditorProps = {
     roomId: string;
@@ -243,12 +244,16 @@ export const MessageEditor = as<'div', MessageEditorProps>(
                                         disabled={saveState.status === AsyncStatus.Loading}
                                         label={getText('btn.msg_edit.save')}
                                         color='primary'
+                                        icon={<Check />}
+                                        size='medium'
                                     />
                                     <Chip
                                         onClick={onCancel}
                                         variant='outlined'
                                         label={getText('btn.cancel')}
                                         color='secondary'
+                                        icon={<Close />}
+                                        size='medium'
                                     />
                                 </Box>
                                 <Box gap="Inherit">
