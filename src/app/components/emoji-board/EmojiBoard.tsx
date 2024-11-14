@@ -648,15 +648,6 @@ export function EmojiBoard({
         SEARCH_OPTIONS
     );
 
-    const handleGetFreeEmojis = () => {
-        requestClose();
-        openJoinAlias('#emoji:officialdakari.ru');
-    };
-
-    const handleDismissFreeEmojis = () => {
-        setHideAdvert(true);
-    };
-
     const handleOnChange: ChangeEventHandler<HTMLInputElement> = useDebounce(
         useCallback(
             (evt) => {

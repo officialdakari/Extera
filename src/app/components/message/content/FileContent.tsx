@@ -1,16 +1,10 @@
 import React, { ReactNode, useCallback, useState } from 'react';
 import {
     Box,
-    Modal,
-    Overlay,
-    OverlayBackdrop,
-    OverlayCenter,
     Text,
     as,
 } from 'folds';
-import FileSaver from 'file-saver';
 import { EncryptedAttachmentInfo } from 'browser-encrypt-attachment';
-import FocusTrap from 'focus-trap-react';
 import { IFileInfo } from '../../../../types/matrix/common';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
@@ -22,13 +16,9 @@ import {
     getFileNameExt,
     mimeTypeToExt,
 } from '../../../utils/mimeTypes';
-import * as css from './style.css';
 import { HTMLReactParserOptions } from 'html-react-parser';
-import { RenderBody } from '../RenderBody';
 import { getText } from '../../../../lang';
-import Icon from '@mdi/react';
-import { mdiAlert, mdiArrowDownBold, mdiArrowRight, mdiDownload } from '@mdi/js';
-import { saveFile, useDownloadStatus } from '../../../utils/saveFile';
+import { saveFile } from '../../../utils/saveFile';
 import { Button, Dialog, Tooltip } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { BackButtonHandler } from '../../../hooks/useBackButton';
@@ -146,29 +136,17 @@ export function ReadPdfFile({ body, mimeType, url, encInfo, renderViewer, format
     return (
         <>
             {pdfState.status === AsyncStatus.Success && (
-                <Overlay open={pdfViewer} backdrop={<OverlayBackdrop />}>
-                    <OverlayCenter>
-                        <FocusTrap
-                            focusTrapOptions={{
-                                initialFocus: false,
-                                onDeactivate: () => setPdfViewer(false),
-                                clickOutsideDeactivates: true,
-                            }}
-                        >
-                            <Modal
-                                className={css.ModalWide}
-                                size="500"
-                                onContextMenu={(evt: any) => evt.stopPropagation()}
-                            >
-                                {renderViewer({
-                                    name: filename ?? body,
-                                    src: pdfState.data,
-                                    requestClose: () => setPdfViewer(false),
-                                })}
-                            </Modal>
-                        </FocusTrap>
-                    </OverlayCenter>
-                </Overlay>
+                <Dialog
+                    open={pdfViewer}
+                    onClose={() => setPdfViewer(false)}
+                >
+                    <BackButtonHandler id='pdf-viewr' callback={() => setPdfViewer(false)} />
+                    {renderViewer({
+                        name: filename ?? body,
+                        src: pdfState.data,
+                        requestClose: () => setPdfViewer(false),
+                    })}
+                </Dialog>
             )}
             {pdfState.status === AsyncStatus.Error ? (
                 renderErrorButton(loadPdf, getText('btn.open_pdf'))

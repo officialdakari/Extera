@@ -4,7 +4,6 @@ import { DefaultReset, FocusOutline, color, config, toRem } from 'folds';
 export const FullWidth = style({
     width: `100%`,
     height: toRem(450),
-    boxShadow: config.shadow.E200,
     overflow: 'hidden',
 });
 

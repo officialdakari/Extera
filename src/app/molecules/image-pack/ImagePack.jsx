@@ -20,26 +20,27 @@ import ImagePackProfile from './ImagePackProfile';
 import ImagePackItem from './ImagePackItem';
 import ImagePackUpload from './ImagePackUpload';
 import { getText } from '../../../lang';
-import { Button, Checkbox, TextField } from '@mui/material';
+import { Button, Checkbox, DialogActions, DialogContent, TextField } from '@mui/material';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 
 const renameImagePackItem = (shortcode) => new Promise((resolve) => {
     let isCompleted = false;
 
     openReusableDialog(
-        <Text variant="s1" weight="medium">{getText('rename_pack.title')}</Text>,
+        getText('rename.title'),
         (requestClose) => (
-            <div style={{ padding: 'var(--sp-normal)' }}>
-                <form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        const sc = e.target.shortcode.value;
-                        if (sc.trim() === '') return;
-                        isCompleted = true;
-                        resolve(sc.trim());
-                        requestClose();
-                    }}
-                >
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    const sc = e.target.shortcode.value;
+                    if (sc.trim() === '') return;
+                    isCompleted = true;
+                    resolve(sc.trim());
+                    requestClose();
+                }}
+                style={{ display: 'block' }}
+            >
+                <DialogContent>
                     <TextField
                         value={shortcode}
                         name="shortcode"
@@ -47,10 +48,11 @@ const renameImagePackItem = (shortcode) => new Promise((resolve) => {
                         autoFocus
                         required
                     />
-                    <div style={{ height: 'var(--sp-normal)' }} />
-                    <Button color="primary" variant='contained' type="submit">{getText('btn.rename_pack')}</Button>
-                </form>
-            </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button color="primary" variant='text' type="submit">{getText('btn.rename_pack')}</Button>
+                </DialogActions>
+            </form>
         ),
         () => {
             if (!isCompleted) resolve(null);
@@ -167,7 +169,7 @@ function useImagePackHandles(pack, sendPackContent) {
             getText('delete_pack.title'),
             getText('delete_pack.desc', key),
             getText('btn.delete_pack'),
-            'danger',
+            'error',
         );
         if (!isConfirmed) return;
         pack.removeImage(key);

@@ -538,6 +538,7 @@ function ProfileViewer() {
                 <Box grow='Yes'>
                     <AppBar
                         position='static'
+                        className={bannerUrl && 'appbar__has-banner'}
                         sx={bannerUrl && {
                             background: `url(${bannerUrl}), #00000060`,
                             backgroundRepeat: 'no-repeat',

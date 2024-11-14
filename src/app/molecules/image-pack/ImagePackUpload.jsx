@@ -50,7 +50,7 @@ function ImagePackUpload({ onUpload }) {
 
     return (
         <form onSubmit={handleSubmit} className="image-pack-upload">
-            <input ref={inputRef} onChange={handleFileChange} style={{ display: 'none' }} type="file" accept=".png, .gif, .webp" required />
+            <input ref={inputRef} onChange={handleFileChange} style={{ display: 'none' }} type="file" accept="image/*" required />
             {
                 imgFile
                     ? (

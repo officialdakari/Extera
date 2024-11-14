@@ -1011,5 +1011,6 @@
     "btn.add_theme": "Add",
     "header.extera_customization.themes": "Themes",
     "join_alias.label": "Room address",
-    "btn.open_location_in_new": "Open in browser"
+    "btn.open_location_in_new": "Open in browser",
+    "rename.title": "Rename"
 }

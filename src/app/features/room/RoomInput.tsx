@@ -200,7 +200,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const handlePaste = useFilePasteHandler(handleFiles);
         const dropZoneVisible = useFileDropZone(fileDropContainerRef, handleFiles);
         const [showStickerButton, setShowStickerButton] = useState(true);
-        const [screenSize] = useScreenSize();
+        const screenSize = useScreenSize();
 
         const handleRemoveUpload = useCallback(
             (upload: TUploadContent | TUploadContent[]) => {
