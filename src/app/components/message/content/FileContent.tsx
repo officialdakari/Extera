@@ -22,6 +22,8 @@ import { saveFile } from '../../../utils/saveFile';
 import { Button, Dialog, Tooltip } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { BackButtonHandler } from '../../../hooks/useBackButton';
+import { useModals } from '../../../hooks/useModals';
+import { v4 } from 'uuid';
 
 const renderErrorButton = (retry: () => void, text: string) => (
     <Tooltip title={getText('msg.file.failed')}>
@@ -110,6 +112,8 @@ type RenderPdfViewerProps = {
     name: string;
     src: string;
     requestClose: () => void;
+    openInNew?: () => void;
+    seperateWindow?: boolean;
 };
 export type ReadPdfFileProps = {
     body: string;
@@ -124,6 +128,7 @@ export type ReadPdfFileProps = {
 export function ReadPdfFile({ body, mimeType, url, encInfo, renderViewer, format, formatted_body, filename }: ReadPdfFileProps) {
     const mx = useMatrixClient();
     const [pdfViewer, setPdfViewer] = useState(false);
+    const modals = useModals();
 
     const [pdfState, loadPdf] = useAsyncCallback(
         useCallback(async () => {
@@ -145,6 +150,14 @@ export function ReadPdfFile({ body, mimeType, url, encInfo, renderViewer, format
                         name: filename ?? body,
                         src: pdfState.data,
                         requestClose: () => setPdfViewer(false),
+                        openInNew: () => {
+                            const id = v4();
+                            modals.addModal({
+                                node: renderViewer({ name: filename || body, src: pdfState.data, seperateWindow: true, requestClose: () => modals.removeModal(id) }),
+                                allowClose: true,
+                                title: 'PDF Viewer'
+                            });
+                        }
                     })}
                 </Dialog>
             )}

@@ -42,7 +42,7 @@ export const ImageViewer = as<'div', ImageViewerProps>(
                         <IconButton onClick={requestClose}>
                             <Close />
                         </IconButton>
-                        <Typography variant='h6' component='div' flexGrow={1} overflow='hidden' maxWidth='50%'>
+                        <Typography variant='h6' component='div' flexGrow={1} overflow='hidden' maxHeight='1.5em'>
                             {alt}
                         </Typography>
                         <Box gap='200'>

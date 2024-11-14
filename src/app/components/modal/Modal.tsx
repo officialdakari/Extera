@@ -1,4 +1,3 @@
-import { Box, config, Header, IconButton, Modal, Text } from 'folds';
 import React, { useEffect, useState } from 'react';
 import Draggable from 'react-draggable';
 import { Resizable } from 'react-resizable';
@@ -8,6 +7,7 @@ import * as css from './Modal.css';
 import { ModalsType } from '../../hooks/useModals';
 import Icon from '@mdi/react';
 import { mdiClose, mdiOpenInNew } from '@mdi/js';
+import { AppBar, IconButton, Paper, Toolbar, Typography } from '@mui/material';
 
 type ModalsProps = {
     modals: ModalsType;
@@ -60,37 +60,32 @@ export function Modals({ modals }: ModalsProps) {
                                     width: `${dimensions[id]?.width || 500}px`,
                                     height: `${dimensions[id]?.height || 300}px`
                                 }}>
-                                    <Modal variant="Surface" style={{ width: '100%', height: '100%', maxWidth: '100%', maxHeight: '100' }}>
-                                        <Header
-                                            style={{
-                                                padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
-                                                borderBottomWidth: config.borderWidth.B300,
-                                            }}
-                                            variant="Surface"
-                                            size="500"
-                                        >
-                                            <Box className='modal-header' grow="Yes">
-                                                <Text size="H4">{content.title ?? 'Modal'}</Text>
-                                            </Box>
-                                            {
-                                                content.externalUrl && (
-                                                    <IconButton size="300" onClick={() => window.open(content.externalUrl, '_blank')} radii="300">
-                                                        <Icon size={1} path={mdiOpenInNew} />
-                                                    </IconButton>
-                                                )
-                                            }
-                                            {
-                                                content.allowClose && (
-                                                    <IconButton size="300" onClick={() => modals.removeModal(id)} radii="300">
-                                                        <Icon size={1} path={mdiClose} />
-                                                    </IconButton>
-                                                )
-                                            }
-                                        </Header>
-                                        <div style={{ overflow: 'auto', height: '100%', width: '100%' }}>
-                                            {content.node}
-                                        </div>
-                                    </Modal>
+                                    <Paper sx={{ bgcolor: 'background.paper' }}>
+                                        <AppBar className='modal-header' position='relative'>
+                                            <Toolbar variant='dense'>
+                                                <Typography variant='h6' component='div' flexGrow={1}>
+                                                    {content.title ?? 'Modal'}
+                                                </Typography>
+                                                {
+                                                    content.externalUrl && (
+                                                        <IconButton onClick={() => window.open(content.externalUrl, '_blank')}>
+                                                            <Icon size={1} path={mdiOpenInNew} />
+                                                        </IconButton>
+                                                    )
+                                                }
+                                                {
+                                                    content.allowClose && (
+                                                        <IconButton onClick={() => modals.removeModal(id)}>
+                                                            <Icon size={1} path={mdiClose} />
+                                                        </IconButton>
+                                                    )
+                                                }
+                                            </Toolbar>
+                                        </AppBar>
+                                    </Paper>
+                                    <div style={{ overflow: 'auto', height: '100%', width: '100%' }}>
+                                        {content.node}
+                                    </div>
                                 </div>
                             </Resizable>
                         </div>

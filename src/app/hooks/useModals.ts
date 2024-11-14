@@ -2,7 +2,7 @@ import { createContext, ReactNode, useContext, useState } from 'react';
 import { v4 } from 'uuid';
 
 export type ModalsType = {
-    addModal: (element: Modal) => string;
+    addModal: (element: Modal, id?: string) => string;
     removeModal: (id: string) => void;
     getModals: () => Record<string, Modal> | undefined;
     getModal: (id: string) => Modal | undefined;
@@ -30,8 +30,8 @@ export function createModals(): ModalsType {
     const [record, setRecord] = useState<Record<string, Modal>>({});
 
     const modals: ModalsType = {
-        addModal: (element) => {
-            const id = v4();
+        addModal: (element, cid) => {
+            const id = cid || v4();
             setRecord(o => {
                 const updatedRecord = { ...o, [id]: element };
                 return updatedRecord;

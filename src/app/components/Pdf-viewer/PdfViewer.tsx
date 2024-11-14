@@ -15,7 +15,7 @@ import { createPage, usePdfDocumentLoader, usePdfJSLoader } from '../../plugins/
 import { getText } from '../../../lang';
 import { saveFile } from '../../utils/saveFile';
 import Icon from '@mdi/react';
-import { mdiDownload, mdiMinus, mdiPlus } from '@mdi/js';
+import { mdiDownload, mdiMinus, mdiOpenInNew, mdiPlus } from '@mdi/js';
 import { AppBar, Button, Chip, CircularProgress, IconButton, Pagination, Toolbar, Typography } from '@mui/material';
 import { ArrowBack, Close, Replay } from '@mui/icons-material';
 
@@ -23,10 +23,12 @@ export type PdfViewerProps = {
     name: string;
     src: string;
     requestClose: () => void;
+    openInNew?: () => void;
+    seperateWindow?: boolean;
 };
 
 export const PdfViewer = as<'div', PdfViewerProps>(
-    ({ className, name, src, requestClose, ...props }, ref) => {
+    ({ className, name, src, requestClose, seperateWindow, openInNew, ...props }, ref) => {
         const containerRef = useRef<HTMLDivElement>(null);
         const scrollRef = useRef<HTMLDivElement>(null);
         const { zoom, zoomIn, zoomOut, setZoom } = useZoom(0.2);
@@ -78,28 +80,35 @@ export const PdfViewer = as<'div', PdfViewerProps>(
                         <IconButton onClick={requestClose}>
                             <ArrowBack />
                         </IconButton>
-                        <Typography variant='h6' component='div' flexGrow={1} overflow='hidden' maxWidth='50%'>
+                        <Typography variant='h6' component='div' flexGrow={1} overflow='hidden' maxHeight='1.5em'>
                             {name}
                         </Typography>
-                        <Box gap='200'>
+                        <Box gap='100'>
+                            {!seperateWindow && (
+                                <IconButton
+                                    onClick={openInNew}
+                                >
+                                    <Icon size={1} path={mdiOpenInNew} />
+                                </IconButton>
+                            )}
                             <IconButton
                                 onClick={zoomOut}
                                 aria-label={getText('aria.zoom_out')}
                             >
                                 <Icon size={1} path={mdiMinus} />
                             </IconButton>
-                            <Chip size='medium' onClick={() => setZoom(zoom === 1 ? 2 : 1)} label={<>{Math.round(zoom * 100)}%</>} />
                             <IconButton
                                 onClick={zoomIn}
                                 aria-label={getText('aria.zoom_in')}
                             >
                                 <Icon size={1} path={mdiPlus} />
                             </IconButton>
-                            <Chip
+                            <IconButton
                                 onClick={handleDownload}
-                                label={getText('btn.download')}
-                                icon={<Icon size={1} path={mdiDownload} />}
-                            />
+                                aria-label={getText('btn.download')}
+                            >
+                                <Icon size={1} path={mdiDownload} />
+                            </IconButton>
                         </Box>
                     </Toolbar>
                 </AppBar>
