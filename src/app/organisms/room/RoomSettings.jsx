@@ -149,7 +149,7 @@ function RoomSettings() {
         >
             {window !== null && <BackButtonHandler callback={requestClose} id='room-settings' />}
             {window !== null && (
-                <AppBar position='relative'>
+                <AppBar position='relative' className={bannerURL && 'appbar__has-banner'}>
                     <ProminientToolbar sx={{ background: bannerURL && `url(${bannerURL})` }}>
                         <Box flexGrow={1}>
                             <RoomProfile roomId={roomId} />

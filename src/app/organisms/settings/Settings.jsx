@@ -913,6 +913,7 @@ function Settings() {
             {isOpen && (
                 <AppBar
                     position='sticky'
+                    className={bannerSrc && 'appbar__has-banner'}
                     sx={bannerSrc && {
                         background: `url(${bannerUrl}), #00000060`,
                         backgroundRepeat: 'no-repeat',
