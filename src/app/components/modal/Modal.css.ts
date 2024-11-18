@@ -5,3 +5,12 @@ export const DraggableContainer = style({
     zIndex: '100'
     //minWidth: '600px'
 });
+
+export const MobileModal = style({
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: '100'
+});

@@ -4,6 +4,8 @@ import { v4 } from 'uuid';
 export type ModalsType = {
     addModal: (element: Modal, id?: string) => string;
     removeModal: (id: string) => void;
+    hideModal: (id: string) => void;
+    showModal: (id: string) => void;
     getModals: () => Record<string, Modal> | undefined;
     getModal: (id: string) => Modal | undefined;
     record: Record<string, Modal> | undefined;
@@ -45,6 +47,20 @@ export function createModals(): ModalsType {
             setRecord(o => {
                 const updatedRecord = { ...o };
                 delete updatedRecord[id];
+                return updatedRecord;
+            });
+        },
+        hideModal: (id: string) => {
+            setRecord(o => {
+                const updatedRecord = { ...o };
+                updatedRecord[id].hidden = true;
+                return updatedRecord;
+            });
+        },
+        showModal: (id: string) => {
+            setRecord(o => {
+                const updatedRecord = { ...o };
+                updatedRecord[id].hidden = false;
                 return updatedRecord;
             });
         },

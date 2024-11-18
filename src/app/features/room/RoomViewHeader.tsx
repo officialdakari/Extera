@@ -462,6 +462,8 @@ export function RoomViewHeader({
                 open={showWidgets}
                 onClose={() => setShowWidgets(false)}
                 scroll='body'
+                fullWidth
+                maxWidth='sm'
             >
                 <AppBar sx={{ position: 'relative' }}>
                     <Toolbar>
@@ -481,7 +483,7 @@ export function RoomViewHeader({
                         </IconButton>
                     </Toolbar>
                 </AppBar>
-                <DialogContent sx={{ minWidth: '500px', minHeight: '300px' }}>
+                <DialogContent>
                     {widgets}
                 </DialogContent>
             </Dialog>
