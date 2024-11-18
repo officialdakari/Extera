@@ -290,15 +290,15 @@ export function MembersDrawer({ room }: MembersDrawerProps) {
             shrink="No"
             direction="Column"
             initial={{
-                width: 0,
+                translateX: '100%',
                 opacity: 0.1,
             }}
             exit={{
-                width: 0,
+                translateX: '100%',
                 opacity: 0.1,
             }}
             animate={{
-                width: toRem(266),
+                translateX: 0,
                 opacity: 1,
             }}
         >

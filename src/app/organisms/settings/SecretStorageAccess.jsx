@@ -72,7 +72,7 @@ function SecretStorageAccess({ onComplete }) {
     };
 
     return (
-        <form onSubmit={handleForm}>
+        <form style={{ flexDirection: 'column' }} onSubmit={handleForm}>
             <DialogContent>
                 <TextField
                     name="password"
@@ -86,8 +86,8 @@ function SecretStorageAccess({ onComplete }) {
                 {error && <Alert severity='error'>{error}</Alert>}
             </DialogContent>
             <DialogActions>
+                {isPassphrase && <Button color='secondary' onClick={toggleWithPhrase}>{`Use Security ${withPhrase ? 'Key' : 'Phrase'}`}</Button>}
                 <LoadingButton loading={process} type="submit">{getText('btn.continue')}</LoadingButton>
-                {isPassphrase && <Button onClick={toggleWithPhrase}>{`Use Security ${withPhrase ? 'Key' : 'Phrase'}`}</Button>}
             </DialogActions>
         </form>
     );

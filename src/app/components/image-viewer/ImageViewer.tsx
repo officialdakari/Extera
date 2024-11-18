@@ -39,35 +39,41 @@ export const ImageViewer = as<'div', ImageViewerProps>(
                 <BackButtonHandler callback={requestClose} id='image-viewer' />
                 <AppBar position='static'>
                     <Toolbar>
-                        <IconButton onClick={requestClose}>
-                            <Close />
-                        </IconButton>
-                        <Typography variant='h6' component='div' flexGrow={1} overflow='hidden' maxHeight='1.5em'>
-                            {alt}
-                        </Typography>
-                        <Box gap='200'>
-                            <IconButton
-                                onClick={zoomOut}
-                                aria-label={getText('aria.zoom_out')}
-                                edge='end'
-                            >
-                                <ZoomOut />
-                            </IconButton>
-                            <Chip variant="outlined" onClick={() => setZoom(zoom === 1 ? 2 : 1)} label={`${Math.round(zoom * 100)}%`} />
-                            <IconButton
-                                onClick={zoomIn}
-                                aria-label={getText('aria.zoom_in')}
-                                edge='end'
-                            >
-                                <ZoomIn />
-                            </IconButton>
-                            <IconButton
-                                aria-label={getText('btn.download')}
-                                onClick={handleDownload}
-                                edge='end'
-                            >
-                                <Download />
-                            </IconButton>
+                        <Box grow='Yes' gap='300'>
+                            <Box shrink='No'>
+                                <IconButton onClick={requestClose}>
+                                    <Close />
+                                </IconButton>
+                            </Box>
+                            <Box grow="Yes" alignItems="Center" gap="300">
+                                <Typography variant='h6' component='div' flexGrow={1} overflow='hidden' maxHeight='1.5em'>
+                                    {alt}
+                                </Typography>
+                            </Box>
+                            <Box shrink='No'>
+                                <IconButton
+                                    onClick={zoomOut}
+                                    aria-label={getText('aria.zoom_out')}
+                                    edge='end'
+                                >
+                                    <ZoomOut />
+                                </IconButton>
+                                <Chip variant="outlined" onClick={() => setZoom(zoom === 1 ? 2 : 1)} label={`${Math.round(zoom * 100)}%`} />
+                                <IconButton
+                                    onClick={zoomIn}
+                                    aria-label={getText('aria.zoom_in')}
+                                    edge='end'
+                                >
+                                    <ZoomIn />
+                                </IconButton>
+                                <IconButton
+                                    aria-label={getText('btn.download')}
+                                    onClick={handleDownload}
+                                    edge='end'
+                                >
+                                    <Download />
+                                </IconButton>
+                            </Box>
                         </Box>
                     </Toolbar>
                 </AppBar>

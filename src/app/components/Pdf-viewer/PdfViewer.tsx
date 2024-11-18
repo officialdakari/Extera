@@ -77,13 +77,15 @@ export const PdfViewer = as<'div', PdfViewerProps>(
             <Box className={classNames(css.PdfViewer, className)} direction="Column" {...props} ref={ref}>
                 <AppBar position='static'>
                     <Toolbar>
-                        <IconButton onClick={requestClose}>
-                            <ArrowBack />
-                        </IconButton>
+                        <Box shrink='No'>
+                            <IconButton onClick={requestClose}>
+                                <ArrowBack />
+                            </IconButton>
+                        </Box>
                         <Typography variant='h6' component='div' flexGrow={1} overflow='hidden' maxHeight='1.5em'>
                             {name}
                         </Typography>
-                        <Box gap='100'>
+                        <Box shrink='No'>
                             {!seperateWindow && (
                                 <IconButton
                                     onClick={openInNew}

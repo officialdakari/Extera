@@ -82,10 +82,10 @@ export function Modals({ modals }: ModalsProps) {
                                                 }
                                             </Toolbar>
                                         </AppBar>
+                                        <div style={{ overflow: 'auto', height: '100%', width: '100%' }}>
+                                            {content.node}
+                                        </div>
                                     </Paper>
-                                    <div style={{ overflow: 'auto', height: '100%', width: '100%' }}>
-                                        {content.node}
-                                    </div>
                                 </div>
                             </Resizable>
                         </div>

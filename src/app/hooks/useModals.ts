@@ -12,6 +12,7 @@ export type ModalsType = {
 type Modal = {
     node: ReactNode;
     allowClose?: boolean;
+    hidden?: boolean;
     title?: string;
     externalUrl?: string;
 };

@@ -621,6 +621,9 @@ function ProfileViewer() {
 
     return (
         <Dialog
+            fullWidth
+            fullScreen={screenSize === ScreenSize.Mobile}
+            maxWidth={screenSize !== ScreenSize.Mobile ? 'sm' : null}
             open={isOpen}
             onClose={closeDialog}
         >
