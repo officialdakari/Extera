@@ -57,12 +57,12 @@ export default defineConfig({
     publicDir: false,
     base: buildConfig.base,
     server: {
-        port: 8443,
+        port: 8080,
         host: '0.0.0.0',
-        https: {
-            cert: readFileSync('../sslthings/extera.local.crt'),
-            key: readFileSync('../sslthings/extera.local.key')
-        },
+        // https: {
+        //     cert: readFileSync('../sslthings/extera.local.crt'),
+        //     key: readFileSync('../sslthings/extera.local.key')
+        // },
         proxy: {
             "^\\/.*?\\/olm\\.wasm$": {
                 target: 'http://localhost:8080',

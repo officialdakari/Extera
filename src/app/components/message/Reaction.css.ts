@@ -6,7 +6,7 @@ export const Reaction = style([
     FocusOutline,
     {
         padding: `${toRem(2)} ${config.space.S200} ${toRem(2)} ${config.space.S100}`,
-        backgroundColor: colors.green[700],
+        backgroundColor: colors.grey[800],
         color: colors.common.white,
         borderRadius: config.radii.Pill,
 
