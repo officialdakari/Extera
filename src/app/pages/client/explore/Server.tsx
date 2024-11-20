@@ -11,16 +11,7 @@ import React, {
 import { Icon as MDIcon } from '@mdi/react';
 import {
     Box,
-    Button,
-    Chip,
-    Input,
-    Line,
-    Menu,
-    MenuItem,
-    PopOut,
-    RectCords,
     Scroll,
-    Spinner,
     Text,
     config,
     toRem,
@@ -42,6 +33,9 @@ import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
 import { getMxIdServer } from '../../../utils/matrix';
 import { getText } from '../../../../lang';
 import { mdiAlertCircleOutline, mdiArrowLeft, mdiCheck, mdiChevronDown, mdiClose, mdiMagnify, mdiServer, mdiServerNetwork, mdiShape } from '@mdi/js';
+import { SearchContainer, SearchIcon, SearchIconWrapper, SearchInputBase } from '../../../atoms/search/Search';
+import { Alert, AppBar, Button, Chip, Divider, ListSubheader, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import { Check, KeyboardArrowDown } from '@mui/icons-material';
 
 const useServerSearchParams = (searchParams: URLSearchParams): ExploreServerPathSearchParams =>
     useMemo(
@@ -104,40 +98,17 @@ function Search({ active, loading, searchInputRef, onSearch, onReset }: SearchPr
         <Box as="form" direction="Column" gap="100" onSubmit={handleSearchSubmit}>
             <span data-spacing-node />
             <Text size="L400">{getText('explore.server.search')}</Text>
-            <Input
-                ref={searchInputRef}
-                style={{ paddingRight: config.space.S300 }}
-                name="searchInput"
-                size="500"
-                variant="Background"
-                placeholder={getText('placeholder.explore.server.search')}
-                before={
-                    active && loading ? (
-                        <Spinner variant="Secondary" size="200" />
-                    ) : (
-                        <MDIcon size={1} path={mdiMagnify} />
-                    )
-                }
-                after={
-                    active ? (
-                        <Chip
-                            type="button"
-                            variant="Secondary"
-                            size="400"
-                            radii="Pill"
-                            outlined
-                            after={<MDIcon size={0.7} path={mdiClose} />}
-                            onClick={onReset}
-                        >
-                            <Text size="B300">{getText('btn.clear_search')}</Text>
-                        </Chip>
-                    ) : (
-                        <Chip type="submit" variant="Primary" size="400" radii="Pill" outlined>
-                            <Text size="B300">{getText('btn.submit_search')}</Text>
-                        </Chip>
-                    )
-                }
-            />
+            <SearchContainer>
+                <SearchIconWrapper>
+                    <SearchIcon />
+                </SearchIconWrapper>
+                <SearchInputBase
+                    inputRef={searchInputRef}
+                    name='searchInput'
+                    placeholder={getText('placeholder.explore.server.search')}
+                    disabled={active && loading}
+                />
+            </SearchContainer>
         </Box>
     );
 }
@@ -151,21 +122,21 @@ function ThirdPartyProtocolsSelector({
     onChange: (instanceId?: string) => void;
 }) {
     const mx = useMatrixClient();
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
+    const [menuAnchor, setMenuAnchor] = useState<HTMLElement>();
 
     const { data } = useQuery({
         queryKey: ['thirdparty', 'protocols'],
         queryFn: () => mx.getThirdpartyProtocols(),
     });
 
-    const handleInstanceSelect: MouseEventHandler<HTMLButtonElement> = (evt): void => {
+    const handleInstanceSelect: MouseEventHandler<HTMLLIElement> = (evt): void => {
         const insId = evt.currentTarget.getAttribute('data-instance-id') ?? undefined;
         onChange(insId);
         setMenuAnchor(undefined);
     };
 
     const handleOpenMenu: MouseEventHandler<HTMLElement> = (evt) => {
-        setMenuAnchor(evt.currentTarget.getBoundingClientRect());
+        setMenuAnchor(evt.currentTarget);
     };
 
     const instances = data && Object.keys(data).flatMap((protocol) => data[protocol].instances);
@@ -173,167 +144,122 @@ function ThirdPartyProtocolsSelector({
     const selectedInstance = instances.find((instance) => instanceId === instance.instance_id);
 
     return (
-        <PopOut
-            anchor={menuAnchor}
-            align="End"
-            position="Bottom"
-            content={
-                <FocusTrap
-                    focusTrapOptions={{
-                        initialFocus: false,
-                        onDeactivate: () => setMenuAnchor(undefined),
-                        clickOutsideDeactivates: true,
-                    }}
-                >
-                    <Menu variant="Surface">
-                        <Box
-                            direction="Column"
-                            gap="100"
-                            style={{ padding: config.space.S100, minWidth: toRem(100) }}
-                        >
-                            <Text style={{ padding: config.space.S100 }} size="L400" truncate>
-                                {getText('explore.server.protocols')}
-                            </Text>
-                            <Box direction="Column">
-                                <MenuItem
-                                    size="300"
-                                    variant="Surface"
-                                    aria-pressed={instanceId === undefined}
-                                    radii="300"
-                                    onClick={handleInstanceSelect}
-                                >
-                                    <Text size="T200" truncate>
-                                        {DEFAULT_INSTANCE_NAME}
-                                    </Text>
-                                </MenuItem>
-                                {instances.map((instance) => (
-                                    <MenuItem
-                                        size="300"
-                                        key={instance.instance_id}
-                                        data-instance-id={instance.instance_id}
-                                        aria-pressed={instanceId === instance.instance_id}
-                                        variant="Surface"
-                                        radii="300"
-                                        onClick={handleInstanceSelect}
-                                    >
-                                        <Text size="T200" truncate>
-                                            {instance.desc}
-                                        </Text>
-                                    </MenuItem>
-                                ))}
-                            </Box>
-                        </Box>
-                    </Menu>
-                </FocusTrap>
-            }
-        >
+        <>
+            <Menu open={!!menuAnchor} anchorEl={menuAnchor} onClose={() => setMenuAnchor(undefined)}>
+                <MenuItem selected={instanceId === undefined} onClick={handleInstanceSelect}>
+                    {DEFAULT_INSTANCE_NAME}
+                </MenuItem>
+                {instances.map((instance) => (
+                    <MenuItem
+                        key={instance.instance_id}
+                        selected={instanceId === instance.instance_id}
+                        onClick={handleInstanceSelect}
+                    >
+                        {instance.desc}
+                    </MenuItem>
+                ))}
+            </Menu>
             <Chip
+                label={selectedInstance?.desc || DEFAULT_INSTANCE_NAME}
                 onClick={handleOpenMenu}
                 aria-pressed={!!menuAnchor}
-                radii="Pill"
-                size="400"
-                variant={instanceId ? 'Success' : 'SurfaceVariant'}
-                after={<MDIcon size={1} path={mdiChevronDown} />}
-            >
-                <Text size="T200" truncate>
-                    {selectedInstance?.desc ?? DEFAULT_INSTANCE_NAME}
-                </Text>
-            </Chip>
-        </PopOut>
+                icon={<KeyboardArrowDown />}
+            />
+        </>
     );
 }
 
-type LimitButtonProps = {
-    limit: number;
-    onLimitChange: (limit: string) => void;
-};
-function LimitButton({ limit, onLimitChange }: LimitButtonProps) {
-    const [menuAnchor, setMenuAnchor] = useState<RectCords>();
+// type LimitButtonProps = {
+//     limit: number;
+//     onLimitChange: (limit: string) => void;
+// };
+// function LimitButton({ limit, onLimitChange }: LimitButtonProps) {
+//     const [menuAnchor, setMenuAnchor] = useState<DOMRect>();
 
-    const handleLimitSubmit: FormEventHandler<HTMLFormElement> = (evt) => {
-        evt.preventDefault();
-        const limitInput = evt.currentTarget.limitInput as HTMLInputElement;
-        if (!limitInput) return;
-        const newLimit = limitInput.value.trim();
-        if (!newLimit) return;
-        onLimitChange(newLimit);
-    };
+//     const handleLimitSubmit: FormEventHandler<HTMLFormElement> = (evt) => {
+//         evt.preventDefault();
+//         const limitInput = evt.currentTarget.limitInput as HTMLInputElement;
+//         if (!limitInput) return;
+//         const newLimit = limitInput.value.trim();
+//         if (!newLimit) return;
+//         onLimitChange(newLimit);
+//     };
 
-    const setLimit = (l: string) => {
-        setMenuAnchor(undefined);
-        onLimitChange(l);
-    };
-    const handleOpenMenu: MouseEventHandler<HTMLElement> = (evt) => {
-        setMenuAnchor(evt.currentTarget.getBoundingClientRect());
-    };
+//     const setLimit = (l: string) => {
+//         setMenuAnchor(undefined);
+//         onLimitChange(l);
+//     };
+//     const handleOpenMenu: MouseEventHandler<HTMLElement> = (evt) => {
+//         setMenuAnchor(evt.currentTarget.getBoundingClientRect());
+//     };
 
-    return (
-        <PopOut
-            anchor={menuAnchor}
-            align="End"
-            position="Bottom"
-            content={
-                <FocusTrap
-                    focusTrapOptions={{
-                        initialFocus: false,
-                        onDeactivate: () => setMenuAnchor(undefined),
-                        clickOutsideDeactivates: true,
-                    }}
-                >
-                    <Menu variant="Surface">
-                        <Box direction="Column" gap="400" style={{ padding: config.space.S300 }}>
-                            <Box direction="Column" gap="100">
-                                <Text size="L400">{getText('presets')}</Text>
-                                <Box gap="100" wrap="Wrap">
-                                    <Chip variant="SurfaceVariant" onClick={() => setLimit('24')} radii="Pill">
-                                        <Text size="T200">24</Text>
-                                    </Chip>
-                                    <Chip variant="SurfaceVariant" onClick={() => setLimit('48')} radii="Pill">
-                                        <Text size="T200">48</Text>
-                                    </Chip>
-                                    <Chip variant="SurfaceVariant" onClick={() => setLimit('96')} radii="Pill">
-                                        <Text size="T200">96</Text>
-                                    </Chip>
-                                </Box>
-                            </Box>
-                            <Box as="form" onSubmit={handleLimitSubmit} direction="Column" gap="300">
-                                <Box direction="Column" gap="100">
-                                    <Text size="L400">{getText('count.custom_limit')}</Text>
-                                    <Input
-                                        name="limitInput"
-                                        size="300"
-                                        variant="Background"
-                                        defaultValue={limit}
-                                        min={1}
-                                        step={1}
-                                        outlined
-                                        type="number"
-                                        radii="400"
-                                        aria-label={getText('aria.per_page_item_limit')}
-                                    />
-                                </Box>
-                                <Button type="submit" size="300" variant="Primary" radii="400">
-                                    <Text size="B300">{getText('count.set_limit')}</Text>
-                                </Button>
-                            </Box>
-                        </Box>
-                    </Menu>
-                </FocusTrap>
-            }
-        >
-            <Chip
-                onClick={handleOpenMenu}
-                aria-pressed={!!menuAnchor}
-                radii="Pill"
-                size="400"
-                variant="SurfaceVariant"
-                after={<MDIcon size={1} path={mdiChevronDown} />}
-            >
-                <Text size="T200" truncate>{getText('count.page_limit', limit)}</Text>
-            </Chip>
-        </PopOut>
-    );
-}
+//     return (
+//         <PopOut
+//             anchor={menuAnchor}
+//             align="End"
+//             position="Bottom"
+//             content={
+//                 <FocusTrap
+//                     focusTrapOptions={{
+//                         initialFocus: false,
+//                         onDeactivate: () => setMenuAnchor(undefined),
+//                         clickOutsideDeactivates: true,
+//                     }}
+//                 >
+//                     <Menu variant="Surface">
+//                         <Box direction="Column" gap="400" style={{ padding: config.space.S300 }}>
+//                             <Box direction="Column" gap="100">
+//                                 <Text size="L400">{getText('presets')}</Text>
+//                                 <Box gap="100" wrap="Wrap">
+//                                     <Chip variant="SurfaceVariant" onClick={() => setLimit('24')} radii="Pill">
+//                                         <Text size="T200">24</Text>
+//                                     </Chip>
+//                                     <Chip variant="SurfaceVariant" onClick={() => setLimit('48')} radii="Pill">
+//                                         <Text size="T200">48</Text>
+//                                     </Chip>
+//                                     <Chip variant="SurfaceVariant" onClick={() => setLimit('96')} radii="Pill">
+//                                         <Text size="T200">96</Text>
+//                                     </Chip>
+//                                 </Box>
+//                             </Box>
+//                             <Box as="form" onSubmit={handleLimitSubmit} direction="Column" gap="300">
+//                                 <Box direction="Column" gap="100">
+//                                     <Text size="L400">{getText('count.custom_limit')}</Text>
+//                                     <Input
+//                                         name="limitInput"
+//                                         size="300"
+//                                         variant="Background"
+//                                         defaultValue={limit}
+//                                         min={1}
+//                                         step={1}
+//                                         outlined
+//                                         type="number"
+//                                         radii="400"
+//                                         aria-label={getText('aria.per_page_item_limit')}
+//                                     />
+//                                 </Box>
+//                                 <Button type="submit" size="300" variant="Primary" radii="400">
+//                                     <Text size="B300">{getText('count.set_limit')}</Text>
+//                                 </Button>
+//                             </Box>
+//                         </Box>
+//                     </Menu>
+//                 </FocusTrap>
+//             }
+//         >
+//             <Chip
+//                 onClick={handleOpenMenu}
+//                 aria-pressed={!!menuAnchor}
+//                 radii="Pill"
+//                 size="400"
+//                 variant="SurfaceVariant"
+//                 after={<MDIcon size={1} path={mdiChevronDown} />}
+//             >
+//                 <Text size="T200" truncate>{getText('count.page_limit', limit)}</Text>
+//             </Chip>
+//         </PopOut>
+//     );
+// }
 
 export function PublicRooms() {
     const { server } = useParams();
@@ -446,16 +372,12 @@ export function PublicRooms() {
         });
     };
 
-    const handleRoomFilterClick: MouseEventHandler<HTMLButtonElement> = (evt) => {
+    const handleRoomFilterClick: MouseEventHandler<HTMLElement> = (evt) => {
         const filter = evt.currentTarget.getAttribute('data-room-filter');
         explore({
             type: filter ?? undefined,
             since: undefined,
         });
-    };
-
-    const handleLimitChange = (limit: string) => {
-        explore({ limit });
     };
 
     const handleInstanceIdChange = (instanceId?: string) => {
@@ -464,38 +386,36 @@ export function PublicRooms() {
 
     return (
         <Page>
-            <PageHeader>
-                {isSearch ? (
-                    <>
-                        <Box grow="Yes" basis="No">
-                            <Chip
-                                size="500"
-                                variant="Surface"
-                                radii="Pill"
-                                before={<MDIcon size={1} path={mdiArrowLeft} />}
-                                onClick={handleSearchClear}
-                            >
-                                <Text size="T300">{server}</Text>
-                            </Chip>
-                        </Box>
+            <AppBar position='static'>
+                <Toolbar>
+                    {isSearch ? (
+                        <>
+                            <Box grow="Yes" basis="No">
+                                <Chip
+                                    label={server}
+                                    icon={<MDIcon size={1} path={mdiArrowLeft} />}
+                                    onClick={handleSearchClear}
+                                />
+                            </Box>
 
-                        <Box grow="No" justifyContent="Center" alignItems="Center" gap="200">
-                            <MDIcon size={1} path={mdiMagnify} />
-                            <Text size="H3" truncate>
-                                {getText('explore.server.search')}
-                            </Text>
+                            <Box grow="No" justifyContent="Center" alignItems="Center" gap="200">
+                                <MDIcon size={1} path={mdiMagnify} />
+                                <Typography variant='h6'>
+                                    {getText('explore.server.search')}
+                                </Typography>
+                            </Box>
+                            <Box grow="Yes" />
+                        </>
+                    ) : (
+                        <Box grow="Yes" justifyContent="Center" alignItems="Center" gap="200">
+                            <MDIcon size={1} path={mdiServerNetwork} />
+                            <Typography variant='h6'>
+                                {server}
+                            </Typography>
                         </Box>
-                        <Box grow="Yes" />
-                    </>
-                ) : (
-                    <Box grow="Yes" justifyContent="Center" alignItems="Center" gap="200">
-                        <MDIcon size={1} path={mdiServerNetwork} />
-                        <Text size="H3" truncate>
-                            {server}
-                        </Text>
-                    </Box>
-                )}
-            </PageHeader>
+                    )}
+                </Toolbar>
+            </AppBar>
             <Box grow="Yes">
                 <Scroll ref={scrollRef} hideTrack visibility="Hover">
                     <PageContent>
@@ -522,48 +442,38 @@ export function PublicRooms() {
                                                     key={filter.title}
                                                     onClick={handleRoomFilterClick}
                                                     data-room-filter={filter.value}
-                                                    variant={filter.value === serverSearchParams.type ? 'Success' : 'Surface'}
-                                                    aria-pressed={filter.value === serverSearchParams.type}
-                                                    before={
-                                                        filter.value === serverSearchParams.type && (
-                                                            <MDIcon size={1} path={mdiCheck} />
-                                                        )
+                                                    color={filter.value === serverSearchParams.type ? 'success' : 'default'}
+                                                    variant='outlined'
+                                                    icon={
+                                                        filter.value === serverSearchParams.type ? (
+                                                            <Check />
+                                                        ) : undefined
                                                     }
-                                                    outlined
-                                                >
-                                                    <Text size="T200">{filter.title}</Text>
-                                                </Chip>
+                                                    label={filter.title}
+                                                />
                                             ))}
                                             {userServer === server && (
                                                 <>
-                                                    <Line
-                                                        style={{ margin: `${config.space.S100} 0` }}
-                                                        direction="Vertical"
-                                                        variant="Surface"
-                                                        size="300"
-                                                    />
+                                                    <Divider orientation='vertical' />
                                                     <ThirdPartyProtocolsSelector
                                                         instanceId={serverSearchParams.instance}
                                                         onChange={handleInstanceIdChange}
                                                     />
                                                 </>
                                             )}
-                                            <Box grow="Yes" data-spacing-node />
-                                            <LimitButton limit={currentLimit} onLimitChange={handleLimitChange} />
                                         </Box>
                                     </Box>
                                     {isLoading && (
                                         <RoomCardGrid>
                                             {[...Array(currentLimit).keys()].map((item) => (
-                                                <RoomCardBase key={item} style={{ minHeight: toRem(260) }} />
+                                                <RoomCardBase key={item} sx={{ minHeight: toRem(260) }} />
                                             ))}
                                         </RoomCardGrid>
                                     )}
                                     {error && (
-                                        <Box direction="Column" className={css.PublicRoomsError} gap="200">
-                                            <Text size="L400">{error.name}</Text>
-                                            <Text size="T300">{error.message}</Text>
-                                        </Box>
+                                        <Alert severity='error' title={error.name}>
+                                            {error.message}
+                                        </Alert>
                                     )}
                                     {data &&
                                         (data.chunk.length > 0 ? (
@@ -599,41 +509,24 @@ export function PublicRooms() {
                                                     <Box justifyContent="Center" gap="200">
                                                         <Button
                                                             onClick={paginateBack}
-                                                            size="300"
-                                                            fill="Soft"
                                                             disabled={!data.prev_batch}
                                                         >
-                                                            <Text size="B300" truncate>
-                                                                {getText('btn.prev_page')}
-                                                            </Text>
+                                                            {getText('btn.prev_page')}
                                                         </Button>
                                                         <Box data-spacing-node grow="Yes" />
                                                         <Button
                                                             onClick={paginateFront}
-                                                            size="300"
-                                                            fill="Solid"
                                                             disabled={!data.next_batch}
                                                         >
-                                                            <Text size="B300" truncate>
-                                                                {getText('btn.next_page')}
-                                                            </Text>
+                                                            {getText('btn.next_page')}
                                                         </Button>
                                                     </Box>
                                                 )}
                                             </>
                                         ) : (
-                                            <Box
-                                                className={css.RoomsInfoCard}
-                                                direction="Column"
-                                                justifyContent="Center"
-                                                alignItems="Center"
-                                                gap="200"
-                                            >
-                                                <MDIcon size={1} path={mdiAlertCircleOutline} />
-                                                <Text size="T300" align="Center">
-                                                    {getText('explore.server.no_communities')}
-                                                </Text>
-                                            </Box>
+                                            <Alert severity='warning'>
+                                                {getText('explore.server.no_communities')}
+                                            </Alert>
                                         ))}
                                 </Box>
                             </Box>

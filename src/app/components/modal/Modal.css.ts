@@ -6,6 +6,13 @@ export const DraggableContainer = style({
     //minWidth: '600px'
 });
 
+export const DraggableButton = style({
+    position: 'absolute',
+    zIndex: '101',
+    width: '64px',
+    height: '64px'
+});
+
 export const MobileModal = style({
     position: 'absolute',
     left: 0,

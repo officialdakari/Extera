@@ -1,12 +1,6 @@
 import React, { ReactNode, useCallback, useEffect, useState } from 'react';
 import {
-    Badge,
     Box,
-    Button,
-    Spinner,
-    Text,
-    Tooltip,
-    TooltipProvider,
     as,
 } from 'folds';
 import classNames from 'classnames';
@@ -26,6 +20,7 @@ import { millisecondsToMinutesAndSeconds } from '../../../utils/common';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiAlert, mdiPlay } from '@mdi/js';
+import { Button, Chip, CircularProgress, Fab, Tooltip, Typography } from '@mui/material';
 
 type RenderVideoProps = {
     title: string;
@@ -109,16 +104,12 @@ export const VideoContent = as<'div', VideoContentProps>(
                 )}
                 {!autoPlay && srcState.status === AsyncStatus.Idle && (
                     <Box className={css.AbsoluteContainer} alignItems="Center" justifyContent="Center">
-                        <Button
-                            variant="Secondary"
-                            fill="Solid"
-                            radii="300"
-                            size="300"
+                        <Fab
+                            aria-label={getText('btn.watch')}
                             onClick={loadSrc}
-                            before={<Icon size={1} path={mdiPlay} />}
                         >
-                            <Text size="B300">{getText('btn.watch')}</Text>
-                        </Button>
+                            <Icon size={1.5} path={mdiPlay} />
+                        </Fab>
                     </Box>
                 )}
                 {srcState.status === AsyncStatus.Success && (
@@ -136,35 +127,20 @@ export const VideoContent = as<'div', VideoContentProps>(
                 {(srcState.status === AsyncStatus.Loading || srcState.status === AsyncStatus.Success) &&
                     !load && (
                         <Box className={css.AbsoluteContainer} alignItems="Center" justifyContent="Center">
-                            <Spinner variant="Secondary" />
+                            <CircularProgress />
                         </Box>
                     )}
                 {(error || srcState.status === AsyncStatus.Error) && (
                     <Box className={css.AbsoluteContainer} alignItems="Center" justifyContent="Center">
-                        <TooltipProvider
-                            tooltip={
-                                <Tooltip variant="Critical">
-                                    <Text>{getText('msg.video.failed')}</Text>
-                                </Tooltip>
-                            }
-                            position="Top"
-                            align="Center"
-                        >
-                            {(triggerRef) => (
-                                <Button
-                                    ref={triggerRef}
-                                    size="300"
-                                    variant="Critical"
-                                    fill="Soft"
-                                    outlined
-                                    radii="300"
-                                    onClick={handleRetry}
-                                    before={<Icon size={1} path={mdiAlert} />}
-                                >
-                                    <Text size="B300">{getText('btn.retry')}</Text>
-                                </Button>
-                            )}
-                        </TooltipProvider>
+                        <Tooltip title={getText('msg.video.failed')}>
+                            <Button
+                                color='error'
+                                variant='outlined'
+                                startIcon={<Icon size={1} path={mdiAlert} />}
+                            >
+                                {getText('btn.retry')}
+                            </Button>
+                        </Tooltip>
                     </Box>
                 )}
                 {!load && typeof info.size === 'number' && (
@@ -174,12 +150,8 @@ export const VideoContent = as<'div', VideoContentProps>(
                         alignContent="Center"
                         gap="200"
                     >
-                        <Badge variant="Secondary" fill="Soft">
-                            <Text size="L400">{millisecondsToMinutesAndSeconds(info.duration ?? 0)}</Text>
-                        </Badge>
-                        <Badge variant="Secondary" fill="Soft">
-                            <Text size="L400">{bytesToSize(info.size)}</Text>
-                        </Badge>
+                        <Chip label={millisecondsToMinutesAndSeconds(info.duration ?? 0)} size='small' />
+                        <Chip label={bytesToSize(info.size)} size='small' />
                     </Box>
                 )}
             </Box>

@@ -94,7 +94,7 @@ export function Modals({ modals }: ModalsProps) {
                     <>
                         {content.hidden && (
                             <Draggable>
-                                <div className={css.DraggableContainer}>
+                                <div className={css.DraggableButton}>
                                     <Fab onClick={() => modals.showModal(id)}>
                                         <Typography variant='h6'>
                                             {(content.title || 'Modal')[0]}

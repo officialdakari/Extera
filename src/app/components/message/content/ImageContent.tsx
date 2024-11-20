@@ -1,16 +1,6 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import {
-    Badge,
     Box,
-    Button,
-    Modal,
-    Overlay,
-    OverlayBackdrop,
-    OverlayCenter,
-    Spinner,
-    Text,
-    Tooltip,
-    TooltipProvider,
     as,
 } from 'folds';
 import classNames from 'classnames';
@@ -30,7 +20,7 @@ import { getReactCustomHtmlParser } from '../../../plugins/react-custom-html-par
 import { getText } from '../../../../lang';
 import { mdiAlert, mdiImage } from '@mdi/js';
 import Icon from '@mdi/react';
-import { Dialog, DialogTitle } from '@mui/material';
+import { Button, CircularProgress, Dialog, DialogTitle, Tooltip } from '@mui/material';
 
 type RenderViewerProps = {
     src: string;
@@ -151,14 +141,11 @@ export const ImageContent = as<'div', ImageContentProps>(
                 {!autoPlay && srcState.status === AsyncStatus.Idle && (
                     <Box className={css.AbsoluteContainer} alignItems="Center" justifyContent="Center">
                         <Button
-                            variant="Secondary"
-                            fill="Solid"
-                            radii="300"
-                            size="300"
+                            color='secondary'
                             onClick={loadSrc}
-                            before={<Icon size={1} path={mdiImage} />}
+                            startIcon={<Icon size={1} path={mdiImage} />}
                         >
-                            <Text size="B300">{getText('btn.view')}</Text>
+                            {getText('btn.view')}
                         </Button>
                     </Box>
                 )}
@@ -178,42 +165,25 @@ export const ImageContent = as<'div', ImageContentProps>(
                 {(srcState.status === AsyncStatus.Loading || srcState.status === AsyncStatus.Success) &&
                     !load && (
                         <Box className={css.AbsoluteContainer} alignItems="Center" justifyContent="Center">
-                            <Spinner variant="Secondary" />
+                            <CircularProgress />
                         </Box>
                     )}
                 {(error || srcState.status === AsyncStatus.Error) && (
                     <Box className={css.AbsoluteContainer} alignItems="Center" justifyContent="Center">
-                        <TooltipProvider
-                            tooltip={
-                                <Tooltip variant="Critical">
-                                    <Text>{getText('msg.image.failed')}</Text>
-                                </Tooltip>
-                            }
-                            position="Top"
-                            align="Center"
-                        >
-                            {(triggerRef) => (
-                                <Button
-                                    ref={triggerRef}
-                                    size="300"
-                                    variant="Critical"
-                                    fill="Soft"
-                                    outlined
-                                    radii="300"
-                                    onClick={handleRetry}
-                                    before={<Icon size={1} path={mdiAlert} />}
-                                >
-                                    <Text size="B300">{getText('btn.retry')}</Text>
-                                </Button>
-                            )}
-                        </TooltipProvider>
+                        <Tooltip title={getText('msg.image.failed')}>
+                            <Button
+                                color='error'
+                                variant='outlined'
+                                startIcon={<Icon size={1} path={mdiAlert} />}
+                            >
+                                {getText('btn.retry')}
+                            </Button>
+                        </Tooltip>
                     </Box>
                 )}
                 {!load && typeof info?.size === 'number' && (
                     <Box className={css.AbsoluteFooter} justifyContent="End" alignContent="Center" gap="200">
-                        <Badge variant="Secondary" fill="Soft">
-                            <Text size="L400">{bytesToSize(info.size)}</Text>
-                        </Badge>
+                        {bytesToSize(info.size)}
                     </Box>
                 )}
             </Box>

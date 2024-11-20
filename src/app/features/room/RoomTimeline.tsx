@@ -1075,6 +1075,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 return (
                     <Message
                         key={mEvent.getId()}
+                        edited={!!editedEvent}
                         data-message-item={item}
                         data-message-id={mEventId}
                         room={room}
@@ -1159,10 +1160,12 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 const { replyEventId } = mEvent;
                 const highlighted = focusItem?.index === item && focusItem.highlight;
                 const hideReason = (mEvent.getContent()['space.0x1a8510f2.msc3368.tags'] ?? [])[0];
+                const editedEvent = getEditedEvent(mEventId, mEvent, timelineSet);
 
                 return (
                     <Message
                         key={mEvent.getId()}
+                        edited={!!editedEvent}
                         data-message-item={item}
                         data-message-id={mEventId}
                         room={room}
@@ -1235,7 +1238,6 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                                             />
                                         );
                                     if (mEvent.getType() === MessageEvent.RoomMessage) {
-                                        const editedEvent = getEditedEvent(mEventId, mEvent, timelineSet);
                                         const getContent = (() =>
                                             editedEvent?.getContent()['m.new_content'] ??
                                             mEvent.getContent()) as GetContentCallback;

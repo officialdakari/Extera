@@ -1,16 +1,12 @@
-import React, { ReactNode, useCallback, useRef, useState } from 'react';
+import React, { ReactNode, RefObject, useCallback, useRef, useState } from 'react';
 import { MatrixError, Room } from 'matrix-js-sdk';
 import {
     Avatar,
-    Badge,
     Box,
     Text,
     as,
-    color,
-    config,
 } from 'folds';
 import classNames from 'classnames';
-import FocusTrap from 'focus-trap-react';
 import * as css from './style.css';
 import { RoomAvatar } from '../room-avatar';
 import { getMxIdLocalPart } from '../../utils/matrix';
@@ -27,7 +23,7 @@ import { useStateEventCallback } from '../../hooks/useStateEventCallback';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccount } from '@mdi/js';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Paper, useTheme } from '@mui/material';
+import { Button, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Paper, PaperProps, useTheme } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
 type GridColumnCount = '1' | '2' | '3';
@@ -44,31 +40,32 @@ const setGridColumnCount = (grid: HTMLElement, count: GridColumnCount): void => 
 export function RoomCardGrid({ children }: { children: ReactNode }) {
     const gridRef = useRef<HTMLDivElement>(null);
 
-    useElementSizeObserver(
-        useCallback(() => gridRef.current, []),
-        useCallback((width, _, target) => setGridColumnCount(target, getGridColumnCount(width)), [])
-    );
+    // useElementSizeObserver(
+    //     useCallback(() => gridRef.current, []),
+    //     useCallback((width, _, target) => setGridColumnCount(target, getGridColumnCount(width)), [])
+    // );
 
     return (
-        <Box className={css.CardGrid} direction="Row" gap="400" wrap="Wrap" ref={gridRef}>
+        <Box className={css.CardGrid} gap="400" wrap="Wrap" ref={gridRef}>
             {children}
         </Box>
     );
 }
 
-export const RoomCardBase = as<'div'>(({ className, ...props }, ref) => {
+export const RoomCardBase = React.forwardRef<HTMLDivElement, PaperProps>((props: PaperProps, ref) => {
     const theme = useTheme();
     return (
         <Paper
+            {...props}
             sx={{
                 flexDirection: 'column',
                 gap: theme.spacing(2),
                 display: 'flex',
                 padding: theme.spacing(3),
-                borderRadius: theme.shape.borderRadius
+                borderRadius: theme.shape.borderRadius,
+                ...props.sx
             }}
-            {...props}
-            ref={ref}
+            ref={ref || undefined}
         />
     );
 });
@@ -222,9 +219,7 @@ export const RoomCard = as<'div', RoomCardProps>(
                         />
                     </Avatar>
                     {(roomType === RoomType.Space || joinedRoom?.isSpaceRoom()) && (
-                        <Badge variant="Secondary" fill="Soft" outlined>
-                            <Text size="L400">{getText('generic.space')}</Text>
-                        </Badge>
+                        <Chip size='small' variant='filled' label={getText('generic.space')} />
                     )}
                 </Box>
                 <Box grow="Yes" direction="Column" gap="100">

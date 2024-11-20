@@ -9,7 +9,6 @@ import {
     MessageBlockedContent,
     MessageBrokenContent,
     MessageDeletedContent,
-    MessageEditedContent,
     MessageUnsupportedContent,
     PollContent
 } from './content';
@@ -112,7 +111,6 @@ export function MText({ edited, content, renderBody, renderUrlsPreview }: MTextP
                     body: trimmedBody,
                     customBody: typeof customBody === 'string' ? customBody : undefined,
                 })}
-                {edited && <MessageEditedContent />}
             </MessageTextBody>
             {renderUrlsPreview && urls && urls.length > 0 && renderUrlsPreview(urls)}
         </>
@@ -169,7 +167,6 @@ export function MEmote({
                     body: trimmedBody,
                     customBody: typeof customBody === 'string' ? customBody : undefined,
                 })}
-                {edited && <MessageEditedContent />}
             </MessageTextBody>
             {renderUrlsPreview && urls && urls.length > 0 && renderUrlsPreview(urls)}
         </>
@@ -201,7 +198,6 @@ export function MNotice({ edited, content, renderBody, renderUrlsPreview }: MNot
                     body: trimmedBody,
                     customBody: typeof customBody === 'string' ? customBody : undefined,
                 })}
-                {edited && <MessageEditedContent />}
             </MessageTextBody>
             {renderUrlsPreview && urls && urls.length > 0 && renderUrlsPreview(urls)}
         </>

@@ -4,14 +4,6 @@ import FocusTrap from 'focus-trap-react';
 import {
     Avatar,
     Box,
-    Button,
-    Dialog,
-    Header,
-    IconButton,
-    Input,
-    Overlay,
-    OverlayBackdrop,
-    OverlayCenter,
     Text,
     color,
     config,
@@ -37,7 +29,7 @@ import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiClose, mdiPlus, mdiServerNetwork, mdiServerNetworkOutline, mdiStar, mdiStarOutline } from '@mdi/js';
-import { AppBar, Toolbar, Typography } from '@mui/material';
+import { Alert, AppBar, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField, Toolbar, Typography } from '@mui/material';
 import { useNavHidden } from '../../../hooks/useHideableNav';
 import { Menu } from '@mui/icons-material';
 import BottomNav from '../BottomNav';
@@ -78,81 +70,36 @@ export function AddServer() {
 
     return (
         <>
-            <Overlay open={dialog} backdrop={<OverlayBackdrop />}>
-                <OverlayCenter>
-                    <FocusTrap
-                        focusTrapOptions={{
-                            initialFocus: false,
-                            clickOutsideDeactivates: true,
-                            onDeactivate: () => setDialog(false),
-                        }}
-                    >
-                        <Dialog variant="Surface">
-                            <Header
-                                style={{
-                                    padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
-                                    borderBottomWidth: config.borderWidth.B300,
-                                }}
-                                variant="Surface"
-                                size="500"
-                            >
-                                <Box grow="Yes">
-                                    <Text size="H4">{getText('explore.add_server')}</Text>
-                                </Box>
-                                <IconButton size="300" onClick={() => setDialog(false)} radii="300">
-                                    <Icon size={1} path={mdiClose} />
-                                </IconButton>
-                            </Header>
-                            <Box
-                                as="form"
-                                onSubmit={handleSubmit}
-                                style={{ padding: config.space.S400 }}
-                                direction="Column"
-                                gap="400"
-                            >
-                                <Text priority="400">{getText('explore.add_server.desc')}</Text>
-                                <Box direction="Column" gap="100">
-                                    <Text size="L400">{getText('input.explore.server_name')}</Text>
-                                    <Input ref={serverInputRef} name="serverInput" variant="Background" required />
-                                    {exploreState.status === AsyncStatus.Error && (
-                                        <Text style={{ color: color.Critical.Main }} size="T300">
-                                            {getText('error.explore.load_rooms')}
-                                        </Text>
-                                    )}
-                                </Box>
-                                <Box direction="Column" gap="200">
-                                    {/* <Button
-                    type="submit"
-                    variant="Secondary"
-                    before={
-                      exploreState.status === AsyncStatus.Loading ? (
-                        <Spinner fill="Solid" variant="Secondary" size="200" />
-                      ) : undefined
-                    }
-                    aria-disabled={exploreState.status === AsyncStatus.Loading}
-                  >
-                    <Text size="B400">Save</Text>
-                  </Button> */}
-
-                                    <Button type="submit" onClick={handleView} variant="Secondary" fill="Soft">
-                                        <Text size="B400">{getText('explore.view')}</Text>
-                                    </Button>
-                                </Box>
-                            </Box>
-                        </Dialog>
-                    </FocusTrap>
-                </OverlayCenter>
-            </Overlay>
+            <Dialog
+                open={dialog}
+                onClose={() => setDialog(false)}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: handleSubmit
+                }}
+            >
+                <DialogTitle>
+                    {getText('explore.add_server')}
+                </DialogTitle>
+                <DialogContent>
+                    <TextField inputRef={serverInputRef} name="serverInput" label={getText('input.explore.server_name')} required />
+                    {exploreState.status === AsyncStatus.Error && (
+                        <Alert severity='error'>
+                            {getText('error.explore.load_rooms')}
+                        </Alert>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button type="submit" onClick={handleView}>
+                        {getText('explore.view')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
             <Button
-                variant="Secondary"
-                fill="Soft"
-                size="300"
-                before={<Icon size={1} path={mdiPlus} />}
+                startIcon={<Icon size={1} path={mdiPlus} />}
                 onClick={() => setDialog(true)}
             >
-                <Text size="B300" truncate>
-                    {getText('explore.add_server_btn')}
-                </Text>
+                {getText('explore.add_server_btn')}
             </Button>
         </>
     );

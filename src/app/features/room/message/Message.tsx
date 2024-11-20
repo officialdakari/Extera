@@ -18,7 +18,7 @@ import React, {
     useState,
 } from 'react';
 import { useHover, useFocusWithin } from 'react-aria';
-import { ClientEvent, EventStatus, EventTimeline, MatrixError, MatrixEvent, MatrixEventEvent, RelationType, Room, RoomEvent, TimelineEvents } from 'matrix-js-sdk';
+import { EventStatus, EventTimeline, MatrixEvent, RelationType, Room, RoomEvent } from 'matrix-js-sdk';
 import { Relations } from 'matrix-js-sdk/lib/models/relations';
 import classNames from 'classnames';
 import {
@@ -1012,6 +1012,7 @@ export type MessageProps = {
     reactions?: ReactNode;
     showGoTo?: boolean;
     replySwipeAnimation?: boolean;
+    edited?: boolean;
 };
 export const Message = as<'div', MessageProps>(
     (
@@ -1035,6 +1036,7 @@ export const Message = as<'div', MessageProps>(
             onDiscussClick,
             onReactionToggle,
             onEditId,
+            edited,
             reply,
             thread,
             reactions,
@@ -1061,7 +1063,7 @@ export const Message = as<'div', MessageProps>(
         const theme = useTheme();
         const readers = useRoomEventReaders(room, mEvent.getId());
 
-        const { animate, isTouchingSide, onTouchEnd, onTouchMove, onTouchStart } = useSwipeLeft(() => onReplyClick());
+        const { animate, onTouchEnd, onTouchMove, onTouchStart } = useSwipeLeft(() => onReplyClick());
 
         var senderDisplayName =
             getMemberDisplayName(room, senderId) ?? user?.displayName ?? localPart ?? senderId;
@@ -1154,6 +1156,7 @@ export const Message = as<'div', MessageProps>(
         const metaJSX = (
             <Box gap='100'>
                 <Time compact ts={mEvent.getTs()} />
+                {edited && <Icon size={0.75} path={mdiPencil} />}
                 {userId === senderId &&
                     <Icon
                         color={theme.palette.text.secondary}
@@ -1341,37 +1344,35 @@ export const Message = as<'div', MessageProps>(
                             borderRadius: theme.shape.borderRadius,
                         } : {}}
                     >
+                        <Menu anchorEl={emojiBoardAnchor} open={!!emojiBoardAnchor}>
+                            <EmojiBoard
+                                imagePackRooms={imagePackRooms ?? []}
+                                returnFocusOnDeactivate={false}
+                                allowTextCustomEmoji
+                                onEmojiSelect={(key) => {
+                                    onReactionToggle(mEvent.getId()!, key);
+                                    setEmojiBoardAnchor(null);
+                                }}
+                                onCustomEmojiSelect={(mxc, shortcode) => {
+                                    onReactionToggle(mEvent.getId()!, mxc, shortcode);
+                                    setEmojiBoardAnchor(null);
+                                }}
+                                requestClose={() => {
+                                    setEmojiBoardAnchor(null);
+                                }}
+                            />
+                        </Menu>
                         {!isTouch && (
                             <>
                                 {status === EventStatus.SENT && (
                                     <>
                                         {canSendReaction && (
-                                            <>
-                                                <Menu anchorEl={emojiBoardAnchor} open={!!emojiBoardAnchor}>
-                                                    <EmojiBoard
-                                                        imagePackRooms={imagePackRooms ?? []}
-                                                        returnFocusOnDeactivate={false}
-                                                        allowTextCustomEmoji
-                                                        onEmojiSelect={(key) => {
-                                                            onReactionToggle(mEvent.getId()!, key);
-                                                            setEmojiBoardAnchor(null);
-                                                        }}
-                                                        onCustomEmojiSelect={(mxc, shortcode) => {
-                                                            onReactionToggle(mEvent.getId()!, mxc, shortcode);
-                                                            setEmojiBoardAnchor(null);
-                                                        }}
-                                                        requestClose={() => {
-                                                            setEmojiBoardAnchor(null);
-                                                        }}
-                                                    />
-                                                </Menu>
-                                                <IconButton
-                                                    onClick={handleOpenEmojiBoard}
-                                                    aria-pressed={!!emojiBoardAnchor}
-                                                >
-                                                    <Icon size={1} path={mdiEmoticonPlus} />
-                                                </IconButton>
-                                            </>
+                                            <IconButton
+                                                onClick={handleOpenEmojiBoard}
+                                                aria-pressed={!!emojiBoardAnchor}
+                                            >
+                                                <Icon size={1} path={mdiEmoticonPlus} />
+                                            </IconButton>
                                         )}
                                         <IconButton
                                             onClick={onReplyClick}
