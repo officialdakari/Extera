@@ -3,7 +3,8 @@ import { DefaultReset, config } from 'folds';
 
 export const CardGrid = style({
     display: 'grid',
-    gap: config.space.S400
+    gap: config.space.S400,
+    gridTemplateColumns: 'repeat(3, 1fr)'
 });
 
 export const RoomCardBase = style([

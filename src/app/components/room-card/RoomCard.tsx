@@ -23,32 +23,14 @@ import { useStateEventCallback } from '../../hooks/useStateEventCallback';
 import { getText } from '../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccount } from '@mdi/js';
-import { Button, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Paper, PaperProps, useTheme } from '@mui/material';
+import { Button, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid2, Paper, PaperProps, useTheme } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 
-type GridColumnCount = '1' | '2' | '3';
-const getGridColumnCount = (gridWidth: number): GridColumnCount => {
-    if (gridWidth <= 498) return '1';
-    if (gridWidth <= 748) return '2';
-    return '3';
-};
-
-const setGridColumnCount = (grid: HTMLElement, count: GridColumnCount): void => {
-    grid.style.setProperty('grid-template-columns', `repeat(${count}, 1fr)`);
-};
-
 export function RoomCardGrid({ children }: { children: ReactNode }) {
-    const gridRef = useRef<HTMLDivElement>(null);
-
-    // useElementSizeObserver(
-    //     useCallback(() => gridRef.current, []),
-    //     useCallback((width, _, target) => setGridColumnCount(target, getGridColumnCount(width)), [])
-    // );
-
     return (
-        <Box className={css.CardGrid} gap="400" wrap="Wrap" ref={gridRef}>
+        <Grid2 container spacing={2}>
             {children}
-        </Box>
+        </Grid2>
     );
 }
 
@@ -128,6 +110,7 @@ type RoomCardProps = {
     topic?: string;
     memberCount?: number;
     roomType?: string;
+    knock?: boolean;
     onView?: (roomId: string) => void;
     renderTopicViewer: (name: string, topic: string, requestClose: () => void) => ReactNode;
 };
@@ -144,6 +127,7 @@ export const RoomCard = as<'div', RoomCardProps>(
             roomType,
             onView,
             renderTopicViewer,
+            knock,
             ...props
         },
         ref
@@ -191,7 +175,7 @@ export const RoomCard = as<'div', RoomCardProps>(
         const joining =
             joinState.status === AsyncStatus.Loading || joinState.status === AsyncStatus.Success;
 
-        const [knockState, knock] = useAsyncCallback<{ room_id: string }, MatrixError, []>(
+        const [knockState, knockRoom] = useAsyncCallback<{ room_id: string }, MatrixError, []>(
             useCallback(() => {
                 return mx.knockRoom(roomIdOrAlias);
             }, [mx, roomIdOrAlias])
@@ -247,22 +231,23 @@ export const RoomCard = as<'div', RoomCardProps>(
                     </Button>
                 )}
                 {typeof joinedRoomId !== 'string' && joinState.status !== AsyncStatus.Error && (
-                    <LoadingButton
-                        onClick={join}
-                        variant='contained'
-                        loading={joining}
-                    >
-                        {getText(joining ? 'room_card.joining' : 'btn.join')}
-                    </LoadingButton>
-                )}
-                {typeof joinedRoomId !== 'string' && knockState.status !== AsyncStatus.Error && (
-                    <LoadingButton
-                        onClick={knock}
-                        variant='contained'
-                        loading={knocking}
-                    >
-                        {getText(knocking ? 'room_card.knocking' : 'btn.knock')}
-                    </LoadingButton>
+                    knock ? (
+                        <LoadingButton
+                            onClick={knockRoom}
+                            variant='contained'
+                            loading={knocking}
+                        >
+                            {getText(knocking ? 'room_card.knocking' : 'btn.knock')}
+                        </LoadingButton>
+                    ) : (
+                        <LoadingButton
+                            onClick={join}
+                            variant='contained'
+                            loading={joining}
+                        >
+                            {getText(joining ? 'room_card.joining' : 'btn.join')}
+                        </LoadingButton>
+                    )
                 )}
                 {typeof joinedRoomId !== 'string' && joinState.status === AsyncStatus.Error && (
                     <Box gap="200">

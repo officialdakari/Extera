@@ -20,7 +20,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import FocusTrap from 'focus-trap-react';
 import { useAtomValue } from 'jotai';
 import { useQuery } from '@tanstack/react-query';
-import { MatrixClient, Method, RoomType } from 'matrix-js-sdk';
+import { JoinRule, MatrixClient, Method, RoomType } from 'matrix-js-sdk';
 import { Page, PageContent, PageContentCenter, PageHeader } from '../../../components/page';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { RoomTopicViewer } from '../../../components/room-topic-viewer';
@@ -34,7 +34,7 @@ import { getMxIdServer } from '../../../utils/matrix';
 import { getText } from '../../../../lang';
 import { mdiAlertCircleOutline, mdiArrowLeft, mdiCheck, mdiChevronDown, mdiClose, mdiMagnify, mdiServer, mdiServerNetwork, mdiShape } from '@mdi/js';
 import { SearchContainer, SearchIcon, SearchIconWrapper, SearchInputBase } from '../../../atoms/search/Search';
-import { Alert, AppBar, Button, Chip, Divider, ListSubheader, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import { Alert, AppBar, Button, Chip, Divider, Grid2, ListSubheader, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import { Check, KeyboardArrowDown } from '@mui/icons-material';
 
 const useServerSearchParams = (searchParams: URLSearchParams): ExploreServerPathSearchParams =>
@@ -479,29 +479,32 @@ export function PublicRooms() {
                                         (data.chunk.length > 0 ? (
                                             <>
                                                 <RoomCardGrid>
-                                                    {data?.chunk.map((chunkRoom) => (
-                                                        <RoomCard
-                                                            key={chunkRoom.room_id}
-                                                            roomIdOrAlias={chunkRoom.canonical_alias ?? chunkRoom.room_id}
-                                                            allRooms={allRooms}
-                                                            avatarUrl={chunkRoom.avatar_url}
-                                                            name={chunkRoom.name}
-                                                            topic={chunkRoom.topic}
-                                                            memberCount={chunkRoom.num_joined_members}
-                                                            roomType={chunkRoom.room_type}
-                                                            onView={
-                                                                chunkRoom.room_type === RoomType.Space
-                                                                    ? navigateSpace
-                                                                    : navigateRoom
-                                                            }
-                                                            renderTopicViewer={(name, topic, requestClose) => (
-                                                                <RoomTopicViewer
-                                                                    name={name}
-                                                                    topic={topic}
-                                                                    requestClose={requestClose}
-                                                                />
-                                                            )}
-                                                        />
+                                                    {data?.chunk.map((chunkRoom, index) => (
+                                                        <Grid2 key={index} size={{ xs: 12, sm: 12, md: 6, lg: 4 }}>
+                                                            <RoomCard
+                                                                key={chunkRoom.room_id}
+                                                                roomIdOrAlias={chunkRoom.canonical_alias ?? chunkRoom.room_id}
+                                                                allRooms={allRooms}
+                                                                avatarUrl={chunkRoom.avatar_url}
+                                                                name={chunkRoom.name}
+                                                                topic={chunkRoom.topic}
+                                                                memberCount={chunkRoom.num_joined_members}
+                                                                knock={chunkRoom.join_rule === JoinRule.Knock}
+                                                                roomType={chunkRoom.room_type}
+                                                                onView={
+                                                                    chunkRoom.room_type === RoomType.Space
+                                                                        ? navigateSpace
+                                                                        : navigateRoom
+                                                                }
+                                                                renderTopicViewer={(name, topic, requestClose) => (
+                                                                    <RoomTopicViewer
+                                                                        name={name}
+                                                                        topic={topic}
+                                                                        requestClose={requestClose}
+                                                                    />
+                                                                )}
+                                                            />
+                                                        </Grid2>
                                                     ))}
                                                 </RoomCardGrid>
 
