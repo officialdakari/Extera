@@ -4,8 +4,11 @@ import classNames from 'classnames';
 
 import * as css from './RoomInputPlaceholder.css';
 
-export const RoomInputPlaceholder = as<'div', ComponentProps<typeof Box>>(
-    ({ className, ...props }, ref) => (
-        <Box className={classNames(css.RoomInputPlaceholder, className)} {...props} ref={ref} />
+type RoomInputPlaceholderProps = {
+    newDesign?: boolean;
+};
+export const RoomInputPlaceholder = as<'div', ComponentProps<typeof Box> & RoomInputPlaceholderProps>(
+    ({ className, newDesign, ...props }, ref) => (
+        <Box className={classNames(newDesign ? css.RoomInputPlaceholderND : css.RoomInputPlaceholder, className)} {...props} ref={ref} />
     )
 );

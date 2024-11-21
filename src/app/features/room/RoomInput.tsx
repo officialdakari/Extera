@@ -113,7 +113,9 @@ import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLe
 import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
 import { getEventCords } from '../../../util/common';
 import HideReasonSelector from '../../molecules/hide-reason-selector/HideReasonSelector';
-import { IconButton } from '@mui/material';
+import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
+import { AttachFile, Poll } from '@mui/icons-material';
+import NewPollMenu from './NewPollMenu';
 
 interface RoomInputProps {
     fileDropContainerRef: RefObject<HTMLElement>;
@@ -156,6 +158,8 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         );
         const uploadBoardHandlers = useRef<UploadBoardImperativeHandlers>();
         const thread = threadId ? room.getThread(threadId) : null;
+        const [attachmentMenu, setAttachmentMenu] = useState<HTMLButtonElement>();
+        const [showPollMenu, setPollMenu] = useState(false);
 
         const ar = useVoiceRecorder();
 
@@ -586,6 +590,13 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
         return (
             <div ref={ref}>
+                {showPollMenu && (
+                    <NewPollMenu
+                        onClose={() => setPollMenu(false)}
+                        open={showPollMenu}
+                        room={room}
+                    />
+                )}
                 <Overlay
                     open={dropZoneVisible}
                     backdrop={<OverlayBackdrop />}
@@ -751,11 +762,32 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     }
                     before={
                         !ar.isRecording && (
-                            <IconButton size='small'
-                                onClick={() => pickFile('*')}
-                            >
-                                <Icon size={1} path={mdiPlusCircleOutline} />
-                            </IconButton>
+                            <>
+                                <Menu anchorEl={attachmentMenu} open={!!attachmentMenu} onClose={() => setAttachmentMenu(undefined)}>
+                                    <MenuItem onClick={() => { pickFile('*'); setAttachmentMenu(undefined); }}>
+                                        <ListItemIcon>
+                                            <AttachFile />
+                                        </ListItemIcon>
+                                        <ListItemText>
+                                            {getText('attachment_menu.file')}
+                                        </ListItemText>
+                                    </MenuItem>
+                                    <MenuItem onClick={() => { setPollMenu(true); setAttachmentMenu(undefined); }}>
+                                        <ListItemIcon>
+                                            <Poll />
+                                        </ListItemIcon>
+                                        <ListItemText>
+                                            {getText('attachment_menu.poll')}
+                                        </ListItemText>
+                                    </MenuItem>
+                                </Menu>
+                                <IconButton
+                                    size='small'
+                                    onClick={(evt) => setAttachmentMenu(attachmentMenu ? undefined : evt.currentTarget)}
+                                >
+                                    <Icon size={1} path={mdiPlusCircleOutline} />
+                                </IconButton>
+                            </>
                         )
                     }
                     after={

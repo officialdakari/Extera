@@ -76,6 +76,7 @@ export function ThreadView({ room, eventId, thread }: { room: Room; eventId?: st
                             roomId={roomId}
                             body={tombstoneEvent.getContent().body}
                             replacementRoomId={tombstoneEvent.getContent().replacement_room}
+                            newDesign={newDesignInput}
                         />
                     ) : (
                         <>

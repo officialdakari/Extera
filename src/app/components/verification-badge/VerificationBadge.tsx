@@ -67,7 +67,7 @@ export function VerificationBadge({ userId, userName }: VerificationBadgeProps) 
                             marginTop: '0.2rem'
                         }}
                     />
-                    <Typography variant='subtitle2'>
+                    <Typography variant='subtitle2' maxHeight='1.5em' overflow='clip' textOverflow='ellipsis'>
                         {verificationBadge.label}
                     </Typography>
                 </div>
