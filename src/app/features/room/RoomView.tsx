@@ -219,6 +219,7 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string; }) {
                             roomId={roomId}
                             body={tombstoneEvent.getContent().body}
                             replacementRoomId={tombstoneEvent.getContent().replacement_room}
+                            newDesign={newDesignInput}
                         />
                     ) : (
                         <>

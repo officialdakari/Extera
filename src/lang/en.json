@@ -888,7 +888,7 @@
     "confirm.remove_widget.question": "Are you sure you want to remove this widget? It will be removed for everyone in this room.",
     "settings.reply_fallbacks.title": "Reply fallbacks",
     "settings.reply_fallbacks.desc": "Add reply into message body. Turn on, if someone doesn't see your replies.",
-    "placeholder.room_input.be_careful": "Think twice before sending - you can't delete own messages...",
+    "placeholder.room_input.be_careful": "Think twice before you type...",
     "m.image": "Image",
     "m.video": "Video",
     "m.audio": "Audio",
@@ -1012,5 +1012,14 @@
     "header.extera_customization.themes": "Themes",
     "join_alias.label": "Room address",
     "btn.open_location_in_new": "Open in browser",
-    "rename.title": "Rename"
+    "rename.title": "Rename",
+    "attachment_menu.file": "Add a file",
+    "attachment_menu.poll": "Create a poll",
+    "new_poll.title": "New poll",
+    "new_poll.question": "Question",
+    "new_poll.add.label": "New answer",
+    "btn.new_poll.add": "Add",
+    "new_poll.max_answers": "Max selections",
+    "new_poll.disclose.title": "Disclose votes",
+    "btn.new_poll.create": "Create"
 }

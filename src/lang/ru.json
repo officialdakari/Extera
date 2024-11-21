@@ -873,7 +873,7 @@
 	"btn.widget.remove": "Убрать",
 	"settings.reply_fallbacks.title": "Ответ в содержимом сообщения",
 	"settings.reply_fallbacks.desc": "Добавлять ответ в содержимое сообщения. Используйте, если кто-то не видит Ваши ответы.",
-	"placeholder.room_input.be_careful": "Думайте дважды перед отправкой - Вы не можете удалять свои сообщения...",
+	"placeholder.room_input.be_careful": "Вы не можете удалять свои сообщения...",
 	"m.image": "Изображение",
 	"m.video": "Видео",
 	"m.audio": "Аудио",
@@ -1012,5 +1012,14 @@
 	"perms.banner.desc": "Минимальный уровень прав чтобы изменить баннер комнаты/пространства.",
 	"join_alias.label": "Адрес комнаты",
 	"btn.open_location_in_new": "Открыть в браузере",
-	"rename.title": "Переименовать"
+	"rename.title": "Переименовать",
+	"attachment_menu.file": "Отправить файл",
+	"attachment_menu.poll": "Создать опрос",
+	"new_poll.title": "Новый опрос",
+	"new_poll.question": "Вопрос",
+	"new_poll.add.label": "Новый ответ",
+	"btn.new_poll.add": "Добавить",
+	"new_poll.max_answers": "Максимум ответов",
+	"new_poll.disclose.title": "Предварительные результаты",
+	"btn.new_poll.create": "Создать"
 }

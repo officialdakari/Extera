@@ -1,7 +1,11 @@
 const cons = {
     name: 'Extera',
     app_id: 'ru.officialdakari.extera',
-    version: '1.0-DEV-BZ2JC',
+    // the random letters are current date (DDMMYYYY) in 36-richered number system
+    // for example, at the moment of writing this comment it's 21st november 2024
+    // so, 21112024 in 36-richered number system is CKI54
+    //     DDMMYYYY
+    version: '1.0-DEV-CKI54',
     secretKey: {
         ACCESS_TOKEN: 'cinny_access_token',
         DEVICE_ID: 'cinny_device_id',

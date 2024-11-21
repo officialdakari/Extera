@@ -129,9 +129,9 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
                                 aria-pressed={promptLeave}
                             >
                                 <ListItemIcon>
-                                    <ArrowBack />
+                                    <ArrowBack sx={{ color: 'error.main' }} />
                                 </ListItemIcon>
-                                <ListItemText>
+                                <ListItemText sx={{ color: 'error.main' }}>
                                     {getText('room_header.leave')}
                                 </ListItemText>
                             </MenuItem>

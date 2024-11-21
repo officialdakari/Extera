@@ -1318,7 +1318,7 @@ export const Message = as<'div', MessageProps>(
 
         return (
             <MessageBase
-                className={classNames(hasBeenSent ? css.MessageBase : sending ? css.MessageBaseSending : failed ? css.MessageBaseFailed : css.MessageBase, className)}
+                className={classNames(hasBeenSent ? css.MessageBase : sending ? css.MessageBaseSending : failed ? css.MessageBaseFailed : css.MessageBase, collapse ? 'cth-collapsed' : 'cth-uncollapsed', className)}
                 tabIndex={0}
                 data-message-status={status}
                 space={messageSpacing}
