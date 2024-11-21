@@ -466,7 +466,9 @@ export function PublicRooms() {
                                     {isLoading && (
                                         <RoomCardGrid>
                                             {[...Array(currentLimit).keys()].map((item) => (
-                                                <RoomCardBase key={item} sx={{ minHeight: toRem(260) }} />
+                                                <Grid2 key={item} size={{ xs: 12, sm: 12, md: 6, lg: 4 }}>
+                                                    <RoomCardBase key={item} sx={{ minHeight: toRem(260) }} />
+                                                </Grid2>
                                             ))}
                                         </RoomCardGrid>
                                     )}

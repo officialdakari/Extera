@@ -182,6 +182,7 @@ export const BubbleAfter = style({
 
 
 export const Username = style({
+    display: 'flex',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
