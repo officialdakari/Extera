@@ -36,12 +36,14 @@ type ClientDrawerLayoutProps = {
 export function PageNav({ children, header, ...props }: ClientDrawerLayoutProps & HTMLMotionProps<'div'>) {
     const screenSize = useScreenSizeContext();
     const isMobile = screenSize === ScreenSize.Mobile;
+    const theme = useTheme();
 
     return (
         <Box
             grow={isMobile ? 'Yes' : undefined}
             className={css.PageNav}
             shrink={isMobile ? 'Yes' : 'No'}
+            style={{ backgroundColor: theme.palette.background.default }}
         >
             <Box grow="Yes" direction="Column">
                 {header}

@@ -36,7 +36,7 @@ export const ReactionViewer = as<'div', ReactionViewerProps>(
         const mx = useMatrixClient();
         const reactions = useRelations(
             relations,
-            useCallback((rel) => [...(rel.getSortedAnnotationsByKey() ?? [])], [])
+            useCallback((rel) => rel ? [...(rel.getSortedAnnotationsByKey() ?? [])] : [], [])
         );
 
         const [selectedKey, setSelectedKey] = useState<string>(() => {
