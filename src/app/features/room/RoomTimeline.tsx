@@ -77,6 +77,7 @@ import {
     getEventReactions,
     getLatestEditableEvt,
     getMemberDisplayName,
+    getPollEnd,
     getReactionContent,
     isMembershipChanged,
     reactionOrEditEvent,
@@ -1360,6 +1361,21 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 const reactions = reactionRelations && reactionRelations.getSortedAnnotationsByKey();
                 const hasReactions = reactions && reactions.length > 0;
                 const highlighted = focusItem?.index === item && focusItem.highlight;
+                const endRelations = getPollEnd(timelineSet, mEventId);
+                const ends: MatrixEvent[] = (endRelations && endRelations.getRelations()) || [];
+                const pollEnded = ends.find((evt) => evt.sender?.userId === mEvent.sender?.userId);
+                const handleEndPoll = () => {
+                    // @ts-ignore
+                    mx.sendEvent(room.roomId, 'org.matrix.msc3381.poll.end', {
+                        'org.matrix.msc1767.text': 'Ended poll',
+                        'm.relates_to': {
+                            rel_type: 'm.reference',
+                            event_id: mEventId
+                        },
+                        // @ts-ignore
+                        body: 'Ended poll'
+                    });
+                };
 
                 return (
                     <Message
@@ -1378,6 +1394,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         imagePackRooms={imagePackRooms}
                         relations={hasReactions ? reactionRelations : undefined}
                         onUserClick={handleUserClick}
+                        onPollEnd={!pollEnded ? handleEndPoll : undefined}
                         onUsernameClick={handleUsernameClick}
                         onReplyClick={() => handleReplyId(mEventId)}
                         onDiscussClick={() => handleDiscussId(mEventId)}
@@ -1385,6 +1402,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         //onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
                         //onTouchEnd={onTouchEnd}
                         //replySwipeAnimation={swipingId === mEvent.getId() && animate}
+
                         onReactionToggle={handleReactionToggle}
                         reactions={
                             reactionRelations && (

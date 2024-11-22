@@ -65,7 +65,7 @@ import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
 import { nameInitials } from '../../utils/common';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { AppBar, Dialog, DialogContent, DialogContentText, DialogTitle, Divider, Fab, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Pagination, Toolbar, Tooltip, Typography, useTheme } from '@mui/material';
-import { ArrowBack, CallEnd, Close, DoneAll, KeyboardArrowUp, Link, MessageOutlined, MoreVert, People, PersonAdd, Phone, PushPin, Search, Settings, VideoCall, Widgets } from '@mui/icons-material';
+import { ArrowBack, CallEnd, Close, DoneAll, KeyboardArrowUp, Link, MessageOutlined, MoreVert, People, PersonAdd, Phone, PushPin, Search, Settings, VideoCall, Widgets, WidgetsOutlined } from '@mui/icons-material';
 import { BackRouteHandler } from '../../components/BackRouteHandler';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { VirtualTile } from '../../components/virtualizer';
@@ -80,10 +80,12 @@ type RoomMenuProps = {
     linkPath: string;
     requestClose: () => void;
     anchorEl: HTMLElement | null;
+    handleWidgetsClick: () => void;
 };
 const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
-    ({ room, linkPath, anchorEl, requestClose }, ref) => {
+    ({ room, linkPath, anchorEl, handleWidgetsClick, requestClose }, ref) => {
         const mx = useMatrixClient();
+        const space = useSpaceOptionally();
         const { hashRouter } = useClientConfig();
         const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
         const powerLevels = usePowerLevelsContext();
@@ -97,6 +99,8 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
             ...(state?.getStateEvents('im.vector.modular.widgets') ?? [])
         ];
         const videoCallEvent = widgetsEvents.find(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
+
+        const navigate = useNavigate();
 
         const canRedact = myUserId
             ? canDoAction('redact', getPowerLevel(myUserId))
@@ -129,6 +133,16 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                 if (!eventId) continue;
                 mx.redactEvent(room.roomId, eventId);
             }
+        };
+
+        const handleSearchClick = () => {
+            const searchParams: _SearchPathSearchParams = {
+                rooms: room.roomId,
+            };
+            const path = space
+                ? getSpaceSearchPath(getCanonicalAliasOrRoomId(mx, space.roomId))
+                : getHomeSearchPath();
+            navigate(withSearchParam(path, searchParams));
         };
 
         return (
@@ -167,6 +181,26 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                     </ListItemText>
                 </MenuItem>
                 <MenuItem
+                    onClick={handleWidgetsClick}
+                >
+                    <ListItemIcon>
+                        <WidgetsOutlined />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('tooltip.widgets')}
+                    </ListItemText>
+                </MenuItem>
+                <MenuItem
+                    onClick={handleSearchClick}
+                >
+                    <ListItemIcon>
+                        <Search />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('tooltip.search')}
+                    </ListItemText>
+                </MenuItem>
+                <MenuItem
                     onClick={handleRoomSettings}
                 >
                     <ListItemIcon>
@@ -185,9 +219,9 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                                 aria-pressed={promptLeave}
                             >
                                 <ListItemIcon>
-                                    <ArrowBack />
+                                    <ArrowBack color='error' />
                                 </ListItemIcon>
-                                <ListItemText>
+                                <ListItemText sx={{ color: 'error.main' }}>
                                     {getText('room_header.leave')}
                                 </ListItemText>
                             </MenuItem>
@@ -473,11 +507,13 @@ export function RoomViewHeader({
                         <IconButton
                             onClick={handleScalar}
                             disabled={!canEditWidgets}
+                            color='inherit'
                         >
                             <Widgets />
                         </IconButton>
                         <IconButton
                             onClick={() => setShowWidgets(false)}
+                            color='inherit'
                         >
                             <Close />
                         </IconButton>
@@ -506,7 +542,6 @@ export function RoomViewHeader({
                             <AnimatedNode
                                 whileHover={{
                                     scale: 1.2,
-                                    boxShadow: '5px 5px #00000050',
                                 }}
                                 style={{ borderRadius: '50%' }}
                             >
@@ -555,18 +590,20 @@ export function RoomViewHeader({
                             </Box>
                         </Box>
                         <Box shrink="No">
-                            {!encryptedRoom && (
+                            {!encryptedRoom && screenSize === ScreenSize.Desktop && (
                                 <Tooltip title={getText('tooltip.search')}>
                                     <IconButton color='inherit' onClick={handleSearchClick}>
                                         <Search />
                                     </IconButton>
                                 </Tooltip>
                             )}
-                            <Tooltip title={getText('tooltip.widgets')}>
-                                <IconButton color='inherit' onClick={handleWidgetsClick}>
-                                    <Widgets />
-                                </IconButton>
-                            </Tooltip>
+                            {screenSize === ScreenSize.Desktop && (
+                                <Tooltip title={getText('tooltip.widgets')}>
+                                    <IconButton color='inherit' onClick={handleWidgetsClick}>
+                                        <Widgets />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
                             <Tooltip title={getText('tooltip.pinned')}>
                                 <IconButton color='inherit' onClick={handlePinnedClick}>
                                     <PushPin />
@@ -599,6 +636,7 @@ export function RoomViewHeader({
                                 linkPath={currentPath}
                                 requestClose={() => setMenuAnchor(null)}
                                 anchorEl={menuAnchor}
+                                handleWidgetsClick={handleWidgetsClick}
                             />
                         </Box>
                     </Box>

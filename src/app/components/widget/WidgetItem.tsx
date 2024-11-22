@@ -3,7 +3,8 @@ import { Box, Text } from "folds";
 import { getText } from '../../../lang';
 
 import * as css from './WidgetItem.css';
-import { Button, ButtonGroup } from '@mui/material';
+import { Button, ButtonGroup, IconButton, Tooltip } from '@mui/material';
+import { Close, OpenInNew } from '@mui/icons-material';
 
 type WidgetItemProps = {
     name?: string;
@@ -24,7 +25,25 @@ export function WidgetItem({ name, type, url, onClick, onRemove }: WidgetItemPro
                     {type}
                 </Text>
             </Box>
-            <ButtonGroup>
+            <Tooltip title={getText('btn.widget.open')}>
+                <IconButton
+                    color='inherit'
+                    onClick={onClick}
+                >
+                    <OpenInNew />
+                </IconButton>
+            </Tooltip>
+            {onRemove && (
+                <Tooltip title={getText('btn.widget.remove')}>
+                    <IconButton
+                        color='error'
+                        onClick={onRemove}
+                    >
+                        <Close />
+                    </IconButton>
+                </Tooltip>
+            )}
+            {/* <ButtonGroup>
                 <Button variant='contained' color='primary' onClick={onClick}>
                     {getText('btn.widget.open')}
                 </Button>
@@ -33,7 +52,7 @@ export function WidgetItem({ name, type, url, onClick, onRemove }: WidgetItemPro
                         {getText('btn.widget.remove')}
                     </Button>
                 )}
-            </ButtonGroup>
+            </ButtonGroup> */}
         </Box>
     );
 }

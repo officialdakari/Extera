@@ -363,6 +363,13 @@ export const getPollResponses = (timelineSet: EventTimelineSet, eventId: string)
         'org.matrix.msc3381.poll.response'
     );
 
+export const getPollEnd = (timelineSet: EventTimelineSet, eventId: string) =>
+    timelineSet.relations.getChildEventsForEvent(
+        eventId,
+        RelationType.Reference,
+        'org.matrix.msc3381.poll.end'
+    );
+
 export const getEventEdits = (timelineSet: EventTimelineSet, eventId: string, eventType: string) =>
     timelineSet.relations.getChildEventsForEvent(eventId, RelationType.Replace, eventType);
 
