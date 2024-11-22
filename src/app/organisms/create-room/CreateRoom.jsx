@@ -267,9 +267,9 @@ function CreateRoom() {
                 <Toolbar>
                     <Typography variant='h6' component='div' flexGrow={1}>
                         {parentId ? room.name : getText('home.title')}
-                        <span style={{ color: 'var(--tc-surface-low)' }}>
+                        
                             {getText('create.title', getText(isSpace ? 'create.title.space' : 'create.title.room'))}
-                        </span>
+                        
                     </Typography>
                     <IconButton
                         onClick={onRequestClose}
