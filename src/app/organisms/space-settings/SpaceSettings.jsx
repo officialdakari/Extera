@@ -120,7 +120,6 @@ function SpaceSettings() {
             onClose={requestClose}
             scroll='body'
             fullScreen={screenSize === ScreenSize.Mobile}
-            sx={{ backdropFilter: 'blur(3px)' }}
         >
             {isOpen && <BackButtonHandler callback={requestClose} id='space-settings' />}
             <AppBar sx={{ position: 'relative' }}>

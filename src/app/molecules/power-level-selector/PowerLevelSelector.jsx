@@ -18,11 +18,12 @@ function PowerLevelSelector({
     const theme = useTheme();
 
     return (
-        <Paper sx={{ p: theme.spacing(1) }}>
+        <Paper sx={{ p: theme.spacing(1), boxShadow: 'none' }}>
             <form onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }}>
                 <TextField
                     size='small'
                     inputMode='decimal'
+                    type='number'
                     slotProps={
                         {
                             htmlInput: {
@@ -34,6 +35,7 @@ function PowerLevelSelector({
                     label='Power level'
                     autoComplete='off'
                     required
+                    sx={{ flexGrow: 1 }}
                     defaultValue={Number(value)}
                 />
                 <IconButton color="primary" type="submit"><Check /></IconButton>

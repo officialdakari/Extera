@@ -906,7 +906,7 @@ function Settings() {
             onClose={requestClose}
             fullScreen={screenSize === ScreenSize.Mobile}
             scroll='body'
-            sx={{ overscrollBehaviorY: 'none', backdropFilter: 'blur(3px)' }}
+            sx={{ overscrollBehaviorY: 'none' }}
         >
             {isOpen && <BackButtonHandler callback={requestClose} id='settings' />}
             <input type='file' accept='image/*' onChange={uploadImage} ref={uploadImageRef} style={{ display: 'none' }} />

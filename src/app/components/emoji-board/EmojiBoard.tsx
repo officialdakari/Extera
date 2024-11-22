@@ -150,13 +150,25 @@ const EmojiBoardLayout = as<
         fullWidth?: boolean;
     }
 >(({ className, header, sidebar, footer, children, theme, fullWidth, ...props }, ref) => (
-    <Box
+    <MotionBox
         display="InlineFlex"
         className={classNames(fullWidth ? css.FullWidth : css.Base, className)}
         direction="Row"
         style={{ backgroundColor: theme.palette.background.paper, color: theme.palette.text.primary }}
         {...props}
         ref={ref}
+        initial={{
+            translateY: '30px',
+            opacity: 0.1
+        }}
+        exit={{
+            translateY: '30px',
+            opacity: 0.1
+        }}
+        animate={{
+            translateY: 0,
+            opacity: 1
+        }}
     >
         <Box direction="Column" grow="Yes">
             {header}
@@ -165,7 +177,7 @@ const EmojiBoardLayout = as<
         </Box>
         <SidebarDivider />
         {sidebar}
-    </Box>
+    </MotionBox>
 ));
 
 function EmojiBoardTabs({
@@ -631,9 +643,6 @@ export function EmojiBoard({
     const emojiPreviewTextRef = useRef<HTMLParagraphElement>(null);
 
     const theme = useTheme();
-
-    // Remove #emoji:officialdakari.ru advertisement
-    const [hideAdvert, setHideAdvert] = useSetting(settingsAtom, 'hideEmojiAdvert');
 
     const searchList = useMemo(() => {
         let list: Array<ExtendedPackImage | IEmoji> = [];

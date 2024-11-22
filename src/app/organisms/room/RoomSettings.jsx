@@ -145,7 +145,6 @@ function RoomSettings() {
             open={window !== null}
             onClose={requestClose}
             scroll='body'
-            sx={{ backdropFilter: 'blur(3px)' }}
         >
             {window !== null && <BackButtonHandler callback={requestClose} id='room-settings' />}
             {window !== null && (

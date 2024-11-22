@@ -15,10 +15,11 @@ import { mdiPencil } from '@mdi/js';
 import { Button, IconButton, TextField } from '@mui/material';
 import { Close, Edit, Save } from '@mui/icons-material';
 import { Box } from 'folds';
+import { useMatrixClient } from '../../hooks/useMatrixClient';
 
 function ProfileEditor({ userId }) {
     const [isEditing, setIsEditing] = useState(false);
-    const mx = initMatrix.matrixClient;
+    const mx = useMatrixClient();
     const user = mx.getUser(mx.getUserId());
 
     const displayNameRef = useRef(null);
