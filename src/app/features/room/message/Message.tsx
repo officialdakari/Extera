@@ -1005,6 +1005,7 @@ export type MessageProps = {
     onUsernameClick: MouseEventHandler<HTMLButtonElement>;
     onReplyClick: () => void;
     onDiscussClick: () => void;
+    onPollEnd?: () => void;
     onEditId?: (eventId?: string) => void;
     onReactionToggle: (targetEventId: string, key: string, shortcode?: string) => void;
     reply?: ReactNode;
@@ -1035,6 +1036,7 @@ export const Message = as<'div', MessageProps>(
             onReplyClick,
             onDiscussClick,
             onReactionToggle,
+            onPollEnd,
             onEditId,
             edited,
             reply,
@@ -1293,23 +1295,6 @@ export const Message = as<'div', MessageProps>(
             setEmojiBoardAnchor(target);
         };
 
-        const handleEndPoll: MouseEventHandler<HTMLLIElement> = () => {
-            const roomId = mEvent.getRoomId();
-            const eventId = mEvent.getId();
-            if (!roomId || !eventId) return;
-            closeMenu();
-            // @ts-ignore
-            mx.sendEvent(roomId, 'org.matrix.msc3381.poll.end', {
-                'org.matrix.msc1767.text': 'Ended poll',
-                'm.relates_to': {
-                    rel_type: 'm.reference',
-                    event_id: eventId
-                },
-                // @ts-ignore
-                body: 'Ended poll'
-            });
-        };
-
         const isTouch = 'ontouchstart' in window;
         const isSticker = useMemo(
             () => mEvent.getType() === 'm.sticker',
@@ -1429,9 +1414,9 @@ export const Message = as<'div', MessageProps>(
                             )}
                             {status === EventStatus.SENT && (
                                 <>
-                                    {mEvent.getType() == 'org.matrix.msc3381.poll.start' && mEvent.sender?.userId == (mx.getUserId() ?? '') && (
+                                    {mEvent.getType() == 'org.matrix.msc3381.poll.start' && onPollEnd && mEvent.sender?.userId == (mx.getUserId() ?? '') && (
                                         <MenuItem
-                                            onClick={handleEndPoll}
+                                            onClick={onPollEnd}
                                         >
                                             <ListItemIcon>
                                                 <CancelOutlined />

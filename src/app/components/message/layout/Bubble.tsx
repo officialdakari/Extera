@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { Box, as } from 'folds';
 import * as css from './layout.css';
 import classNames from 'classnames';
-import { useTheme } from '@mui/material';
+import { colors, useTheme } from '@mui/material';
 import { blue, cyan, purple } from '@mui/material/colors';
 import settings from '../../../../client/state/settings';
 
@@ -31,7 +31,7 @@ export const BubbleLayout = as<'div', BubbleLayoutProps>(({ before, rightAligned
                 style={{
                     backgroundColor: !transparent
                         ? (rightAligned
-                            ? (isDark ? purple[900] : theme.palette.info.light)
+                            ? (isDark ? colors.blue[900] : theme.palette.info.light)
                             : (isDark ? theme.palette.grey[800] : theme.palette.background.paper))
                         : 'transparent',
                     borderRadius: theme.shape.borderRadius

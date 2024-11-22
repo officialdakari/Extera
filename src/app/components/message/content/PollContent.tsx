@@ -7,7 +7,7 @@ import { MatrixClient, MatrixError, MatrixEvent, Relations, RelationType, retryN
 import { Alert, Button, Checkbox, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Typography } from '@mui/material';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { useRelations } from '../../../hooks/useRelations';
-import { getPollResponses } from '../../../utils/room';
+import { getPollEnd, getPollResponses } from '../../../utils/room';
 import { Cancel, Poll } from '@mui/icons-material';
 import { getText } from '../../../../lang';
 import { LoadingButton } from '@mui/lab';
@@ -52,8 +52,9 @@ type PollAnswersProps = {
     responses: MatrixEvent[];
     room: Room;
     event: MatrixEvent;
+    pollEnded: boolean;
 };
-const PollAnswers = ({ responses, room, event }: PollAnswersProps) => {
+const PollAnswers = ({ responses, room, event, pollEnded }: PollAnswersProps) => {
     const mx = useMatrixClient();
     const [voteAnswers, setVoteAnswers] = useState<string[]>([]);
     const content = event.getContent();
@@ -115,10 +116,11 @@ const PollAnswers = ({ responses, room, event }: PollAnswersProps) => {
                             <PollAnswer
                                 id={answer.id}
                                 text={answer['org.matrix.msc1767.text']}
-                                disclose={content['org.matrix.msc3381.poll.start'].kind === 'org.matrix.msc3381.poll.disclosed'}
+                                disclose={content['org.matrix.msc3381.poll.start'].kind === 'org.matrix.msc3381.poll.disclosed' || pollEnded}
                                 voted={voteAnswers.includes(answer.id) || (myResponse ? true : false)}
                                 votes={getVoteCount(answer.id)}
                                 setVote={(v) => {
+                                    if (pollEnded) return;
                                     if (responses && myResponses.length > 0) return;
                                     if (v) setVoteAnswers((ans) => [...ans, answer.id]);
                                     else setVoteAnswers((ans) => ans.filter(x => x !== answer.id));
@@ -128,35 +130,37 @@ const PollAnswers = ({ responses, room, event }: PollAnswersProps) => {
                         );
                     }
                 )}
-                <Box direction='Column' gap='200'>
-                    {unvoteState.status === AsyncStatus.Error && (
-                        <Alert sx={{ width: '100%' }} severity='error'>
-                            {getText('err.unvote', (unvoteState.error as MatrixError).message)}
-                        </Alert>
-                    )}
-                    {responses && myResponses.length > 0 && (
-                        <LoadingButton
-                            variant='text'
-                            color='error'
-                            fullWidth
-                            onClick={() => unvote(myResponses)}
-                            loading={unvoteState.status === AsyncStatus.Loading}
-                        >
-                            {getText('btn.unvote')}
-                        </LoadingButton>
-                    )}
-                    {(voteAnswers.length > 0) && (
-                        <LoadingButton
-                            variant='text'
-                            color='success'
-                            fullWidth
-                            loading={voteState.status === AsyncStatus.Loading}
-                            onClick={vote}
-                        >
-                            {getText('btn.vote.submit')}
-                        </LoadingButton>
-                    )}
-                </Box>
+                {!pollEnded && (
+                    <Box direction='Column' gap='200'>
+                        {unvoteState.status === AsyncStatus.Error && (
+                            <Alert sx={{ width: '100%' }} severity='error'>
+                                {getText('err.unvote', (unvoteState.error as MatrixError).message)}
+                            </Alert>
+                        )}
+                        {responses && myResponses.length > 0 && (
+                            <LoadingButton
+                                variant='text'
+                                color='error'
+                                fullWidth
+                                onClick={() => unvote(myResponses)}
+                                loading={unvoteState.status === AsyncStatus.Loading}
+                            >
+                                {getText('btn.unvote')}
+                            </LoadingButton>
+                        )}
+                        {(voteAnswers.length > 0) && (
+                            <LoadingButton
+                                variant='text'
+                                color='success'
+                                fullWidth
+                                loading={voteState.status === AsyncStatus.Loading}
+                                onClick={vote}
+                            >
+                                {getText('btn.vote.submit')}
+                            </LoadingButton>
+                        )}
+                    </Box>
+                )}
             </>
         );
     };
@@ -187,13 +191,20 @@ export const PollContent = (
         useCallback((rel) => rel ? [...(rel.getRelations() ?? [])] : [], [])
     );
 
+    const endRelations = getPollEnd(timelineSet, eventId);
+    const ends: MatrixEvent[] = useRelations(
+        endRelations,
+        useCallback((rel) => rel ? [...(rel.getRelations() ?? [])] : [], [])
+    );
+    const pollEnded = ends.find((evt) => evt.sender?.userId === event.sender?.userId) ? true : false;
+
     return (
         <Paper sx={{ minWidth: '230px' }}>
             <Alert icon={<Poll />} sx={{ width: '100%', background: 'transparent' }} severity='info'>
                 {content['org.matrix.msc3381.poll.start'].question['org.matrix.msc1767.text']}
             </Alert>
             <List>
-                <PollAnswers event={event} responses={responses} room={room} />
+                <PollAnswers event={event} responses={responses} room={room} pollEnded={pollEnded} />
             </List>
         </Paper>
     );
