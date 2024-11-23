@@ -3,9 +3,10 @@ import React from 'react';
 import { getText } from '../../../../lang';
 import { mdiAlert, mdiDelete, mdiEyeOff, mdiLock, mdiLockAlert } from '@mdi/js';
 import Icon from '@mdi/react';
+import { colors } from '@mui/material';
 
-const warningStyle = { color: color.Warning.Main, opacity: config.opacity.P300 };
-const criticalStyle = { color: color.Critical.Main, opacity: config.opacity.P300 };
+const warningStyle = { color: colors.yellow[600] };
+const criticalStyle = { color: colors.red[600] };
 
 export const MessageDeletedContent = as<'div', { children?: never; reason?: string }>(
     ({ reason, ...props }, ref) => (
