@@ -6,8 +6,6 @@ import {
     OverlayBackdrop,
     OverlayCenter,
     Text,
-    Tooltip,
-    TooltipProvider,
     as,
     toRem,
 } from 'folds';
@@ -21,6 +19,7 @@ import { Reaction, ReactionTooltipMsg } from '../../../components/message';
 import { useRelations } from '../../../hooks/useRelations';
 import * as css from './styles.css';
 import { ReactionViewer } from '../reaction-viewer';
+import { Tooltip } from '@mui/material';
 
 export type ReactionsProps = {
     room: Room;
@@ -65,32 +64,21 @@ export const Reactions = as<'div', ReactionsProps>(
                     const isPressed = !!myREvent?.getRelation();
 
                     return (
-                        <TooltipProvider
-                            key={key}
-                            position="Top"
-                            tooltip={
-                                <Tooltip style={{ maxWidth: toRem(200) }}>
-                                    <Text className={css.ReactionsTooltipText} size="T300">
-                                        <ReactionTooltipMsg room={room} reaction={key} events={rEvents} />
-                                    </Text>
-                                </Tooltip>
-                            }
+                        <Tooltip
+                            title={<ReactionTooltipMsg room={room} reaction={key} events={rEvents} />}
                         >
-                            {(targetRef) => (
-                                <Reaction
-                                    ref={targetRef}
-                                    data-reaction-key={key}
-                                    aria-pressed={isPressed}
-                                    key={key}
-                                    mx={mx}
-                                    reaction={key}
-                                    count={rEvents.length}
-                                    onClick={canSendReaction ? () => onReactionToggle(mEventId, key) : undefined}
-                                    onContextMenu={handleViewReaction}
-                                    aria-disabled={!canSendReaction}
-                                />
-                            )}
-                        </TooltipProvider>
+                            <Reaction
+                                data-reaction-key={key}
+                                aria-pressed={isPressed}
+                                key={key}
+                                mx={mx}
+                                reaction={key}
+                                count={rEvents.length}
+                                onClick={canSendReaction ? () => onReactionToggle(mEventId, key) : undefined}
+                                onContextMenu={handleViewReaction}
+                                aria-disabled={!canSendReaction}
+                            />
+                        </Tooltip>
                     );
                 })}
                 {reactions.length > 0 && (

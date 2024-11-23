@@ -18,10 +18,10 @@ export const Reaction = style([
                 backgroundColor: colors.green[500],
             },
             '&:hover, &:focus-visible': {
-                backgroundColor: colors.green[500],
+                backgroundColor: colors.grey[700],
             },
             '&:active': {
-                backgroundColor: colors.green[500],
+                backgroundColor: colors.grey[700],
             },
             '&[aria-disabled=true], &:disabled': {
                 cursor: 'not-allowed',
