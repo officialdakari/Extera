@@ -5,8 +5,8 @@ import { mdiAlert, mdiDelete, mdiEyeOff, mdiLock, mdiLockAlert } from '@mdi/js';
 import Icon from '@mdi/react';
 import { colors } from '@mui/material';
 
-const warningStyle = { color: colors.yellow[600] };
-const criticalStyle = { color: colors.red[600] };
+const warningStyle = {};
+const criticalStyle = {};
 
 export const MessageDeletedContent = as<'div', { children?: never; reason?: string }>(
     ({ reason, ...props }, ref) => (
