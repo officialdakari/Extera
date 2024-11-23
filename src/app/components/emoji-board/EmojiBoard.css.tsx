@@ -11,8 +11,8 @@ export const Base = style({
     maxWidth: toRem(432),
     width: `calc(100vw - 2 * ${config.space.S400})`,
     height: toRem(450),
-    border: `${config.borderWidth.B300} solid ${color.Surface.ContainerLine}`,
-    borderRadius: config.radii.R400,
+    // border: `${config.borderWidth.B300} solid ${color.Surface.ContainerLine}`,
+    // borderRadius: config.radii.R400,
     boxShadow: config.shadow.E200,
     overflow: 'hidden',
 });
