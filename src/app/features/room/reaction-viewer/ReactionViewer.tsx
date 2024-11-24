@@ -22,8 +22,9 @@ import { UserAvatar } from '../../../components/user-avatar';
 import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiAccount, mdiClose } from '@mdi/js';
-import { AppBar, Divider, IconButton, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from '@mui/material';
+import { AppBar, DialogContent, Divider, IconButton, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography, useTheme } from '@mui/material';
 import { Close } from '@mui/icons-material';
+import { BackButtonHandler } from '../../../hooks/useBackButton';
 
 export type ReactionViewerProps = {
     room: Room;
@@ -34,6 +35,7 @@ export type ReactionViewerProps = {
 export const ReactionViewer = as<'div', ReactionViewerProps>(
     ({ className, room, initialKey, relations, requestClose, ...props }, ref) => {
         const mx = useMatrixClient();
+        const theme = useTheme();
         const reactions = useRelations(
             relations,
             useCallback((rel) => rel ? [...(rel.getSortedAnnotationsByKey() ?? [])] : [], [])
@@ -67,7 +69,8 @@ export const ReactionViewer = as<'div', ReactionViewerProps>(
                 {...props}
                 ref={ref}
             >
-                <Box shrink="No" className={css.Sidebar}>
+                <BackButtonHandler id='reaction-viewer' callback={requestClose} />
+                <Box shrink="No" style={{ backgroundColor: theme.palette.background.default }}>
                     <Scroll visibility="Hover" hideTrack size="300">
                         <Box className={css.SidebarContent} direction="Column" gap="200">
                             {reactions.map(([key, evts]) => {
@@ -101,47 +104,49 @@ export const ReactionViewer = as<'div', ReactionViewerProps>(
                         </Toolbar>
                     </AppBar>
 
-                    <List>
-                        {selectedReactions.map((mEvent) => {
-                            const senderId = mEvent.getSender();
-                            if (!senderId) return null;
-                            const member = room.getMember(senderId);
-                            const name = (member ? getName(member) : getMxIdLocalPart(senderId)) ?? senderId;
+                    <DialogContent>
+                        <List>
+                            {selectedReactions.map((mEvent) => {
+                                const senderId = mEvent.getSender();
+                                if (!senderId) return null;
+                                const member = room.getMember(senderId);
+                                const name = (member ? getName(member) : getMxIdLocalPart(senderId)) ?? senderId;
 
-                            const avatarUrl = member?.getAvatarUrl(
-                                mx.baseUrl,
-                                100,
-                                100,
-                                'crop',
-                                undefined,
-                                false
-                            );
+                                const avatarUrl = member?.getAvatarUrl(
+                                    mx.baseUrl,
+                                    100,
+                                    100,
+                                    'crop',
+                                    undefined,
+                                    false
+                                );
 
-                            return (
-                                <ListItem
-                                    key={senderId}
-                                    onClick={() => {
-                                        requestClose();
-                                        openProfileViewer(senderId, room.roomId);
-                                    }}
-                                >
-                                    <ListItemIcon>
-                                        <Avatar size="200">
-                                            <UserAvatar
-                                                userId={senderId}
-                                                src={avatarUrl ?? undefined}
-                                                alt={name}
-                                                renderFallback={() => <Icon size={1} path={mdiAccount} />}
-                                            />
-                                        </Avatar>
-                                    </ListItemIcon>
-                                    <ListItemText>
-                                        {name}
-                                    </ListItemText>
-                                </ListItem>
-                            );
-                        })}
-                    </List>
+                                return (
+                                    <ListItem
+                                        key={senderId}
+                                        onClick={() => {
+                                            requestClose();
+                                            openProfileViewer(senderId, room.roomId);
+                                        }}
+                                    >
+                                        <ListItemIcon>
+                                            <Avatar size="200">
+                                                <UserAvatar
+                                                    userId={senderId}
+                                                    src={avatarUrl ?? undefined}
+                                                    alt={name}
+                                                    renderFallback={() => <Icon size={1} path={mdiAccount} />}
+                                                />
+                                            </Avatar>
+                                        </ListItemIcon>
+                                        <ListItemText>
+                                            {name}
+                                        </ListItemText>
+                                    </ListItem>
+                                );
+                            })}
+                        </List>
+                    </DialogContent>
                 </Box>
             </Box>
         );

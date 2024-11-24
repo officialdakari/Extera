@@ -51,7 +51,7 @@ export function AudioContent({
 
     const [srcState, loadSrc] = useAsyncCallback(
         useCallback(
-            () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo, mx, true),
+            () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo, mx, !('cordova' in window)),
             [mx, url, mimeType, encInfo]
         )
     );
