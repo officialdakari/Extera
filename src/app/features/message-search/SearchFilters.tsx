@@ -62,6 +62,7 @@ function OrderButton({ order, onChange }: OrderButtonProps) {
             <Menu
                 anchorEl={menuAnchor}
                 open={!!menuAnchor}
+                onClose={() => setMenuAnchor(null)}
             >
                 <MenuItem
                     selected={!rankOrder}

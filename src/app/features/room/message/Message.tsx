@@ -73,7 +73,7 @@ import { saveFile } from '../../../utils/saveFile';
 import { getFileSrcUrl } from '../../../components/message/content/util';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 import { Alert, AppBar, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, Link, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Toolbar, Typography, useTheme } from '@mui/material';
-import { AddReactionOutlined, ArrowBack, Cancel, CancelOutlined, Check, Close, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
+import { AddReactionOutlined, ArrowBack, Cancel, CancelOutlined, Check, Close, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, EmojiEmotionsOutlined, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useSwipeLeft } from '../../../hooks/useSwipeLeft';
 import { Feature, ServerSupport } from 'matrix-js-sdk/lib/feature';
@@ -139,16 +139,14 @@ export const MessageAllReactionItem = as<
     return (
         <>
             <Dialog open={open} onClose={handleClose}>
-                <DialogContent>
-                    <ReactionViewer relations={relations} requestClose={handleClose} room={room} />
-                </DialogContent>
+                <ReactionViewer relations={relations} requestClose={handleClose} room={room} />
             </Dialog>
             <MenuItem
                 onClick={() => setOpen(true)}
                 selected={open}
             >
                 <ListItemIcon>
-                    <EmojiEmotions />
+                    <EmojiEmotionsOutlined />
                 </ListItemIcon>
                 <ListItemText>
                     {getText('msg_menu.view_reactions')}

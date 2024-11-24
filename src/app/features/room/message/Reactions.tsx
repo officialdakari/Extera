@@ -19,7 +19,7 @@ import { Reaction, ReactionTooltipMsg } from '../../../components/message';
 import { useRelations } from '../../../hooks/useRelations';
 import * as css from './styles.css';
 import { ReactionViewer } from '../reaction-viewer';
-import { Tooltip } from '@mui/material';
+import { AppBar, Dialog, Toolbar, Tooltip } from '@mui/material';
 
 export type ReactionsProps = {
     room: Room;
@@ -82,33 +82,17 @@ export const Reactions = as<'div', ReactionsProps>(
                     );
                 })}
                 {reactions.length > 0 && (
-                    <Overlay
-                        onContextMenu={(evt: any) => {
-                            evt.stopPropagation();
-                        }}
+                    <Dialog
                         open={!!viewer}
-                        backdrop={<OverlayBackdrop />}
+                        onClose={() => setViewer(false)}
                     >
-                        <OverlayCenter>
-                            <FocusTrap
-                                focusTrapOptions={{
-                                    initialFocus: false,
-                                    returnFocusOnDeactivate: false,
-                                    onDeactivate: () => setViewer(false),
-                                    clickOutsideDeactivates: true,
-                                }}
-                            >
-                                <Modal variant="Surface" size="300">
-                                    <ReactionViewer
-                                        room={room}
-                                        initialKey={typeof viewer === 'string' ? viewer : undefined}
-                                        relations={relations}
-                                        requestClose={() => setViewer(false)}
-                                    />
-                                </Modal>
-                            </FocusTrap>
-                        </OverlayCenter>
-                    </Overlay>
+                        <ReactionViewer
+                            room={room}
+                            initialKey={typeof viewer === 'string' ? viewer : undefined}
+                            relations={relations}
+                            requestClose={() => setViewer(false)}
+                        />
+                    </Dialog>
                 )}
             </Box>
         );
