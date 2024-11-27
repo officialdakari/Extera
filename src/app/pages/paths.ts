@@ -38,6 +38,8 @@ export const _SEARCH_PATH = 'search/';
 export const _THREAD_PATH = 'thread/:roomIdOrAlias/:threadId/:eventId?/';
 export const _ROOM_PATH = ':roomIdOrAlias/:eventId?/';
 
+export const EMAIL_PATH = '/email/:roomId';
+
 export const HOME_PATH = '/home/';
 export const HOME_CREATE_PATH = `/home/${_CREATE_PATH}`;
 export const HOME_JOIN_PATH = `/home/${_JOIN_PATH}`;
