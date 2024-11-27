@@ -33,6 +33,7 @@ import {
     _SERVER_PATH,
     SEARCH_PATH,
     _THREAD_PATH,
+    EMAIL_PATH,
 } from './paths';
 import { isAuthenticated } from '../../client/state/auth';
 import {

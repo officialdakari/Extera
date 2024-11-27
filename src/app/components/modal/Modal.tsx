@@ -31,7 +31,7 @@ function ModalWrapper({ children, dimensions, onResize, id, hidden }: ModalWrapp
     const screenSize = useScreenSize();
     return screenSize === ScreenSize.Mobile
         ? (
-            <div className={css.MobileModal}>
+            <div className={css.MobileModal} style={{ display: hidden ? 'none' : 'initial' }}>
                 <Paper sx={{ bgcolor: 'background.paper', display: hidden ? 'none' : 'flex', height: '100%' }}>
                     {children}
                 </Paper>
@@ -124,7 +124,7 @@ export function Modals({ modals }: ModalsProps) {
                                     )}
                                 </Toolbar>
                             </AppBar>
-                            <div style={{ overflow: 'hidden', height: '100%', maxHeight: `${(dimensions[id]?.height || 300) - (appBarRef.current?.clientHeight || 10)}px`, width: '100%' }}>
+                            <div style={dimensions[id] ? { overflow: 'hidden', height: '100%', maxHeight: `${(dimensions[id]?.height || 300) - (appBarRef.current?.clientHeight || 10)}px`, width: '100%' } : { width: '100%', overflow: 'hidden' }}>
                                 {content.node}
                             </div>
                         </ModalWrapper>

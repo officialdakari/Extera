@@ -8,9 +8,7 @@ export const DraggableContainer = style({
 
 export const DraggableButton = style({
     position: 'absolute',
-    zIndex: '101',
-    width: '64px',
-    height: '64px'
+    zIndex: '101'
 });
 
 export const MobileModal = style({

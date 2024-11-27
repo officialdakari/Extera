@@ -169,10 +169,10 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, anchorEl, 
                             onClick={() => setPromptLeave(true)}
                             aria-pressed={promptLeave}
                         >
-                            <ListItemIcon color='error'>
-                                <ArrowBack />
+                            <ListItemIcon>
+                                <ArrowBack color='error' />
                             </ListItemIcon>
-                            <ListItemText>
+                            <ListItemText sx={{ color: 'error.main' }}>
                                 {getText('space.action.leave')}
                             </ListItemText>
                         </MenuItem>
