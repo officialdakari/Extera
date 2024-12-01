@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/media-has-caption */
-import React, { ReactNode, useCallback, useRef, useState } from 'react';
-import { Badge, Box, Chip, IconButton, ProgressBar, Spinner, Text, toRem } from 'folds';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { Box, Text, toRem } from 'folds';
 import { EncryptedAttachmentInfo } from 'browser-encrypt-attachment';
 import { Range } from 'react-range';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
@@ -18,7 +18,8 @@ import {
 import { useThrottle } from '../../../hooks/useThrottle';
 import { secondsToMinutesAndSeconds } from '../../../utils/common';
 import Icon from '@mdi/react';
-import { mdiPause, mdiPlayOutline, mdiVolumeHigh, mdiVolumeMute } from '@mdi/js';
+import { mdiPause, mdiPlay } from '@mdi/js';
+import { CircularProgress, IconButton, Slider, useTheme } from '@mui/material';
 
 const PLAY_TIME_THROTTLE_OPS = {
     wait: 500,
@@ -46,6 +47,7 @@ export function VoiceContent({
     renderMediaControl,
 }: VoiceContentProps) {
     const mx = useMatrixClient();
+    const theme = useTheme();
 
     const [srcState, loadSrc] = useAsyncCallback(
         useCallback(
@@ -85,63 +87,32 @@ export function VoiceContent({
 
     return renderMediaControl({
         after: (
-            <Box direction='Row' grow='Yes' alignItems='Center' style={{ width: '200px', gap: '4px' }}>
+            <Box direction='Row' grow='Yes' alignItems='Center' style={{ width: '200px', gap: theme.spacing(2) }}>
                 <IconButton
+                    sx={{ bgcolor: 'background.paper' }}
                     onClick={handlePlay}
-                    radii="Pill"
                     disabled={srcState.status === AsyncStatus.Loading}
                 >
                     {
                         srcState.status === AsyncStatus.Loading || loading ? (
-                            <Spinner variant="Secondary" size="50" />
+                            <CircularProgress />
                         ) : (
-                            <Icon size={1} path={playing ? mdiPause : mdiPlayOutline} />
+                            <Icon size={1} path={playing ? mdiPause : mdiPlay} />
                         )
                     }
                 </IconButton>
-                &nbsp;
-                <div style={{ width: '100%' }}>
-                    <Range
-                        step={1}
-                        min={0}
-                        max={duration || 1}
-                        values={[currentTime]}
-                        onChange={(values) => seek(values[0])}
-                        renderTrack={(params) => (
-                            <div {...params.props}>
-                                {params.children}
-                                <ProgressBar
-                                    as="div"
-                                    variant="Primary"
-                                    size="300"
-                                    min={0}
-                                    max={duration}
-                                    value={currentTime}
-                                    radii="300"
-                                />
-                            </div>
-                        )}
-                        renderThumb={(params) => (
-                            <Badge
-                                size="300"
-                                variant="Secondary"
-                                fill="Solid"
-                                radii="Pill"
-                                outlined
-                                {...params.props}
-                                style={{
-                                    ...params.props.style,
-                                    zIndex: 0,
-                                }}
-                            />
-                        )}
-                    />
-                </div>
-                &nbsp;
+                <Slider
+                    step={1}
+                    min={0}
+                    max={duration || 1}
+                    value={currentTime}
+                    onChange={(evt, value) => seek(value as number)}
+                    size='small'
+                />
                 <Text size="T200">{`${secondsToMinutesAndSeconds(
                     currentTime
                 )}`}</Text>
-            </Box>
+            </Box >
         ),
         children: (
             <audio controls={false} autoPlay ref={audioRef}>

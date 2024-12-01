@@ -74,6 +74,7 @@ import { AppBar, Box, Button, Divider, IconButton, ListItemIcon, ListItemText, M
 import { Add, DoneAll, MenuOpen, MoreVert, PersonAdd, Menu as MenuIcon, Share, ArrowBack, Flag, OutlinedFlag, Search, Settings } from '@mui/icons-material';
 import { useNavHidden } from '../../../hooks/useHideableNav';
 import BottomNav from '../BottomNav';
+import SyncStateAlert from '../SyncStateAlert';
 
 type SpaceMenuProps = {
     room: Room;
@@ -227,6 +228,7 @@ function SpaceHeader() {
                     <SpaceMenu room={space} anchorEl={menuAnchor} requestClose={() => setMenuAnchor(null)} />
                 </Toolbar>
             </AppBar>
+            <SyncStateAlert />
         </Box>
     );
 }
