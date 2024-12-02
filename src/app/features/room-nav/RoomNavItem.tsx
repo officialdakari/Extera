@@ -226,8 +226,6 @@ export function RoomNavItem({
 
     return (
         <NavItem
-            style={{ background: 'transparent' }}
-            radii="400"
             highlight={unread !== undefined}
             aria-selected={selected}
             data-hover={!!menuAnchor}
