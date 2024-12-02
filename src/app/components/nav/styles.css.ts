@@ -1,3 +1,4 @@
+import { colors, keyframes } from '@mui/material';
 import { ComplexStyleRule, createVar, style } from '@vanilla-extract/css';
 import { RecipeVariants, recipe } from '@vanilla-extract/recipes';
 import { ContainerColor, DefaultReset, Disabled, RadiiVariant, color, config, toRem } from 'folds';
@@ -79,28 +80,24 @@ const NavItemBase = style({
         },
     },
 });
-export const NavItem = recipe({
-    base: [DefaultReset, NavItemBase, Disabled],
-    variants: {
-        variant: {
-            Background: getVariant('Background'),
-            Surface: getVariant('Surface'),
-            SurfaceVariant: getVariant('SurfaceVariant'),
-            Primary: getVariant('Primary'),
-            Secondary: getVariant('Secondary'),
-            Success: getVariant('Success'),
-            Warning: getVariant('Warning'),
-            Critical: getVariant('Critical'),
-        },
-        radii: RadiiVariant,
+
+export const NavItem = style({
+    ':hover': {
+        backgroundColor: colors.blueGrey[500],
+        borderRadius: '10px',
+        borderTopLeftRadius: '30px',
+        borderBottomLeftRadius: '30px'
     },
-    defaultVariants: {
-        //variant: 'Surface',
-        radii: '400',
-    },
+    selectors: {
+        '&[aria-selected=true]': {
+            backgroundColor: colors.blueGrey[800],
+            borderRadius: '10px',
+            borderTopLeftRadius: '30px',
+            borderBottomLeftRadius: '30px'
+        }
+    }
 });
 
-export type RoomSelectorVariants = RecipeVariants<typeof NavItem>;
 export const NavItemContent = style({
     paddingLeft: config.space.S200,
     paddingRight: config.space.S300,
