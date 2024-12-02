@@ -5,7 +5,7 @@ const cons = {
     // for example, at the moment of writing this comment it's 21st november 2024
     // so, 21112024 in 36-richered number system is CKI54
     //     DDMMYYYY
-    version: '1.0-DEV-DRDCO',
+    version: '1.0-DEV-O1RC',
     secretKey: {
         ACCESS_TOKEN: 'cinny_access_token',
         DEVICE_ID: 'cinny_device_id',
