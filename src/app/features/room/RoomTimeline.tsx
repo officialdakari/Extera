@@ -1746,7 +1746,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                     </TimelineFloat>
                 )}
             </AnimatePresence>
-            <Scroll ref={scrollRef} visibility="Hover">
+            <Scroll className={css.TimelineScroll} ref={scrollRef} visibility="Hover">
                 <Box
                     direction="Column"
                     justifyContent="End"

@@ -1764,7 +1764,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                     </TimelineFloat>
                 )}
             </AnimatePresence>
-            <Scroll ref={scrollRef} visibility="Hover">
+            <Scroll className={css.TimelineScroll} ref={scrollRef} visibility="Hover">
                 <Box
                     direction="Column"
                     justifyContent="End"

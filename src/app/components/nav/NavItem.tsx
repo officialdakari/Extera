@@ -3,6 +3,7 @@ import React, { ComponentProps, forwardRef } from 'react';
 import { Link } from 'react-router-dom';
 import { as } from 'folds';
 import * as css from './styles.css';
+import settings from '../../../client/state/settings';
 
 export const NavItem = as<
     'div',
@@ -11,7 +12,7 @@ export const NavItem = as<
     }
 >(({ as: AsNavItem = 'div', className, highlight, children, ...props }, ref) => (
     <AsNavItem
-        className={classNames(css.NavItem, className)}
+        className={classNames(css.NavItem({ theme: settings.getThemeIndex() === 2 ? 'dark' : 'light' }), className)}
         data-highlight={highlight}
         {...props}
         ref={ref}

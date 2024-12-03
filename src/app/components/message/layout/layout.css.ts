@@ -2,6 +2,8 @@ import { createVar, keyframes, style, styleVariants } from '@vanilla-extract/css
 import { recipe, RecipeVariants } from '@vanilla-extract/recipes';
 import { DefaultReset, color, config, toRem } from 'folds';
 import { HTMLMotionProps, Variants } from 'framer-motion';
+import settings from '../../../../client/state/settings';
+import { colors } from '@mui/material';
 
 export const StickySection = style({
     position: 'sticky',
@@ -150,10 +152,34 @@ export const ModernBefore = style({
 
 export const BubbleBefore = style([ModernBefore]);
 
-export const BubbleContent = style({
-    maxWidth: '75%',
-    padding: config.space.S200,
-    position: 'relative',
+export const BubbleContent = recipe({
+    base: [{
+        maxWidth: '75%',
+        padding: '0.35rem',
+        position: 'relative',
+        borderRadius: '8px'
+    }],
+    variants: {
+        light: {
+            local: {
+                backgroundColor: colors.blue[100]
+            },
+            remote: {
+                backgroundColor: colors.blueGrey.A100
+            }
+        },
+        dark: {
+            local: {
+                backgroundColor: colors.blue[900]
+            },
+            remote: {
+                backgroundColor: colors.blueGrey[900]
+            }
+        }
+    },
+    defaultVariants: {
+
+    }
 });
 
 export const BubbleContentTransparent = style({

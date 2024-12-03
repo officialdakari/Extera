@@ -10,7 +10,7 @@ import { ConfigConfigError, ConfigConfigLoading } from './ConfigConfig';
 import { FeatureCheck } from './FeatureCheck';
 import { createRouter } from './Router';
 import { ScreenSizeProvider, useScreenSize } from '../hooks/useScreenSize';
-import { createTheme, ThemeProvider } from '@mui/material';
+import { colors, createTheme, ThemeProvider } from '@mui/material';
 import { NavContextProvider } from '../hooks/useHideableNav';
 import settings from '../../client/state/settings';
 import cons from '../../client/state/cons';
