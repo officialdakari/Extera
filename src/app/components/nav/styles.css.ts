@@ -81,19 +81,45 @@ const NavItemBase = style({
     },
 });
 
-export const NavItem = style({
-    ':hover': {
-        backgroundColor: colors.blueGrey[500],
-        borderRadius: '10px',
-        borderTopLeftRadius: '30px',
-        borderBottomLeftRadius: '30px'
-    },
-    selectors: {
-        '&[aria-selected=true]': {
-            backgroundColor: colors.blueGrey[800],
+export const NavItem = recipe({
+    base: [{
+        ':hover': {
+            // backgroundColor: colors.blueGrey[500],
             borderRadius: '10px',
-            borderTopLeftRadius: '30px',
-            borderBottomLeftRadius: '30px'
+            // borderTopLeftRadius: '30px',
+            // borderBottomLeftRadius: '30px'
+        },
+        selectors: {
+            '&[aria-selected=true]': {
+                // backgroundColor: colors.blueGrey[800],
+                borderRadius: '10px',
+                // borderTopLeftRadius: '30px',
+                // borderBottomLeftRadius: '30px'
+            }
+        }
+    }],
+    variants: {
+        theme: {
+            dark: {
+                ':hover': {
+                    backgroundColor: colors.blueGrey[500]
+                },
+                selectors: {
+                    '&[aria-selected=true]': {
+                        backgroundColor: colors.blueGrey[800]
+                    }
+                }
+            },
+            light: {
+                ':hover': {
+                    backgroundColor: colors.blue.A100
+                },
+                selectors: {
+                    '&[aria-selected=true]': {
+                        backgroundColor: colors.blue.A200
+                    }
+                }
+            }
         }
     }
 });
@@ -106,6 +132,7 @@ export const NavItemContent = style({
     flexGrow: 1,
     display: 'flex',
     alignItems: 'center',
+    minHeight: toRem(36),
 
     selectors: {
         '&:hover': {

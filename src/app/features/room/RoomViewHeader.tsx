@@ -466,7 +466,7 @@ export function RoomViewHeader({
                 onClose={() => setShowPinned(false)}
                 scroll='body'
             >
-                <AppBar sx={{ position: 'relative' }}>
+                <AppBar position='static'>
                     <Toolbar>
                         <Typography flexGrow={1} component='div' variant='h6'>
                             {getText('pinned.title')}

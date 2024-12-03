@@ -124,7 +124,7 @@ export function ThreadViewHeader({
 
     return (
         <>
-            <AppBar position='relative'>
+            <AppBar position='static'>
                 <Toolbar>
                     <Box grow="Yes" gap="300">
                         <Box shrink="No">

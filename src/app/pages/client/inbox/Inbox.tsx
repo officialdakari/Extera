@@ -26,8 +26,6 @@ function InvitesNavItem() {
 
     return (
         <NavItem
-            style={{ background: 'transparent' }}
-            radii="400"
             highlight={inviteCount > 0}
             aria-selected={invitesSelected}
         >
@@ -93,7 +91,7 @@ export function Inbox() {
             <PageNavContent>
                 <Box direction="Column" gap="300">
                     <NavCategory>
-                        <NavItem style={{ background: 'transparent' }} radii="400" aria-selected={notificationsSelected}>
+                        <NavItem aria-selected={notificationsSelected}>
                             <NavLink to={getInboxNotificationsPath()}>
                                 <NavItemContent>
                                     <Box as="span" grow="Yes" alignItems="Center" gap="200">

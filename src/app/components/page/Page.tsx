@@ -170,8 +170,8 @@ export const Page = as<'div'>(({ className, children, ...props }, ref) => {
         <Box
             grow="Yes"
             direction="Column"
-            style={{ backgroundColor: theme.palette.background.default }}
             {...props}
+            style={{ backgroundColor: theme.palette.background.default, ...props.style }}
             ref={ref}
         >
             <AnimatePresence>

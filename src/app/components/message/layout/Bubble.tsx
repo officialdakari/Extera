@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { colors, useTheme } from '@mui/material';
 import { blue, cyan, purple } from '@mui/material/colors';
 import settings from '../../../../client/state/settings';
+import { light } from '@mui/material/styles/createPalette';
 
 type BubbleLayoutProps = {
     before?: ReactNode;
@@ -27,15 +28,10 @@ export const BubbleLayout = as<'div', BubbleLayoutProps>(({ before, rightAligned
                 {before}
             </Box>
             <Box
-                className={css.BubbleContent}
-                style={{
-                    backgroundColor: !transparent
-                        ? (rightAligned
-                            ? (isDark ? colors.blue[900] : theme.palette.info.light)
-                            : (isDark ? theme.palette.grey[800] : theme.palette.background.paper))
-                        : 'transparent',
-                    borderRadius: theme.shape.borderRadius
-                }}
+                className={css.BubbleContent({
+                    dark: isDark ? (rightAligned ? 'local' : 'remote') : undefined,
+                    light: !isDark ? (rightAligned ? 'local' : 'remote') : undefined
+                })}
                 direction="Column"
             >
                 {children}

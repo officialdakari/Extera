@@ -190,10 +190,11 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string; }) {
 
     useEffect(() => {
         wallpaperDB.getWallpaper().then((url) => {
-            setStyle({
-                backgroundImage: `url(${url})`,
-                backgroundSize: 'cover'
-            });
+            if (url && url !== `"null"`)
+                setStyle({
+                    backgroundImage: `url(${url})`,
+                    backgroundSize: 'cover'
+                });
         });
     }, [wallpaperDB]);
 
