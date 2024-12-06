@@ -155,7 +155,7 @@ export const BubbleBefore = style([ModernBefore]);
 export const BubbleContent = recipe({
     base: [{
         maxWidth: '75%',
-        padding: '0.35rem',
+        padding: config.space.S200,
         position: 'relative',
         borderRadius: '8px'
     }],
