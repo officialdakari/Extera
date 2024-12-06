@@ -1021,5 +1021,8 @@
     "btn.new_poll.add": "Add",
     "new_poll.max_answers": "Max selections",
     "new_poll.disclose.title": "Disclose votes",
-    "btn.new_poll.create": "Create"
+    "btn.new_poll.create": "Create",
+    "btn.msg_bookmark": "Add to bookmarks",
+    "btn.msg_unbookmark": "Remove from bookmarks",
+    "title.bookmarks": "Bookmarks"
 }

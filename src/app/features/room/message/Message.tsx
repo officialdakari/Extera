@@ -18,7 +18,7 @@ import React, {
     useState,
 } from 'react';
 import { useHover, useFocusWithin } from 'react-aria';
-import { EventStatus, EventTimeline, MatrixEvent, RelationType, Room, RoomEvent } from 'matrix-js-sdk';
+import { EventStatus, EventTimeline, IEvent, MatrixEvent, RelationType, Room, RoomEvent } from 'matrix-js-sdk';
 import { Relations } from 'matrix-js-sdk/lib/models/relations';
 import classNames from 'classnames';
 import {
@@ -73,7 +73,7 @@ import { saveFile } from '../../../utils/saveFile';
 import { getFileSrcUrl } from '../../../components/message/content/util';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 import { Alert, AppBar, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, Link, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Toolbar, Typography, useTheme } from '@mui/material';
-import { AddReactionOutlined, ArrowBack, Cancel, CancelOutlined, Check, Close, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, EmojiEmotionsOutlined, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
+import { AddReactionOutlined, ArrowBack, Bookmark, BookmarkBorderOutlined, Cancel, CancelOutlined, Check, Close, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, EmojiEmotionsOutlined, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useSwipeLeft } from '../../../hooks/useSwipeLeft';
 import { Feature, ServerSupport } from 'matrix-js-sdk/lib/feature';
@@ -81,6 +81,7 @@ import { useAtomValue } from 'jotai';
 import { mDirectAtom } from '../../../state/mDirectList';
 import { useRoomEventReaders } from '../../../hooks/useRoomEventReaders';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useAccountData } from '../../../hooks/useAccountData';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -987,6 +988,58 @@ export const MessageReportItem = as<
     );
 });
 
+export const MessageBookmarkItem = as<
+    'button',
+    {
+        room: Room;
+        mEvent: MatrixEvent;
+        onClose?: () => void;
+    }
+>(({ room, mEvent, onClose, ...props }, ref) => {
+    const mx = useMatrixClient();
+    const bookmarks = useAccountData('xyz.extera.bookmarks');
+    const eventId = mEvent.getId();
+    const [bookmark, setBookmark] = useState<Record<string, Partial<IEvent>>>(bookmarks?.getContent() || {});
+
+    const handleBookmark = useCallback(() => {
+        if (!eventId) return null;
+        if (!bookmark[eventId]) {
+            setBookmark((bookmark) => {
+                bookmark[eventId] = mEvent.event;
+                mx.setAccountData('xyz.extera.bookmarks', bookmark);
+                return bookmark;
+            });
+        } else {
+            setBookmark((bookmark) => {
+                delete bookmark[eventId];
+                mx.setAccountData('xyz.extera.bookmarks', bookmark);
+                return bookmark;
+            });
+        }
+    }, [mx, bookmarks, bookmark, mEvent]);
+
+    useEffect(() => {
+        setBookmark(bookmarks?.getContent() || {});
+    }, [bookmarks]);
+
+    if (!eventId) return null;
+
+    return (
+        <MenuItem
+            onClick={handleBookmark}
+        >
+            <ListItemIcon>
+                {bookmark[eventId] ? <Bookmark /> : <BookmarkBorderOutlined />}
+            </ListItemIcon>
+            <ListItemText>
+                <Typography>
+                    {getText(bookmark[eventId] ? 'btn.msg_unbookmark' : 'btn.msg_bookmark')}
+                </Typography>
+            </ListItemText>
+        </MenuItem>
+    );
+});
+
 export type MessageProps = {
     room: Room;
     mEvent: MatrixEvent;
@@ -1488,6 +1541,10 @@ export const Message = as<'div', MessageProps>(
                                                 <MessageFileDownloadItem room={room} mEvent={mEvent} onClose={closeMenu} />
                                             )
                                         }
+                                        <MessageBookmarkItem
+                                            room={room}
+                                            mEvent={mEvent}
+                                        />
                                         {canEditEvent(mx, mEvent) && onEditId && (
                                             <MenuItem
                                                 data-event-id={mEvent.getId()}
