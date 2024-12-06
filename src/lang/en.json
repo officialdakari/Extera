@@ -1024,5 +1024,6 @@
     "btn.new_poll.create": "Create",
     "btn.msg_bookmark": "Add to bookmarks",
     "btn.msg_unbookmark": "Remove from bookmarks",
-    "title.bookmarks": "Bookmarks"
+    "title.bookmarks": "Bookmarks",
+    "btn.bookmarks": "Bookmarks"
 }

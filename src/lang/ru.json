@@ -1024,5 +1024,6 @@
 	"btn.new_poll.create": "Создать",
 	"btn.msg_bookmark": "Сохранить",
 	"btn.msg_unbookmark": "Убрать из сохранённых",
-	"title.bookmarks": "Сохранённые сообщения"
+	"title.bookmarks": "Сохранённые сообщения",
+	"btn.bookmarks": "Сохранённые сообщения"
 }
