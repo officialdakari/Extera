@@ -18,61 +18,75 @@ import { mdiMagnify, mdiPlus } from '@mdi/js';
 import { Backdrop, Divider, Drawer, Fab, Grow, List, ListItemButton, ListItemIcon, ListItemText, Slide, SwipeableDrawer } from '@mui/material';
 import { useNavHidden } from '../../hooks/useHideableNav';
 import { motion, Variants } from 'framer-motion';
-import { Add } from '@mui/icons-material';
+import { Add, BookmarkBorderOutlined } from '@mui/icons-material';
+import Bookmarks from '../../organisms/bookmarks/Bookmarks';
 
 export function SidebarNav() {
     const [navHidden, setNavHidden] = useNavHidden();
+    const [bookmarks, setBookmarks] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const onClose = () => setNavHidden(true);
 
     return (
-        <SwipeableDrawer
-            open={!navHidden}
-            onClose={onClose}
-            onOpen={() => setNavHidden(false)}
-            ref={scrollRef}
-        >
-            <nav>
-                <List>
-                    <UserTab onClose={onClose} />
-                </List>
-            </nav>
-            <Divider />
-            <nav aria-label='Default tabs'>
-                <List>
-                    <HomeTab />
-                    <DirectTab />
-                </List>
-            </nav>
-            <Divider />
-            <nav aria-label='Spaces'>
-                <List>
-                    <SpaceTabs scrollRef={scrollRef} />
-                </List>
-            </nav>
-            <Divider />
-            <nav>
-                <List>
-                    <ListItemButton
-                        onClick={() => openCreateRoom(true)}
-                    >
-                        <ListItemIcon>
-                            <Add />
-                        </ListItemIcon>
-                        <ListItemText>
-                            {getText('btn.space.new_space')}
-                        </ListItemText>
-                    </ListItemButton>
-                </List>
-            </nav>
-            <Divider />
-            <nav aria-label='Personal'>
-                <List>
-                    <ExploreTab />
-                    <InboxTab />
-                </List>
-            </nav>
-            {/* <Sidebar style={{ height: '100%' }}>
+        <>
+            {bookmarks && <Bookmarks requestClose={() => setBookmarks(false)} />}
+            <SwipeableDrawer
+                open={!navHidden}
+                onClose={onClose}
+                onOpen={() => setNavHidden(false)}
+                ref={scrollRef}
+            >
+                <nav>
+                    <List>
+                        <UserTab onClose={onClose} />
+                    </List>
+                </nav>
+                <Divider />
+                <nav aria-label='Default tabs'>
+                    <List>
+                        <HomeTab />
+                        <DirectTab />
+                    </List>
+                </nav>
+                <Divider />
+                <nav aria-label='Spaces'>
+                    <List>
+                        <SpaceTabs scrollRef={scrollRef} />
+                    </List>
+                </nav>
+                <Divider />
+                <nav>
+                    <List>
+                        <ListItemButton
+                            onClick={() => openCreateRoom(true)}
+                        >
+                            <ListItemIcon>
+                                <Add />
+                            </ListItemIcon>
+                            <ListItemText>
+                                {getText('btn.space.new_space')}
+                            </ListItemText>
+                        </ListItemButton>
+                    </List>
+                </nav>
+                <Divider />
+                <nav aria-label='Personal'>
+                    <List>
+                        <ListItemButton
+                            onClick={() => setBookmarks(!bookmarks)}
+                        >
+                            <ListItemIcon>
+                                <BookmarkBorderOutlined />
+                            </ListItemIcon>
+                            <ListItemText>
+                                {getText('btn.bookmarks')}
+                            </ListItemText>
+                        </ListItemButton>
+                        <ExploreTab />
+                        <InboxTab />
+                    </List>
+                </nav>
+                {/* <Sidebar style={{ height: '100%' }}>
                 <SidebarContent
                     scrollable={
                         <Scroll ref={scrollRef} variant="Background" size="0">
@@ -127,6 +141,7 @@ export function SidebarNav() {
                     }
                 />
             </Sidebar> */}
-        </SwipeableDrawer>
+            </SwipeableDrawer>
+        </>
     );
 }
