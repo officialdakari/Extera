@@ -22,7 +22,7 @@ export default function SyncStateAlert() {
         };
     });
 
-    return (!syncState || syncState === 'NULL') ? (
+    return (!syncState || (syncState as string) === 'NULL') ? (
         <Alert severity={'info'}>
             {getText(`loading`)}
         </Alert>

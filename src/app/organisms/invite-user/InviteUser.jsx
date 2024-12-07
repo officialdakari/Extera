@@ -278,7 +278,7 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
                         searchUser(usernameRef.current.value);
                     }}
                 >
-                    <SearchContainer>
+                    <SearchContainer sx={{ flexGrow: 1 }}>
                         <SearchIconWrapper>
                             <SearchIcon />
                         </SearchIconWrapper>

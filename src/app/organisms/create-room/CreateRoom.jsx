@@ -213,7 +213,7 @@ function CreateRoomContent({ isSpace, parentId, onRequestClose }) {
                     </LoadingButton>
                 </Box>
                 {typeof creatingError === 'string' && (
-                    <Alert color='error'>
+                    <Alert severity='error'>
                         {creatingError}
                     </Alert>
                 )}
@@ -267,9 +267,9 @@ function CreateRoom() {
                 <Toolbar>
                     <Typography variant='h6' component='div' flexGrow={1}>
                         {parentId ? room.name : getText('home.title')}
-                        
-                            {getText('create.title', getText(isSpace ? 'create.title.space' : 'create.title.room'))}
-                        
+
+                        {getText('create.title', getText(isSpace ? 'create.title.space' : 'create.title.room'))}
+
                     </Typography>
                     <IconButton
                         onClick={onRequestClose}
