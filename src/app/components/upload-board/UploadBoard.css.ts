@@ -11,10 +11,7 @@ export const UploadBoardBase = style([
 ]);
 
 export const UploadBoardContainer = style([
-    DefaultReset,
-    {
-        zIndex: config.zIndex.Max,
-    },
+    DefaultReset
 ]);
 
 export const UploadBoard = style({
