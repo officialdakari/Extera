@@ -28,7 +28,7 @@ function onDownloaded(fileName) {
 
 function getExteraDirectory() {
     return new Promise((resolve, reject) => {
-        window.resolveLocalFileSystemURL(`${cordova.file.externalRootDirectory}/Download`, {}, (dirEntry) => {
+        window.resolveLocalFileSystemURL(`${cordova.file.externalRootDirectory}/Download`, (dirEntry) => {
             dirEntry.getDirectory('Extera', { create: true }, resolve);
         });
     });
