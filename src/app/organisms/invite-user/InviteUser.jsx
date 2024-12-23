@@ -175,7 +175,7 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
                 );
             }
             if (invitedUserIds.has(userId)) {
-                return messageJSX('Invited', true);
+                return messageJSX(getText('invite.invited'), true);
             }
             if (typeof roomId === 'string') {
                 const member = mx.getRoom(roomId).getMember(userId);
@@ -309,44 +309,6 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
                 </div>
             </DialogContent>
         </Dialog>
-        // <PopupWindow
-        //     isOpen={isOpen}
-        //     title={typeof roomId === 'string' ? getText('invite.title', mx.getRoom(roomId).name) : getText('invite.dm')}
-        //     contentOptions={<IconButton src={mdiClose} onClick={onRequestClose} tooltip="Close" />}
-        //     onRequestClose={onRequestClose}
-        // >
-        //     <div className="invite-user">
-        //         <form
-        //             className="invite-user__form"
-        //             onSubmit={(e) => {
-        //                 e.preventDefault();
-        //                 searchUser(usernameRef.current.value);
-        //             }}
-        //         >
-        //             <Input value={searchTerm} forwardRef={usernameRef} label={getText('label.name_or_id')} />
-        //             <Button disabled={isSearching} iconSrc={mdiAccount} variant="primary" type="submit">
-        //                 {getText('btn.invite.search')}
-        //             </Button>
-        //         </form>
-        //         <div className="invite-user__search-status">
-        //             {typeof searchQuery.username !== 'undefined' && isSearching && (
-        //                 <div className="flex--center">
-        //                     <Spinner size="small" />
-        //                     <Text variant="b2">{getText('invite.searching', searchQuery.username)}</Text>
-        //                 </div>
-        //             )}
-        //             {typeof searchQuery.username !== 'undefined' && !isSearching && (
-        //                 <Text variant="b2">{getText('invite.result', searchQuery.username)}</Text>
-        //             )}
-        //             {searchQuery.error && (
-        //                 <Text className="invite-user__search-error" variant="b2">
-        //                     {searchQuery.error}
-        //                 </Text>
-        //             )}
-        //         </div>
-        //         {users.length !== 0 && <div className="invite-user__content">{renderUserList()}</div>}
-        //     </div>
-        // </PopupWindow>
     );
 }
 

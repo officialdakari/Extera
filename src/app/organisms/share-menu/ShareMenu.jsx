@@ -17,7 +17,7 @@ import { roomToUnreadAtom } from "../../state/room/roomToUnread";
 import { roomToParentsAtom } from "../../state/room/roomToParents";
 import { confirmDialog } from "../../molecules/confirm-dialog/ConfirmDialog";
 import { getText } from "../../../lang";
-import { Dialog } from "@mui/material";
+import { Dialog, DialogContent } from "@mui/material";
 
 function useVisiblityToggle() {
     const [isOpen, setIsOpen] = useState(false);
@@ -125,7 +125,10 @@ function ShareMenu() {
                 var mediaType = file.type.split('/')[0].toLowerCase();
                 if (!['audio', 'video', 'image'].includes(mediaType)) mediaType = 'file';
                 mediaType = `m.${mediaType}`;
-                const upload = await mx.uploadContent(data);
+                const upload = await mx.uploadContent(data, {
+                    type: file.type,
+                    name: filename
+                });
                 messages.push({
                     msgtype: mediaType,
                     filename,
@@ -160,7 +163,13 @@ function ShareMenu() {
     };
 
     useEffect(() => {
-
+        setResult(
+            mapRoomIds(
+                [...rooms, ...directs],
+                directs,
+                roomToParents
+            )
+        );
     }, [mx, rooms, directs, mDirects, allRoomsAtom, mDirectAtom]);
 
     return (
@@ -168,12 +177,14 @@ function ShareMenu() {
             open={isOpen}
             onClose={requestClose}
         >
-            {isOpen && <BackButtonHandler callback={requestClose} id='share-menu' />}
-            <ScrollView autoHide>
-                <div className="share-menu-dialog__content">
-                    {Array.isArray(result) && result.map(renderRoomSelector)}
-                </div>
-            </ScrollView>
+            <DialogContent>
+                {isOpen && <BackButtonHandler callback={requestClose} id='share-menu' />}
+                <ScrollView autoHide>
+                    <div className="share-menu-dialog__content">
+                        {Array.isArray(result) && result.map(renderRoomSelector)}
+                    </div>
+                </ScrollView>
+            </DialogContent>
         </Dialog>
     );
 }

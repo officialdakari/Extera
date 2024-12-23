@@ -12,14 +12,10 @@ import React, {
 } from 'react';
 import { Box, PopOut, Scroll, Text } from 'folds';
 
-import 'quill/dist/quill.core.css';
 import * as css from './Editor.css';
 import './Editor.scss';
 import { useTheme } from '@mui/material';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
-// import * as MarkdownShortcuts from 'quill-markdown-shortcuts';
-
-// Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
 
 type CustomEditorProps = {
     editableName?: string;

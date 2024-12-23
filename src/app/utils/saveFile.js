@@ -26,6 +26,14 @@ function onDownloaded(fileName) {
     });
 }
 
+function getExteraDirectory() {
+    return new Promise((resolve, reject) => {
+        window.resolveLocalFileSystemURL(`${cordova.file.externalRootDirectory}/Download`, {}, (dirEntry) => {
+            dirEntry.getDirectory('Extera', { create: true }, resolve);
+        });
+    });
+}
+
 export async function saveFile(src, name) {
     const mx = initMatrix.matrixClient;
     console.log(`Saving file ${src} ${name}`);
@@ -57,37 +65,35 @@ export async function saveFile(src, name) {
 
             // Создаем FileReader для чтения blob как ArrayBuffer
             const reader = new FileReader();
-            reader.onloadend = function () {
+            reader.onloadend = async () => {
                 const arrayBuffer = reader.result;
+                const dir = await getExteraDirectory();
+                dir.getFile(targetName, { create: true }, (file) => {
+                    file.createWriter(function (writer) {
+                        writer.onwriteend = function () {
+                            console.debug(`Downloaded!!!`);
+                            setState('done');
+                            onDownloaded(targetName);
+                        };
+                        writer.onerror = function (e) {
+                            console.error('Write failed: ' + e.toString());
+                        };
 
-                // Сохраняем файл используя cordova-plugin-file
-                window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, (dir) => {
-                    dir.getFile(`Download/${targetName}`, { create: true }, (file) => {
-                        file.createWriter(function (writer) {
-                            writer.onwriteend = function () {
-                                console.debug(`Downloaded!!!`);
-                                setState('done');
-                                onDownloaded(targetName);
-                            };
-                            writer.onerror = function (e) {
-                                console.error('Write failed: ' + e.toString());
-                            };
-
-                            const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
-                            writer.write(blob);
-                            setState('saving');
-                        }, errorHandler);
+                        const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
+                        writer.write(blob);
+                        setState('saving');
                     }, errorHandler);
-                });
+                }, errorHandler);
             };
             reader.readAsArrayBuffer(blob);
         } else if (typeof src === 'string') {
             // Оставляем существующий код для не-blob URL
             const ft = new FileTransfer();
+            await getExteraDirectory();
             setState('downloading');
             ft.download(
                 src,
-                `/storage/emulated/0/Download/${targetName}`,
+                `/storage/emulated/0/Download/Extera/${targetName}`,
                 function (entry) {
                     console.debug(`Downloaded!!!`);
                     onDownloaded(targetName);

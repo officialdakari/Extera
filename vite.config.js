@@ -17,6 +17,26 @@ const copyFiles = {
             dest: '',
         },
         {
+            src: 'node_modules/leaflet/images/layers-2x.png',
+            dest: ''
+        },
+        {
+            src: 'node_modules/leaflet/images/layers.png',
+            dest: ''
+        },
+        {
+            src: 'node_modules/leaflet/images/marker-icon-2x.png',
+            dest: ''
+        },
+        {
+            src: 'node_modules/leaflet/images/marker-icon.png',
+            dest: ''
+        },
+        {
+            src: 'node_modules/leaflet/images/marker-shadow.png',
+            dest: ''
+        },
+        {
             src: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs',
             dest: '',
             rename: 'pdf.worker.min.js',

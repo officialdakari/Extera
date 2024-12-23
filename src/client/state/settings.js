@@ -70,7 +70,7 @@ class Settings extends EventEmitter {
     applyTheme() {
         this._clearTheme();
         const autoThemeIndex = this.darkModeQueryList.matches ? 2 : 0;
-        const themeIndex = this.useSystemTheme ? autoThemeIndex : this.themeIndex;
+        const themeIndex = this.getUseSystemTheme() ? autoThemeIndex : this.themeIndex;
         if (this.themes[themeIndex] === undefined) return
         if (this.themes[themeIndex]) document.body.classList.add(this.themes[themeIndex]);
         document.body.classList.add(this.themeClasses[themeIndex]);

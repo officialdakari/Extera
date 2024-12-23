@@ -74,14 +74,14 @@ function JoinAliasContent({ term, requestClose }) {
     return (
         <form className="join-alias" onSubmit={handleSubmit}>
             <TextField label={getText('join_alias.label')} value={term} name="alias" variant='outlined' size='small' required />
+            <LoadingButton size='small' loading={process} variant="contained" type="submit">
+                {getText('btn.join_alias.join')}
+            </LoadingButton>
             {error && (
                 <Alert severity='error'>
                     {error}
                 </Alert>
             )}
-            <LoadingButton size='small' loading={process} variant="contained" type="submit">
-                {getText('btn.join_alias.join')}
-            </LoadingButton>
         </form>
     );
 }
