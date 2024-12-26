@@ -1,24 +1,20 @@
-import React, { FormEventHandler, MouseEventHandler, ReactNode, forwardRef, useEffect, useMemo, useRef, useState } from 'react';
+import React, { MouseEventHandler, ReactNode, forwardRef, useEffect, useState } from 'react';
 import FocusTrap from 'focus-trap-react';
 import {
     Box,
     Avatar,
-    Text,
-    toRem,
-    config,
-    RectCords,
-    Scroll,
+    Text
 } from 'folds';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { EventTimeline, EventType, JoinRule, MatrixEvent, Room } from 'matrix-js-sdk';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { EventTimeline, Room } from 'matrix-js-sdk';
 import { useAtomValue } from 'jotai';
 
 import { useStateEvent } from '../../hooks/useStateEvent';
-import { AnimatedLayout, AnimatedNode, PageHeader } from '../../components/page';
-import { RoomAvatar, RoomIcon } from '../../components/room-avatar';
+import { AnimatedNode } from '../../components/page';
+import { RoomAvatar } from '../../components/room-avatar';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { RoomTopicViewer } from '../../components/room-topic-viewer';
-import { GetContentCallback, StateEvent } from '../../../types/matrix/room';
+import { StateEvent } from '../../../types/matrix/room';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useRoom } from '../../hooks/useRoom';
 import { useSetSetting, useSetting } from '../../state/hooks/settings';
@@ -47,9 +43,9 @@ import { mDirectAtom } from '../../state/mDirectList';
 import { useClientConfig } from '../../hooks/useClientConfig';
 import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 import { usePresences } from '../../hooks/usePresences';
-import { getText } from '../../../lang';
+import { getText, translate } from '../../../lang';
 import { RenderMessageContent } from '../../components/RenderMessageContent';
-import { DefaultPlaceholder, ImageContent, MSticker } from '../../components/message';
+import { DefaultPlaceholder, ImageContent, MSticker, RedactedContent } from '../../components/message';
 import { ImageViewer } from '../../components/image-viewer';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { getReactCustomHtmlParser } from '../../plugins/react-custom-html-parser';
@@ -74,6 +70,8 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import AsyncLoadMessage from './AsyncLoadMessage';
 import PinnedMessages from './PinnedMessages';
 import { BackButtonHandler } from '../../hooks/useBackButton';
+import { useMatrixEventRenderer } from '../../hooks/useMatrixEventRenderer';
+import HiddenContent from '../../components/hidden-content/HiddenContent';
 
 type RoomMenuProps = {
     room: Room;
@@ -282,9 +280,8 @@ export function RoomViewHeader({
     const [showWidgets, setShowWidgets] = useState(false);
     const [widgets, setWidgets] = useState<ReactNode[]>([]);
     const avatarUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
-    const roomToParents = useAtomValue(roomToParentsAtom);
     const powerLevels = usePowerLevelsContext();
-    const { getPowerLevel, canSendEvent, canSendStateEvent, canDoAction } = usePowerLevelsAPI(powerLevels);
+    const { getPowerLevel, canSendStateEvent, canDoAction } = usePowerLevelsAPI(powerLevels);
     const myUserId = mx.getUserId();
     const timeline = room.getLiveTimeline();
     const state = timeline.getState(EventTimeline.FORWARDS);
@@ -453,18 +450,15 @@ export function RoomViewHeader({
         }
     }, [mx, theme]);
 
-    const pinnedEvents = state?.getStateEvents('m.room.pinned_events');
-    const pinned = useMemo<string[]>(() => (pinnedEvents && pinnedEvents[0] && pinnedEvents[0].getContent().pinned) || [], [pinnedEvents, state, mx, room]);
-    const [eventN, setEventN] = useState<number>(0);
-
-    useEffect(() => { }, [eventN]);
-
     return (
         <>
             <Dialog
                 open={showPinned}
                 onClose={() => setShowPinned(false)}
                 scroll='body'
+                fullWidth
+                maxWidth='md'
+                fullScreen={screenSize === ScreenSize.Mobile}
             >
                 <AppBar position='static'>
                     <Toolbar>
@@ -478,19 +472,7 @@ export function RoomViewHeader({
                         </IconButton>
                     </Toolbar>
                 </AppBar>
-                <DialogContent>
-                    {pinned[eventN] ? (
-                        <AsyncLoadMessage
-                            room={room}
-                            eventId={pinned[eventN]}
-                        />
-                    ) : (
-                        <DefaultPlaceholder />
-                    )}
-                    <Box justifyContent='Center'>
-                        <Pagination count={pinned.length} page={eventN + 1} onChange={(evt, page) => setEventN(page - 1)} />
-                    </Box>
-                </DialogContent>
+                <PinnedMessages room={room} />
             </Dialog>
             <Dialog
                 open={showWidgets}

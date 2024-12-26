@@ -8,7 +8,7 @@ type UserAvatarProps = {
     userId: string;
     src?: string;
     alt?: string;
-    renderFallback: () => ReactNode;
+    renderFallback?: () => ReactNode;
 };
 export function UserAvatar({ userId, src, alt, renderFallback }: UserAvatarProps) {
     const [error, setError] = useState(false);
