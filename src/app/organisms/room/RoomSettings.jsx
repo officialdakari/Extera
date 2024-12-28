@@ -36,6 +36,7 @@ import { useLocation } from 'react-router-dom';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import TransparentAppBar from '../../atoms/transparent-appbar/TransparentAppBar';
 import { StateEvent } from '../../../types/matrix/room';
+import { openInviteUser } from '../../../client/action/navigation';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -253,7 +254,7 @@ function RoomSettings() {
                     {selectedTab === 0 && !isEditing && (
                         <>
                             <div className='room-settings__actions'>
-                                <LabelledIconButton startIcon={<PersonAddOutlined />}>
+                                <LabelledIconButton onClick={() => openInviteUser(roomId)} startIcon={<PersonAddOutlined />}>
                                     {getText('btn.invite')}
                                 </LabelledIconButton>
                                 <LabelledIconButton onClick={() => copyToClipboard(withOriginBaseUrl(getOriginBaseUrl(hashRouter), currentPath))} startIcon={<Share />}>

@@ -34,6 +34,7 @@ import { copyToClipboard } from '../../../util/common';
 import { LeaveSpacePrompt } from '../../components/leave-space-prompt';
 import { RoomMembersItem } from '../room/RoomSettings';
 import { UseStateProvider } from '../../components/UseStateProvider';
+import { openInviteUser } from '../../../client/action/navigation';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -177,7 +178,7 @@ function SpaceSettings() {
                     {selectedTab === 0 && !isEditing && (
                         <>
                             <div className='space-settings__actions'>
-                                <LabelledIconButton startIcon={<PersonAddOutlined />}>
+                                <LabelledIconButton onClick={() => openInviteUser(roomId)} startIcon={<PersonAddOutlined />}>
                                     {getText('btn.invite')}
                                 </LabelledIconButton>
                                 <LabelledIconButton onClick={() => copyToClipboard(withOriginBaseUrl(getOriginBaseUrl(hashRouter), currentPath))} startIcon={<Share />}>
