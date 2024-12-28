@@ -508,6 +508,7 @@
     "room_notifications.all": "All messages",
     "room_notifications.mentions": "Mentions & keywords",
     "room_notifications.mute": "None",
+    "topic.none": "None",
     "perms.default.title": "Default power level",
     "perms.default.desc": "Set default power level for new members.",
     "perms.send.title": "Send messages",
@@ -948,6 +949,7 @@
     "share.title": "Share content",
     "share.desc": "Are you sure to share content to {0}?",
     "btn.share": "Send",
+    "share": "Share",
     "settings_header.ignored_users": "Ignored users",
     "settings_header.ignore_policies": "Ignore policies",
     "title.ignore_user": "Ignore user",
@@ -1025,5 +1027,8 @@
     "btn.msg_bookmark": "Add to bookmarks",
     "btn.msg_unbookmark": "Remove from bookmarks",
     "title.bookmarks": "Bookmarks",
-    "btn.bookmarks": "Bookmarks"
+    "btn.bookmarks": "Bookmarks",
+    "room.topic": "Topic",
+    "room.topic.add": "Add topic",
+    "room.topic.edit": "Edit topic"
 }

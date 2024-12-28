@@ -160,15 +160,17 @@ function RoomMembers({ roomId }) {
 
     return (
         <div className="room-members">
-            <SearchContainer>
-                <SearchIconWrapper>
-                    <SearchIcon />
-                </SearchIconWrapper>
-                <SearchInputBase
-                    onChange={handleSearch}
-                    placeholder={getText('placeholder.search_room_members')}
-                />
-            </SearchContainer>
+            <div className='room-members__search'>
+                <SearchContainer>
+                    <SearchIconWrapper>
+                        <SearchIcon />
+                    </SearchIconWrapper>
+                    <SearchInputBase
+                        onChange={handleSearch}
+                        placeholder={getText('placeholder.search_room_members')}
+                    />
+                </SearchContainer>
+            </div>
             <div className="room-members__header">
                 <MenuHeader>{searchMembers ? getText('room_members.1', mList.length) : getText('room_members.found', members.length)}</MenuHeader>
                 <ToggleButtonGroup>

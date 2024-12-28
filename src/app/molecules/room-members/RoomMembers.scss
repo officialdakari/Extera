@@ -6,7 +6,7 @@
     display: flex;
     flex-direction: column;
 
-    & .input-container {
+    &__search {
         margin: var(--sp-normal);
     }
 

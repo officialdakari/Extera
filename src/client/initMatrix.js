@@ -55,21 +55,32 @@ class InitMatrix extends EventEmitter {
             verificationMethods: [
                 'm.sas.v1',
             ],
-            fallbackICEServerAllowed: true,
+            fallbackICEServerAllowed: true
         });
 
         global.initMatrix = this;
         this.emit('client_ready');
 
+        const spec = await this.matrixClient.getVersions();
+
         await indexedDBStore.startup();
 
         await this.matrixClient.initCrypto();
 
-        await this.matrixClient.startClient({
-            lazyLoadMembers: true,
-            threadSupport: true,
-            initialSyncLimit: 4
-        });
+        if (spec.unstable_features['org.matrix.simplified_msc3575']) {
+            await this.matrixClient.startClient({
+                lazyLoadMembers: true,
+                threadSupport: true,
+                initialSyncLimit: 4
+            });
+        } else {
+            await this.matrixClient.startClient({
+                lazyLoadMembers: true,
+                threadSupport: true,
+                initialSyncLimit: 4
+            });
+        }
+
         this.matrixClient.setGlobalErrorOnUnknownDevices(false);
         this.matrixClient.setMaxListeners(50);
     }

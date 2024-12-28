@@ -22,9 +22,8 @@ import { mdiPencil } from '@mdi/js';
 import { Button, IconButton, TextField } from '@mui/material';
 import { Edit } from '@mui/icons-material';
 
-function RoomProfile({ roomId }) {
+function RoomProfile({ roomId, isEditing, setIsEditing }) {
     const isMountStore = useStore();
-    const [isEditing, setIsEditing] = useState(false);
     const [, forceUpdate] = useForceUpdate();
     const [status, setStatus] = useState({
         msg: null,
@@ -196,7 +195,7 @@ function RoomProfile({ roomId }) {
                 <Text variant="h2" weight="medium" primary>
                     {roomName}
                 </Text>
-                {(canChangeName || canChangeTopic) && (
+                {/* {(canChangeName || canChangeTopic) && (
                     <IconButton
                         size="small"
                         tooltip="Edit"
@@ -204,24 +203,24 @@ function RoomProfile({ roomId }) {
                     >
                         <Edit />
                     </IconButton>
-                )}
+                )} */}
             </div>
             <Text variant="b3">{room.getCanonicalAlias() || room.roomId}</Text>
-            {roomTopic && (
+            {/* {roomTopic && (
                 <Text variant="b2">
                     <Linkify options={LINKIFY_OPTS}>{roomTopic}</Linkify>
                 </Text>
-            )}
+            )} */}
         </div>
     );
 
     return (
         <div className="room-profile">
             <div className="room-profile__content">
-                {!canChangeAvatar && (
+                {(!canChangeAvatar || !isEditing) && (
                     <Avatar imageSrc={avatarSrc} text={roomName} bgColor={colorMXID(roomId)} size="large" />
                 )}
-                {canChangeAvatar && (
+                {canChangeAvatar && isEditing && (
                     <ImageUpload
                         text={roomName}
                         bgColor={colorMXID(roomId)}

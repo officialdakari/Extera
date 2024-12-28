@@ -10,7 +10,7 @@ import Text from '../../atoms/text/Text';
 import { getNotificationType } from '../../utils/room';
 import { getText } from '../../../lang';
 import { mdiBell, mdiBellAlert, mdiBellOff, mdiBellRing } from '@mdi/js';
-import { Accordion, AccordionDetails, AccordionSummary, List, ListItem, ListItemIcon, ListItemText, Radio } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, List, ListItem, ListItemIcon, ListItemText, ListSubheader, Radio } from '@mui/material';
 import Icon from '@mdi/react';
 import { ExpandMore } from '@mui/icons-material';
 
@@ -128,30 +128,21 @@ function RoomNotification({ roomId }) {
     const [activeType, setNotification] = useNotifications(roomId);
 
     return (
-        <Accordion>
-            <AccordionSummary
-                expandIcon={<ExpandMore />}
-            >
-                {getText('room_notification')}
-            </AccordionSummary>
-            <AccordionDetails>
-                <List>
-                    {items.map((item) => (
-                        <ListItem
-                            key={item.type}
-                            secondaryAction={<Radio onClick={() => setNotification(item)} checked={activeType === item.type} />}
-                        >
-                            <ListItemIcon>
-                                <Icon size={1} path={item.iconSrc} />
-                            </ListItemIcon>
-                            <ListItemText>
-                                {item.text}
-                            </ListItemText>
-                        </ListItem>
-                    ))}
-                </List>
-            </AccordionDetails>
-        </Accordion>
+        <List>
+            {items.map((item) => (
+                <ListItem
+                    key={item.type}
+                    secondaryAction={<Radio onClick={() => setNotification(item)} checked={activeType === item.type} />}
+                >
+                    <ListItemIcon>
+                        <Icon size={1} path={item.iconSrc} />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {item.text}
+                    </ListItemText>
+                </ListItem>
+            ))}
+        </List>
     );
 }
 
@@ -160,3 +151,4 @@ RoomNotification.propTypes = {
 };
 
 export default RoomNotification;
+export { useNotifications };

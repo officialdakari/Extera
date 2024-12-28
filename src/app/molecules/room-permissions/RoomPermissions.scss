@@ -1,11 +1,13 @@
 .room-permissions {
-  & .setting-tile {
-    margin: 0 var(--sp-normal);
-    margin-top: var(--sp-tight);
-    padding-bottom: var(--sp-tight);
-    border-bottom: 1px solid var(--bg-surface-border);
-    &:last-child {
-      border-bottom: none;
+    padding-top: var(--sp-normal);
+
+    & .setting-tile {
+        margin: 0 var(--sp-normal);
+        margin-top: var(--sp-tight);
+        padding-bottom: var(--sp-tight);
+
+        &:last-child {
+            border-bottom: none;
+        }
     }
-  }
 }

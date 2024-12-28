@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import './RoomSettings.scss';
 
@@ -7,9 +7,8 @@ import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
 
 import Text from '../../atoms/text/Text';
-import { MenuHeader, MenuItem } from '../../atoms/context-menu/ContextMenu';
 import RoomProfile from '../../molecules/room-profile/RoomProfile';
-import RoomNotification from '../../molecules/room-notification/RoomNotification';
+import RoomNotification, { useNotifications } from '../../molecules/room-notification/RoomNotification';
 import RoomVisibility from '../../molecules/room-visibility/RoomVisibility';
 import RoomAliases from '../../molecules/room-aliases/RoomAliases';
 import RoomHistoryVisibility from '../../molecules/room-history-visibility/RoomHistoryVisibility';
@@ -17,18 +16,26 @@ import RoomEncryption from '../../molecules/room-encryption/RoomEncryption';
 import RoomPermissions from '../../molecules/room-permissions/RoomPermissions';
 import RoomMembers from '../../molecules/room-members/RoomMembers';
 import RoomEmojis from '../../molecules/room-emojis/RoomEmojis';
-
-import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
-import PopupWindow from '../../molecules/popup-window/PopupWindow';
-import { getText, translate } from '../../../lang';
-import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
-import { mdiAccount, mdiArrowLeft, mdiClose, mdiCog, mdiEmoticon, mdiLock, mdiShield } from '@mdi/js';
+import { getText } from '../../../lang';
+import { BackButtonHandler } from '../../hooks/useBackButton';
+import { mdiAccount, mdiBell, mdiBellAlert, mdiBellOff, mdiBellRing, mdiCog, mdiEmoticon, mdiLock, mdiShield } from '@mdi/js';
 import Icon from '@mdi/react';
-import { AppBar, Box, Dialog, IconButton, List, ListSubheader, Tab, Tabs, useTheme } from '@mui/material';
-import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
-import { Close, HideImage, Image } from '@mui/icons-material';
+import { AppBar, Box, Button, Dialog, Divider, IconButton, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Tab, Tabs, Toolbar, Typography, useTheme } from '@mui/material';
+import { Add, ArrowBack, Edit, EmojiEmotionsOutlined, KeyOutlined, People, PersonAddOutlined, SecurityOutlined, Share } from '@mui/icons-material';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
+import { useRoomTopic } from '../../hooks/useRoomMeta';
+import { millify } from '../../plugins/millify';
+import Linkify from 'linkify-react';
+import { LINKIFY_OPTS } from '../../plugins/react-custom-html-parser';
+import LabelledIconButton from '../../atoms/labelled-icon-button/LabelledIconButton';
+import { copyToClipboard } from '../../../util/common';
+import { getOriginBaseUrl, joinPathComponent, withOriginBaseUrl } from '../../pages/pathUtils';
+import { useClientConfig } from '../../hooks/useClientConfig';
+import { useLocation } from 'react-router-dom';
+import { UseStateProvider } from '../../components/UseStateProvider';
+import TransparentAppBar from '../../atoms/transparent-appbar/TransparentAppBar';
+import { StateEvent } from '../../../types/matrix/room';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -66,29 +73,12 @@ const tabItems = [
     },
 ];
 
-function GeneralSettings({ roomId }) {
-    const mx = initMatrix.matrixClient;
-    const room = mx.getRoom(roomId);
-
-    return (
-        <>
-            <RoomNotification roomId={roomId} />
-            <RoomVisibility roomId={roomId} />
-            <RoomAliases roomId={roomId} />
-        </>
-    );
-}
-
-GeneralSettings.propTypes = {
-    roomId: PropTypes.string.isRequired,
-};
-
 function SecuritySettings({ roomId }) {
     return (
         <>
-            <ListSubheader>{getText('room_settings.menuheader.encryption')}</ListSubheader>
+            <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room_settings.menuheader.encryption')}</ListSubheader>
             <RoomEncryption roomId={roomId} />
-            <ListSubheader>{getText('room_settings.menuheader.history')}</ListSubheader>
+            <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room_settings.menuheader.history')}</ListSubheader>
             <RoomHistoryVisibility roomId={roomId} />
         </>
     );
@@ -117,72 +107,223 @@ function useWindowToggle(setSelectedTab) {
     return [window, requestClose];
 }
 
-function a11yProps(index) {
-    return {
-        id: `simple-tab-${index}`,
-        'aria-controls': `simple-tabpanel-${index}`,
-    };
+function RoomTopic({ room, onEdit }) {
+    const topic = useRoomTopic(room);
+    const canEdit = useMemo(() => room.currentState.maySendEvent(StateEvent.RoomTopic), [room]);
+    return (
+        <>
+            <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room.topic')}</ListSubheader>
+            {topic && (
+                <Text variant='b3'>
+                    <Linkify options={LINKIFY_OPTS}>{topic}</Linkify>
+                </Text>
+            )}
+            {!topic && canEdit && (
+                <ListItemButton onClick={onEdit}>
+                    <ListItemIcon>
+                        <Add />
+                    </ListItemIcon>
+                    <ListItemText>
+                        {getText('room.topic.add')}
+                    </ListItemText>
+                </ListItemButton>
+            )}
+        </>
+    );
+}
+
+function RoomNotificationItem({ room, onClick }) {
+    const [activeType] = useNotifications(room.roomId);
+    const items = [
+        {
+            iconSrc: mdiBell,
+            text: getText('room_notifications.global'),
+            type: cons.notifs.DEFAULT,
+        },
+        {
+            iconSrc: mdiBellRing,
+            text: getText('room_notifications.all'),
+            type: cons.notifs.ALL_MESSAGES,
+        },
+        {
+            iconSrc: mdiBellAlert,
+            text: getText('room_notifications.mentions'),
+            type: cons.notifs.MENTIONS_AND_KEYWORDS,
+        },
+        {
+            iconSrc: mdiBellOff,
+            text: getText('room_notifications.mute'),
+            type: cons.notifs.MUTE,
+        },
+    ];
+
+    return (
+        <ListItemButton onClick={onClick}>
+            <ListItemIcon>
+                <Icon size={1} path={items.find(x => x.type == activeType).iconSrc} />
+            </ListItemIcon>
+            <ListItemText primary={getText('room_notification')} secondary={items.find(x => x.type == activeType).text} />
+        </ListItemButton>
+    );
+}
+
+function RoomMembersItem({ room, onClick }) {
+    return (
+        <ListItemButton onClick={onClick}>
+            <ListItemIcon>
+                <People />
+            </ListItemIcon>
+            <ListItemText>
+                {getText('room_settings.members')}
+            </ListItemText>
+            <Typography pr={1} color='textSecondary'>
+                {millify(room.getJoinedMemberCount())}
+            </Typography>
+        </ListItemButton>
+    );
 }
 
 function RoomSettings() {
     const mx = useMatrixClient();
     const [selectedTab, setSelectedTab] = useState(0);
+    const [isEditing, setEditing] = useState(false);
     const [window, requestClose] = useWindowToggle(setSelectedTab);
     const roomId = window?.roomId;
     const room = initMatrix.matrixClient.getRoom(roomId);
     const screenSize = useScreenSize();
-    const theme = useTheme();
-    const bannerMxc = room ? room.currentState.getStateEvents('page.codeberg.everypizza')[0]?.getContent().url : null;
-    const bannerURL = bannerMxc ? mx.mxcUrlToHttp(bannerMxc, false, false, false, false, true, true) : null;
+    // const theme = useTheme();
+    // const bannerMxc = room ? room.currentState.getStateEvents('page.codeberg.everypizza')[0]?.getContent().url : null;
+    // const bannerURL = bannerMxc ? mx.mxcUrlToHttp(bannerMxc, false, false, false, false, true, true) : null;
 
-    const handleTabChange = (tabItem) => {
-        setSelectedTab(tabItem);
+    const { hashRouter } = useClientConfig();
+    const location = useLocation();
+    const currentPath = joinPathComponent(location);
+
+    const handleClose = () => {
+        if (selectedTab === 0) requestClose();
+        else setSelectedTab(0);
     };
 
     return (
         <Dialog
             fullScreen={screenSize === ScreenSize.Mobile}
+            fullWidth
+            maxWidth='md'
             open={window !== null}
             onClose={requestClose}
             scroll='body'
         >
             {window !== null && <BackButtonHandler callback={requestClose} id='room-settings' />}
             {window !== null && (
-                <AppBar position='relative' className={bannerURL && 'appbar__has-banner'}>
-                    <ProminientToolbar sx={{ background: bannerURL && `url(${bannerURL})` }}>
-                        <Box flexGrow={1}>
-                            <RoomProfile roomId={roomId} />
-                        </Box>
+                <TransparentAppBar position='relative'>
+                    <Toolbar>
                         <IconButton
                             size='large'
-                            edge='end'
-                            onClick={requestClose}
+                            edge='start'
+                            onClick={handleClose}
                         >
-                            <Close />
+                            <ArrowBack />
                         </IconButton>
-                    </ProminientToolbar>
-                </AppBar>
+                        <Typography
+                            variant='h6'
+                            component='div'
+                            flexGrow={1}
+                        >
+                            {selectedTab === 1 && getText('room_notification')}
+                            {selectedTab === 2 && getText('room_settings.members')}
+                            {selectedTab === 3 && getText('room_settings.emojis')}
+                            {selectedTab === 4 && getText('room_settings.security')}
+                            {selectedTab === 5 && getText('room_settings.permissions')}
+                        </Typography>
+                        {selectedTab === 0 && (
+                            <IconButton
+                                size='large'
+                                edge='end'
+                                onClick={() => setEditing(true)}
+                            >
+                                <Edit />
+                            </IconButton>
+                        )}
+                    </Toolbar>
+                </TransparentAppBar>
             )}
             {window !== null && (
-                <div className="room-settings__content" style={{ minHeight: '100%', backgroundColor: theme.palette.background.default }}>
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                        <Tabs value={selectedTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
-                            <Tab label={tabItems[0].text} onClick={() => handleTabChange(0)} {...a11yProps(0)} />
-                            <Tab label={tabItems[1].text} onClick={() => handleTabChange(1)} {...a11yProps(1)} />
-                            <Tab label={tabItems[2].text} onClick={() => handleTabChange(2)} {...a11yProps(2)} />
-                            <Tab label={tabItems[3].text} onClick={() => handleTabChange(3)} {...a11yProps(3)} />
-                            <Tab label={tabItems[4].text} onClick={() => handleTabChange(4)} {...a11yProps(4)} />
-                        </Tabs>
-                    </Box>
-                    <List sx={{ bgcolor: 'background.default' }}>
-                        <div className="room-settings__cards-wrapper">
-                            {selectedTab === 0 && <GeneralSettings roomId={roomId} />}
-                            {selectedTab === 1 && <RoomMembers roomId={roomId} />}
-                            {selectedTab === 2 && <RoomEmojis roomId={roomId} />}
-                            {selectedTab === 3 && <RoomPermissions roomId={roomId} />}
-                            {selectedTab === 4 && <SecuritySettings roomId={roomId} />}
-                        </div>
-                    </List>
+                <div className="room-settings__content">
+                    {selectedTab === 0 && <RoomProfile roomId={roomId} isEditing={isEditing} setIsEditing={setEditing} />}
+                    {selectedTab === 0 && !isEditing && (
+                        <>
+                            <div className='room-settings__actions'>
+                                <LabelledIconButton startIcon={<PersonAddOutlined />}>
+                                    {getText('btn.invite')}
+                                </LabelledIconButton>
+                                <LabelledIconButton onClick={() => copyToClipboard(withOriginBaseUrl(getOriginBaseUrl(hashRouter), currentPath))} startIcon={<Share />}>
+                                    {getText('share')}
+                                </LabelledIconButton>
+                            </div>
+                            <div className='room-settings__topic'>
+                                <RoomTopic room={room} onEdit={() => setEditing(true)} />
+                            </div>
+                            <Divider />
+                            <RoomNotificationItem room={room} onClick={() => setSelectedTab(1)} />
+                            <RoomMembersItem room={room} onClick={() => setSelectedTab(2)} />
+                            <ListItemButton onClick={() => setSelectedTab(3)}>
+                                <ListItemIcon>
+                                    <EmojiEmotionsOutlined />
+                                </ListItemIcon>
+                                <ListItemText>
+                                    {getText('room_settings.emojis')}
+                                </ListItemText>
+                            </ListItemButton>
+                            <ListItemButton onClick={() => setSelectedTab(5)}>
+                                <ListItemIcon>
+                                    <KeyOutlined />
+                                </ListItemIcon>
+                                <ListItemText>
+                                    {getText('room_settings.permissions')}
+                                </ListItemText>
+                            </ListItemButton>
+                            <ListItemButton onClick={() => setSelectedTab(4)}>
+                                <ListItemIcon>
+                                    <SecurityOutlined />
+                                </ListItemIcon>
+                                <ListItemText>
+                                    {getText('room_settings.security')}
+                                </ListItemText>
+                            </ListItemButton>
+                            <Divider />
+                            <UseStateProvider initial={false}>
+                                {(promptLeave, setPromptLeave) => (
+                                    <>
+                                        <ListItemButton
+                                            onClick={() => setPromptLeave(true)}
+                                            aria-pressed={promptLeave}
+                                        >
+                                            <ListItemIcon>
+                                                <ArrowBack color='error' />
+                                            </ListItemIcon>
+                                            <ListItemText sx={{ color: 'error.main' }}>
+                                                {getText('room_header.leave')}
+                                            </ListItemText>
+                                        </ListItemButton>
+                                        {promptLeave && (
+                                            <LeaveRoomPrompt
+                                                roomId={room.roomId}
+                                                onDone={requestClose}
+                                                onCancel={() => setPromptLeave(false)}
+                                            />
+                                        )}
+                                    </>
+                                )}
+                            </UseStateProvider>
+                        </>
+                    )}
+                    {selectedTab > 0 && <BackButtonHandler id='room-settings-tab' callback={() => setSelectedTab(0)} />}
+                    {selectedTab === 1 && <RoomNotification roomId={roomId} />}
+                    {selectedTab === 2 && <RoomMembers roomId={roomId} />}
+                    {selectedTab === 3 && <RoomEmojis roomId={roomId} />}
+                    {selectedTab === 4 && <SecuritySettings roomId={roomId} />}
+                    {selectedTab === 5 && <RoomPermissions roomId={roomId} />}
+                    {/* {selectedTab === 6 && <RoomProfile roomId={roomId} isEditing requestClose={() => setSelectedTab(0)} />} */}
                 </div>
             )}
         </Dialog>
@@ -190,4 +331,4 @@ function RoomSettings() {
 }
 
 export default RoomSettings;
-export { tabText };
+export { tabText, RoomTopic, RoomNotificationItem, RoomMembersItem };

@@ -9,18 +9,27 @@
         & .avatar-container {
             min-width: var(--av-large);
         }
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
 
     &__display {
-        align-self: flex-end;
-        @include dir.side(margin, var(--sp-loose), 0);
+        justify-content: center;
+        justify-self: center;
+        align-self: center;
+        @include dir.side(margin, var(--sp-loose), var(--sp-loose));
 
         &>div:first-child {
             @extend .cp-fx__row--s-c;
 
             &>.text {
-                @include dir.side(margin, 0, var(--sp-extra-tight));
+                @include dir.side(margin, 0, 0);
             }
+
+            justify-content: center;
         }
 
         &>*:not(:first-child) {
@@ -32,7 +41,7 @@
 
     &__edit-form {
         @extend .cp-fx__item-one;
-        @include dir.side(margin, var(--sp-loose), 0);
+        @include dir.side(margin, var(--sp-loose), var(--sp-loose));
 
         & .input-container {
             margin-bottom: var(--sp-extra-tight);
@@ -56,5 +65,6 @@
         flex-direction: column;
 
         gap: var(--sp-tight);
+        width: 95%;
     }
 }
