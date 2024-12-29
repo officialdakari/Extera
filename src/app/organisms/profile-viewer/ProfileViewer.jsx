@@ -43,6 +43,7 @@ import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 import styled from '@emotion/styled';
 import { LoadingButton } from '@mui/lab';
 import UserSelect from '../../atoms/user-select/UserSelect';
+import ActionListButton, { LoadingActionListButton } from '../../atoms/action-list-button/ActionListButton';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
     alignItems: 'flex-start',
@@ -90,7 +91,6 @@ function ModerationTools({ roomId, userId }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         const reason = e.target.elements['reason']?.value.trim();
-        console.log(`!!! ${reason}`);
         if (ban) {
             roomActions.ban(roomId, userId, reason !== '' ? reason : undefined);
         } else {
@@ -121,36 +121,34 @@ function ModerationTools({ roomId, userId }) {
                     <TextField
                         label={getText(ban ? 'label.profile_viewer.ban_reason' : 'label.profile_viewer.kick_reason')}
                         autoFocus
-                        required
                         name='reason'
                         fullWidth
                         variant='outlined'
+                        sx={{ mt: 1 }}
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>{getText('btn.cancel')}</Button>
-                    <Button type='submit'>{getText(ban ? 'btn.profile_viewer.ban' : 'btn.profile_viewer.kick')}</Button>
+                    <Button color='error' type='submit'>{getText(ban ? 'btn.profile_viewer.ban' : 'btn.profile_viewer.kick')}</Button>
                 </DialogActions>
             </Dialog>
             {canIKick && (
-                <Button
+                <ActionListButton
                     onClick={handleKick}
                     color='error'
                     startIcon={<PersonRemoveOutlined />}
-                    sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
                 >
                     {getText('btn.profile_viewer.kick')}
-                </Button>
+                </ActionListButton>
             )}
             {canIBan && (
-                <Button
+                <ActionListButton
                     onClick={handleBan}
                     color='error'
                     startIcon={<PersonOff />}
-                    sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
                 >
                     {getText('btn.profile_viewer.ban')}
-                </Button>
+                </ActionListButton>
             )}
         </>
     );
@@ -344,19 +342,17 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
     return (
         <>
             {(isInvitable && canIForceJoin && room.canInvite(mx.getUserId()) && isAdmin) && (
-                <Button
+                <ActionListButton
                     onClick={forceJoin}
-                    sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
                     startIcon={<AddCircleOutline />}
                     key='forceJoin'
                 >
                     {getText('btn.profile_footer.force_join')}
-                </Button>
+                </ActionListButton>
             )}
             {(isInvited ? canIKick : room.canInvite(mx.getUserId())) && isInvitable && (
-                <LoadingButton
+                <LoadingActionListButton
                     key='invite'
-                    sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
                     onClick={toggleInvite}
                     loading={isInviting}
                     startIcon={isInvited ? (
@@ -368,20 +364,19 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
                     {isInvited
                         ? `${getText(isInviting ? 'btn.profile_footer.disinviting' : 'btn.profile_footer.disinvite')}`
                         : `${getText(isInviting ? 'btn.profile_footer.inviting' : 'btn.profile_footer.invite')}`}
-                </LoadingButton>
+                </LoadingActionListButton>
             )}
             {!isUserIgnored && (
-                <LoadingButton
+                <LoadingActionListButton
                     loading={isCreatingDM}
                     key='dm'
                     onClick={openDM}
                     startIcon={<MessageOutlined />}
-                    sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
                 >
                     {getText(isCreatingDM ? 'profile_footer.dm.creating' : 'btn.profile_footer.dm')}
-                </LoadingButton>
+                </LoadingActionListButton>
             )}
-            <LoadingButton
+            <LoadingActionListButton
                 loading={isIgnoring}
                 key='ignore'
                 onClick={toggleIgnore}
@@ -390,21 +385,19 @@ function ProfileFooter({ roomId, userId, onRequestClose }) {
                 ) : (
                     <BlockOutlined />
                 )}
-                sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
                 color='error'
             >
                 {isUserIgnored
                     ? `${getText(isIgnoring ? 'btn.profile_footer.unignoring' : 'btn.profile_footer.unignore')}`
                     : `${getText(isIgnoring ? 'btn.profile_footer.ignoring' : 'btn.profile_footer.ignore')}`}
-            </LoadingButton>
+            </LoadingActionListButton>
             {isBanned && canIKick && (
-                <LoadingButton
-                    sx={{ width: '100%', justifyContent: 'flex-start', paddingLeft: theme.spacing(3) }}
+                <LoadingActionListButton
                     onClick={() => roomActions.unban(roomId, userId)}
                     startIcon={<Check />}
                 >
                     {getText('btn.profile_footer.unban')}
-                </LoadingButton>
+                </LoadingActionListButton>
             )}
         </>
     );
@@ -561,16 +554,6 @@ function ProfileViewer() {
                                             <Typography variant="caption">{userId}</Typography>
                                         </UserSelect>
                                     </div>
-                                    {/* <div className="profile-viewer__user__role">
-                                        <Button
-                                            onClick={canChangeRole ? handlePowerSelector : null}
-                                            color='inherit'
-                                            variant='contained'
-                                            startIcon={canChangeRole ? <KeyboardArrowDown /> : null}
-                                        >
-                                            {`${getPowerLabel(powerLevel) || getText('generic.pl_member')} - ${powerLevel}`}
-                                        </Button>
-                                    </div> */}
                                 </div>
                             </Box>
                             <IconButton

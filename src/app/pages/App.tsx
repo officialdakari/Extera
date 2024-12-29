@@ -30,7 +30,7 @@ function App() {
         () =>
             createTheme({
                 palette: {
-                    mode
+                    mode,
                 }
             }),
         [mode]
