@@ -30,7 +30,7 @@ import CrossSigning from './CrossSigning';
 import KeyBackup from './KeyBackup';
 import DeviceManage from './DeviceManage';
 
-import { Switch, Button, ToggleButtonGroup, ToggleButton, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog, AppBar, IconButton, Tab, Tabs, useTheme } from '@mui/material';
+import { Switch, Button, ToggleButtonGroup, ToggleButton, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog, AppBar, IconButton, Tab, Tabs, useTheme, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography, List, ListSubheader, Divider } from '@mui/material';
 
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
@@ -44,7 +44,7 @@ import Banner from '../profile-editor/Banner';
 import { getText } from '../../../lang';
 import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
 import { disablePush, enablePush } from '../../../push';
-import { mdiArrowLeft, mdiBell, mdiClose, mdiCog, mdiEmoticon, mdiEye, mdiInformationSlabCircle, mdiInformationSlabCircleOutline, mdiLock, mdiStar } from '@mdi/js';
+import { mdiAccount, mdiArrowLeft, mdiBell, mdiClose, mdiCog, mdiEmoticon, mdiEye, mdiInformationSlabCircle, mdiInformationSlabCircleOutline, mdiLock, mdiStar } from '@mdi/js';
 import { authRequest } from './AuthRequest';
 import Icon from '@mdi/react';
 import FocusTrap from 'focus-trap-react';
@@ -52,7 +52,7 @@ import getCachedURL from '../../utils/cache';
 import wallpaperDB from '../../utils/wallpaper';
 import { useAccountData } from '../../hooks/useAccountData';
 import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
-import { Close, HideImage, Image, Logout } from '@mui/icons-material';
+import { ArrowBack, Close, HideImage, Image, Logout } from '@mui/icons-material';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 import { AnimatePresence } from 'framer-motion';
 import { AnimatedLayout } from '../../components/page';
@@ -337,68 +337,70 @@ function PresenceSection() {
         });
     };
 
-    return <div className="settings-presence settings-presence__card">
-        <MenuHeader>{getText('settings.status.title')}</MenuHeader>
-        <SettingTile
-            title={getText('settings.presence.title')}
-            content={(
-                <ToggleButtonGroup
-                    exclusive
-                    value={status}
-                    onChange={(evt, index) => {
-                        mx.setSyncPresence(statuses[index]);
-                        mx.setPresence({
-                            presence: statuses[index],
-                            status_msg: index != 1 ? statusMsgRef.current?.value?.trim() : undefined
-                        }).then(() => {
-                            console.log('Presence updated');
-                        }).catch(err => {
-                            console.error('Could not update presence: ', err);
-                        });
-                        setStatus(index);
-                    }}
-                >
-                    <ToggleButton
-                        value={0}
+    return (
+        <div className="settings-presence settings-presence__card">
+            <MenuHeader>{getText('settings.status.title')}</MenuHeader>
+            <SettingTile
+                title={getText('settings.presence.title')}
+                content={(
+                    <ToggleButtonGroup
+                        exclusive
+                        value={status}
+                        onChange={(evt, index) => {
+                            mx.setSyncPresence(statuses[index]);
+                            mx.setPresence({
+                                presence: statuses[index],
+                                status_msg: index != 1 ? statusMsgRef.current?.value?.trim() : undefined
+                            }).then(() => {
+                                console.log('Presence updated');
+                            }).catch(err => {
+                                console.error('Could not update presence: ', err);
+                            });
+                            setStatus(index);
+                        }}
                     >
-                        {getText('settings.status.online')}
-                    </ToggleButton>
-                    <ToggleButton
-                        value={1}
-                    >
-                        {getText('settings.status.offline')}
-                    </ToggleButton>
-                    <ToggleButton
-                        value={2}
-                    >
-                        {getText('settings.status.unavailable')}
-                    </ToggleButton>
-                </ToggleButtonGroup>
-            )}
-        />
-        <SettingTile
-            title={getText('settings.ghost.title')}
-            options={(
-                <Switch
-                    checked={ghostMode}
-                    onClick={() => setGhostMode(!ghostMode)}
-                />
-            )}
-            content={<Text variant="b3">{getText('settings.ghost.desc')}</Text>}
-        />
-        <SettingTile
-            title={getText('settings.status_message.title')}
-            content={(
-                <div className='settings-presence__status'>
-                    <Text variant="b3">{getText('settings.status_message.text')}</Text>
-                    <form onSubmit={updateStatusMessage}>
-                        <TextField inputRef={statusMsgRef} size='small' autoComplete='off' variant='filled' label={getText('settings.status_message.title')} required name="statusInput" defaultValue={statusMsg} />
-                        <Button variant="contained" size='small' type="submit">{getText('btn.status_message.set')}</Button>
-                    </form>
-                </div>
-            )}
-        />
-    </div>;
+                        <ToggleButton
+                            value={0}
+                        >
+                            {getText('settings.status.online')}
+                        </ToggleButton>
+                        <ToggleButton
+                            value={1}
+                        >
+                            {getText('settings.status.offline')}
+                        </ToggleButton>
+                        <ToggleButton
+                            value={2}
+                        >
+                            {getText('settings.status.unavailable')}
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                )}
+            />
+            <SettingTile
+                title={getText('settings.ghost.title')}
+                options={(
+                    <Switch
+                        checked={ghostMode}
+                        onClick={() => setGhostMode(!ghostMode)}
+                    />
+                )}
+                content={<Text variant="b3">{getText('settings.ghost.desc')}</Text>}
+            />
+            <SettingTile
+                title={getText('settings.status_message.title')}
+                content={(
+                    <div className='settings-presence__status'>
+                        <Text variant="b3">{getText('settings.status_message.text')}</Text>
+                        <form onSubmit={updateStatusMessage}>
+                            <TextField inputRef={statusMsgRef} size='small' autoComplete='off' variant='filled' label={getText('settings.status_message.title')} required name="statusInput" defaultValue={statusMsg} />
+                            <Button variant="contained" size='small' type="submit">{getText('btn.status_message.set')}</Button>
+                        </form>
+                    </div>
+                )}
+            />
+        </div>
+    );
 }
 
 function ExteraSection() {
@@ -706,6 +708,42 @@ function SecuritySection() {
     );
 }
 
+function ProfileSection() {
+    return (
+        <div className='settings-profile'>
+            <div className='settings-profile__card'>
+                <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
+                {/* <Box grow='Yes'>
+                            
+                        </Box>
+                        <IconButton
+                            size='large'
+                            edge='end'
+                            onClick={() => uploadImageRef.current?.click()}
+                        >
+                            <Image />
+                        </IconButton>
+                        <IconButton
+                            size='large'
+                            edge='end'
+                            color='error'
+                            onClick={handleBannerRemove}
+                        >
+                            <HideImage />
+                        </IconButton>
+                        <IconButton
+                            size='large'
+                            edge='end'
+                            color='error'
+                            onClick={handleLogout}
+                        >
+                            <Logout />
+                        </IconButton> */}
+            </div>
+        </div>
+    );
+}
+
 function AboutSection() {
     return (
         <div className="settings-about">
@@ -822,164 +860,86 @@ function useWindowToggle(setSelectedTab) {
 }
 
 function Settings() {
-    const [selectedTab, setSelectedTab] = useState(0);
+    const [selectedTab, setSelectedTab] = useState(-1);
     const [isOpen, requestClose] = useWindowToggle(setSelectedTab);
-    const exteraProfileEvent = useAccountData('ru.officialdakari.extera_profile');
     const screenSize = useScreenSize();
 
     const mx = useMatrixClient();
-
-    const handleTabChange = (tabItem) => setSelectedTab(tabItem);
     const handleLogout = async () => {
         if (await confirmDialog(getText('logout.title'), getText('logout.confirm'), getText('btn.logout.confirm'), 'error')) {
             initMatrix.logout();
         }
     };
 
-    const [bannerSrc, setBannerSrc] = useState('');
-
-    useEffect(() => {
-        const exteraProfile = exteraProfileEvent ? exteraProfileEvent.getContent() : {};
-        console.log(exteraProfile);
-        if (typeof exteraProfile.banner_url === 'string') {
-            console.log(exteraProfile.banner_url);
-            setBannerSrc(exteraProfile.banner_url);
-        }
-    }, [mx, exteraProfileEvent]);
-
-    const handleBannerChange = async (src) => {
-        try {
-            await mx.setAccountData('ru.officialdakari.extera_profile', {
-                banner_url: src
-            });
-            setBannerSrc(src);
-        } catch (error) {
-            alert(error.message); // TODO Better error handling
-        }
+    const handleBack = () => {
+        if (selectedTab === -1) requestClose();
+        else setSelectedTab(-1);
     };
-
-    const uploadImageRef = useRef(null);
-    const [uploadPromise, setUploadPromise] = useState(null);
-
-    async function uploadImage(e) {
-        const file = e.target.files.item(0);
-        if (file === null) return;
-        try {
-            const uPromise = mx.uploadContent(file);
-            setUploadPromise(uPromise);
-
-            const res = await uPromise;
-            if (typeof res?.content_uri === 'string') handleBannerChange(res.content_uri);
-            setUploadPromise(null);
-        } catch {
-            setUploadPromise(null);
-        }
-        uploadImageRef.current.value = null;
-    }
-
-    function handleClick() {
-        if (uploadPromise !== null) return;
-        uploadImageRef.current?.click();
-    };
-
-    const handleBannerRemove = async () => {
-        try {
-            if (await confirmDialog(getText('remove_banner.title'), getText('remove_banner.desc'), getText('btn.remove_banner.confirm'), 'primary')) {
-                await mx.setAccountData('ru.officialdakari.extera_profile', {
-                    banner_url: null
-                });
-                setBannerSrc(null);
-            }
-        } catch (error) {
-            alert(error.message); // TODO Better error handling
-        }
-    };
-
-    const theme = useTheme();
-    const bannerUrl = useMemo(() => {
-        return mx.mxcUrlToHttp(bannerSrc, null, null, null, false, true, true);
-    }, [mx, bannerSrc]);
 
     return (
         <Dialog
             open={isOpen}
             onClose={requestClose}
-            fullScreen={screenSize === ScreenSize.Mobile}
+            fullScreen
             scroll='body'
-            sx={{ overscrollBehaviorY: 'none' }}
         >
             {isOpen && <BackButtonHandler callback={requestClose} id='settings' />}
-            <input type='file' accept='image/*' onChange={uploadImage} ref={uploadImageRef} style={{ display: 'none' }} />
             {isOpen && (
-                <AppBar
-                    position='sticky'
-                    className={bannerSrc && 'appbar__has-banner'}
-                    sx={bannerSrc && {
-                        background: `url(${bannerUrl}), #00000060`,
-                        backgroundRepeat: 'no-repeat',
-                        backgroundSize: 'cover',
-                        backgroundBlendMode: 'darken'
-                    }}
-                >
-                    <ProminientToolbar>
-                        {/* {
-                            bannerSrc ?
-                                <Banner noBorder={true} url={bannerSrc} onUpload={handleBannerChange} /> :
-                                <Banner noBorder={true} emptyBanner='transparent' onUpload={handleBannerChange} />
-                        } */}
-                        <Box grow='Yes'>
-                            <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
-                        </Box>
+                <AppBar position='sticky'>
+                    <Toolbar>
                         <IconButton
                             size='large'
-                            edge='end'
-                            onClick={() => uploadImageRef.current?.click()}
+                            edge='start'
+                            onClick={handleBack}
                         >
-                            <Image />
+                            <ArrowBack />
                         </IconButton>
-                        <IconButton
-                            size='large'
-                            edge='end'
-                            color='error'
-                            onClick={handleBannerRemove}
-                        >
-                            <HideImage />
-                        </IconButton>
-                        <IconButton
-                            size='large'
-                            edge='end'
-                            color='error'
-                            onClick={handleLogout}
-                        >
-                            <Logout />
-                        </IconButton>
-                        <IconButton
-                            size='large'
-                            edge='end'
-                            onClick={requestClose}
-                        >
-                            <Close />
-                        </IconButton>
-                    </ProminientToolbar>
+                        <Typography variant='h6' component='div' flexGrow={1}>
+                            {selectedTab !== -1 && tabItems[selectedTab].text}
+                            {selectedTab === -1 && getText('settings.title')}
+                        </Typography>
+                    </Toolbar>
                 </AppBar>
             )}
             {isOpen && (
-                <div className="settings-window__content" style={{ backgroundColor: theme.palette.background.default }}>
-                    <Box style={{ borderBottom: '1px', borderColor: theme.palette.divider }}>
-                        <Tabs
-                            value={selectedTab}
-                            onChange={handleTabChange}
-                            variant='scrollable'
-                            scrollButtons='auto'
-                        >
-                            {tabItems.map((tabItem, index) => (
-                                <Tab label={tabItem.text} {...a11yProps(index)} onClick={() => handleTabChange(index)} />
-                            ))}
-                        </Tabs>
-                    </Box>
-                    <div className="settings-window__cards-wrapper">
-                        {tabItems[selectedTab].render()}
-                    </div>
+                <div className="settings-window__content">
+                    {selectedTab === -1 && (
+                        <>
+                            <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
+                            <Divider />
+                            <List>
+                                <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('settings.header')}</ListSubheader>
+                                {tabItems.map((tab, i) => (
+                                    <ListItemButton onClick={() => setSelectedTab(i)}>
+                                        <ListItemIcon>
+                                            <Icon size={1} path={tab.iconSrc} />
+                                        </ListItemIcon>
+                                        <ListItemText>
+                                            {tab.text}
+                                        </ListItemText>
+                                    </ListItemButton>
+                                ))}
+                            </List>
+                            <Divider />
+                            <List>
+                                <ListItemButton onClick={handleLogout}>
+                                    {/* Its better be optically aligned than exactly, without padding it looks awful */}
+                                    <ListItemIcon sx={{ pl: 0.25 }}>
+                                        <Logout color='error' />
+                                    </ListItemIcon>
+                                    <ListItemText sx={{ color: 'error.main' }}>
+                                        {getText('btn.logout')}
+                                    </ListItemText>
+                                </ListItemButton>
+                            </List>
+                        </>
+                    )}
+                    {selectedTab !== -1 && <BackButtonHandler id='settings-tab' onClick={() => setSelectedTab(-1)} />}
+                    {selectedTab !== -1 && (
+                        <div className='settings-window__cards-wrapper'>
+                            {tabItems[selectedTab].render()}
+                        </div>
+                    )}
                 </div>
             )}
         </Dialog>

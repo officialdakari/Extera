@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import initMatrix from '../../../client/initMatrix';
@@ -12,10 +12,12 @@ import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import './ProfileEditor.scss';
 import { getText } from '../../../lang';
 import { mdiPencil } from '@mdi/js';
-import { Button, IconButton, TextField } from '@mui/material';
+import { Button, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Snackbar, TextField } from '@mui/material';
 import { Close, Edit, Save } from '@mui/icons-material';
 import { Box } from 'folds';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
+import { useAccountData } from '../../hooks/useAccountData';
+import { copyToClipboard } from '../../../util/common';
 
 function ProfileEditor({ userId }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -93,7 +95,7 @@ function ProfileEditor({ userId }) {
                 defaultValue={mx.getUser(mx.getUserId()).displayName}
                 inputRef={displayNameRef}
                 size='small'
-                variant='standard'
+                variant='filled'
             />
             <Box grow='Yes'>
                 <IconButton color="primary" type="submit" disabled={disabled}>
@@ -118,21 +120,126 @@ function ProfileEditor({ userId }) {
                     <Edit />
                 </IconButton>
             </div>
-            <Text variant="b2">{mx.getUserId()}</Text>
+            <Text variant="b2">{mx.getUser(userId).presence}</Text>
         </div>
     );
 
+    const exteraProfileEvent = useAccountData('ru.officialdakari.extera_profile');
+    const [bannerSrc, setBannerSrc] = useState('');
+
+    useEffect(() => {
+        const exteraProfile = exteraProfileEvent ? exteraProfileEvent.getContent() : {};
+        console.log(exteraProfile);
+        if (typeof exteraProfile.banner_url === 'string') {
+            console.log(exteraProfile.banner_url);
+            setBannerSrc(exteraProfile.banner_url);
+        }
+    }, [mx, exteraProfileEvent]);
+
+    const handleBannerChange = async (src) => {
+        try {
+            await mx.setAccountData('ru.officialdakari.extera_profile', {
+                banner_url: src
+            });
+            setBannerSrc(src);
+        } catch (error) {
+            console.error(error);
+            alert(error.message); // TODO Better error handling
+        }
+    };
+
+    const uploadImageRef = useRef(null);
+    const [uploadPromise, setUploadPromise] = useState(null);
+
+    async function uploadImage(e) {
+        const file = e.target.files.item(0);
+        if (file === null) return;
+        try {
+            const uPromise = mx.uploadContent(file);
+            setUploadPromise(uPromise);
+
+            const res = await uPromise;
+            if (typeof res?.content_uri === 'string') handleBannerChange(res.content_uri);
+            setUploadPromise(null);
+        } catch {
+            setUploadPromise(null);
+        }
+        uploadImageRef.current.value = null;
+    }
+
+    function handleClick() {
+        if (uploadPromise !== null) return;
+        uploadImageRef.current?.click();
+    };
+
+    const handleBannerRemove = async () => {
+        try {
+            if (await confirmDialog(getText('remove_banner.title'), getText('remove_banner.desc'), getText('btn.remove_banner.confirm'), 'error')) {
+                await mx.setAccountData('ru.officialdakari.extera_profile', {
+                    banner_url: null
+                });
+                setBannerSrc(null);
+            }
+        } catch (error) {
+            alert(error.message); // TODO Better error handling
+        }
+    };
+
+    const bannerUrl = useMemo(() => {
+        return mx.mxcUrlToHttp(bannerSrc, null, null, null, false, true, true);
+    }, [mx, bannerSrc]);
+
+    const [snackbarOpen, setSnackbar] = useState(false);
+
+    const handleCopyMxId = () => {
+        copyToClipboard(`https://matrix.to/#/${userId}`);
+        setSnackbar(true);
+    };
+
     return (
-        <div className="profile-editor">
-            <ImageUpload
-                text={username ?? userId}
-                bgColor={colorMXID(userId)}
-                imageSrc={avatarSrc}
-                onUpload={handleAvatarUpload}
-                onRequestRemove={() => handleAvatarUpload(null)}
+        <List sx={{ p: 0 }}>
+            <input type='file' accept='image/*' onChange={uploadImage} ref={uploadImageRef} style={{ display: 'none' }} />
+            <div className="profile-editor" style={bannerUrl ? { background: `url(${bannerUrl}), #00000075` } : {}}>
+                <ImageUpload
+                    text={username ?? userId}
+                    bgColor={colorMXID(userId)}
+                    imageSrc={avatarSrc}
+                    onUpload={handleAvatarUpload}
+                    onRequestRemove={() => handleAvatarUpload(null)}
+                />
+                {isEditing ? renderForm() : renderInfo()}
+            </div>
+            <ListSubheader sx={{ bgcolor: 'transparent' }}>
+                {getText('tab.profile')}
+            </ListSubheader>
+            <ListItemButton onClick={handleCopyMxId}>
+                <ListItemText primary={userId} secondary={getText('matrix_id')} />
+            </ListItemButton>
+            <ListItem
+                disablePadding
+                secondaryAction={
+                    bannerUrl && (
+                        <IconButton onClick={handleBannerRemove}>
+                            <Close />
+                        </IconButton>
+                    )
+                }
+            >
+                <ListItemButton role={undefined} onClick={handleClick} dense>
+                    <ListItemText primary={getText('btn.banner')} secondary={getText('btn.banner.2')} />
+                </ListItemButton>
+            </ListItem>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={() => setSnackbar(false)}
+                message={getText('matrix_id.link_copied')}
+                anchorOrigin={{
+                    horizontal: 'center',
+                    vertical: 'bottom'
+                }}
             />
-            {isEditing ? renderForm() : renderInfo()}
-        </div>
+        </List>
     );
 }
 

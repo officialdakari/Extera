@@ -10,10 +10,6 @@
         box-shadow: none;
     }
 
-    & .profile-editor {
-        padding: var(--sp-loose) var(--sp-extraloose);
-    }
-
     & .tabs__content {
         padding: 0 var(--sp-normal);
     }
@@ -26,6 +22,10 @@
     &__content {
         min-height: 100%;
         overscroll-behavior-y: none;
+
+        & .profile-editor {
+            padding: var(--sp-tight);
+        }
     }
 }
 

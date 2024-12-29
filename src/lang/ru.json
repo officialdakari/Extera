@@ -825,6 +825,7 @@
 	"remove_banner.desc": "Вы уверены что хотите удалить баннер?",
 	"btn.remove_banner.confirm": "Удалить",
 	"settings.title": "Настройки",
+	"settings.header": "Настройки",
 	"btn.remove_banner": "Удалить баннер",
 	"btn.logout_session": "Выйти",
 	"space_settings.title": "{0}{1}",
@@ -1030,5 +1031,10 @@
 	"topic.none": "Не указана",
 	"room.topic.add": "Добавить тему",
 	"room.topic.edit": "Изменить тему",
-	"share": "Поделиться"
+	"share": "Поделиться",
+	"tab.profile": "Профиль",
+	"matrix_id": "Matrix ID",
+	"matrix_id.link_copied": "Ссылка скопирована",
+	"btn.banner": "Баннер профиля",
+	"btn.banner.2": "Нажмите сюда чтобы загрузить баннер"
 }

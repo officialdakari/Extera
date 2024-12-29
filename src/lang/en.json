@@ -830,6 +830,7 @@
     "settings.import.title": "Import E2E room keys",
     "settings.export.desc": "Export end-to-end encryption room keys to decrypt old messages in other session. In order to encrypt keys you need to set a password, which will be used while importing.",
     "settings.import.desc": "To decrypt older messages, Export E2EE room keys from Element (Settings > Security & Privacy > Encryption > Cryptography) and import them here. Imported keys are encrypted so you'll have to enter the password you set in order to decrypt it.",
+    "tab.profile": "Profile",
     "tab.appearance": "Appearance",
     "tab.presence": "Presence",
     "tab.notifications": "Notifications",
@@ -844,6 +845,7 @@
     "remove_banner.desc": "Are you sure that you want to remove your banner?",
     "btn.remove_banner.confirm": "Remove",
     "settings.title": "Settings",
+    "settings.header": "Settings",
     "btn.remove_banner": "Remove banner",
     "btn.logout_session": "Logout",
     "space_settings.title": "{0}{1}",
@@ -1030,5 +1032,9 @@
     "btn.bookmarks": "Bookmarks",
     "room.topic": "Topic",
     "room.topic.add": "Add topic",
-    "room.topic.edit": "Edit topic"
+    "room.topic.edit": "Edit topic",
+    "matrix_id": "Matrix ID",
+    "matrix_id.link_copied": "Link copied",
+    "btn.banner": "Profile banner",
+    "btn.banner.2": "Click here to set your banner"
 }
