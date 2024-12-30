@@ -76,7 +76,7 @@ export default function Themes() {
                 title={getText('title.add_theme')}
                 content={
                     <form onSubmit={onAdd}>
-                        <Box gap='200'>
+                        <Box style={{ width: '100%' }} gap='200'>
                             <TextField autoComplete='off' name='name' size='small' variant='outlined' label={getText('label.theme_name')} />
                             <TextField autoComplete='off' name='url' size='small' variant='outlined' sx={{ flexGrow: 1 }} label={getText('label.theme_url')} />
                             <Button

@@ -1036,5 +1036,7 @@
     "matrix_id": "Matrix ID",
     "matrix_id.link_copied": "Link copied",
     "btn.banner": "Profile banner",
-    "btn.banner.2": "Click here to set your banner"
+    "btn.banner.2": "Click here to set your banner",
+    "app.desc": "A feature-rich Matrix client with Material-designed UI. Fork of Cinny.",
+    "btn.clear_cache": "Clear cache & reload"
 }

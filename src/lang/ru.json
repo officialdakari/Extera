@@ -1036,5 +1036,7 @@
 	"matrix_id": "Matrix ID",
 	"matrix_id.link_copied": "Ссылка скопирована",
 	"btn.banner": "Баннер профиля",
-	"btn.banner.2": "Нажмите сюда чтобы загрузить баннер"
+	"btn.banner.2": "Нажмите сюда чтобы загрузить баннер",
+	"app.desc": "Matrix-клиент с множеством возможностей с дизайном в стиле Material. Форк Cinny.",
+	"btn.clear_cache": "Очистить кэш"
 }

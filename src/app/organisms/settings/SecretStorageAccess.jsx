@@ -8,8 +8,6 @@ import { openReusableDialog } from '../../../client/action/navigation';
 import { getDefaultSSKey, getSSKeyInfo } from '../../../util/matrixUtil';
 import { storePrivateKey, hasPrivateKey, getPrivateKey } from '../../../client/state/secretStorageKeys';
 
-import Text from '../../atoms/text/Text';
-
 import { useStore } from '../../hooks/useStore';
 import { Alert, Button, DialogActions, DialogContent, TextField } from '@mui/material';
 import { getText } from '../../../lang';

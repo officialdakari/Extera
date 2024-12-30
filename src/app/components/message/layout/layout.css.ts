@@ -170,7 +170,7 @@ export const BubbleContent = recipe({
         },
         dark: {
             local: {
-                backgroundColor: colors.blue[900]
+                backgroundColor: colors.blueGrey[700]
             },
             remote: {
                 backgroundColor: colors.blueGrey[900]

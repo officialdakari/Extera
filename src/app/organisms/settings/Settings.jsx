@@ -756,12 +756,12 @@ function AboutSection() {
                             {cons.name}
                             <span className="text text-b3" style={{ margin: '0 var(--sp-extra-tight)' }}>{`v${cons.version}`}</span>
                         </Text>
-                        <Text>Fork of Cinny</Text>
+                        <Text>{getText('app.desc')}</Text>
 
                         <div className="settings-about__btns">
-                            <Button variant='contained' onClick={() => window.open('https://github.com/OfficialDakari/Extera')}>Source code</Button>
-                            <Button variant='contained' onClick={() => window.open('https://officialdakari.ru/sponsor/')}>Support</Button>
-                            <Button variant='outlined' color='error' onClick={() => initMatrix.clearCacheAndReload()}>Clear cache & reload</Button>
+                            <Button variant='contained' onClick={() => window.open('https://github.com/OfficialDakari/Extera')}>{getText('btn.source_code')}</Button>
+                            <Button variant='contained' onClick={() => window.open('https://officialdakari.ru/sponsor/')}>{getText('btn.sponsor')}</Button>
+                            <Button variant='outlined' color='error' onClick={() => initMatrix.clearCacheAndReload()}>{getText('btn.clear_cache')}</Button>
                         </div>
                     </div>
                 </div>
@@ -872,18 +872,52 @@ function Settings() {
     };
 
     const handleBack = () => {
-        if (selectedTab === -1) requestClose();
+        if (selectedTab === -1 || screenSize !== ScreenSize.Mobile) requestClose();
         else setSelectedTab(-1);
     };
+
+    const renderSidebar = () => (
+        <>
+            <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
+            <Divider />
+            <List>
+                <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('settings.header')}</ListSubheader>
+                {tabItems.map((tab, i) => (
+                    <ListItemButton selected={i === selectedTab} onClick={() => setSelectedTab(i)}>
+                        <ListItemIcon>
+                            <Icon size={1} path={tab.iconSrc} />
+                        </ListItemIcon>
+                        <ListItemText>
+                            {tab.text}
+                        </ListItemText>
+                    </ListItemButton>
+                ))}
+            </List>
+            <Divider />
+            <List>
+                <ListItemButton onClick={handleLogout}>
+                    {/* Its better be optically aligned than exactly, without padding it looks awful */}
+                    <ListItemIcon sx={{ pl: 0.25 }}>
+                        <Logout color='error' />
+                    </ListItemIcon>
+                    <ListItemText sx={{ color: 'error.main' }}>
+                        {getText('btn.logout')}
+                    </ListItemText>
+                </ListItemButton>
+            </List>
+        </>
+    );
 
     return (
         <Dialog
             open={isOpen}
             onClose={requestClose}
-            fullScreen
+            fullScreen={screenSize !== ScreenSize.Desktop}
             scroll='body'
+            fullWidth
+            maxWidth='xl'
         >
-            {isOpen && <BackButtonHandler callback={requestClose} id='settings' />}
+            {isOpen && <BackButtonHandler callback={handleBack} id='settings' />}
             {isOpen && (
                 <AppBar position='sticky'>
                     <Toolbar>
@@ -903,38 +937,17 @@ function Settings() {
             )}
             {isOpen && (
                 <div className="settings-window__content">
-                    {selectedTab === -1 && (
-                        <>
-                            <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
-                            <Divider />
-                            <List>
-                                <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('settings.header')}</ListSubheader>
-                                {tabItems.map((tab, i) => (
-                                    <ListItemButton onClick={() => setSelectedTab(i)}>
-                                        <ListItemIcon>
-                                            <Icon size={1} path={tab.iconSrc} />
-                                        </ListItemIcon>
-                                        <ListItemText>
-                                            {tab.text}
-                                        </ListItemText>
-                                    </ListItemButton>
-                                ))}
-                            </List>
-                            <Divider />
-                            <List>
-                                <ListItemButton onClick={handleLogout}>
-                                    {/* Its better be optically aligned than exactly, without padding it looks awful */}
-                                    <ListItemIcon sx={{ pl: 0.25 }}>
-                                        <Logout color='error' />
-                                    </ListItemIcon>
-                                    <ListItemText sx={{ color: 'error.main' }}>
-                                        {getText('btn.logout')}
-                                    </ListItemText>
-                                </ListItemButton>
-                            </List>
-                        </>
+                    {(screenSize !== ScreenSize.Mobile) && (
+                        <div className='settings-window__sidebar'>
+                            {renderSidebar()}
+                        </div>
                     )}
-                    {selectedTab !== -1 && <BackButtonHandler id='settings-tab' onClick={() => setSelectedTab(-1)} />}
+                    {(screenSize === ScreenSize.Mobile && selectedTab === -1) && (
+                        <div className='settings-window__sidebar-mobile'>
+                            {renderSidebar()}
+                        </div>
+                    )}
+                    {screenSize !== ScreenSize.Mobile && <Divider sx={{ height: 'auto' }} orientation='vertical' />}
                     {selectedTab !== -1 && (
                         <div className='settings-window__cards-wrapper'>
                             {tabItems[selectedTab].render()}

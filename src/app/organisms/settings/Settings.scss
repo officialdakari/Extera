@@ -17,15 +17,30 @@
     &__cards-wrapper {
         padding: var(--sp-normal);
         height: min-content;
+        width: 100%;
+    }
+
+    &__sidebar {
+        width: 100%;
+        max-width: 23.75rem;
+
+        & .profile-editor {
+            padding: var(--sp-tight);
+        }
+    }
+
+    &__sidebar-mobile {
+        width: 100%;
+
+        & .profile-editor {
+            padding: var(--sp-tight);
+        }
     }
 
     &__content {
         min-height: 100%;
         overscroll-behavior-y: none;
-
-        & .profile-editor {
-            padding: var(--sp-tight);
-        }
+        display: flex;
     }
 }
 
