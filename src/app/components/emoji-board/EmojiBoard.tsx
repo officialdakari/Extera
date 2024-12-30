@@ -33,7 +33,7 @@ import { useRelevantImagePacks } from '../../hooks/useImagePacks';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useRecentEmoji } from '../../hooks/useRecentEmoji';
 import { ExtendedPackImage, ImagePack, PackUsage } from '../../plugins/custom-emoji';
-import { isUserId } from '../../utils/matrix';
+import { isUserId, mxcUrlToHttp } from '../../utils/matrix';
 import { editableActiveElement, isIntersectingScrollView, targetFromEvent } from '../../utils/dom';
 import { useAsyncSearch, UseAsyncSearchOptions } from '../../hooks/useAsyncSearch';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -41,11 +41,8 @@ import { useThrottle } from '../../hooks/useThrottle';
 import { addRecentEmoji } from '../../plugins/recent-emoji';
 import { mobileOrTablet } from '../../utils/user-agent';
 import { getText } from '../../../lang';
-import { useSetting } from '../../state/hooks/settings';
-import { settingsAtom } from '../../state/settings';
-import { openJoinAlias } from '../../../client/action/navigation';
 import Icon from '@mdi/react';
-import { mdiArrowRight, mdiHistory, mdiMagnify, mdiSticker, mdiStickerOutline } from '@mdi/js';
+import { mdiHistory, mdiStickerOutline } from '@mdi/js';
 import { Divider, IconButton, Tab, Tabs, Theme, Tooltip, useTheme } from '@mui/material';
 import { SearchContainer, SearchIcon, SearchIconWrapper, SearchInputBase } from '../../atoms/search/Search';
 import { MotionBox } from '../../atoms/motion/Animated';
@@ -367,7 +364,7 @@ function ImagePackSidebarStack({
                                 height: toRem(24),
                                 objectFit: 'contain',
                             }}
-                            src={mx.mxcUrlToHttp(pack.getPackAvatarUrl(usage) ?? '') || pack.avatarUrl}
+                            src={mxcUrlToHttp(mx, pack.getPackAvatarUrl(usage) ?? '') || pack.avatarUrl}
                             alt={label || getText('emojiboard.unknown_pack')}
                         />
                     </SidebarBtn>

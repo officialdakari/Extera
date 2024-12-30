@@ -11,6 +11,7 @@ import {
 import * as css from './UrlPreviewCard.css';
 import Icon from '@mdi/react';
 import { mdiArrowLeft, mdiArrowRight } from '@mdi/js';
+import { mxcUrlToHttp } from '../../utils/matrix';
 
 const linkStyles = { color: color.Success.Main };
 
@@ -28,7 +29,7 @@ export const UrlPreviewCard = as<'div', { url: string; ts: number }>(
         if (previewStatus.status === AsyncStatus.Error) return null;
 
         const renderContent = (prev: IPreviewUrlResponse) => {
-            const imgUrl = mx.mxcUrlToHttp(prev['og:image'] || '', 256, 256, 'scale', false);
+            const imgUrl = mxcUrlToHttp(mx, prev['og:image'] || '', 256, 256, 'scale');
 
             return (
                 <>

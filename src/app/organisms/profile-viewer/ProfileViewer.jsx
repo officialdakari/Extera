@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import './ProfileViewer.scss';
 
@@ -25,7 +25,7 @@ import PowerLevelSelector from '../../molecules/power-level-selector/PowerLevelS
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
-import { getDMRoomFor, getMxIdLocalPart, getMxIdServer } from '../../utils/matrix';
+import { getDMRoomFor, getMxIdLocalPart, getMxIdServer, mxcUrlToHttp } from '../../utils/matrix';
 import { EventTimeline } from 'matrix-js-sdk';
 import Banner from './Banner';
 import { getText, translate } from '../../../lang';
@@ -480,7 +480,7 @@ function ProfileViewer() {
         const username = roomMember ? getUsernameOfRoomMember(roomMember) : getUsername(userId);
         const avatarMxc = roomMember?.getMxcAvatarUrl?.() || mx.getUser(userId)?.avatarUrl;
         const avatarUrl =
-            avatarMxc && avatarMxc !== 'null' ? mx.mxcUrlToHttp(avatarMxc, 80, 80, 'crop') : null;
+            avatarMxc && avatarMxc !== 'null' ? mxcUrlToHttp(mx, avatarMxc, 80, 80, 'crop') : null;
 
         const powerLevel = roomMember?.powerLevel || 0;
         const myPowerLevel = room.getMember(mx.getUserId())?.powerLevel || 0;
@@ -489,13 +489,13 @@ function ProfileViewer() {
         const membership = roomState.getStateEvents('m.room.member', userId);
         const membershipContent = membership?.getContent() ?? {};
 
-        var bannerUrl;
-
-        console.log(membershipContent);
-
-        if (typeof membershipContent[cons.EXTERA_BANNER_URL] === 'string' && membershipContent[cons.EXTERA_BANNER_URL].startsWith('mxc://')) {
-            bannerUrl = mx.mxcUrlToHttp(membershipContent[cons.EXTERA_BANNER_URL], false, false, false, false, true, true);
-        }
+        const bannerUrl = useMemo(() => {
+            if (typeof membershipContent[cons.EXTERA_BANNER_URL] === 'string' && membershipContent[cons.EXTERA_BANNER_URL].startsWith('mxc://')) {
+                return mxcUrlToHttp(mx, membershipContent[cons.EXTERA_BANNER_URL]);
+            } else {
+                return null;
+            }
+        }, [mx, membershipContent]);
 
         const canChangeRole =
             room.currentState.maySendEvent('m.room.power_levels', mx.getUserId()) &&

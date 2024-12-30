@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import './Banner.scss';
 import initMatrix from '../../../client/initMatrix';
+import { mxcUrlToHttp } from '../../utils/matrix';
 export default function Banner({ url, noBorder, onUpload, emptyBanner }) {
     const mx = useMatrixClient();
     const uploadImageRef = useRef(null);
@@ -38,7 +39,7 @@ export default function Banner({ url, noBorder, onUpload, emptyBanner }) {
         <div onClick={handleClick} className={noBorder ? 'banner-container-nb' : 'banner-container'}>
             {
                 !emptyBanner ?
-                    <img src={mx.mxcUrlToHttp(url)} className='profile-banner' /> :
+                    <img src={mxcUrlToHttp(mx, url)} className='profile-banner' /> :
                     <div style={{ height: '150px', backgroundColor: emptyBanner }} />
             }
             <input type='file' accept='image/*' onChange={uploadImage} ref={uploadImageRef} style={{ display: 'none' }} />

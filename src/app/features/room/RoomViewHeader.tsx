@@ -28,7 +28,7 @@ import {
     withOriginBaseUrl,
     withSearchParam,
 } from '../../pages/pathUtils';
-import { getCanonicalAliasOrRoomId, isRoomId, isUserId } from '../../utils/matrix';
+import { getCanonicalAliasOrRoomId, isRoomId, isUserId, mxcUrlToHttp } from '../../utils/matrix';
 import { _SearchPathSearchParams } from '../../pages/paths';
 import * as css from './RoomViewHeader.css';
 import { useRoomUnread } from '../../state/hooks/unread';
@@ -261,7 +261,7 @@ export function RoomViewHeader({
     const [showPinned, setShowPinned] = useState(false);
     const [showWidgets, setShowWidgets] = useState(false);
     const [widgets, setWidgets] = useState<ReactNode[]>([]);
-    const avatarUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
+    const avatarUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
     const powerLevels = usePowerLevelsContext();
     const { getPowerLevel, canSendStateEvent, canDoAction } = usePowerLevelsAPI(powerLevels);
     const myUserId = mx.getUserId();

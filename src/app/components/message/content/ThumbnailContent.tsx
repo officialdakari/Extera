@@ -4,6 +4,7 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { getFileSrcUrl } from './util';
 import { getText } from '../../../../lang';
+import { mxcUrlToHttp } from '../../../utils/matrix';
 
 export type ThumbnailContentProps = {
     info: IThumbnailContent;
@@ -20,7 +21,7 @@ export function ThumbnailContent({ info, renderImage }: ThumbnailContentProps) {
                 throw new Error(getText('msg.thumbnail.failed'));
             }
             return getFileSrcUrl(
-                mx.mxcUrlToHttp(thumbMxcUrl, undefined, undefined, undefined, false, true, true) ?? '',
+                mxcUrlToHttp(mx, thumbMxcUrl) ?? '',
                 thumbInfo.mimetype,
                 info.thumbnail_file,
                 mx

@@ -6,7 +6,7 @@ import { openInviteUser } from '../../../client/action/navigation';
 import { IRoomCreateContent, Membership, StateEvent } from '../../../types/matrix/room';
 import { getMemberDisplayName, getStateEvent } from '../../utils/room';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
-import { getMxIdLocalPart } from '../../utils/matrix';
+import { getMxIdLocalPart, mxcUrlToHttp } from '../../utils/matrix';
 import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
 import { timeDayMonthYear, timeHourMinute } from '../../utils/time';
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
@@ -32,7 +32,7 @@ export const RoomIntro = as<'div', RoomIntroProps>(({ room, ...props }, ref) => 
     const avatarMxc = useRoomAvatar(room, mDirects.has(room.roomId));
     const name = useRoomName(room);
     const topic = useRoomTopic(room);
-    const avatarHttpUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc) : undefined;
+    const avatarHttpUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc) : undefined;
 
     const createContent = createEvent?.getContent<IRoomCreateContent>();
     const ts = createEvent?.getTs();

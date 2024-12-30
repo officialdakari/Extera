@@ -24,6 +24,7 @@ import { LoadingButton } from '@mui/lab';
 import { BackButtonHandler } from '../../../hooks/useBackButton';
 import { useModals } from '../../../hooks/useModals';
 import { v4 } from 'uuid';
+import { mxcUrlToHttp } from '../../../utils/matrix';
 
 const renderErrorButton = (retry: () => void, text: string) => (
     <Tooltip title={getText('msg.file.failed')}>
@@ -58,7 +59,7 @@ export function ReadTextFile({ body, mimeType, url, encInfo, renderViewer, forma
     const [textViewer, setTextViewer] = useState(false);
 
     const loadSrc = useCallback(
-        () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo),
+        () => getFileSrcUrl(mxcUrlToHttp(mx, url) ?? '', mimeType, encInfo),
         [mx, url, mimeType, encInfo]
     );
 
@@ -132,7 +133,7 @@ export function ReadPdfFile({ body, mimeType, url, encInfo, renderViewer, format
 
     const [pdfState, loadPdf] = useAsyncCallback(
         useCallback(async () => {
-            const httpUrl = await getFileSrcUrl(mx.mxcUrlToHttp(url) ?? '', mimeType, encInfo);
+            const httpUrl = await getFileSrcUrl(mxcUrlToHttp(mx, url) ?? '', mimeType, encInfo);
             setPdfViewer(true);
             return httpUrl;
         }, [mx, url, mimeType, encInfo])
@@ -192,7 +193,7 @@ export function DownloadFile({ body, mimeType, url, info, encInfo, filename }: D
 
     const [downloadState, download] = useAsyncCallback(
         useCallback(async () => {
-            const httpUrl = await getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo, mx);
+            const httpUrl = await getFileSrcUrl(mxcUrlToHttp(mx, url) ?? '', mimeType, encInfo, mx);
             saveFile(httpUrl, filename ?? body);
             return httpUrl;
         }, [mx, url, mimeType, encInfo, body, filename])

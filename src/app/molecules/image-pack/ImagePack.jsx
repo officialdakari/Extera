@@ -22,6 +22,7 @@ import ImagePackUpload from './ImagePackUpload';
 import { getText } from '../../../lang';
 import { Button, Checkbox, DialogActions, DialogContent, TextField } from '@mui/material';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
+import { mxcUrlToHttp } from '../../utils/matrix';
 
 const renameImagePackItem = (shortcode) => new Promise((resolve) => {
     let isCompleted = false;
@@ -270,7 +271,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete }) {
     return (
         <div className="image-pack">
             <ImagePackProfile
-                avatarUrl={pack.avatarUrl ? mx.mxcUrlToHttp(pack.avatarUrl, 42, 42, 'crop') : null}
+                avatarUrl={pack.avatarUrl ? mxcUrlToHttp(mx, pack.avatarUrl, 42, 42, 'crop') : null}
                 displayName={pack.displayName ?? 'Unknown'}
                 attribution={pack.attribution}
                 usage={getUsage(pack.usage)}
@@ -291,7 +292,7 @@ function ImagePack({ roomId, stateKey, handlePackDelete }) {
                     {images.map(([shortcode, image]) => (
                         <ImagePackItem
                             key={shortcode}
-                            url={mx.mxcUrlToHttp(image.mxc)}
+                            url={mxcUrlToHttp(mx, image.mxc)}
                             shortcode={shortcode}
                             usage={getUsage(image.usage)}
                             onUsageChange={canChange ? handleUsageItem : undefined}
@@ -356,7 +357,7 @@ function ImagePackUser() {
     return (
         <div className="image-pack">
             <ImagePackProfile
-                avatarUrl={pack.avatarUrl ? mx.mxcUrlToHttp(pack.avatarUrl, 42, 42, 'crop') : null}
+                avatarUrl={pack.avatarUrl ? mxcUrlToHttp(mx, pack.avatarUrl, 42, 42, 'crop') : null}
                 displayName={pack.displayName ?? getText('emojiboard.personal_pack')}
                 attribution={pack.attribution}
                 usage={getUsage(pack.usage)}
@@ -375,7 +376,7 @@ function ImagePackUser() {
                     {images.map(([shortcode, image]) => (
                         <ImagePackItem
                             key={shortcode}
-                            url={mx.mxcUrlToHttp(image.mxc)}
+                            url={mxcUrlToHttp(mx, image.mxc)}
                             shortcode={shortcode}
                             usage={getUsage(image.usage)}
                             onUsageChange={handleUsageItem}

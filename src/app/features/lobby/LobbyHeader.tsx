@@ -2,31 +2,23 @@ import React, { MouseEventHandler, forwardRef, useState } from 'react';
 import {
     Avatar,
     Box,
-    RectCords,
     Text,
-    config,
-    toRem,
 } from 'folds';
-import FocusTrap from 'focus-trap-react';
-import { PageHeader } from '../../components/page';
 import { useSetSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import { useRoomAvatar, useRoomName } from '../../hooks/useRoomMeta';
 import { useSpace } from '../../hooks/useSpace';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { RoomAvatar } from '../../components/room-avatar';
-import { nameInitials } from '../../utils/common';
-import * as css from './LobbyHeader.css';
 import { openInviteUser, openSpaceSettings } from '../../../client/action/navigation';
 import { IPowerLevels, usePowerLevelsAPI } from '../../hooks/usePowerLevels';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { LeaveSpacePrompt } from '../../components/leave-space-prompt';
 import { getText } from '../../../lang';
-import Icon from '@mdi/react';
-import { mdiAccount, mdiAccountPlus, mdiArrowLeft, mdiCog, mdiDotsVertical } from '@mdi/js';
 import { AppBar, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Tooltip } from '@mui/material';
 import { ArrowBack, MoreVert, Person, PersonAdd, Settings } from '@mui/icons-material';
 import { BackRouteHandler } from '../../components/BackRouteHandler';
+import { mxcUrlToHttp } from '../../utils/matrix';
 
 type LobbyMenuProps = {
     roomId: string;
@@ -115,7 +107,7 @@ export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
 
     const name = useRoomName(space);
     const avatarMxc = useRoomAvatar(space);
-    const avatarUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
+    const avatarUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
 
     const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
         setMenuAnchor(evt.currentTarget);

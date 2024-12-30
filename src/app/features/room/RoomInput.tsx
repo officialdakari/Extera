@@ -1,9 +1,6 @@
 import React, {
-    Dispatch,
     KeyboardEventHandler,
     MouseEvent,
-    MouseEventHandler,
-    PointerEvent,
     RefObject,
     forwardRef,
     useCallback,
@@ -21,7 +18,6 @@ import {
     Overlay,
     OverlayBackdrop,
     OverlayCenter,
-    PopOut,
     Scroll,
     Text,
     config,
@@ -41,7 +37,6 @@ import {
     RoomMentionAutocomplete,
     UserMentionAutocomplete,
     EmoticonAutocomplete,
-    resetEditorHistory,
     customHtmlEqualsPlainText,
     trimCustomHtml,
     isEmptyEditor,
@@ -50,8 +45,7 @@ import {
     getMentions
 } from '../../components/editor';
 import { EmojiBoard, EmojiBoardTab } from '../../components/emoji-board';
-import { UseStateProvider } from '../../components/UseStateProvider';
-import { TUploadContent, encryptFile, getImageInfo, getMxIdLocalPart } from '../../utils/matrix';
+import { TUploadContent, encryptFile, getImageInfo, getMxIdLocalPart, mxcUrlToHttp } from '../../utils/matrix';
 import { useTypingStatusUpdater } from '../../hooks/useTypingStatusUpdater';
 import { useFilePicker } from '../../hooks/useFilePicker';
 import { useFilePasteHandler } from '../../hooks/useFilePasteHandler';
@@ -100,15 +94,14 @@ import { sanitizeText } from '../../utils/sanitize';
 import { CommandAutocomplete } from './CommandAutocomplete';
 import { Command, SHRUG, LENNY, TABLEFLIP, UNFLIP, useCommands } from '../../hooks/useCommands';
 import { mobileOrTablet } from '../../utils/user-agent';
-import { useElementSizeObserver } from '../../hooks/useElementSizeObserver';
 import { ReplyLayout } from '../../components/message';
 import { markAsRead } from '../../../client/action/notifications';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { getText } from '../../../lang';
-import { openHiddenRooms, openReusableContextMenu } from '../../../client/action/navigation';
+import { openReusableContextMenu } from '../../../client/action/navigation';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 import Icon from '@mdi/react';
-import { mdiAt, mdiBell, mdiBellOff, mdiCheckAll, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiEye, mdiEyeOff, mdiFile, mdiMicrophone, mdiPlusCircle, mdiPlusCircleOutline, mdiSend, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
+import { mdiBell, mdiBellOff, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiEye, mdiEyeOff, mdiFile, mdiMicrophone, mdiPlusCircleOutline, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
 import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
 import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
 import { getEventCords } from '../../../util/common';
@@ -525,7 +518,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         }, [textAreaRef]);
 
         const handleStickerSelect = async (mxc: string, shortcode: string, label: string) => {
-            const stickerUrl = mx.mxcUrlToHttp(mxc);
+            const stickerUrl = mxcUrlToHttp(mx, mxc);
             if (!stickerUrl) return;
 
             const info = await getImageInfo(

@@ -1,7 +1,7 @@
 import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 
 import { Avatar, Box, IconButton, Text } from "folds";
-import { CallEvent, Room, User } from "matrix-js-sdk";
+import { CallEvent, Room } from "matrix-js-sdk";
 
 import * as css from './RoomCall.css';
 import { UserAvatar } from '../../components/user-avatar';
@@ -9,10 +9,10 @@ import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { AvatarBase } from '../../components/message';
 import { CallErrorCode, CallState, MatrixCall } from 'matrix-js-sdk/lib/webrtc/call';
 import { CallFeed } from 'matrix-js-sdk/lib/webrtc/callFeed';
-import { SDPStreamMetadataPurpose } from 'matrix-js-sdk/lib/webrtc/callEventTypes';
 import Icon, { Icon as MDIcon } from '@mdi/react';
-import { mdiAccount, mdiCamera, mdiCameraOff, mdiMicrophone, mdiMicrophoneOff, mdiPhone, mdiPhoneHangup, mdiVideo, mdiVideoOff } from '@mdi/js';
+import { mdiAccount, mdiMicrophone, mdiMicrophoneOff, mdiPhone, mdiPhoneHangup, mdiVideo, mdiVideoOff } from '@mdi/js';
 import { translate } from '../../../lang';
+import { mxcUrlToHttp } from '../../utils/matrix';
 
 // TODO refactor
 const styles: Record<CallState | string, CSSProperties> = {
@@ -57,8 +57,6 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
     if (!recipient) return;
 
     const audioRef = useRef<HTMLAudioElement>(null);
-
-    const [userStyle, setUserStyle] = useState<CSSProperties>();
     const [recipientStyle, setRecipientStyle] = useState<CSSProperties>();
 
     const [recipientShowVideo, setRecipientShowVideo] = useState(false);
@@ -198,14 +196,11 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
                                 <video controls={false} autoPlay className={css.VideoFeed} style={{ display: localShowVideo ? 'block' : 'none' }} ref={localVideoRef} />
                                 {!localShowVideo && (
                                     <AvatarBase className={css.UserAvatar}>
-                                        <Avatar
-                                            style={userStyle}
-                                        >
+                                        <Avatar>
                                             <UserAvatar
                                                 userId={user.userId}
                                                 alt={user.displayName ?? user.userId}
-                                                src={typeof user.avatarUrl === 'string' ? mx.mxcUrlToHttp(user.avatarUrl, 96, 96, 'scale', true) ?? undefined : undefined}
-                                                renderFallback={() => <Icon size={1} path={mdiAccount} />}
+                                                src={typeof user.avatarUrl === 'string' ? mxcUrlToHttp(mx, user.avatarUrl, 96, 96, 'scale') ?? undefined : undefined}
                                             />
                                         </Avatar>
                                     </AvatarBase>
@@ -221,8 +216,7 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
                                             <UserAvatar
                                                 userId={recipient.userId}
                                                 alt={recipient.displayName ?? recipient.userId}
-                                                src={typeof recipient.avatarUrl === 'string' ? mx.mxcUrlToHttp(recipient.avatarUrl, 96, 96, 'scale', true) ?? undefined : undefined}
-                                                renderFallback={() => <Icon size={1} path={mdiAccount} />}
+                                                src={typeof recipient.avatarUrl === 'string' ? mxcUrlToHttp(mx, recipient.avatarUrl, 96, 96, 'scale') ?? undefined : undefined}
                                             />
                                         </Avatar>
                                     </AvatarBase>

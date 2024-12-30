@@ -9,7 +9,7 @@ import {
 import classNames from 'classnames';
 import * as css from './style.css';
 import { RoomAvatar } from '../room-avatar';
-import { getMxIdLocalPart } from '../../utils/matrix';
+import { getMxIdLocalPart, mxcUrlToHttp } from '../../utils/matrix';
 import { nameInitials } from '../../utils/common';
 import { millify } from '../../plugins/millify';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
@@ -144,7 +144,7 @@ export const RoomCard = as<'div', RoomCardProps>(
 
         const avatar = joinedRoom
             ? getRoomAvatarUrl(mx, joinedRoom, 96)
-            : avatarUrl && mx.mxcUrlToHttp(avatarUrl, 96, 96, 'crop');
+            : avatarUrl && mxcUrlToHttp(mx, avatarUrl, 96, 96, 'crop');
 
         const roomName = joinedRoom?.name || name || fallbackName;
         const roomTopic =

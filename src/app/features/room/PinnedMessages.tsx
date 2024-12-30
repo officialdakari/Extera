@@ -7,7 +7,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRoomNavigate } from "../../hooks/useRoomNavigate";
 import { HTMLReactParserOptions } from "html-react-parser";
 import { getReactCustomHtmlParser } from "../../plugins/react-custom-html-parser";
-import { getMxIdLocalPart, isRoomId, isUserId } from "../../utils/matrix";
+import { getMxIdLocalPart, isRoomId, isUserId, mxcUrlToHttp } from "../../utils/matrix";
 import { openJoinAlias, openProfileViewer } from "../../../client/action/navigation";
 import { useSetting } from "../../state/hooks/settings";
 import { settingsAtom } from "../../state/settings";
@@ -108,7 +108,7 @@ function PinnedMessage({ room, eventId, renderContent, requestOpen, canUnpin }: 
                             userId={sender}
                             src={
                                 senderAvatarMxc
-                                    ? mx.mxcUrlToHttp(senderAvatarMxc, 48, 48, 'crop', false, false, true) ??
+                                    ? mxcUrlToHttp(mx, senderAvatarMxc, 48, 48, 'crop') ??
                                     undefined
                                     : undefined
                             }

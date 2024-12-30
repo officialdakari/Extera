@@ -18,6 +18,7 @@ import { Box } from 'folds';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useAccountData } from '../../hooks/useAccountData';
 import { copyToClipboard } from '../../../util/common';
+import { mxcUrlToHttp } from '../../utils/matrix';
 
 function ProfileEditor({ userId }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -26,7 +27,7 @@ function ProfileEditor({ userId }) {
 
     const displayNameRef = useRef(null);
     const [avatarSrc, setAvatarSrc] = useState(
-        user.avatarUrl ? mx.mxcUrlToHttp(user.avatarUrl, 80, 80, 'crop') : null
+        user.avatarUrl ? mxcUrlToHttp(mx, user.avatarUrl, 80, 80, 'crop') : null
     );
     const [username, setUsername] = useState(user.displayName);
     const [disabled, setDisabled] = useState(true);
@@ -35,7 +36,7 @@ function ProfileEditor({ userId }) {
         let isMounted = true;
         mx.getProfileInfo(mx.getUserId()).then((info) => {
             if (!isMounted) return;
-            setAvatarSrc(info.avatar_url ? mx.mxcUrlToHttp(info.avatar_url, 80, 80, 'crop') : null);
+            setAvatarSrc(info.avatar_url ? mxcUrlToHttp(mx, info.avatar_url, 80, 80, 'crop') : null);
             setUsername(info.displayname);
         });
         return () => {
@@ -58,7 +59,7 @@ function ProfileEditor({ userId }) {
             return;
         }
         mx.setAvatarUrl(url);
-        setAvatarSrc(mx.mxcUrlToHttp(url, 80, 80, 'crop'));
+        setAvatarSrc(mxcUrlToHttp(mx, url, 80, 80, 'crop'));
     };
 
     const saveDisplayName = () => {
@@ -186,7 +187,7 @@ function ProfileEditor({ userId }) {
     };
 
     const bannerUrl = useMemo(() => {
-        return mx.mxcUrlToHttp(bannerSrc, null, null, null, false, true, true);
+        return mxcUrlToHttp(mx, bannerSrc);
     }, [mx, bannerSrc]);
 
     const [snackbarOpen, setSnackbar] = useState(false);

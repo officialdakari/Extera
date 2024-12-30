@@ -10,7 +10,7 @@ import Text from '../../atoms/text/Text';
 import RoomTile from '../../molecules/room-tile/RoomTile';
 
 import { useRoomNavigate } from '../../hooks/useRoomNavigate';
-import { getDMRoomFor, getRoomNameOrId } from '../../utils/matrix';
+import { getDMRoomFor, getRoomNameOrId, mxcUrlToHttp } from '../../utils/matrix';
 import { getText } from '../../../lang';
 import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
 import { mdiAccount, mdiClose } from '@mdi/js';
@@ -219,7 +219,7 @@ function InviteUser({ isOpen, roomId, searchTerm, onRequestClose }) {
                     key={userId}
                     avatarSrc={
                         typeof user.avatar_url === 'string'
-                            ? mx.mxcUrlToHttp(user.avatar_url, 42, 42, 'crop')
+                            ? mxcUrlToHttp(mx, user.avatar_url, 42, 42, 'crop')
                             : null
                     }
                     name={name}

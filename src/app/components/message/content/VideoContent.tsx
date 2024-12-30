@@ -21,6 +21,7 @@ import { getText } from '../../../../lang';
 import Icon from '@mdi/react';
 import { mdiAlert, mdiPlay } from '@mdi/js';
 import { Button, Chip, CircularProgress, Fab, Tooltip, Typography } from '@mui/material';
+import { mxcUrlToHttp } from '../../../utils/matrix';
 
 type RenderVideoProps = {
     title: string;
@@ -64,7 +65,7 @@ export const VideoContent = as<'div', VideoContentProps>(
 
         const [srcState, loadSrc] = useAsyncCallback(
             useCallback(
-                () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo, mx, !('cordova' in window)),
+                () => getFileSrcUrl(mxcUrlToHttp(mx, url) ?? '', mimeType, encInfo, mx, !('cordova' in window)),
                 [mx, url, mimeType, encInfo]
             )
         );

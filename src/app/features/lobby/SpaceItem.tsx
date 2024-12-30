@@ -4,12 +4,10 @@ import {
     Avatar,
     as,
     toRem,
-    config,
     Chip,
     Text,
     Badge,
 } from 'folds';
-import FocusTrap from 'focus-trap-react';
 import classNames from 'classnames';
 import { MatrixError, Room } from 'matrix-js-sdk';
 import { HierarchyItem } from '../../hooks/useSpaceHierarchy';
@@ -32,6 +30,7 @@ import { mdiChevronDown, mdiChevronRight, mdiPlus } from '@mdi/js';
 import Icon from '@mdi/react';
 import { Button, CircularProgress, ListItemText, Menu, MenuItem } from '@mui/material';
 import { Add } from '@mui/icons-material';
+import { mxcUrlToHttp } from '../../utils/matrix';
 
 function SpaceProfileLoading() {
     return (
@@ -427,7 +426,7 @@ export const SpaceItemCard = as<'div', SpaceItemCardProps>(
                                                 name={summaryState.data.name || summaryState.data.canonical_alias || roomId}
                                                 avatarUrl={
                                                     summaryState.data?.avatar_url
-                                                        ? mx.mxcUrlToHttp(summaryState.data.avatar_url, 96, 96, 'crop') ??
+                                                        ? mxcUrlToHttp(mx, summaryState.data.avatar_url, 96, 96, 'crop') ??
                                                         undefined
                                                         : undefined
                                                 }

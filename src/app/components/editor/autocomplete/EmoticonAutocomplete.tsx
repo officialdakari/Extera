@@ -17,6 +17,7 @@ import { IEmoji, emojis } from '../../../plugins/emoji';
 import { ExtendedPackImage, PackUsage } from '../../../plugins/custom-emoji';
 import { useKeyDown } from '../../../hooks/useKeyDown';
 import { ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { mxcUrlToHttp } from '../../../utils/matrix';
 
 type EmoticonCompleteHandler = (key: string, shortcode: string) => void;
 
@@ -76,7 +77,7 @@ export function EmoticonAutocomplete({
         const ta = textAreaRef.current;
         if (!ta) return;
         const mxc = key.startsWith('mxc://');
-        const src = mxc ? mx.mxcUrlToHttp(key) : key;
+        const src = mxc ? mxcUrlToHttp(mx, key) : key;
         console.log(src, key, shortcode);
 
         var v = ta.value;
@@ -127,7 +128,7 @@ export function EmoticonAutocomplete({
                                     <Box
                                         shrink="No"
                                         as="img"
-                                        src={mx.mxcUrlToHttp(key) || key}
+                                        src={mxcUrlToHttp(mx, key) || key}
                                         alt={emoticon.shortcode}
                                         style={{ width: toRem(24), height: toRem(24), objectFit: 'contain' }}
                                     />

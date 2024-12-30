@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, EventHandler, KeyboardEventHandler, RefObject, SyntheticEvent, useEffect, useMemo, useRef, useState } from 'react';
+import React, { KeyboardEventHandler, RefObject, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { PageNav, PageNavContent } from '../../../components/page';
 import { AppBar, Box, CircularProgress, IconButton, LinearProgress, Tab, Tabs, Toolbar, useTheme } from '@mui/material';
 import { useNavHidden } from '../../../hooks/useHideableNav';
@@ -6,15 +6,10 @@ import { MenuOpen, Menu as MenuIcon, Close, Message as MessageIcon } from '@mui/
 import SearchBar from '../SearchBar';
 import { getText } from '../../../../lang';
 import { MatrixEvent, Room } from 'matrix-js-sdk';
-import { Scroll } from 'folds';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { VirtualTile } from '../../../components/virtualizer';
-import { RoomNavItem } from '../../../features/room-nav';
 import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
-import { getHomeRoomPath } from '../../pathUtils';
-import { getCanonicalAliasOrRoomId, getDMRoomFor, searchRoom } from '../../../utils/matrix';
-import { useAtom, useAtomValue } from 'jotai';
+import { getDMRoomFor, mxcUrlToHttp, searchRoom } from '../../../utils/matrix';
+import { useAtomValue } from 'jotai';
 import { muteChangesAtom } from '../../../state/room-list/mutedRoomList';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import RoomSelector from '../../../molecules/room-selector/RoomSelector';
@@ -22,9 +17,6 @@ import RoomTile from '../../../molecules/room-tile/RoomTile';
 
 import * as roomActions from '../../../../client/action/room';
 import { hasDevices } from '../../../../util/matrixUtil';
-import { LoadingButton } from '@mui/lab';
-import { MessageSearchParams, useMessageSearch } from '../../../features/message-search/useMessageSearch';
-import { useInfiniteQuery } from '@tanstack/react-query';
 import { MessageSearch } from '../../../features/message-search';
 import { useRooms } from '../../../state/hooks/roomList';
 import { mDirectAtom } from '../../../state/mDirectList';
@@ -130,7 +122,7 @@ function SearchUsers({ users }: { users: UserProfile[] }) {
                         key={userId}
                         avatarSrc={
                             typeof user.avatar_url === 'string'
-                                ? mx.mxcUrlToHttp(user.avatar_url, 42, 42, 'crop')
+                                ? mxcUrlToHttp(mx, user.avatar_url, 42, 42, 'crop')
                                 : null
                         }
                         name={name}

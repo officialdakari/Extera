@@ -10,6 +10,7 @@ import { Close } from "@mui/icons-material";
 import { getText } from "../../../lang";
 import { Box } from "folds";
 import { useMatrixClient } from "../../hooks/useMatrixClient";
+import { mxcUrlToHttp } from "../../utils/matrix";
 
 function Theme({ theme, onToggle, onRemove }) {
     return (
@@ -52,7 +53,7 @@ export default function Themes() {
     const onAdd = (evt) => {
         evt.preventDefault();
         const { name, url } = evt.target.elements;
-        const cssUrl = mx.mxcUrlToHttp(url.value, false, false, false, true, true);
+        const cssUrl = mxcUrlToHttp(mx, url.value);
         setThemes([
             ...themes,
             {

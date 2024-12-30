@@ -5,7 +5,6 @@ import {
     as,
     toRem,
 } from 'folds';
-import FocusTrap from 'focus-trap-react';
 import { JoinRule, MatrixError, Room } from 'matrix-js-sdk';
 import { RoomAvatar, RoomIcon } from '../../components/room-avatar';
 import { SequenceCard } from '../../components/sequence-card';
@@ -27,11 +26,10 @@ import { ErrorCode } from '../../cs-errorcode';
 import { getDirectRoomAvatarUrl, getRoomAvatarUrl } from '../../utils/room';
 import { ItemDraggableTarget, useDraggableItem } from './DnD';
 import { getText } from '../../../lang';
-import Icon from '@mdi/react';
-import { mdiAlert, mdiArrowRight, mdiPlus } from '@mdi/js';
 import { Chip, Dialog, Divider, IconButton, Tooltip, Typography } from '@mui/material';
 import { ArrowForward, Warning } from '@mui/icons-material';
 import { BackButtonHandler } from '../../hooks/useBackButton';
+import { mxcUrlToHttp } from '../../utils/matrix';
 
 type RoomJoinButtonProps = {
     roomId: string;
@@ -352,7 +350,7 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
                                                 topic={summaryState.data.topic}
                                                 avatarUrl={
                                                     summaryState.data?.avatar_url
-                                                        ? mx.mxcUrlToHttp(summaryState.data.avatar_url, 96, 96, 'crop') ??
+                                                        ? mxcUrlToHttp(mx, summaryState.data.avatar_url, 96, 96, 'crop') ??
                                                         undefined
                                                         : undefined
                                                 }

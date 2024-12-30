@@ -23,7 +23,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { HTMLReactParserOptions } from 'html-react-parser';
 import { Page, PageContent, PageContentCenter, PageHeader } from '../../../components/page';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { getMxIdLocalPart, isRoomId, isUserId } from '../../../utils/matrix';
+import { getMxIdLocalPart, isRoomId, isUserId, mxcUrlToHttp } from '../../../utils/matrix';
 import { InboxNotificationsPathSearchParams } from '../../paths';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { SequenceCard } from '../../../components/sequence-card';
@@ -418,7 +418,7 @@ function RoomNotificationsGroupComp({
                                                 userId={event.sender}
                                                 src={
                                                     senderAvatarMxc
-                                                        ? mx.mxcUrlToHttp(senderAvatarMxc, 48, 48, 'crop') ?? undefined
+                                                        ? mxcUrlToHttp(mx, senderAvatarMxc, 48, 48, 'crop') ?? undefined
                                                         : undefined
                                                 }
                                                 alt={displayName}

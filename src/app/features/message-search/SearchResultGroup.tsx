@@ -8,7 +8,7 @@ import {
     getReactCustomHtmlParser,
     makeHighlightRegex,
 } from '../../plugins/react-custom-html-parser';
-import { getMxIdLocalPart, isRoomId, isUserId } from '../../utils/matrix';
+import { getMxIdLocalPart, isRoomId, isUserId, mxcUrlToHttp } from '../../utils/matrix';
 import { openJoinAlias, openProfileViewer } from '../../../client/action/navigation';
 import { useMatrixEventRenderer } from '../../hooks/useMatrixEventRenderer';
 import { GetContentCallback, MessageEvent, StateEvent } from '../../../types/matrix/room';
@@ -218,7 +218,7 @@ export function SearchResultGroup({
                                                 userId={event.sender}
                                                 src={
                                                     senderAvatarMxc
-                                                        ? mx.mxcUrlToHttp(senderAvatarMxc, 48, 48, 'crop') ?? undefined
+                                                        ? mxcUrlToHttp(mx, senderAvatarMxc, 48, 48, 'crop') ?? undefined
                                                         : undefined
                                                 }
                                                 alt={displayName}

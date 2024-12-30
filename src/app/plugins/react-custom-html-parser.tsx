@@ -14,7 +14,7 @@ import { Opts as LinkifyOpts } from 'linkifyjs';
 import Linkify from 'linkify-react';
 import { ErrorBoundary } from 'react-error-boundary';
 import * as css from '../styles/CustomHtml.css';
-import { getMxIdLocalPart, getCanonicalAliasRoomId } from '../utils/matrix';
+import { getMxIdLocalPart, getCanonicalAliasRoomId, mxcUrlToHttp } from '../utils/matrix';
 import { getMemberDisplayName } from '../utils/room';
 import { EMOJI_PATTERN, URL_NEG_LB } from '../utils/regex';
 import { getHexcodeForEmoji, getShortcodeFor } from './emoji';
@@ -289,7 +289,7 @@ export const getReactCustomHtmlParser = (
                 }
 
                 if (name === 'img') {
-                    const htmlSrc = mx.mxcUrlToHttp(props.src);
+                    const htmlSrc = mxcUrlToHttp(mx, props.src);
                     if (htmlSrc && props.src.startsWith('mxc://') === false) {
                         return (
                             <a href={htmlSrc} target="_blank" rel="noreferrer noopener">

@@ -1,8 +1,7 @@
 /* eslint-disable jsx-a11y/media-has-caption */
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { Box, Text, toRem } from 'folds';
+import React, { ReactNode, useCallback, useRef, useState } from 'react';
+import { Box, Text } from 'folds';
 import { EncryptedAttachmentInfo } from 'browser-encrypt-attachment';
-import { Range } from 'react-range';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { getFileSrcUrl } from './util';
@@ -20,6 +19,7 @@ import { secondsToMinutesAndSeconds } from '../../../utils/common';
 import Icon from '@mdi/react';
 import { mdiPause, mdiPlay } from '@mdi/js';
 import { CircularProgress, IconButton, Slider, useTheme } from '@mui/material';
+import { mxcUrlToHttp } from '../../../utils/matrix';
 
 const PLAY_TIME_THROTTLE_OPS = {
     wait: 500,
@@ -51,7 +51,7 @@ export function VoiceContent({
 
     const [srcState, loadSrc] = useAsyncCallback(
         useCallback(
-            () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo, mx, !('cordova' in window)),
+            () => getFileSrcUrl(mxcUrlToHttp(mx, url) ?? '', mimeType, encInfo, mx, !('cordova' in window)),
             [mx, url, mimeType, encInfo]
         )
     );

@@ -12,6 +12,7 @@ import { PageHero } from '../../components/page';
 import { onEnterOrSpace } from '../../utils/keyboard';
 import { Dialog } from '@mui/material';
 import { BackButtonHandler } from '../../hooks/useBackButton';
+import { mxcUrlToHttp } from '../../utils/matrix';
 
 export function LobbyHero() {
     const mx = useMatrixClient();
@@ -20,7 +21,7 @@ export function LobbyHero() {
     const name = useRoomName(space);
     const topic = useRoomTopic(space);
     const avatarMxc = useRoomAvatar(space);
-    const avatarUrl = avatarMxc ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
+    const avatarUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, 96, 96, 'crop') ?? undefined : undefined;
 
     return (
         <PageHero

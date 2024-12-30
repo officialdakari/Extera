@@ -29,6 +29,7 @@ import { v4 } from 'uuid';
 import { generateConferenceID } from '../../../util/conferenceID';
 import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
 import wallpaperDB from '../../utils/wallpaper';
+import { mxcUrlToHttp } from '../../utils/matrix';
 
 export function RoomView({ room, eventId }: { room: Room; eventId?: string; }) {
     const roomInputRef = useRef(null);
@@ -79,7 +80,7 @@ export function RoomView({ room, eventId }: { room: Room; eventId?: string; }) {
             matrix_user_id: myUserId,
             matrix_room_id: room.roomId,
             matrix_display_name: profile?.displayName ?? myUserId,
-            matrix_avatar_url: profile?.avatarUrl && mx.mxcUrlToHttp(profile?.avatarUrl),
+            matrix_avatar_url: profile?.avatarUrl && mxcUrlToHttp(mx, profile?.avatarUrl, undefined, undefined, undefined, true),
             ...content.data
         };
         var url = `${content.url}`; // Should not be a reference

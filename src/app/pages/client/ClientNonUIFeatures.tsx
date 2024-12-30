@@ -22,7 +22,7 @@ import {
     isNotificationEvent,
 } from '../../utils/room';
 import { NotificationType, UnreadInfo } from '../../../types/matrix/room';
-import { getMxIdLocalPart } from '../../utils/matrix';
+import { getMxIdLocalPart, mxcUrlToHttp } from '../../utils/matrix';
 import { useSelectedRoom } from '../../hooks/router/useSelectedRoom';
 import { useInboxNotificationsSelected } from '../../hooks/router/useInbox';
 import { enablePush } from '../../../push';
@@ -197,7 +197,7 @@ function MessageNotifications() {
                                 plugin.local.schedule({
                                     id,
                                     title: roomName,
-                                    icon: roomAvatar ? mx.mxcUrlToHttp(roomAvatar, 96, 96, 'scale', true) : undefined,
+                                    icon: roomAvatar ? mxcUrlToHttp(mx, roomAvatar, 96, 96, 'scale', true) : undefined,
                                     text,
                                     data: {
                                         roomId
@@ -266,7 +266,7 @@ function MessageNotifications() {
                 notify({
                     roomName: room.name ?? 'Unknown',
                     roomAvatar: avatarMxc
-                        ? mx.mxcUrlToHttp(avatarMxc, 96, 96, 'crop') ?? undefined
+                        ? mxcUrlToHttp(mx, avatarMxc, 96, 96, 'crop') ?? undefined
                         : undefined,
                     username: getMemberDisplayName(room, sender) ?? getMxIdLocalPart(sender) ?? sender,
                     roomId: room.roomId,

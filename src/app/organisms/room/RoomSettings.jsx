@@ -185,7 +185,6 @@ function RoomMembersItem({ room, onClick }) {
 }
 
 function RoomSettings() {
-    const mx = useMatrixClient();
     const [selectedTab, setSelectedTab] = useState(0);
     const [isEditing, setEditing] = useState(false);
     const [window, requestClose] = useWindowToggle(setSelectedTab);

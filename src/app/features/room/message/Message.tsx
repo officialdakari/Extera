@@ -41,7 +41,7 @@ import {
     getMemberAvatarMxc,
     getMemberDisplayName,
 } from '../../../utils/room';
-import { getCanonicalAliasOrRoomId, getMxIdLocalPart, isRoomId, isUserId } from '../../../utils/matrix';
+import { getCanonicalAliasOrRoomId, getMxIdLocalPart, isRoomId, isUserId, mxcUrlToHttp } from '../../../utils/matrix';
 import { MessageLayout, MessageSpacing, settingsAtom } from '../../../state/settings';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { useRecentEmoji } from '../../../hooks/useRecentEmoji';
@@ -300,7 +300,7 @@ export const MessageFileDownloadItem = as<
     const mxc = url ?? content.file?.url;
     const fileInfo = content?.info;
     const handleClick = async () => {
-        const httpUrl = mx.mxcUrlToHttp(mxc, undefined, undefined, undefined, false, true, true);
+        const httpUrl = mxcUrlToHttp(mx, mxc);
         if (!httpUrl) return onClose?.();
         const Url = await getFileSrcUrl(
             httpUrl,
@@ -1265,7 +1265,7 @@ export const Message = as<'div', MessageProps>(
                         userId={senderId}
                         src={
                             senderAvatarMxc
-                                ? mx.mxcUrlToHttp(senderAvatarMxc, 48, 48, 'crop') ?? undefined
+                                ? mxcUrlToHttp(mx, senderAvatarMxc, 48, 48, 'crop') ?? undefined
                                 : undefined
                         }
                         alt={senderDisplayName}

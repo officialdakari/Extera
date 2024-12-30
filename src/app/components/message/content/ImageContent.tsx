@@ -5,7 +5,6 @@ import {
 } from 'folds';
 import classNames from 'classnames';
 import { BlurhashCanvas } from 'react-blurhash';
-import FocusTrap from 'focus-trap-react';
 import { EncryptedAttachmentInfo } from 'browser-encrypt-attachment';
 import { IImageInfo, MATRIX_BLUR_HASH_PROPERTY_NAME } from '../../../../types/matrix/common';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
@@ -14,13 +13,11 @@ import { getFileSrcUrl } from './util';
 import * as css from './style.css';
 import { bytesToSize } from '../../../utils/common';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
-import { RenderBody } from '../RenderBody';
-import HTMLReactParser, { HTMLReactParserOptions } from 'html-react-parser';
-import { getReactCustomHtmlParser } from '../../../plugins/react-custom-html-parser';
 import { getText } from '../../../../lang';
 import { mdiAlert, mdiImage } from '@mdi/js';
 import Icon from '@mdi/react';
-import { Button, CircularProgress, Dialog, DialogTitle, Tooltip } from '@mui/material';
+import { Button, CircularProgress, Dialog, Tooltip } from '@mui/material';
+import { mxcUrlToHttp } from '../../../utils/matrix';
 
 type RenderViewerProps = {
     src: string;
@@ -77,7 +74,7 @@ export const ImageContent = as<'div', ImageContentProps>(
 
         const [srcState, loadSrc] = useAsyncCallback(
             useCallback(
-                () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType || FALLBACK_MIMETYPE, encInfo, mx),
+                () => getFileSrcUrl(mxcUrlToHttp(mx, url) ?? '', mimeType || FALLBACK_MIMETYPE, encInfo, mx),
                 [mx, url, mimeType, encInfo]
             )
         );

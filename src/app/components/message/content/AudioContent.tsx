@@ -21,6 +21,7 @@ import Icon from '@mdi/react';
 import { mdiPause, mdiPlayOutline, mdiVolumeHigh, mdiVolumeMute } from '@mdi/js';
 import { CircularProgress, IconButton, Slider } from '@mui/material';
 import { AccessTime, Pause, PlayArrow } from '@mui/icons-material';
+import { mxcUrlToHttp } from '../../../utils/matrix';
 
 const PLAY_TIME_THROTTLE_OPS = {
     wait: 500,
@@ -51,7 +52,7 @@ export function AudioContent({
 
     const [srcState, loadSrc] = useAsyncCallback(
         useCallback(
-            () => getFileSrcUrl(mx.mxcUrlToHttp(url, undefined, undefined, undefined, false, true, true) ?? '', mimeType, encInfo, mx, !('cordova' in window)),
+            () => getFileSrcUrl(mxcUrlToHttp(mx, url) ?? '', mimeType, encInfo, mx, !('cordova' in window)),
             [mx, url, mimeType, encInfo]
         )
     );
