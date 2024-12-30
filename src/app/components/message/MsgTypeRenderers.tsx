@@ -9,6 +9,7 @@ import {
     MessageBlockedContent,
     MessageBrokenContent,
     MessageDeletedContent,
+    MessageEditedContent,
     MessageUnsupportedContent,
     PollContent
 } from './content';
@@ -39,6 +40,8 @@ import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 
 import "leaflet/dist/leaflet.css";
 import { openReusableDialog } from '../../../client/action/navigation';
+import { useSetting } from '../../state/hooks/settings';
+import { settingsAtom } from '../../state/settings';
 
 export function MBadEncrypted() {
     return (
@@ -100,6 +103,7 @@ export function MText({ edited, content, renderBody, renderUrlsPreview }: MTextP
     const trimmedBody = trimReplyFromBody(body);
     const urlsMatch = renderUrlsPreview && trimmedBody.match(URL_REG);
     const urls = urlsMatch ? [...new Set(urlsMatch)] : undefined;
+    const [messageLayout] = useSetting(settingsAtom, 'messageLayout');
 
     return (
         <>
@@ -111,6 +115,7 @@ export function MText({ edited, content, renderBody, renderUrlsPreview }: MTextP
                     body: trimmedBody,
                     customBody: typeof customBody === 'string' ? customBody : undefined,
                 })}
+                {messageLayout !== 2 && edited && <MessageEditedContent />}
             </MessageTextBody>
             {renderUrlsPreview && urls && urls.length > 0 && renderUrlsPreview(urls)}
         </>
