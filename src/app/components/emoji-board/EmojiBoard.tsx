@@ -469,7 +469,7 @@ export function SearchEmojiGroup({
                                 loading="lazy"
                                 className={css.CustomEmojiImg}
                                 alt={emoji.body || emoji.shortcode}
-                                src={mx.mxcUrlToHttp(emoji.url) ?? emoji.url}
+                                src={mxcUrlToHttp(mx, emoji.url) ?? emoji.url}
                             />
                         </EmojiItem>
                     )
@@ -487,7 +487,7 @@ export function SearchEmojiGroup({
                                 loading="lazy"
                                 className={css.StickerImg}
                                 alt={emoji.body || emoji.shortcode}
-                                src={mx.mxcUrlToHttp(emoji.url) ?? emoji.url}
+                                src={mxcUrlToHttp(mx, emoji.url) ?? emoji.url}
                             />
                         </StickerItem>
                     )
@@ -513,7 +513,7 @@ export const CustomEmojiGroups = memo(
                                 loading="lazy"
                                 className={css.CustomEmojiImg}
                                 alt={image.body || image.shortcode}
-                                src={mx.mxcUrlToHttp(image.url) ?? image.url}
+                                src={mxcUrlToHttp(mx, image.url) ?? image.url}
                             />
                         </EmojiItem>
                     ))}
@@ -556,7 +556,7 @@ export const StickerGroups = memo(({ mx, groups }: { mx: MatrixClient; groups: I
                             loading="lazy"
                             className={css.StickerImg}
                             alt={image.body || image.shortcode}
-                            src={mx.mxcUrlToHttp(image.url) ?? image.url}
+                            src={mxcUrlToHttp(mx, image.url) ?? image.url}
                         />
                     </StickerItem>
                 ))}
@@ -716,7 +716,7 @@ export function EmojiBoard({
             } else if (emojiInfo.type === EmojiType.CustomEmoji && emojiPreviewRef.current) {
                 const img = document.createElement('img');
                 img.className = css.CustomEmojiImg;
-                img.setAttribute('src', mx.mxcUrlToHttp(emojiInfo.data) || emojiInfo.data);
+                img.setAttribute('src', mxcUrlToHttp(mx, emojiInfo.data) || emojiInfo.data);
                 img.setAttribute('alt', emojiInfo.shortcode);
                 emojiPreviewRef.current.textContent = '';
                 emojiPreviewRef.current.appendChild(img);

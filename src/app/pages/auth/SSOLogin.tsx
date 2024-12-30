@@ -3,6 +3,7 @@ import { IIdentityProvider, createClient } from 'matrix-js-sdk';
 import React, { useMemo } from 'react';
 import { useAutoDiscoveryInfo } from '../../hooks/useAutoDiscoveryInfo';
 import { getText } from '../../../lang';
+import { mxcUrlToHttp } from '../../utils/matrix';
 
 type SSOLoginProps = {
     providers: IIdentityProvider[];
@@ -17,14 +18,14 @@ export function SSOLogin({ providers, redirectUrl, asIcons }: SSOLoginProps) {
     const getSSOIdUrl = (ssoId: string): string => mx.getSsoLoginUrl(redirectUrl, 'sso', ssoId);
 
     const anyAsBtn = providers.find(
-        (provider) => !provider.icon || !mx.mxcUrlToHttp(provider.icon, 96, 96, 'crop', false)
+        (provider) => !provider.icon || !mxcUrlToHttp(mx, provider.icon, 96, 96, 'crop')
     );
 
     return (
         <Box justifyContent="Center" gap="600" wrap="Wrap">
             {providers.map((provider) => {
                 const { id, name, icon } = provider;
-                const iconUrl = icon && mx.mxcUrlToHttp(icon, 96, 96, 'crop', false);
+                const iconUrl = icon && mxcUrlToHttp(mx, icon, 96, 96, 'crop');
 
                 const buttonTitle = getText('sso.continue_with', name);
 

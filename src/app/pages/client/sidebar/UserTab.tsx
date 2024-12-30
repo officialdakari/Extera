@@ -5,7 +5,7 @@ import { SidebarItem, SidebarItemTooltip, SidebarAvatar } from '../../../compone
 import { openSettings } from '../../../../client/action/navigation';
 import { UserAvatar } from '../../../components/user-avatar';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { getMxIdLocalPart } from '../../../utils/matrix';
+import { getMxIdLocalPart, mxcUrlToHttp } from '../../../utils/matrix';
 import { nameInitials } from '../../../utils/common';
 import { getText } from '../../../../lang';
 import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
@@ -30,7 +30,7 @@ export function UserTab({ onClose }: UserTabProps) {
     });
     const [displayName, setDisplayName] = useState(profile.displayname ?? getMxIdLocalPart(userId) ?? userId);
     const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url
-        ? mx.mxcUrlToHttp(profile.avatar_url, 96, 96, 'crop') ?? undefined
+        ? mxcUrlToHttp(mx, profile.avatar_url, 96, 96, 'crop') ?? undefined
         : undefined);
 
     useEffect(() => {
@@ -64,7 +64,7 @@ export function UserTab({ onClose }: UserTabProps) {
     useEffect(() => {
         setDisplayName(profile.displayname ?? getMxIdLocalPart(userId) ?? userId);
         setAvatarUrl(profile.avatar_url
-            ? mx.mxcUrlToHttp(profile.avatar_url, 96, 96, 'crop') ?? undefined
+            ? mxcUrlToHttp(mx, profile.avatar_url, 96, 96, 'crop') ?? undefined
             : undefined);
     }, [mx, userId, user, profile]);
 

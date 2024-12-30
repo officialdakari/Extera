@@ -338,7 +338,7 @@ export function RoomViewHeader({
                     matrix_user_id: userId,
                     matrix_room_id: room.roomId,
                     matrix_display_name: profile?.displayName ?? userId,
-                    matrix_avatar_url: profile?.avatarUrl && mx.mxcUrlToHttp(profile?.avatarUrl),
+                    matrix_avatar_url: profile?.avatarUrl && mxcUrlToHttp(mx, profile?.avatarUrl),
                     ...content.data
                 };
                 var url = `${content.url}`; // Should not be a reference

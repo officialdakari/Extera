@@ -489,13 +489,11 @@ function ProfileViewer() {
         const membership = roomState.getStateEvents('m.room.member', userId);
         const membershipContent = membership?.getContent() ?? {};
 
-        const bannerUrl = useMemo(() => {
-            if (typeof membershipContent[cons.EXTERA_BANNER_URL] === 'string' && membershipContent[cons.EXTERA_BANNER_URL].startsWith('mxc://')) {
-                return mxcUrlToHttp(mx, membershipContent[cons.EXTERA_BANNER_URL]);
-            } else {
-                return null;
-            }
-        }, [mx, membershipContent]);
+        var bannerUrl;
+
+        if (typeof membershipContent[cons.EXTERA_BANNER_URL] === 'string' && membershipContent[cons.EXTERA_BANNER_URL].startsWith('mxc://')) {
+            bannerUrl = mxcUrlToHttp(mx, membershipContent[cons.EXTERA_BANNER_URL]);
+        }
 
         const canChangeRole =
             room.currentState.maySendEvent('m.room.power_levels', mx.getUserId()) &&
