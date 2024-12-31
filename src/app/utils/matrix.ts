@@ -289,3 +289,10 @@ export const removeRoomIdFromMDirect = async (mx: MatrixClient, roomId: string):
 export const mxcUrlToHttp = (mx: MatrixClient, mxcUrl: string, width?: number, height?: number, resizeMethod?: 'crop' | 'scale', doNotAuthenticate?: boolean, allowDirect?: boolean) => {
     return mx.mxcUrlToHttp(mxcUrl, width, height, resizeMethod, allowDirect, true, !doNotAuthenticate);
 };
+
+export const getRoomTags = (mx: MatrixClient, room: Room) => {
+    const tagEvent = room.getAccountData('m.tag');
+    if (!tagEvent) return {};
+    const content = tagEvent.getContent();
+    return content['tags'];
+}

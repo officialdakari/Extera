@@ -34,7 +34,7 @@ import {
     getSpaceSearchPath,
     withOriginBaseUrl,
 } from '../../pathUtils';
-import { getCanonicalAliasOrRoomId } from '../../../utils/matrix';
+import { getCanonicalAliasOrRoomId, getRoomTags } from '../../../utils/matrix';
 import { useSelectedRoom } from '../../../hooks/router/useSelectedRoom';
 import {
     useSpaceLobbySelected,
@@ -333,6 +333,7 @@ export function Space() {
                             const { roomId } = hierarchy[vItem.index] ?? {};
                             const room = mx.getRoom(roomId);
                             if (!room) return null;
+                            const tags = getRoomTags(mx, room);
 
                             if (room.isSpaceRoom()) {
                                 const categoryId = makeNavCategoryId(space.roomId, roomId);
@@ -367,6 +368,7 @@ export function Space() {
                                         direct={mDirects.has(roomId)}
                                         linkPath={getToLink(roomId)}
                                         muted={mutedRooms.includes(roomId)}
+                                        pinned={'m.favourite' in tags}
                                     />
                                 </VirtualTile>
                             );

@@ -31,7 +31,7 @@ import {
     NavItemContent,
 } from '../../../components/nav';
 import { getDirectRoomPath } from '../../pathUtils';
-import { getCanonicalAliasOrRoomId } from '../../../utils/matrix';
+import { getCanonicalAliasOrRoomId, getRoomTags } from '../../../utils/matrix';
 import { useSelectedRoom } from '../../../hooks/router/useSelectedRoom';
 import { VirtualTile } from '../../../components/virtualizer';
 import { RoomNavCategoryButton, RoomNavItem } from '../../../features/room-nav';
@@ -225,6 +225,7 @@ export function Direct() {
                                 const room = mx.getRoom(roomId);
                                 if (!room) return null;
                                 const selected = selectedRoomId === roomId;
+                                const tags = getRoomTags(mx, room);
 
                                 return (
                                     <VirtualTile
@@ -239,6 +240,7 @@ export function Direct() {
                                             direct
                                             linkPath={getDirectRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
                                             muted={mutedRooms.includes(roomId)}
+                                            pinned={'m.favourite' in tags}
                                         />
                                     </VirtualTile>
                                 );

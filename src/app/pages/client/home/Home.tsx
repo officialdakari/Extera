@@ -31,7 +31,7 @@ import {
     NavLink,
 } from '../../../components/nav';
 import { getExplorePath, getHomeRoomPath, getHomeSearchPath } from '../../pathUtils';
-import { getCanonicalAliasOrRoomId } from '../../../utils/matrix';
+import { getCanonicalAliasOrRoomId, getRoomTags } from '../../../utils/matrix';
 import { useSelectedRoom } from '../../../hooks/router/useSelectedRoom';
 import { useHomeSearchSelected } from '../../../hooks/router/useHomeSelected';
 import { useHomeRooms } from './useHomeRooms';
@@ -237,6 +237,7 @@ export function Home() {
                                     const room = mx.getRoom(roomId);
                                     if (!room) return null;
                                     const selected = selectedRoomId === roomId;
+                                    const tags = getRoomTags(mx, room);
 
                                     return (
                                         <VirtualTile
@@ -250,6 +251,7 @@ export function Home() {
                                                 showAvatar
                                                 linkPath={getHomeRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
                                                 muted={mutedRooms.includes(roomId)}
+                                                pinned={'m.favourite' in tags}
                                             />
                                         </VirtualTile>
                                     );

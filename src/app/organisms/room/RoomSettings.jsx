@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import './RoomSettings.scss';
 
@@ -20,8 +20,8 @@ import { getText } from '../../../lang';
 import { BackButtonHandler } from '../../hooks/useBackButton';
 import { mdiAccount, mdiBell, mdiBellAlert, mdiBellOff, mdiBellRing, mdiCog, mdiEmoticon, mdiLock, mdiShield } from '@mdi/js';
 import Icon from '@mdi/react';
-import { AppBar, Box, Button, Dialog, Divider, IconButton, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Tab, Tabs, Toolbar, Typography, useTheme } from '@mui/material';
-import { Add, ArrowBack, Edit, EmojiEmotionsOutlined, KeyOutlined, People, PersonAddOutlined, SecurityOutlined, Share } from '@mui/icons-material';
+import { AppBar, Box, Button, Dialog, Divider, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Switch, Tab, Tabs, Toolbar, Typography, useTheme } from '@mui/material';
+import { Add, ArrowBack, Edit, EmojiEmotionsOutlined, KeyOutlined, People, PersonAddOutlined, PushPin, PushPinOutlined, SecurityOutlined, Share } from '@mui/icons-material';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useRoomTopic } from '../../hooks/useRoomMeta';
@@ -37,6 +37,11 @@ import { UseStateProvider } from '../../components/UseStateProvider';
 import TransparentAppBar from '../../atoms/transparent-appbar/TransparentAppBar';
 import { StateEvent } from '../../../types/matrix/room';
 import { openInviteUser } from '../../../client/action/navigation';
+import { Room } from 'matrix-js-sdk';
+import { getRoomTags } from '../../utils/matrix';
+import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
+import { useForceUpdate } from '../../hooks/useForceUpdate';
+import useRoomTags from '../../hooks/useRoomTags';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
@@ -184,6 +189,44 @@ function RoomMembersItem({ room, onClick }) {
     );
 }
 
+function RoomPinnedItem({ room }) {
+    const mx = useMatrixClient();
+    const tags = useRoomTags(room);
+    const isFavourite = useMemo(() => 'm.favourite' in tags, [mx, room, tags]);
+    const [, forceUpdate] = useForceUpdate();
+
+    const [changeState, change] = useAsyncCallback(
+        useCallback(async () => {
+            if (!isFavourite) await mx.setRoomTag(room.roomId, 'm.favourite');
+            else await mx.deleteRoomTag(room.roomId, 'm.favourite');
+            forceUpdate();
+        }, [mx, tags, room])
+    );
+
+    return (
+        <ListItem
+            disablePadding
+            secondaryAction={
+                <Switch
+                    checked={isFavourite}
+                    onClick={change}
+                    disabled={changeState.status == AsyncStatus.Loading}
+                />
+            }
+        >
+            <ListItemButton>
+                <ListItemIcon>
+                    <PushPin />
+                </ListItemIcon>
+                <ListItemText
+                    primary={getText('room.pin.title')}
+                    secondary={getText('room.pin.desc')}
+                />
+            </ListItemButton>
+        </ListItem>
+    );
+}
+
 function RoomSettings() {
     const [selectedTab, setSelectedTab] = useState(0);
     const [isEditing, setEditing] = useState(false);
@@ -264,6 +307,7 @@ function RoomSettings() {
                                 <RoomTopic room={room} onEdit={() => setEditing(true)} />
                             </div>
                             <Divider />
+                            <RoomPinnedItem room={room} />
                             <RoomNotificationItem room={room} onClick={() => setSelectedTab(1)} />
                             <RoomMembersItem room={room} onClick={() => setSelectedTab(2)} />
                             <ListItemButton onClick={() => setSelectedTab(3)}>

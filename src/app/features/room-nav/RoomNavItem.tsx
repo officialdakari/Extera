@@ -38,7 +38,9 @@ import { getText } from '../../../lang';
 import cons from '../../../client/state/cons';
 import { Time } from '../../components/message';
 import { Badge, Divider, IconButton, Link, ListItemIcon, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
-import { ArrowBack, DoneAll, MoreVert, NotificationsOff, PersonAdd, Settings, Link as LinkIcon } from '@mui/icons-material';
+import { ArrowBack, DoneAll, MoreVert, NotificationsOff, PersonAdd, Settings, Link as LinkIcon, PushPin, PushPinOutlined } from '@mui/icons-material';
+import Icon from '@mdi/react';
+import { mdiPin, mdiPinOffOutline, mdiPinOutline } from '@mdi/js';
 
 type RoomNavItemMenuProps = {
     room: Room;
@@ -157,6 +159,8 @@ type RoomNavItemProps = {
     muted?: boolean;
     showAvatar?: boolean;
     direct?: boolean;
+    pinned?: boolean;
+    lowPriority?: boolean;
 };
 export function RoomNavItem({
     room,
@@ -165,6 +169,7 @@ export function RoomNavItem({
     direct,
     muted,
     linkPath,
+    pinned
 }: RoomNavItemProps) {
     const mx = useMatrixClient();
     const [hover, setHover] = useState(false);
@@ -262,7 +267,8 @@ export function RoomNavItem({
                         </Badge>
                         <Box as="span" grow="Yes" direction='Column'>
                             <Box as="span" grow="Yes" direction='Row' justifyContent='SpaceBetween'>
-                                <Text priority={unread ? '500' : '300'} as="span" size="Inherit" truncate>
+                                <Text priority={unread ? '500' : '300'} as="span" size="Inherit" style={{ display: 'flex', alignItems: 'end' }} truncate>
+                                    {pinned && <Icon path={mdiPin} size={0.8} />}
                                     {room.name}
                                 </Text>
                                 {lastEvent && (
