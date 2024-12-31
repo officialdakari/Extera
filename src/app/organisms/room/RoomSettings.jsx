@@ -42,6 +42,7 @@ import { getRoomTags } from '../../utils/matrix';
 import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 import useRoomTags from '../../hooks/useRoomTags';
+import { LeaveRoomPrompt } from '../../components/leave-room-prompt';
 
 const tabText = {
     GENERAL: getText('room_settings.general'),
