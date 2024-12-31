@@ -286,6 +286,6 @@ export const removeRoomIdFromMDirect = async (mx: MatrixClient, roomId: string):
     await mx.setAccountData(AccountDataEvent.Direct, userIdToRoomIds);
 };
 
-export const mxcUrlToHttp = (mx: MatrixClient, mxcUrl: string, width?: number, height?: number, resizeMethod?: 'crop' | 'scale', doNotAuthenticate?: boolean) => {
-    return mx.mxcUrlToHttp(mxcUrl, width, height, resizeMethod, false, true, !doNotAuthenticate);
+export const mxcUrlToHttp = (mx: MatrixClient, mxcUrl: string, width?: number, height?: number, resizeMethod?: 'crop' | 'scale', doNotAuthenticate?: boolean, allowDirect?: boolean) => {
+    return mx.mxcUrlToHttp(mxcUrl, width, height, resizeMethod, allowDirect, true, !doNotAuthenticate);
 };

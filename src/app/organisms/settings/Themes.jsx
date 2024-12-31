@@ -53,7 +53,7 @@ export default function Themes() {
     const onAdd = (evt) => {
         evt.preventDefault();
         const { name, url } = evt.target.elements;
-        const cssUrl = mxcUrlToHttp(mx, url.value);
+        const cssUrl = mxcUrlToHttp(mx, url.value, undefined, undefined, undefined, false, true);
         setThemes([
             ...themes,
             {
