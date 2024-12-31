@@ -10,7 +10,7 @@ function ImagePackUsageSelector({ usage, onSelect }) {
         <Paper>
             <MenuItem
                 selected={usage === 'emoticon'}
-                onClick={() => onSelect('emoji')}
+                onClick={() => onSelect('emoticon')}
             >
                 {getText('image.usage.emoji')}
             </MenuItem>

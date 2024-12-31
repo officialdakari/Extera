@@ -43,7 +43,7 @@ const renameImagePackItem = (shortcode) => new Promise((resolve) => {
             >
                 <DialogContent>
                     <TextField
-                        value={shortcode}
+                        defaultValue={shortcode}
                         name="shortcode"
                         label="Shortcode"
                         autoFocus
