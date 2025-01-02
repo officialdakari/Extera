@@ -334,35 +334,36 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 return {};
             }
 
-            if (plainText === '') return {};
-
-            let body = plainText;
-            let formattedBody = customHtml;
-            if (replyDraft && replyFallbacks) {
-                body = parseReplyBody(replyDraft.userId, trimReplyFromBody(replyDraft.body)) + body;
-                formattedBody =
-                    parseReplyFormattedBody(
-                        roomId,
-                        replyDraft.userId,
-                        replyDraft.eventId,
-                        replyDraft.formattedBody
-                            ? trimReplyFromFormattedBody(replyDraft.formattedBody)
-                            : sanitizeText(replyDraft.body)
-                    ) + formattedBody;
-            }
-
             const content: IContent = {
                 msgtype: msgType,
-                body,
                 'm.mentions': {
                     user_ids,
                     room
                 },
             };
 
-            if (replyDraft || !customHtmlEqualsPlainText(formattedBody, body)) {
-                content.format = 'org.matrix.custom.html';
-                content.formatted_body = formattedBody;
+            if (plainText !== '') {
+                let body = plainText;
+                let formattedBody = customHtml;
+                if (replyDraft && replyFallbacks) {
+                    body = parseReplyBody(replyDraft.userId, trimReplyFromBody(replyDraft.body)) + body;
+                    formattedBody =
+                        parseReplyFormattedBody(
+                            roomId,
+                            replyDraft.userId,
+                            replyDraft.eventId,
+                            replyDraft.formattedBody
+                                ? trimReplyFromFormattedBody(replyDraft.formattedBody)
+                                : sanitizeText(replyDraft.body)
+                        ) + formattedBody;
+                }
+
+                content.body = body;
+
+                if (replyDraft || !customHtmlEqualsPlainText(formattedBody, body)) {
+                    content.format = 'org.matrix.custom.html';
+                    content.formatted_body = formattedBody;
+                }
             }
 
             if (replyDraft && replyMention) {
@@ -464,10 +465,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         useEffect(() => {
             if (!ar.isRecording && ar.blob) sendVoice();
         }, [ar.blob]);
-
-        const readReceipt = useCallback(() => {
-            markAsRead(roomId);
-        }, [mx, roomId]);
 
         const handleChange = useCallback(
             (nt: string) => {
@@ -811,7 +808,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                     </IconButton>
                                 </>
                             )}
-                            {(isEmptyEditor(textAreaRef) && !ar.isRecording && voiceMessages) ? (
+                            {(isEmptyEditor(textAreaRef) && !uploadBoard && !ar.isRecording && voiceMessages) ? (
                                 <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={recordVoice}>
                                     <Icon size={1} path={mdiMicrophone} />
                                 </IconButton>

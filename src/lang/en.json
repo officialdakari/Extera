@@ -1040,5 +1040,6 @@
     "app.desc": "A feature-rich Matrix client with Material-designed UI. Fork of Cinny.",
     "btn.clear_cache": "Clear cache & reload",
     "room.pin.title": "Mark as favourite",
-    "room.pin.desc": "Always show this room at top."
+    "room.pin.desc": "Always show this room at top.",
+    "error.message": "Could not load message."
 }
