@@ -291,13 +291,6 @@ function RoomAliases({ roomId }) {
     if (validate.status === cons.status.ERROR) inputState = 'error';
     if (validate.status === cons.status.SUCCESS) inputState = 'success';
     return (
-        <Accordion>
-            <AccordionSummary
-                expandIcon={<ExpandMore />}
-            >
-                {getText('room_aliases')}
-            </AccordionSummary>
-            <AccordionDetails>
                 <div className="room-aliases">
                     <SettingTile
                         title={getText('room_aliases.publish.title')}
@@ -353,8 +346,6 @@ function RoomAliases({ roomId }) {
                         </Button>
                     </div>
                 </div>
-            </AccordionDetails>
-        </Accordion>
     );
 }
 

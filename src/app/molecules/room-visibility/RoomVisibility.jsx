@@ -98,13 +98,6 @@ function RoomVisibility({ roomId }) {
     }];
 
     return (
-        <Accordion>
-            <AccordionSummary
-                expandIcon={<ExpandMore />}
-            >
-                {getText('room_visibility')}
-            </AccordionSummary>
-            <AccordionDetails>
                 <List>
                     <RadioGroup>
                         {
@@ -129,8 +122,6 @@ function RoomVisibility({ roomId }) {
                         }
                     </RadioGroup>
                 </List>
-            </AccordionDetails>
-        </Accordion>
     );
 }
 

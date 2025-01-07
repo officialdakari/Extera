@@ -87,6 +87,10 @@ function SecuritySettings({ roomId }) {
             <RoomEncryption roomId={roomId} />
             <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room_settings.menuheader.history')}</ListSubheader>
             <RoomHistoryVisibility roomId={roomId} />
+            <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room_visibility')}</ListSubheader>
+            <RoomVisibility roomId={roomId} />
+            <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room_aliases')}</ListSubheader>
+            <RoomAliases roomId={roomId} />
         </>
     );
 }

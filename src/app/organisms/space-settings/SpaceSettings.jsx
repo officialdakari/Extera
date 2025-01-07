@@ -72,7 +72,9 @@ function GeneralSettings({ roomId }) {
 
     return (
         <div className='space-settings__card'>
+            <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room_visibility')}</ListSubheader>
             <RoomVisibility roomId={roomId} />
+            <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room_aliases')}</ListSubheader>
             <RoomAliases roomId={roomId} />
         </div>
     );
@@ -155,11 +157,10 @@ function SpaceSettings() {
                         component='div'
                         flexGrow={1}
                     >
-                        {selectedTab === 1 && getText('room_notification')}
-                        {selectedTab === 2 && getText('room_settings.members')}
-                        {selectedTab === 3 && getText('room_settings.emojis')}
+                        {selectedTab === 1 && getText('room_settings.members')}
+                        {selectedTab === 2 && getText('room_settings.emojis')}
                         {selectedTab === 4 && getText('room_settings.security')}
-                        {selectedTab === 5 && getText('room_settings.permissions')}
+                        {selectedTab === 3 && getText('room_settings.permissions')}
                     </Typography>
                     {selectedTab === 0 && (
                         <IconButton
