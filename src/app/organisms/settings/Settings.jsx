@@ -881,7 +881,7 @@ function Settings() {
             <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
             <Divider />
             <List>
-                <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('settings.header')}</ListSubheader>
+                <ListSubheader sx={{ bgcolor: 'transparent' }} disableSticky>{getText('settings.header')}</ListSubheader>
                 {tabItems.map((tab, i) => (
                     <ListItemButton selected={i === selectedTab} onClick={() => setSelectedTab(i)}>
                         <ListItemIcon>

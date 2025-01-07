@@ -83,13 +83,13 @@ const tabItems = [
 function SecuritySettings({ roomId }) {
     return (
         <>
-            <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room_settings.menuheader.encryption')}</ListSubheader>
+            <ListSubheader sx={{ bgcolor: 'transparent' }} disableSticky>{getText('room_settings.menuheader.encryption')}</ListSubheader>
             <RoomEncryption roomId={roomId} />
-            <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room_settings.menuheader.history')}</ListSubheader>
+            <ListSubheader sx={{ bgcolor: 'transparent' }} disableSticky>{getText('room_settings.menuheader.history')}</ListSubheader>
             <RoomHistoryVisibility roomId={roomId} />
-            <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room_visibility')}</ListSubheader>
+            <ListSubheader sx={{ bgcolor: 'transparent' }} disableSticky>{getText('room_visibility')}</ListSubheader>
             <RoomVisibility roomId={roomId} />
-            <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room_aliases')}</ListSubheader>
+            <ListSubheader sx={{ bgcolor: 'transparent' }} disableSticky>{getText('room_aliases')}</ListSubheader>
             <RoomAliases roomId={roomId} />
         </>
     );
@@ -123,7 +123,7 @@ function RoomTopic({ room, onEdit }) {
     const canEdit = useMemo(() => room.currentState.maySendEvent(StateEvent.RoomTopic), [room]);
     return (
         <>
-            <ListSubheader sx={{ bgcolor: 'transparent' }}>{getText('room.topic')}</ListSubheader>
+            <ListSubheader sx={{ bgcolor: 'transparent' }} disableSticky>{getText('room.topic')}</ListSubheader>
             {topic && (
                 <Text variant='b3'>
                     <Linkify options={LINKIFY_OPTS}>{topic}</Linkify>
