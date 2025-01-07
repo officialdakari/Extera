@@ -1,8 +1,14 @@
-export function initEruda() {
-    const script = document.createElement('script');
-    script.src="https://unpkg.com/eruda@3.2.3/eruda.js";
-    document.body.append(script);
-    script.onload = function () { 
-        eruda.init(); 
-    };
+import eruda from "eruda";
+import { confirmDialog } from "../molecules/confirm-dialog/ConfirmDialog";
+import { getText } from "../../lang";
+
+export async function initEruda() {
+    if (await confirmDialog(
+        getText('eruda.warning.title'),
+        getText('eruda.warning.desc'),
+        'Continue anyway',
+        'error'
+    )) {
+        eruda.init();
+    }
 }

@@ -8,10 +8,6 @@ import { openReusableDialog } from '../../../client/action/navigation';
 import { deletePrivateKey } from '../../../client/state/secretStorageKeys';
 
 import Text from '../../atoms/text/Text';
-import Button from '../../atoms/button/Button';
-import IconButton from '../../atoms/button/IconButton';
-import Spinner from '../../atoms/spinner/Spinner';
-import InfoCard from '../../atoms/card/InfoCard';
 import SettingTile from '../../molecules/setting-tile/SettingTile';
 
 import { accessSecretStorage } from './SecretStorageAccess';
@@ -19,7 +15,8 @@ import { accessSecretStorage } from './SecretStorageAccess';
 import { useStore } from '../../hooks/useStore';
 import { useCrossSigningStatus } from '../../hooks/useCrossSigningStatus';
 import { getText } from '../../../lang';
-import { mdiDelete, mdiDownload, mdiInformation, mdiInformationOutline } from '@mdi/js';
+import { Alert, Button, CircularProgress, IconButton, Tooltip } from '@mui/material';
+import { Delete, Download } from '@mui/icons-material';
 
 function CreateKeyBackupDialog({ keyData }) {
     const [done, setDone] = useState(false);
@@ -53,7 +50,7 @@ function CreateKeyBackupDialog({ keyData }) {
         <div className="key-backup__create">
             {done === false && (
                 <div>
-                    <Spinner size="small" />
+                    <CircularProgress />
                     <Text>{getText('key_backup.creating')}</Text>
                 </div>
             )}
@@ -123,7 +120,7 @@ function RestoreKeyBackupDialog({ keyData }) {
         <div className="key-backup__restore">
             {(status === false || status.message) && (
                 <div>
-                    <Spinner size="small" />
+                    <CircularProgress />
                     <Text>{status.message ?? getText('key_backup.restoring.2')}</Text>
                 </div>
             )}
@@ -171,7 +168,7 @@ function DeleteKeyBackupDialog({ requestClose }) {
             <Text weight="medium">{getText('key_backup.delete.warning')}</Text>
             <Text>{getText('key_backup.delete.warning.2')}</Text>
             {isDeleting ? (
-                <Spinner size="small" />
+                <CircularProgress />
             ) : (
                 <Button variant="danger" onClick={deleteBackup}>
                     {getText('btn.key_backup.delete')}
@@ -253,22 +250,28 @@ function KeyBackup() {
         );
 
     const renderOptions = () => {
-        if (keyBackup === undefined) return <Spinner size="small" />;
+        if (keyBackup === undefined) return <CircularProgress />;
         if (keyBackup === null)
             return (
-                <Button variant="primary" onClick={openCreateKeyBackup}>
+                <Button variant="contained" color='primary' onClick={openCreateKeyBackup}>
                     {getText('btn.key_backup.create')}
                 </Button>
             );
         return (
             <>
-                <IconButton
-                    src={mdiDownload}
-                    variant="positive"
-                    onClick={openRestoreKeyBackup}
-                    tooltip={getText('tooltip.restore_backup')}
-                />
-                <IconButton variant='danger' src={mdiDelete} onClick={openDeleteKeyBackup} tooltip="Delete backup" />
+                <Tooltip title={getText('tooltip.restore_backup')}>
+                    <IconButton
+                        color='success'
+                        onClick={openRestoreKeyBackup}
+                    >
+                        <Download />
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title={getText('tooltip.delete_backup')}>
+                    <IconButton color='error' onClick={openDeleteKeyBackup}>
+                        <Delete />
+                    </IconButton>
+                </Tooltip>
             </>
         );
     };
@@ -282,13 +285,9 @@ function KeyBackup() {
                         {getText('key_backup.tip')}
                     </Text>
                     {!isCSEnabled && (
-                        <InfoCard
-                            style={{ marginTop: 'var(--sp-ultra-tight)' }}
-                            rounded
-                            variant="caution"
-                            iconSrc={mdiInformationOutline}
-                            title={getText('crosssigning.tip.2')}
-                        />
+                        <Alert severity='warning'>
+                            {getText('crosssigning.tip.2')}
+                        </Alert>
                     )}
                 </>
             }

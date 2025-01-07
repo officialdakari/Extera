@@ -168,13 +168,11 @@ function SearchMessages({ searchRef, term }: { searchRef: RefObject<HTMLInputEle
 
 export default function SearchTab() {
     const mx = useMatrixClient();
-    const [result, setResult] = useState();
     const [tabIndex, setTabIndex] = useState(0);
     const [navHidden, setNavHidden] = useNavHidden();
     const [query, setQuery] = useState('');
     const [rooms, setRooms] = useState<Room[]>([]);
     const [users, setUsers] = useState<UserProfile[]>([]);
-    const [messages, setMessages] = useState<MatrixEvent[]>([]);
     const [loading, setLoading] = useState(false);
     const searchRef = useRef<HTMLInputElement>(null);
 
@@ -258,15 +256,13 @@ export default function SearchTab() {
                         <Close />
                     </IconButton>
                 </Toolbar>
+                <Tabs value={tabIndex} onChange={handleTabChange}>
+                    <Tab label={getText('search.tab.chats')} {...a11yProps(0)} />
+                    <Tab label={getText('search.tab.messages')} {...a11yProps(1)} />
+                    <Tab label={getText('search.tab.users')} {...a11yProps(2)} />
+                </Tabs>
             </AppBar>
             <PageNavContent>
-                <Box sx={{ borderBottom: 1, borderColor: 'divider', marginBottom: theme.spacing(1) }}>
-                    <Tabs value={tabIndex} onChange={handleTabChange}>
-                        <Tab label={getText('search.tab.chats')} {...a11yProps(0)} />
-                        <Tab label={getText('search.tab.messages')} {...a11yProps(1)} />
-                        <Tab label={getText('search.tab.users')} {...a11yProps(2)} />
-                    </Tabs>
-                </Box>
                 {loading ? (
                     <LinearProgress />
                 ) : (

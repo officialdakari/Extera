@@ -690,8 +690,8 @@
     "placeholder.search_chats": "Search",
     "search": "Search...",
     "search.tab.messages": "Messages",
-    "search.tab.chats": "Chats",
-    "search.tab.users": "Users",
+    "search.tab.chats": "Rooms",
+    "search.tab.users": "People",
     "search.tip": "Type # for rooms, @ for DMs and * for spaces. Hotkey: Ctrl + K",
     "error.auth_request": "Wrong password.",
     "error.auth_request.failed": "Request failed!",
@@ -759,6 +759,7 @@
     "key_backup.restore.title": "Restore key backup",
     "key_backup.delete.title": "Delete key backup",
     "tooltip.restore_backup": "Restore backup",
+    "tooltip.delete_backup": "Delete backup",
     "btn.key_backup.create": "Create backup",
     "crosssigning.tip.2": "Setup cross-signing to backup your encrypted messages.",
     "key_backup.tip": "Create online backup of your encrypted messages with your account data in case you lose access to your sessions. Your keys will be secured with a unique Security Key.",
@@ -1041,5 +1042,7 @@
     "btn.clear_cache": "Clear cache & reload",
     "room.pin.title": "Mark as favourite",
     "room.pin.desc": "Always show this room at top.",
-    "error.message": "Could not load message."
+    "error.message": "Could not load message.",
+    "eruda.warning.title": "READ CAREFULLY",
+    "eruda.warning.desc": "Attention! The thing you are trying to open is meant for developing purposes only. IF SOMEONE TOLD YOU TO COPY OR PASTE SOMETHING, YOU ARE LIKELY GETTING SCAMMED. If you don't know what are you doing, please click Cancel. Anyway, Extera is open-source: https://github.com/OfficialDakari/Extera"
 }

@@ -210,7 +210,7 @@ function ProfileEditor({ userId }) {
                 />
                 {isEditing ? renderForm() : renderInfo()}
             </div>
-            <ListSubheader>
+            <ListSubheader sx={{ bgcolor: 'transparent' }} disableSticky>
                 {getText('tab.profile')}
             </ListSubheader>
             <ListItemButton onClick={handleCopyMxId}>
