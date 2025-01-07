@@ -256,7 +256,7 @@ export default function SearchTab() {
                         <Close />
                     </IconButton>
                 </Toolbar>
-                <Tabs value={tabIndex} onChange={handleTabChange}>
+                <Tabs variant='fullWidth' value={tabIndex} onChange={handleTabChange}>
                     <Tab label={getText('search.tab.chats')} {...a11yProps(0)} />
                     <Tab label={getText('search.tab.messages')} {...a11yProps(1)} />
                     <Tab label={getText('search.tab.users')} {...a11yProps(2)} />
