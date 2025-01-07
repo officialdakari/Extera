@@ -5,14 +5,14 @@ const cons = {
     // for example, at the moment of writing this comment it's 21st november 2024
     // so, 21112024 in 36-richered number system is CKI54
     //     DDMMYYYY
-    version: '1.0-DEV-174HL',
+    version: '1.0-DEV-46AIH',
     secretKey: {
         ACCESS_TOKEN: 'cinny_access_token',
         DEVICE_ID: 'cinny_device_id',
         USER_ID: 'cinny_user_id',
         BASE_URL: 'cinny_hs_base_url',
     },
-    DEVICE_DISPLAY_NAME: 'Extera Chat',
+    DEVICE_DISPLAY_NAME: 'Extera',
     IN_CINNY_SPACES: 'in.cinny.spaces',
     IGNORE_POLICIES: 'xyz.extera.ignore_policies',
     EXTERA_BANNER_URL: 'xyz.extera.banner_url',
