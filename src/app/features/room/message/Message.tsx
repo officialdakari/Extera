@@ -72,8 +72,8 @@ import { VerificationBadge } from '../../../components/verification-badge/Verifi
 import { saveFile } from '../../../utils/saveFile';
 import { getFileSrcUrl } from '../../../components/message/content/util';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
-import { Alert, AppBar, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, Link, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Toolbar, Typography, useTheme } from '@mui/material';
-import { AddReactionOutlined, ArrowBack, Bookmark, BookmarkBorderOutlined, Cancel, CancelOutlined, Check, Close, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, EmojiEmotionsOutlined, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
+import { Avatar as MUIAvatar, Alert, AppBar, AvatarGroup, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, Link, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Toolbar, Typography, useTheme } from '@mui/material';
+import { AddReactionOutlined, ArrowBack, CancelOutlined, Close, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, EmojiEmotionsOutlined, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useSwipeLeft } from '../../../hooks/useSwipeLeft';
 import { Feature, ServerSupport } from 'matrix-js-sdk/lib/feature';
@@ -95,29 +95,26 @@ export const MessageQuickReactions = as<'div', MessageQuickReactionsProps>(
 
         if (recentEmojis.length === 0) return <span />;
         return (
-            <>
-                <Box
-                    style={{ padding: config.space.S200 }}
-                    alignItems="Center"
-                    justifyContent="Center"
-                    gap="200"
-                    {...props}
-                    ref={ref}
-                >
-                    {recentEmojis.map((emoji) => (
-                        <IconButton
-                            key={emoji.unicode}
-                            className={css.MessageQuickReaction}
-                            title={emoji.shortcode}
-                            aria-label={emoji.shortcode}
-                            onClick={() => onReaction(emoji.unicode, emoji.shortcode)}
-                        >
-                            {emoji.unicode}
-                        </IconButton>
-                    ))}
-                </Box>
-                <Line size="300" />
-            </>
+            <Box
+                style={{ padding: config.space.S200 }}
+                alignItems="Center"
+                justifyContent="Center"
+                gap="200"
+                {...props}
+                ref={ref}
+            >
+                {recentEmojis.map((emoji) => (
+                    <IconButton
+                        key={emoji.unicode}
+                        className={css.MessageQuickReaction}
+                        title={emoji.shortcode}
+                        aria-label={emoji.shortcode}
+                        onClick={() => onReaction(emoji.unicode, emoji.shortcode)}
+                    >
+                        {emoji.unicode}
+                    </IconButton>
+                ))}
+            </Box>
         );
     }
 );
@@ -165,7 +162,17 @@ export const MessageReadReceiptItem = as<
         onClose?: () => void;
     }
 >(({ room, eventId, onClose, ...props }, ref) => {
+    const mx = useMatrixClient();
     const [open, setOpen] = useState(false);
+    const eventReaders = useRoomEventReaders(room, eventId);
+    const eventReadersAvatars = useMemo(() => {
+        return eventReaders.slice(0, 4).map((userId) => {
+            const user = mx.getUser(userId);
+            if (user?.avatarUrl) {
+                return mxcUrlToHttp(mx, user.avatarUrl, 24, 24, 'scale');
+            }
+        });
+    }, [eventReaders, room, eventId]);
 
     const handleClose = () => {
         setOpen(false);
@@ -205,8 +212,32 @@ export const MessageReadReceiptItem = as<
                     <DoneAll />
                 </ListItemIcon>
                 <ListItemText>
-                    {getText('msg_menu.read_receipts')}
+                    {getText('msg_menu.read_receipts', eventReaders.length)}
                 </ListItemText>
+                <AvatarGroup
+                    spacing='small'
+                    max={4}
+                    total={eventReaders.length}
+                    sx={{ ml: 1 }}
+                    slotProps={{
+                        surplus: {
+                            style: {
+                                width: 24,
+                                height: 24,
+                                fontSize: 'small'
+                            }
+                        }
+                    }}
+                >
+                    {eventReadersAvatars.map((url) => (
+                        typeof url === 'string' && (
+                            <MUIAvatar
+                                src={url}
+                                sx={{ width: 24, height: 24 }}
+                            />
+                        )
+                    ))}
+                </AvatarGroup>
             </MenuItem>
         </>
     );
@@ -988,58 +1019,6 @@ export const MessageReportItem = as<
     );
 });
 
-export const MessageBookmarkItem = as<
-    'button',
-    {
-        room: Room;
-        mEvent: MatrixEvent;
-        onClose?: () => void;
-    }
->(({ room, mEvent, onClose, ...props }, ref) => {
-    const mx = useMatrixClient();
-    const bookmarks = useAccountData('xyz.extera.bookmarks');
-    const eventId = mEvent.getId();
-    const [bookmark, setBookmark] = useState<Record<string, Partial<IEvent>>>(bookmarks?.getContent() || {});
-
-    const handleBookmark = useCallback(() => {
-        if (!eventId) return null;
-        if (!bookmark[eventId]) {
-            setBookmark((bookmark) => {
-                bookmark[eventId] = mEvent.event;
-                mx.setAccountData('xyz.extera.bookmarks', bookmark);
-                return bookmark;
-            });
-        } else {
-            setBookmark((bookmark) => {
-                delete bookmark[eventId];
-                mx.setAccountData('xyz.extera.bookmarks', bookmark);
-                return bookmark;
-            });
-        }
-    }, [mx, bookmarks, bookmark, mEvent]);
-
-    useEffect(() => {
-        setBookmark(bookmarks?.getContent() || {});
-    }, [bookmarks]);
-
-    if (!eventId) return null;
-
-    return (
-        <MenuItem
-            onClick={handleBookmark}
-        >
-            <ListItemIcon>
-                {bookmark[eventId] ? <Bookmark /> : <BookmarkBorderOutlined />}
-            </ListItemIcon>
-            <ListItemText>
-                <Typography>
-                    {getText(bookmark[eventId] ? 'btn.msg_unbookmark' : 'btn.msg_bookmark')}
-                </Typography>
-            </ListItemText>
-        </MenuItem>
-    );
-});
-
 export type MessageProps = {
     room: Room;
     mEvent: MatrixEvent;
@@ -1459,24 +1438,22 @@ export const Message = as<'div', MessageProps>(
                                         </ListItemText>
                                     </MenuItem>
                                 )}
-                                {status === EventStatus.SENT && (
-                                    <>
-                                        {canSendReaction && (
-                                            <MessageQuickReactions
-                                                onReaction={(key, shortcode) => {
-                                                    onReactionToggle(mEvent.getId()!, key, shortcode);
-                                                    closeMenu();
-                                                }}
-                                            />
-                                        )}
-                                        <div style={{ margin: '4px' }}>
-                                            {new Date(mEvent.getTs()).toLocaleString()}
-                                        </div>
-                                        <Line size='300' />
-                                    </>
+                                {status === EventStatus.SENT && canSendReaction && (
+                                    <MessageQuickReactions
+                                        onReaction={(key, shortcode) => {
+                                            onReactionToggle(mEvent.getId()!, key, shortcode);
+                                            closeMenu();
+                                        }}
+                                    />
                                 )}
                                 {status === EventStatus.SENT && (
                                     <>
+                                        <MessageReadReceiptItem
+                                            room={room}
+                                            eventId={mEvent.getId() ?? ''}
+                                            onClose={closeMenu}
+                                        />
+                                        <Divider />
                                         {mEvent.getType() == 'org.matrix.msc3381.poll.start' && onPollEnd && mEvent.sender?.userId == (mx.getUserId() ?? '') && (
                                             <MenuItem
                                                 onClick={onPollEnd}
@@ -1541,10 +1518,6 @@ export const Message = as<'div', MessageProps>(
                                                 <MessageFileDownloadItem room={room} mEvent={mEvent} onClose={closeMenu} />
                                             )
                                         }
-                                        <MessageBookmarkItem
-                                            room={room}
-                                            mEvent={mEvent}
-                                        />
                                         {canEditEvent(mx, mEvent) && onEditId && (
                                             <MenuItem
                                                 data-event-id={mEvent.getId()}
@@ -1577,11 +1550,6 @@ export const Message = as<'div', MessageProps>(
                                                 </ListItemText>
                                             </MenuItem>
                                         )}
-                                        <MessageReadReceiptItem
-                                            room={room}
-                                            eventId={mEvent.getId() ?? ''}
-                                            onClose={closeMenu}
-                                        />
                                         <MessageSourceCodeItem room={room} mEvent={mEvent} onClose={closeMenu} />
                                         {
                                             canPin && <MessagePinItem room={room} mEvent={mEvent} onClose={closeMenu} />
@@ -1629,6 +1597,11 @@ export const Message = as<'div', MessageProps>(
                                         onClose={closeMenu}
                                     />
                                 )}
+                                <MenuItem dense>
+                                    <Typography fontSize='smaller' color='textSecondary'>
+                                        {new Date(mEvent.getTs()).toLocaleString()}
+                                    </Typography>
+                                </MenuItem>
                             </Menu>
                         </motion.div>
                     )}

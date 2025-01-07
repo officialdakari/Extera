@@ -23,125 +23,56 @@ import Bookmarks from '../../organisms/bookmarks/Bookmarks';
 
 export function SidebarNav() {
     const [navHidden, setNavHidden] = useNavHidden();
-    const [bookmarks, setBookmarks] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const onClose = () => setNavHidden(true);
 
     return (
-        <>
-            {bookmarks && <Bookmarks requestClose={() => setBookmarks(false)} />}
-            <SwipeableDrawer
-                open={!navHidden}
-                onClose={onClose}
-                onOpen={() => setNavHidden(false)}
-                ref={scrollRef}
-            >
-                <nav>
-                    <List>
-                        <UserTab onClose={onClose} />
-                    </List>
-                </nav>
-                <Divider />
-                <nav aria-label='Default tabs'>
-                    <List>
-                        <HomeTab />
-                        <DirectTab />
-                    </List>
-                </nav>
-                <Divider />
-                <nav aria-label='Spaces'>
-                    <List>
-                        <SpaceTabs scrollRef={scrollRef} />
-                    </List>
-                </nav>
-                <Divider />
-                <nav>
-                    <List>
-                        <ListItemButton
-                            onClick={() => openCreateRoom(true)}
-                        >
-                            <ListItemIcon>
-                                <Add />
-                            </ListItemIcon>
-                            <ListItemText>
-                                {getText('btn.space.new_space')}
-                            </ListItemText>
-                        </ListItemButton>
-                    </List>
-                </nav>
-                <Divider />
-                <nav aria-label='Personal'>
-                    <List>
-                        <ListItemButton
-                            onClick={() => setBookmarks(!bookmarks)}
-                        >
-                            <ListItemIcon>
-                                <BookmarkBorderOutlined />
-                            </ListItemIcon>
-                            <ListItemText>
-                                {getText('btn.bookmarks')}
-                            </ListItemText>
-                        </ListItemButton>
-                        <ExploreTab />
-                        <InboxTab />
-                    </List>
-                </nav>
-                {/* <Sidebar style={{ height: '100%' }}>
-                <SidebarContent
-                    scrollable={
-                        <Scroll ref={scrollRef} variant="Background" size="0">
-                            <SidebarStack>
-                                <HomeTab />
-                                <DirectTab />
-                            </SidebarStack>
-                            <SpaceTabs scrollRef={scrollRef} />
-                            <SidebarStackSeparator />
-                            <SidebarStack>
-                                <ExploreTab />
-                                <SidebarItem>
-                                    <SidebarItemTooltip tooltip={getText('nav.create_space')}>
-                                        {(triggerRef) => (
-                                            <SidebarAvatar
-                                                as="button"
-                                                ref={triggerRef}
-                                                outlined
-                                                onClick={() => { openCreateRoom(true); onClose() }}
-                                            >
-                                                <Icon size={1} path={mdiPlus} />
-                                            </SidebarAvatar>
-                                        )}
-                                    </SidebarItemTooltip>
-                                </SidebarItem>
-                            </SidebarStack>
-                        </Scroll>
-                    }
-                    sticky={
-                        <>
-                            <SidebarStackSeparator />
-                            <SidebarStack>
-                                <SidebarItem>
-                                    <SidebarItemTooltip tooltip="Search">
-                                        {(triggerRef) => (
-                                            <SidebarAvatar
-                                                as="button"
-                                                ref={triggerRef}
-                                                outlined
-                                                onClick={() => { openSearch(); onClose(); }}
-                                            >
-                                                <Icon size={1} path={mdiMagnify} />
-                                            </SidebarAvatar>
-                                        )}
-                                    </SidebarItemTooltip>
-                                </SidebarItem>
-
-                                <InboxTab />
-                                <UserTab />
-                            </SidebarStack>
-                        </>
-                    }
-                />
-            </Sidebar> */}
-            </SwipeableDrawer>
-        </>
+        <SwipeableDrawer
+            open={!navHidden}
+            onClose={onClose}
+            onOpen={() => setNavHidden(false)}
+            ref={scrollRef}
+        >
+            <nav>
+                <List>
+                    <UserTab onClose={onClose} />
+                </List>
+            </nav>
+            <Divider />
+            <nav aria-label='Default tabs'>
+                <List>
+                    <HomeTab />
+                    <DirectTab />
+                </List>
+            </nav>
+            <Divider />
+            <nav aria-label='Spaces'>
+                <List>
+                    <SpaceTabs scrollRef={scrollRef} />
+                </List>
+            </nav>
+            <Divider />
+            <nav>
+                <List>
+                    <ListItemButton
+                        onClick={() => openCreateRoom(true)}
+                    >
+                        <ListItemIcon>
+                            <Add />
+                        </ListItemIcon>
+                        <ListItemText>
+                            {getText('btn.space.new_space')}
+                        </ListItemText>
+                    </ListItemButton>
+                </List>
+            </nav>
+            <Divider />
+            <nav aria-label='Personal'>
+                <List>
+                    <ExploreTab />
+                    <InboxTab />
+                </List>
+            </nav>
+        </SwipeableDrawer>
     );
 }

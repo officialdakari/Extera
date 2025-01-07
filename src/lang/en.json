@@ -318,7 +318,7 @@
     "search_input.enter": "Enter",
     "btn.search_result.open": "Open",
     "msg_menu.view_reactions": "View reactions",
-    "msg_menu.read_receipts": "Read receipts",
+    "msg_menu.read_receipts": "Seen by {0}",
     "msg_menu.view_source": "View source",
     "msg_menu.recover": "Recover",
     "error.recover": "Your homeserver does not implement Synapse Admin API or you do not have admin rights",
