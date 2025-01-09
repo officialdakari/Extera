@@ -1,13 +1,6 @@
 import React, { FormEventHandler, useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Box,
-    Button,
-    Dialog,
-    Input,
-    Overlay,
-    OverlayBackdrop,
-    OverlayCenter,
-    Spinner,
     Text,
     color,
     config,
@@ -29,6 +22,7 @@ import { getLoginPath, withSearchParam } from '../../pathUtils';
 import { LoginPathSearchParams } from '../../paths';
 import { getUIAError, getUIAErrorCode } from '../../../utils/matrix-uia';
 import { getText, translate } from '../../../../lang';
+import { Backdrop, Button, CircularProgress, Dialog, DialogActions, DialogTitle, TextField } from '@mui/material';
 
 type FormData = {
     email: string;
@@ -51,24 +45,16 @@ function ResetPasswordComplete({ email }: { email?: string }) {
     };
 
     return (
-        <Overlay open backdrop={<OverlayBackdrop />}>
-            <OverlayCenter>
-                <FocusTrap>
-                    <Dialog>
-                        <Box style={{ padding: config.space.S400 }} direction="Column" gap="400">
-                            <Text>
-                                {getText('password_reset.success')}
-                            </Text>
-                            <Button variant="Primary" onClick={handleClick}>
-                                <Text size="B400" as="span">
-                                    {getText('password_reset.login')}
-                                </Text>
-                            </Button>
-                        </Box>
-                    </Dialog>
-                </FocusTrap>
-            </OverlayCenter>
-        </Overlay>
+        <Dialog open>
+            <DialogTitle>
+                {getText('password_reset.success')}
+            </DialogTitle>
+            <DialogActions>
+                <Button onClick={handleClick}>
+                    {getText('password_reset.login')}
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 }
 
@@ -177,14 +163,12 @@ export function PasswordResetForm({ defaultEmail }: PasswordResetFormProps) {
                 <Text as="label" size="L400" priority="300">
                     {getText('form.email')}
                 </Text>
-                <Input
+                <TextField
                     defaultValue={defaultEmail}
                     type="email"
                     name="emailInput"
-                    variant="Background"
-                    size="500"
                     required
-                    outlined
+                    variant='outlined'
                 />
                 {passwordEmailState.status === AsyncStatus.Error && (
                     <FieldError
@@ -199,13 +183,12 @@ export function PasswordResetForm({ defaultEmail }: PasswordResetFormProps) {
                             <Text as="label" size="L400" priority="300">
                                 {getText('password_reset.new')}
                             </Text>
-                            <PasswordInput
+                            <TextField
                                 ref={passRef}
                                 onChange={doMatch}
                                 name="passwordInput"
-                                variant="Background"
-                                size="500"
-                                outlined
+                                type='password'
+                                variant="outlined"
                                 required
                             />
                         </Box>
@@ -213,15 +196,13 @@ export function PasswordResetForm({ defaultEmail }: PasswordResetFormProps) {
                             <Text as="label" size="L400" priority="300">
                                 {getText('password_reset.confirm')}
                             </Text>
-                            <PasswordInput
+                            <TextField
                                 ref={confPassRef}
                                 onChange={doMatch}
                                 name="confirmPasswordInput"
-                                variant="Background"
-                                size="500"
-                                style={{ color: match ? undefined : color.Critical.Main }}
-                                outlined
+                                variant='outlined'
                                 required
+                                color={match ? undefined : 'error'}
                             />
                         </Box>
                     </>
@@ -233,10 +214,8 @@ export function PasswordResetForm({ defaultEmail }: PasswordResetFormProps) {
                 />
             )}
             <span data-spacing-node />
-            <Button type="submit" variant="Primary" size="500">
-                <Text as="span" size="B500">
-                    {getText('password_reset.button')}
-                </Text>
+            <Button type="submit" variant="contained" color='primary'>
+                {getText('password_reset.button')}
             </Button>
 
             {resetPasswordResult && <ResetPasswordComplete email={formData?.email} />}
@@ -260,17 +239,13 @@ export function PasswordResetForm({ defaultEmail }: PasswordResetFormProps) {
                 </UIAFlowOverlay>
             )}
 
-            <Overlay
-                open={
-                    passwordEmailState.status === AsyncStatus.Loading ||
-                    resetPasswordState.status === AsyncStatus.Loading
-                }
-                backdrop={<OverlayBackdrop />}
+            <Backdrop
+                open={passwordEmailState.status === AsyncStatus.Loading ||
+                    resetPasswordState.status === AsyncStatus.Loading}
+                sx={(theme) => ({ zIndex: theme.zIndex.drawer + 1 })}
             >
-                <OverlayCenter>
-                    <Spinner variant="Secondary" size="600" />
-                </OverlayCenter>
-            </Overlay>
+                <CircularProgress />
+            </Backdrop>
         </Box>
     );
 }
