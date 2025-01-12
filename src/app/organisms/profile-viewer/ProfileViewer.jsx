@@ -580,7 +580,6 @@ function ProfileViewer() {
                                     value={powerLevel}
                                     max={myPowerLevel}
                                     onSelect={(pl) => {
-                                        closeMenu();
                                         handleChangePowerLevel(pl);
                                     }}
                                 />
