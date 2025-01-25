@@ -808,7 +808,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                     </IconButton>
                                 </>
                             )}
-                            {(isEmptyEditor(textAreaRef) && !uploadBoard && !ar.isRecording && voiceMessages) ? (
+                            {(isEmptyEditor(textAreaRef) && selectedFiles.length === 0 && !ar.isRecording && voiceMessages) ? (
                                 <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={recordVoice}>
                                     <Icon size={1} path={mdiMicrophone} />
                                 </IconButton>
