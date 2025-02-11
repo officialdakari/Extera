@@ -4,7 +4,7 @@ import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
 
 import InviteUser from '../invite-user/InviteUser';
-import Settings from '../settings/Settings';
+import Settings from '../../features/settings/Settings';
 import SpaceSettings from '../space-settings/SpaceSettings';
 import RoomSettings from '../room/RoomSettings';
 

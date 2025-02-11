@@ -5,7 +5,6 @@ import { logger } from 'matrix-js-sdk/lib/logger';
 
 import { getSecret } from './state/auth';
 import { cryptoCallbacks } from './state/secretStorageKeys';
-import { SlidingSync } from 'matrix-js-sdk/lib/sliding-sync';
 import indexedDBFactory from './workers/IndexedDBFactory';
 
 global.Olm = Olm;
@@ -65,7 +64,7 @@ class InitMatrix extends EventEmitter {
 
         await indexedDBStore.startup();
 
-        await this.matrixClient.initCrypto();
+        await this.matrixClient.initRustCrypto();
 
         if (spec.unstable_features['org.matrix.simplified_msc3575']) {
             await this.matrixClient.startClient({

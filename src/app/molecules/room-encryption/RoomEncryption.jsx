@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './RoomEncryption.scss';
+import { Switch } from '@mui/material';
+import { EventTimeline } from 'matrix-js-sdk';
 
 import initMatrix from '../../../client/initMatrix';
 
@@ -9,14 +11,14 @@ import SettingTile from '../setting-tile/SettingTile';
 
 import { confirmDialog } from '../confirm-dialog/ConfirmDialog';
 import { getText } from '../../../lang';
-import { Switch } from '@mui/material';
+import { getStateEvents } from '../../utils/room';
 
 function RoomEncryption({ roomId }) {
     const mx = initMatrix.matrixClient;
     const room = mx.getRoom(roomId);
-    const encryptionEvents = room.currentState.getStateEvents('m.room.encryption');
+    const encryptionEvents = getStateEvents(room, 'm.room.encryption');
     const [isEncrypted, setIsEncrypted] = useState(encryptionEvents.length > 0);
-    const canEnableEncryption = room.currentState.maySendStateEvent('m.room.encryption', mx.getUserId());
+    const canEnableEncryption = room.getLiveTimeline().getState(EventTimeline.FORWARDS).maySendStateEvent('m.room.encryption', mx.getUserId());
 
     const handleEncryptionEnable = async () => {
         const joinRule = room.getJoinRule();
@@ -31,7 +33,7 @@ function RoomEncryption({ roomId }) {
         if (await confirmDialog(title, confirmMsg2, getText('btn.dialog.room_encryption.2'), 'caution')) {
             setIsEncrypted(true);
             mx.sendStateEvent(roomId, 'm.room.encryption', {
-                algorithm: 'm.megolm.v1.aes-sha2',
+                algorithm: 'm.megolm.v1.aes-sha2'
             });
         }
     };

@@ -6,9 +6,8 @@ import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 import inject from '@rollup/plugin-inject';
 import topLevelAwait from 'vite-plugin-top-level-await';
-import buildConfig from './build.config';
-import { readFileSync } from 'fs';
 import { VitePWA } from 'vite-plugin-pwa';
+import buildConfig from './build.config';
 
 const copyFiles = {
     targets: [

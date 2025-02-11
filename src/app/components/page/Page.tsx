@@ -1,17 +1,16 @@
-import React, { ComponentProps, MutableRefObject, PropsWithChildren, ReactNode, RefObject } from 'react';
-import { AsProp, Box, Header, Line, Scroll, Text, as } from 'folds';
+import React, { ComponentProps, MutableRefObject, PropsWithChildren, ReactNode } from 'react';
+import { Box, Header, Line, Scroll, Text, as } from 'folds';
 import classNames from 'classnames';
-import { ContainerColor } from '../../styles/ContainerColor.css';
-import * as css from './style.css';
-import { ScreenSize, useScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 import { useTheme } from '@mui/material';
 import { AnimatePresence, HTMLMotionProps, Variants, motion } from 'framer-motion';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import * as css from './style.css';
+import { ScreenSize, useScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 import BottomNav from '../../pages/client/BottomNav';
 import { MotionBox } from '../../atoms/motion/Animated';
+import { ContainerColor } from '../../styles/ContainerColor.css';
 
 type PageRootProps = {
-    nav: ReactNode;
+    nav?: ReactNode;
     children: ReactNode;
 };
 
@@ -27,6 +26,78 @@ export function PageRoot({ nav, children }: PageRootProps) {
             {children}
         </Box>
     );
+}
+
+const PageAnimationVariants: Variants = {
+    initial: {
+        translateX: '20px',
+        opacity: 0.3,
+        transition: {
+            ease: 'linear'
+        },
+    },
+    final: {
+        translateX: 0,
+        opacity: 1,
+        transition: {
+            ease: 'linear'
+        },
+    },
+    exit: {
+        translateX: '-20px',
+        opacity: 0.3,
+        transition: {
+            ease: 'linear'
+        },
+    }
+};
+
+export function AnimatedLayout(props: PropsWithChildren & HTMLMotionProps<'div'>) {
+    return (
+        <motion.div
+            initial='initial'
+            animate='final'
+            exit='exit'
+            variants={PageAnimationVariants}
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+            }}
+            layoutScroll
+            {...props}
+        />
+    );
+}
+
+export function AnimatedNode(props: PropsWithChildren & HTMLMotionProps<'div'>) {
+    return (
+        <motion.div
+            style={{
+                display: 'flex',
+                flexDirection: 'column',
+            }}
+            {...props}
+        />
+    );
+}
+
+export function MobileAnimatedLayout({ children, ...props }: PropsWithChildren & HTMLMotionProps<'div'>) {
+    const screenSize = useScreenSize();
+    if (screenSize === ScreenSize.Mobile) {
+        return (
+            <MotionBox
+                initial='initial'
+                animate='final'
+                exit='exit'
+                variants={PageAnimationVariants}
+                direction='Column'
+                {...props}
+            >
+                {children}
+            </MotionBox>
+        );
+    }
+    return children;
 }
 
 type ClientDrawerLayoutProps = {
@@ -94,77 +165,7 @@ export function PageNavContent({
     );
 }
 
-const PageAnimationVariants: Variants = {
-    initial: {
-        translateX: '20px',
-        opacity: 0.3,
-        transition: {
-            ease: 'linear'
-        },
-    },
-    final: {
-        translateX: 0,
-        opacity: 1,
-        transition: {
-            ease: 'linear'
-        },
-    },
-    exit: {
-        translateX: '-20px',
-        opacity: 0.3,
-        transition: {
-            ease: 'linear'
-        },
-    }
-};
-
-export function AnimatedLayout(props: PropsWithChildren & HTMLMotionProps<'div'>) {
-    return (
-        <motion.div
-            initial='initial'
-            animate='final'
-            exit='exit'
-            variants={PageAnimationVariants}
-            style={{
-                display: 'flex',
-                flexDirection: 'column',
-            }}
-            layoutScroll
-            {...props}
-        />
-    );
-}
-
-export function AnimatedNode(props: PropsWithChildren & HTMLMotionProps<'div'>) {
-    return (
-        <motion.div
-            style={{
-                display: 'flex',
-                flexDirection: 'column',
-            }}
-            {...props}
-        />
-    );
-}
-
-export function MobileAnimatedLayout(props: PropsWithChildren & HTMLMotionProps<'div'>) {
-    const screenSize = useScreenSize();
-    if (screenSize === ScreenSize.Mobile) {
-        return (
-            <MotionBox
-                initial='initial'
-                animate='final'
-                exit='exit'
-                variants={PageAnimationVariants}
-                direction='Column'
-                {...props}
-            />
-        );
-    }
-    return props.children;
-}
-
-export const Page = as<'div'>(({ className, children, ...props }, ref) => {
+export const Page = as<'div'>(({ children, ...props }, ref) => {
     const theme = useTheme();
     return (
         <Box

@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import './Settings.scss';
 
-import '../profile-viewer/Banner.scss';
+import { Switch, Button, ToggleButtonGroup, ToggleButton, DialogTitle, DialogContent, TextField, DialogActions, Dialog, AppBar, IconButton, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography, List, ListSubheader, Divider } from '@mui/material';
+import { mdiBell, mdiCog, mdiEmoticon, mdiEye, mdiInformationSlabCircle, mdiLock, mdiStar } from '@mdi/js';
+import Icon from '@mdi/react';
+import { ArrowBack, Logout } from '@mui/icons-material';
+import { SetPresence } from 'matrix-js-sdk';
 
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
@@ -15,7 +19,6 @@ import { usePermission } from '../../hooks/usePermission';
 
 import Text from '../../atoms/text/Text';
 import { MenuHeader } from '../../atoms/context-menu/ContextMenu';
-import SegmentedControls from '../../atoms/segmented-controls/SegmentedControls';
 
 import SettingTile from '../../molecules/setting-tile/SettingTile';
 import ImportE2ERoomKeys from '../../molecules/import-export-e2e-room-keys/ImportE2ERoomKeys';
@@ -25,44 +28,30 @@ import GlobalNotification from '../../molecules/global-notification/GlobalNotifi
 import KeywordNotification from '../../molecules/global-notification/KeywordNotification';
 import IgnoreUserList, { IgnorePolicyList } from '../../molecules/global-notification/IgnoreUserList';
 
-import ProfileEditor from '../profile-editor/ProfileEditor';
+import ProfileEditor from '../../organisms/profile-editor/ProfileEditor';
 import CrossSigning from './CrossSigning';
 import KeyBackup from './KeyBackup';
 import DeviceManage from './DeviceManage';
 
-import { Switch, Button, ToggleButtonGroup, ToggleButton, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, Dialog, AppBar, IconButton, Tab, Tabs, useTheme, ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography, List, ListSubheader, Divider } from '@mui/material';
-
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
-import { useSetting } from '../../state/hooks/settings';
+import { SettingSetter, useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import { isMacOS } from '../../utils/user-agent';
 import { KeySymbol } from '../../utils/key-symbol';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
-import { Box, config, Header } from 'folds';
-import Banner from '../profile-editor/Banner';
 import { getText } from '../../../lang';
-import { BackButtonHandler, useBackButton } from '../../hooks/useBackButton';
+import { BackButtonHandler } from '../../hooks/useBackButton';
 import { disablePush, enablePush } from '../../../push';
-import { mdiAccount, mdiArrowLeft, mdiBell, mdiClose, mdiCog, mdiEmoticon, mdiEye, mdiInformationSlabCircle, mdiInformationSlabCircleOutline, mdiLock, mdiStar } from '@mdi/js';
 import { authRequest } from './AuthRequest';
-import Icon from '@mdi/react';
-import FocusTrap from 'focus-trap-react';
-import getCachedURL from '../../utils/cache';
 import wallpaperDB from '../../utils/wallpaper';
-import { useAccountData } from '../../hooks/useAccountData';
-import ProminientToolbar from '../../components/prominient-toolbar/ProminientToolbar';
-import { ArrowBack, Close, HideImage, Image, Logout } from '@mui/icons-material';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
-import { AnimatePresence } from 'framer-motion';
-import { AnimatedLayout } from '../../components/page';
 import useCordova from '../../hooks/cordova';
 import Themes from './Themes';
+import { PageRoot } from '../../components/page';
 
 function AppearanceSection() {
     const [, updateState] = useState({});
-
-    const mx = useMatrixClient();
 
     const [enterForNewline, setEnterForNewline] = useSetting(settingsAtom, 'enterForNewline');
     const [messageLayout, setMessageLayout] = useSetting(settingsAtom, 'messageLayout');
@@ -75,12 +64,12 @@ function AppearanceSection() {
     const [urlPreview, setUrlPreview] = useSetting(settingsAtom, 'urlPreview');
     const [encUrlPreview, setEncUrlPreview] = useSetting(settingsAtom, 'encUrlPreview');
     const [showHiddenEvents, setShowHiddenEvents] = useSetting(settingsAtom, 'showHiddenEvents');
-    const [wallpaperURL, setWallpaperURL] = useState();
+    const [wallpaperURL, setWallpaperURL] = useState<string | null>(null);
     const [newDesignInput, setNewDesignInput] = useSetting(settingsAtom, 'newDesignInput');
     const [voiceMessages, setVoiceMessages] = useSetting(settingsAtom, 'voiceMessages');
     const spacings = ['0', '100', '200', '300', '400', '500'];
 
-    const wallpaperInputRef = useRef(null);
+    const wallpaperInputRef = useRef<HTMLInputElement>(null);
 
     const handleDeleteWallpaper = async () => {
         if (
@@ -88,27 +77,23 @@ function AppearanceSection() {
                 getText('settings.remove_wallpaper.title'),
                 getText('settings.remove_wallpaper.desc'),
                 getText('btn.remove_wallpaper'),
-                'danger'
+                'error'
             )
         ) {
             wallpaperDB.removeWallpaper();
         }
     };
 
-    /**
-     * @type {React.ChangeEventHandler<HTMLInputElement>}
-     * @returns 
-     */
-    async function uploadImage(e) {
-        const file = e.target.files.item(0);
-        if (file === null) return;
+    async function uploadImage(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.item(0);
+        if (!file) return;
         try {
             wallpaperDB.setWallpaper(file);
         } catch (err) {
             console.error(err);
             alert('Failed to set wallpaper');
         }
-        wallpaperInputRef.current.value = null;
+        if (wallpaperInputRef.current) wallpaperInputRef.current.value = '';
     }
 
     const handleSetWallpaper = async () => {
@@ -116,8 +101,10 @@ function AppearanceSection() {
     };
 
     useEffect(() => {
-        wallpaperDB.getWallpaper().then(setWallpaperURL);
-    }, [wallpaperDB]);
+        wallpaperDB.getWallpaper().then((x) => {
+            setWallpaperURL(x);
+        });
+    }, []);
 
     return (
         <div className="settings-appearance">
@@ -200,7 +187,7 @@ function AppearanceSection() {
                         <ToggleButtonGroup
                             exclusive
                             value={spacings.findIndex((s) => s === messageSpacing)}
-                            onChange={(evt, value) => setMessageSpacing(spacings[value])}
+                            onChange={(evt, value: number) => setMessageSpacing(spacings[value] as SettingSetter<'messageSpacing'>)}
                         >
                             <ToggleButton value={0}>No</ToggleButton>
                             <ToggleButton value={1}>XXS</ToggleButton>
@@ -319,20 +306,23 @@ function AppearanceSection() {
 function PresenceSection() {
     const mx = useMatrixClient();
     const [status, setStatus] = useSetting(settingsAtom, 'extera_status');
-    const statusMsg = mx.getUser(mx.getUserId()).presenceStatusMsg || '';
-    const statusMsgRef = useRef();
+    const statusMsg = mx.getUser(mx.getUserId()!)?.presenceStatusMsg || '';
+    const statusMsgRef = useRef<HTMLInputElement>();
     const [ghostMode, setGhostMode] = useSetting(settingsAtom, 'extera_ghostMode');
     const statuses = [
         'online', 'offline', 'unavailable'
     ];
 
-    const updateStatusMessage = (evt) => {
+    const updateStatusMessage = (evt: React.FormEvent<HTMLFormElement>) => {
         evt.preventDefault();
-        const { statusInput } = evt.currentTarget.elements;
+        if (!('statusInput' in evt.currentTarget.elements)) return;
+        const statusInput = evt.currentTarget.elements.statusInput as HTMLInputElement;
         const value = statusInput.value.trim();
         if (value === '') return;
+        const presence = statuses[status];
+        if (presence !== 'online' && presence !== 'offline' && presence !== 'unavailable') return;
         mx.setPresence({
-            presence: statuses[status],
+            presence,
             status_msg: value
         });
     };
@@ -347,10 +337,10 @@ function PresenceSection() {
                         exclusive
                         value={status}
                         onChange={(evt, index) => {
-                            mx.setSyncPresence(statuses[index]);
+                            mx.setSyncPresence(statuses[index] as SetPresence);
                             mx.setPresence({
-                                presence: statuses[index],
-                                status_msg: index != 1 ? statusMsgRef.current?.value?.trim() : undefined
+                                presence: statuses[index] as SetPresence,
+                                status_msg: index !== 1 ? statusMsgRef.current?.value?.trim() : undefined
                             }).then(() => {
                                 console.log('Presence updated');
                             }).catch(err => {
@@ -404,12 +394,10 @@ function PresenceSection() {
 }
 
 function ExteraSection() {
-    const mx = useMatrixClient();
     const [hideTgAds, setHideTgAds] = useSetting(settingsAtom, 'extera_hideTgAds');
     const [enableCaptions, setEnableCaptions] = useSetting(settingsAtom, 'extera_enableCaptions');
     const [renameTgBot, setRenameTgBot] = useSetting(settingsAtom, 'extera_renameTgBot');
     const [smoothScroll, setSmoothScroll] = useSetting(settingsAtom, 'extera_smoothScroll');
-    const [ignorePolicies, setIgnorePolicies] = useSetting(settingsAtom, 'ignorePolicies');
     const [replyFallbacks, setReplyFallbacks] = useSetting(settingsAtom, 'replyFallbacks');
 
     return (
@@ -500,19 +488,19 @@ function NotificationsSection() {
 
     const requestPermissions = () => {
         if (typeof window.Notification !== 'undefined') window.Notification?.requestPermission().then(setPermission);
-        else if (window.cordova?.plugins?.notification?.local) {
-            cordova.plugins.notification.local.requestPermission((granted) => {
+        else if (cordova?.plugins?.notification?.local) {
+            cordova.plugins.notification.local.requestPermission((granted: boolean) => {
                 setPermission(granted);
             });
         }
     };
 
     const renderOptions = () => {
-        if (window.Notification === undefined && !window.cordova?.plugins?.notification?.local) {
+        if (window.Notification === undefined && !cordova?.plugins?.notification?.local) {
             return <Text className="settings-notifications__not-supported">{getText('settings.notifications.unsupported')}</Text>;
         }
 
-        window.cordova?.plugins?.notification?.local?.hasPermission(setPermission);
+        cordova?.plugins?.notification?.local?.hasPermission(setPermission);
 
         if (permission) {
             return (
@@ -540,11 +528,9 @@ function NotificationsSection() {
     const togglePushes = () => {
         if (!pushes) {
             enablePush();
-            console.log('enabled push');
             setPushes(true);
         } else {
             disablePush();
-            console.log('disabled push');
             setPushes(false);
         }
     };
@@ -618,12 +604,14 @@ function SecuritySection() {
     const [open, setOpen] = useState(false);
     const [disableBtn, setDisableBtn] = useState(false);
 
-    const changePassword = useCallback(async (evt) => {
+    const changePassword = useCallback((evt: React.FormEvent<HTMLFormElement>) => {
+        if (!('passwordInput' in evt.target)) return;
+        const passwordInput = evt.target.passwordInput as HTMLInputElement;
         evt.preventDefault();
         setOpen(false);
         setDisableBtn(true);
-        await authRequest(getText('change_password.old'), async (auth) => {
-            await mx.setPassword(auth, evt.target.passwordInput.value, false);
+        authRequest(getText('change_password.old'), async (auth) => {
+            await mx.setPassword(auth, passwordInput.value, false);
             setDisableBtn(false);
         });
     }, [mx]);
@@ -663,7 +651,7 @@ function SecuritySection() {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color='primary'>{getText('btn.cancel')}</Button>
-                    <Button type='submit' color='error'>{getText('change_password.btn')}</Button>
+                    <Button type='submit' color='error' disabled={disableBtn}>{getText('change_password.btn')}</Button>
                 </DialogActions>
             </Dialog>
             <div className="settings-security">
@@ -677,7 +665,7 @@ function SecuritySection() {
                     <SettingTile
                         title={getText('settings.change_password.title')}
                         options={(
-                            <Button onClick={openChangePassword} variant='contained' color='error'>{getText('change_password.btn')}</Button>
+                            <Button onClick={openChangePassword} variant='contained' color='error' disabled={disableBtn}>{getText('change_password.btn')}</Button>
                         )}
                     />
                 </div>
@@ -705,42 +693,6 @@ function SecuritySection() {
                 </div>
             </div>
         </>
-    );
-}
-
-function ProfileSection() {
-    return (
-        <div className='settings-profile'>
-            <div className='settings-profile__card'>
-                <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
-                {/* <Box grow='Yes'>
-                            
-                        </Box>
-                        <IconButton
-                            size='large'
-                            edge='end'
-                            onClick={() => uploadImageRef.current?.click()}
-                        >
-                            <Image />
-                        </IconButton>
-                        <IconButton
-                            size='large'
-                            edge='end'
-                            color='error'
-                            onClick={handleBannerRemove}
-                        >
-                            <HideImage />
-                        </IconButton>
-                        <IconButton
-                            size='large'
-                            edge='end'
-                            color='error'
-                            onClick={handleLogout}
-                        >
-                            <Logout />
-                        </IconButton> */}
-            </div>
-        </div>
     );
 }
 
@@ -839,11 +791,11 @@ const tabItems = [{
     render: () => <AboutSection />,
 }];
 
-function useWindowToggle(setSelectedTab) {
+function useWindowToggle(setSelectedTab: (a: any) => void): [boolean, () => void] {
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        const openSettings = (tab) => {
+        const openSettings = (tab: any) => {
             const tabItem = tabItems.find((item) => item.text === tab);
             if (tabItem) setSelectedTab(tabItem);
             setIsOpen(true);
@@ -852,7 +804,7 @@ function useWindowToggle(setSelectedTab) {
         return () => {
             navigation.removeListener(cons.events.navigation.SETTINGS_OPENED, openSettings);
         };
-    }, []);
+    }, [setSelectedTab]);
 
     const requestClose = () => setIsOpen(false);
 
@@ -860,11 +812,11 @@ function useWindowToggle(setSelectedTab) {
 }
 
 function Settings() {
+    const mx = useMatrixClient();
     const [selectedTab, setSelectedTab] = useState(-1);
     const [isOpen, requestClose] = useWindowToggle(setSelectedTab);
     const screenSize = useScreenSize();
 
-    const mx = useMatrixClient();
     const handleLogout = async () => {
         if (await confirmDialog(getText('logout.title'), getText('logout.confirm'), getText('btn.logout.confirm'), 'error')) {
             initMatrix.logout();
@@ -878,7 +830,7 @@ function Settings() {
 
     const renderSidebar = () => (
         <>
-            <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
+            <ProfileEditor userId={mx.getUserId()} />
             <Divider />
             <List>
                 <ListSubheader sx={{ bgcolor: 'transparent' }} disableSticky>{getText('settings.header')}</ListSubheader>
@@ -912,10 +864,13 @@ function Settings() {
         <Dialog
             open={isOpen}
             onClose={requestClose}
-            fullScreen={screenSize !== ScreenSize.Desktop}
-            scroll='body'
-            fullWidth
-            maxWidth='xl'
+            fullScreen
+            PaperProps={{
+                style: {
+                    maxHeight: '100%',
+                    margin: 0
+                }
+            }}
         >
             {isOpen && <BackButtonHandler callback={handleBack} id='settings' />}
             {isOpen && (
@@ -936,12 +891,15 @@ function Settings() {
                 </AppBar>
             )}
             {isOpen && (
-                <div className="settings-window__content">
-                    {(screenSize !== ScreenSize.Mobile) && (
-                        <div className='settings-window__sidebar'>
-                            {renderSidebar()}
-                        </div>
-                    )}
+                <PageRoot
+                    nav={
+                        (screenSize !== ScreenSize.Mobile) && (
+                            <div className='settings-window__sidebar'>
+                                {renderSidebar()}
+                            </div>
+                        )
+                    }
+                >
                     {(screenSize === ScreenSize.Mobile && selectedTab === -1) && (
                         <div className='settings-window__sidebar-mobile'>
                             {renderSidebar()}
@@ -950,20 +908,14 @@ function Settings() {
                     {screenSize !== ScreenSize.Mobile && <Divider sx={{ height: 'auto' }} orientation='vertical' />}
                     {selectedTab !== -1 && (
                         <div className='settings-window__cards-wrapper'>
+                            {isOpen && <BackButtonHandler callback={handleBack} id='settings' />}
                             {tabItems[selectedTab].render()}
                         </div>
                     )}
-                </div>
+                </PageRoot>
             )}
         </Dialog>
     );
-}
-
-function a11yProps(index) {
-    return {
-        id: `simple-tab-${index}`,
-        'aria-controls': `simple-tabpanel-${index}`,
-    };
 }
 
 export default Settings;

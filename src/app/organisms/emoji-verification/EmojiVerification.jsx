@@ -16,7 +16,7 @@ import Text from '../../atoms/text/Text';
 // import Dialog from '../../molecules/dialog/Dialog';
 
 import { useStore } from '../../hooks/useStore';
-import { accessSecretStorage } from '../settings/SecretStorageAccess';
+import { accessSecretStorage } from '../../features/settings/SecretStorageAccess';
 import { getText } from '../../../lang';
 import { mdiClose } from '@mdi/js';
 import { AppBar, Button, CircularProgress, Dialog, IconButton, LinearProgress, Toolbar, Typography } from '@mui/material';

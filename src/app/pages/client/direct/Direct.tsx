@@ -1,62 +1,46 @@
 import React, { MouseEventHandler, forwardRef, useMemo, useRef, useState } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
+import Icon from '@mdi/react';
+import { mdiAt } from '@mdi/js';
+import { DoneAll, MenuOpen, MoreVert, PersonAdd, Menu as MenuIcon } from '@mui/icons-material';
 import {
     AppBar,
-    Avatar,
     Box,
     Button,
     IconButton,
-    ListItem,
     ListItemIcon,
     ListItemText,
     Menu,
     MenuItem,
-    MenuList,
-    Paper,
-    Popper,
     Toolbar,
     Typography,
 } from '@mui/material';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import FocusTrap from 'focus-trap-react';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { factoryRoomIdByActivity, factoryRoomIdByUnreadCount } from '../../../utils/sort';
+import { factoryRoomIdByActivity } from '../../../utils/sort';
 import {
-    NavButton,
-    NavCategory,
-    NavCategoryHeader,
     NavEmptyCenter,
     NavEmptyLayout,
-    NavItem,
-    NavItemContent,
 } from '../../../components/nav';
 import { getDirectRoomPath } from '../../pathUtils';
 import { getCanonicalAliasOrRoomId, getRoomTags } from '../../../utils/matrix';
 import { useSelectedRoom } from '../../../hooks/router/useSelectedRoom';
 import { VirtualTile } from '../../../components/virtualizer';
-import { RoomNavCategoryButton, RoomNavItem } from '../../../features/room-nav';
+import { RoomNavItem } from '../../../features/room-nav';
 import { muteChangesAtom } from '../../../state/room-list/mutedRoomList';
-import { makeNavCategoryId } from '../../../state/closedNavCategories';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
-import { useCategoryHandler } from '../../../hooks/useCategoryHandler';
 import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMapper';
 import { useDirectRooms } from './useDirectRooms';
 import { openInviteUser } from '../../../../client/action/navigation';
-import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page';
-import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCategories';
+import { PageNav, PageNavContent } from '../../../components/page';
 import { useRoomsUnread } from '../../../state/hooks/unread';
 import { markAsRead } from '../../../../client/action/notifications';
 import { getText } from '../../../../lang';
-import { isHidden } from '../../../state/hooks/roomList';
-import Icon from '@mdi/react';
-import { mdiAt } from '@mdi/js';
 import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
-import { Add, DoneAll, MenuOpen, MoreVert, PersonAdd, Menu as MenuIcon } from '@mui/icons-material';
 import FAB from '../../../components/fab/FAB';
 import { useNavHidden } from '../../../hooks/useHideableNav';
 import SearchBar from '../SearchBar';
 import SyncStateAlert from '../SyncStateAlert';
-import BottomNav from '../BottomNav';
 
 type DirectMenuProps = {
     requestClose: () => void;
@@ -167,11 +151,11 @@ export function Direct() {
     const directs = useDirectRooms();
     const muteChanges = useAtomValue(muteChangesAtom);
     const mutedRooms = muteChanges.added;
-    const roomToUnread = useAtomValue(roomToUnreadAtom);
     const screenSize = useScreenSize();
 
     const selectedRoomId = useSelectedRoom();
     const noRoomToDisplay = directs.length === 0;
+    // eslint-disable-next-line no-restricted-globals
     const prev = history.state?.usr?.prev || '';
 
     const sortedDirects = useMemo(() => {
@@ -179,7 +163,7 @@ export function Direct() {
             factoryRoomIdByActivity(mx)
         );
         return items;
-    }, [mx, directs, roomToUnread, selectedRoomId]);
+    }, [mx, directs]);
 
     const virtualizer = useVirtualizer({
         count: sortedDirects.length,
@@ -193,7 +177,7 @@ export function Direct() {
             header={<DirectHeader />}
             variants={{
                 exit: {
-                    translateX: prev == 'rooms' ? '20px' : '-20px',
+                    translateX: prev === 'rooms' ? '20px' : '-20px',
                     opacity: 0.3,
                     transition: {
                         ease: 'linear'
