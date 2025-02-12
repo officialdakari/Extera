@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './DeviceManage.scss';
 import dateFormat from 'dateformat';
 
+import { Alert, Button, CircularProgress, DialogActions, DialogContent, IconButton, LinearProgress, TextField } from '@mui/material';
+import { Delete, Edit } from '@mui/icons-material';
+
 import initMatrix from '../../../client/initMatrix';
 import { isCrossVerified } from '../../../util/matrixUtil';
 import { openReusableDialog, openEmojiVerification } from '../../../client/action/navigation';
@@ -18,9 +21,6 @@ import { useDeviceList } from '../../hooks/useDeviceList';
 import { useCrossSigningStatus } from '../../hooks/useCrossSigningStatus';
 import { accessSecretStorage } from './SecretStorageAccess';
 import { getText, translate } from '../../../lang';
-import { mdiDelete, mdiInformationOutline, mdiPencil } from '@mdi/js';
-import { Alert, Button, CircularProgress, DialogActions, DialogContent, IconButton, LinearProgress, TextField } from '@mui/material';
-import { Delete, Edit, Remove } from '@mui/icons-material';
 
 const promptDeviceName = async (deviceName) => new Promise((resolve) => {
     let isCompleted = false;
@@ -33,17 +33,15 @@ const promptDeviceName = async (deviceName) => new Promise((resolve) => {
             onComplete(name);
         };
         return (
-            <>
-                <form onSubmit={handleSubmit}>
-                    <DialogContent>
-                        <TextField defaultValue={deviceName} label={getText('label.session_name')} name="session" />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => onComplete(null)}>{getText('btn.cancel')}</Button>
-                        <Button color='primary' type='submit'>{getText('btn.save_device_name')}</Button>
-                    </DialogActions>
-                </form>
-            </>
+            <form onSubmit={handleSubmit}>
+                <DialogContent>
+                    <TextField defaultValue={deviceName} label={getText('label.session_name')} name="session" />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => onComplete(null)}>{getText('btn.cancel')}</Button>
+                    <Button color='primary' type='submit'>{getText('btn.save_device_name')}</Button>
+                </DialogActions>
+            </form>
         );
     };
 
@@ -84,6 +82,27 @@ function DeviceManage() {
     const removeFromProcessing = () => {
         setProcessing([]);
     };
+
+    const [unverified, setUnverified] = useState([]);
+    const [verified, setVerified] = useState([]);
+    const [noEncryption, setNoEncryption] = useState([]);
+
+    useEffect(() => {
+        setVerified([]);
+        setUnverified([]);
+        setNoEncryption([]);
+        if (deviceList !== null)
+            deviceList.sort((a, b) => b.last_seen_ts - a.last_seen_ts).forEach(async (device) => {
+                const isVerified = await isCrossVerified(device.device_id);
+                if (isVerified === true) {
+                    setVerified((v) => [...v, device]);
+                } else if (isVerified === false) {
+                    setUnverified((v) => [...v, device]);
+                } else {
+                    setNoEncryption((v) => [...v, device]);
+                }
+            });
+    }, [deviceList, setVerified, setUnverified, setNoEncryption]);
 
     if (deviceList === null) {
         return (
@@ -176,40 +195,24 @@ function DeviceManage() {
                             </>
                         )
                 }
-                content={(
-                    <>
-                        {lastTS && (
-                            <Text variant="b3">
-                                {
-                                    translate(
-                                        'device_manage.last_activity',
-                                        <span style={{ color: 'var(--tc-surface-normal)' }}>
-                                            {dateFormat(new Date(lastTS), ' HH:MM, dd/mm/yyyy')}
-                                        </span>,
-                                        (lastIP ? getText('device_manage.last_activity.ip', lastIP) : '')
-                                    )
-                                }
-                            </Text>
-                        )}
-                    </>
+                content=
+                {lastTS && (
+                    <Text variant="b3">
+                        {
+                            translate(
+                                'device_manage.last_activity',
+                                <span style={{ color: 'var(--tc-surface-normal)' }}>
+                                    {dateFormat(new Date(lastTS), ' HH:MM, dd/mm/yyyy')}
+                                </span>,
+                                (lastIP ? getText('device_manage.last_activity.ip', lastIP) : '')
+                            )
+                        }
+                    </Text>
                 )}
             />
         );
     };
 
-    const unverified = [];
-    const verified = [];
-    const noEncryption = [];
-    deviceList.sort((a, b) => b.last_seen_ts - a.last_seen_ts).forEach((device) => {
-        const isVerified = isCrossVerified(device.device_id);
-        if (isVerified === true) {
-            verified.push(device);
-        } else if (isVerified === false) {
-            unverified.push(device);
-        } else {
-            noEncryption.push(device);
-        }
-    });
     return (
         <div className="device-manage">
             <div>

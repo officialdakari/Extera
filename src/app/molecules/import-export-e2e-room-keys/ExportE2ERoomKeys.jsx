@@ -3,6 +3,9 @@ import './ExportE2ERoomKeys.scss';
 
 import FileSaver from 'file-saver';
 
+import { CircularProgress, TextField } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import { encryptMegolmKeyFile } from '../../../util/cryptE2ERoomKeys';
@@ -11,8 +14,6 @@ import Text from '../../atoms/text/Text';
 
 import { useStore } from '../../hooks/useStore';
 import { getText } from '../../../lang';
-import { Button, CircularProgress, Input, TextField } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
 
 function ExportE2ERoomKeys() {
     const isMountStore = useStore();
@@ -76,13 +77,13 @@ function ExportE2ERoomKeys() {
         return () => {
             isMountStore.setItem(false);
         };
-    }, []);
+    }, [isMountStore]);
 
     return (
         <div className="export-e2e-room-keys">
             <form className="export-e2e-room-keys__form" onSubmit={(e) => { e.preventDefault(); exportE2ERoomKeys(); }}>
-                <TextField variant='filled' size='small' inputRef={passwordRef} type="password" label={getText('placeholder.password')} required />
-                <TextField variant='filled' size='small' inputRef={confirmPasswordRef} type="password" label={getText('placeholder.confirm_password')} required />
+                <TextField sx={{ flexGrow: 1 }} variant='filled' size='small' inputRef={passwordRef} type="password" label={getText('placeholder.password')} required />
+                <TextField sx={{ flexGrow: 1 }} variant='filled' size='small' inputRef={confirmPasswordRef} type="password" label={getText('placeholder.confirm_password')} required />
                 <LoadingButton loading={status.isOngoing} size='small' variant="contained" type="submit">{getText('btn.export_keys')}</LoadingButton>
             </form>
             {status.type === cons.status.IN_FLIGHT && (
