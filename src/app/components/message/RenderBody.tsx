@@ -23,7 +23,7 @@ export function RenderBody({
     highlightRegex,
     htmlReactParserOptions,
 }: RenderBodyProps) {
-    if (body === '') return <MessageEmptyContent />;
+    if (body === '' && !customBody) return <MessageEmptyContent />;
     if (customBody) {
         if (customBody === '') return <MessageEmptyContent />;
         return parse(sanitizeCustomHtml(customBody), htmlReactParserOptions);
