@@ -33,7 +33,7 @@ const promptDeviceName = async (deviceName) => new Promise((resolve) => {
             onComplete(name);
         };
         return (
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className='rename-form'>
                 <DialogContent>
                     <TextField defaultValue={deviceName} label={getText('label.session_name')} name="session" />
                 </DialogContent>

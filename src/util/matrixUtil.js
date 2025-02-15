@@ -158,12 +158,16 @@ export function genRoomVia(room) {
 export async function isCrossVerified(deviceId) {
     try {
         const mx = initMatrix.matrixClient;
-        const status = await mx.getCrypto().getDeviceVerificationStatus(mx.getUserId(), deviceId);
-        if (!status) return false;
-        return status.crossSigningVerified;
+        const crypto = await mx.getCrypto();
+        const userId = mx.getUserId();
+        const status = await crypto.getDeviceVerificationStatus(userId, deviceId);
+        if (!status) return null;
+
+        console.log(status);
+        return status.isVerified();
     } catch (err) {
         console.error(err);
-        return false;
+        return null;
     }
 }
 

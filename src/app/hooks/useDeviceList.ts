@@ -1,11 +1,12 @@
 /* eslint-disable import/prefer-default-export */
 import { useState, useEffect } from 'react';
 
-import initMatrix from '../../client/initMatrix';
+import { CryptoEvent, IMyDevice } from 'matrix-js-sdk';
+import { useMatrixClient } from './useMatrixClient';
 
 export function useDeviceList() {
-    const mx = initMatrix.matrixClient;
-    const [deviceList, setDeviceList] = useState(null);
+    const mx = useMatrixClient();
+    const [deviceList, setDeviceList] = useState<IMyDevice[]>([]);
 
     useEffect(() => {
         let isMounted = true;
@@ -16,15 +17,15 @@ export function useDeviceList() {
         });
         updateDevices();
 
-        const handleDevicesUpdate = (users) => {
-            if (users.includes(mx.getUserId())) {
+        const handleDevicesUpdate = (users: string[]) => {
+            if (users.includes(mx.getUserId()!)) {
                 updateDevices();
             }
         };
 
-        mx.on('crypto.devicesUpdated', handleDevicesUpdate);
+        mx.on(CryptoEvent.DevicesUpdated, handleDevicesUpdate);
         return () => {
-            mx.removeListener('crypto.devicesUpdated', handleDevicesUpdate);
+            mx.removeListener(CryptoEvent.DevicesUpdated, handleDevicesUpdate);
             isMounted = false;
         };
     }, [mx]);

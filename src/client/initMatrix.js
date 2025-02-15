@@ -2,9 +2,12 @@ import EventEmitter from 'events';
 import * as sdk from 'matrix-js-sdk';
 import { logger } from 'matrix-js-sdk/lib/logger';
 
+import Olm from '@matrix-org/olm';
 import { getSecret } from './state/auth';
 import { cryptoCallbacks } from './state/secretStorageKeys';
 import indexedDBFactory from './workers/IndexedDBFactory';
+
+globalThis.Olm = Olm;
 
 if (import.meta.env.PROD) {
     logger.disableAll();
@@ -57,25 +60,15 @@ class InitMatrix extends EventEmitter {
         global.initMatrix = this;
         this.emit('client_ready');
 
-        const spec = await this.matrixClient.getVersions();
-
         await indexedDBStore.startup();
 
-        await this.matrixClient.initRustCrypto();
+        await this.matrixClient.initCrypto();
 
-        if (spec.unstable_features['org.matrix.simplified_msc3575']) {
-            await this.matrixClient.startClient({
-                lazyLoadMembers: true,
-                threadSupport: true,
-                initialSyncLimit: 4
-            });
-        } else {
-            await this.matrixClient.startClient({
-                lazyLoadMembers: true,
-                threadSupport: true,
-                initialSyncLimit: 4
-            });
-        }
+        await this.matrixClient.startClient({
+            lazyLoadMembers: true,
+            threadSupport: true,
+            initialSyncLimit: 4
+        });
 
         this.matrixClient.setGlobalErrorOnUnknownDevices(false);
         this.matrixClient.setMaxListeners(50);
