@@ -908,7 +908,7 @@ function Settings() {
                     {screenSize !== ScreenSize.Mobile && <Divider sx={{ height: 'auto' }} orientation='vertical' />}
                     {selectedTab !== -1 && (
                         <div className='settings-window__cards-wrapper'>
-                            {isOpen && <BackButtonHandler callback={handleBack} id='settings' />}
+                            {isOpen && <BackButtonHandler callback={handleBack} id='settings-tab' />}
                             {tabItems[selectedTab].render()}
                         </div>
                     )}
