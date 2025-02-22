@@ -4,7 +4,7 @@ import { Resizable } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 
 import * as css from './Modal.css';
-import { ModalsType } from '../../hooks/useModals';
+import { Modal, ModalsType } from '../../hooks/useModals';
 import Icon from '@mdi/react';
 import { mdiClose, mdiOpenInNew } from '@mdi/js';
 import { AppBar, Fab, IconButton, Paper, Toolbar, Typography } from '@mui/material';
@@ -62,6 +62,49 @@ function ModalWrapper({ children, dimensions, onResize, id, hidden }: ModalWrapp
         );
 }
 
+type FloatingButtonProps = {
+    onFabClick: () => void;
+    content: Modal;
+    hidden: boolean;
+};
+function FloatingButton({ onFabClick, content, hidden }: FloatingButtonProps) {
+    const [data, setData] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    const dragStartPositionXYRef = useRef<{ x: number; y: number }>();
+
+    return !hidden && (
+        <Draggable
+            onStart={(event) => {
+                // Record the starting position of the drag, so we can detect later if
+                // the user actually dragged the popup or just clicked on it
+                dragStartPositionXYRef.current = { x: data.x, y: data.y };
+            }}
+            onStop={(event, data) => {
+                // Only treat the drag as a real one if the popup moved at least a
+                // threshold number of pixels in any direction
+                const THRESHOLD = 2;
+                const { x, y } = dragStartPositionXYRef.current ?? { x: 0, y: 0 };
+                const wasDragged = Math.abs(data.x - x) > THRESHOLD && Math.abs(data.y - y) > THRESHOLD;
+
+                if (!wasDragged) {
+                    (event?.target as HTMLButtonElement)?.click?.();
+                }
+            }}
+            onDrag={(e, data) => {
+                setData(data);
+            }}
+            position={data}
+        >
+            <div className={css.DraggableButton}>
+                <Fab onClick={onFabClick}>
+                    <Typography variant='h6'>
+                        {(content.title || 'Modal')[0]}
+                    </Typography>
+                </Fab>
+            </div>
+        </Draggable>
+    );
+}
+
 export function Modals({ modals }: ModalsProps) {
     const [record, setRecord] = useState(modals.record);
     const [dimensions, setDimensions] = useState<ModalDimensions>({});
@@ -87,22 +130,19 @@ export function Modals({ modals }: ModalsProps) {
         }));
     };
 
+    const onFabClick = (id: string) => {
+        return () => {
+            modals.showModal(id)
+            console.log(`Showing modal ${id}`);
+        };
+    };
+
     return (
         <>
             {record && Object.entries(record).map(
                 ([id, content]) => (
                     <>
-                        {content.hidden && (
-                            <Draggable>
-                                <div className={css.DraggableButton}>
-                                    <Fab onClick={() => modals.showModal(id)}>
-                                        <Typography variant='h6'>
-                                            {(content.title || 'Modal')[0]}
-                                        </Typography>
-                                    </Fab>
-                                </div>
-                            </Draggable>
-                        )}
+                        <FloatingButton content={content} onFabClick={onFabClick(id)} hidden={!(content.hidden || false)} />
                         <ModalWrapper dimensions={dimensions} hidden={content.hidden || false} id={id} onResize={onResize}>
                             <AppBar ref={appBarRef} className='modal-header' position='relative'>
                                 <Toolbar variant='dense'>

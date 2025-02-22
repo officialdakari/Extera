@@ -11,7 +11,7 @@ export type ModalsType = {
     record: Record<string, Modal> | undefined;
 };
 
-type Modal = {
+export type Modal = {
     node: ReactNode;
     allowClose?: boolean;
     hidden?: boolean;

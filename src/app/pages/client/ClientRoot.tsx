@@ -1,5 +1,5 @@
-import { Box, config, Header, IconButton, Modal, Spinner, Text } from 'folds';
-import React, { ReactElement, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { Box, config, Header, Modal, Text } from 'folds';
+import React, { ReactNode, useEffect, useState } from 'react';
 import initMatrix from '../../../client/initMatrix';
 import { initHotkeys } from '../../../client/event/hotkeys';
 import { getSecret } from '../../../client/state/auth';
@@ -14,7 +14,6 @@ import Dialogs from '../../organisms/pw/Dialogs';
 import ReusableContextMenu from '../../atoms/context-menu/ReusableContextMenu';
 import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
-import { RandomFact } from '../../../fact';
 import Draggable from 'react-draggable';
 
 import * as css from './ClientRoot.css';
@@ -22,9 +21,7 @@ import { CallProvider } from '../../hooks/useCall';
 import { createModals, ModalsProvider } from '../../hooks/useModals';
 import { Modals } from '../../components/modal/Modal';
 import { getText } from '../../../lang';
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, LinearProgress } from '@mui/material';
-import Icon from '@mdi/react';
-import { mdiPlus } from '@mdi/js';
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 function SystemEmojiFeature() {
     const [twitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
