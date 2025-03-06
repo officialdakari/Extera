@@ -807,7 +807,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                     <Icon size={1} path={mdiMicrophone} />
                                 </IconButton>
                             ) : (
-                                <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={stopRecording}>
+                                <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={ar.isRecording ? stopRecording : submit}>
                                     <Icon size={1} path={mdiSendOutline} />
                                 </IconButton>
                             )}
