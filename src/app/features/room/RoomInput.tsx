@@ -431,7 +431,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         }, [ar]);
 
         const sendVoice = useCallback(async () => {
-            ar.stopRecording();
             const { blob } = ar;
             if (blob) {
                 const { content_uri: url } = await mx.uploadContent(blob, {
@@ -452,6 +451,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     },
                     url
                 });
+                ar.resetBlob();
             }
         }, [mx, ar]);
 
@@ -807,7 +807,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                     <Icon size={1} path={mdiMicrophone} />
                                 </IconButton>
                             ) : (
-                                <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={ar.isRecording ? stopRecording : submit}>
+                                <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={stopRecording}>
                                     <Icon size={1} path={mdiSendOutline} />
                                 </IconButton>
                             )}

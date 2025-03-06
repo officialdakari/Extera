@@ -6,6 +6,8 @@ type VoiceRecorder = {
     stopRecording: () => void;
     blob: Blob | null;
     duration: number;
+    resetBlob: () => void;
+    getDuration: () => number;
 };
 
 export function useVoiceRecorder(): VoiceRecorder {
@@ -20,10 +22,10 @@ export function useVoiceRecorder(): VoiceRecorder {
             .then(stream => {
                 const recorder = new MediaRecorder(stream);
                 mediaRecorder.current = recorder;
-                
-                const chunks: BlobPart[] = [];
+
+                const chunks: Blob[] = [];
                 recorder.ondataavailable = (e) => chunks.push(e.data);
-                
+
                 recorder.onstop = () => {
                     const blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
                     setRecordedBlob(blob);
@@ -45,19 +47,22 @@ export function useVoiceRecorder(): VoiceRecorder {
         }
     }, [isRecording]);
 
-    const getBlob = useCallback(() => {
-        return recordedBlob;
-    }, [recordedBlob]);
+    const getBlob = useCallback(() => recordedBlob, [recordedBlob]);
 
-    const getDuration = useCallback(() => {
-        return duration;
-    }, [duration]);
+    const getDuration = useCallback(() => duration, [duration]);
+
+    const resetBlob = useCallback(() => {
+        setRecordedBlob(null);
+    }, [setRecordedBlob]);
 
     return {
         isRecording,
         startRecording,
         stopRecording,
         blob: recordedBlob,
-        duration
+        duration,
+        getDuration,
+        getBlob,
+        resetBlob
     };
 }
