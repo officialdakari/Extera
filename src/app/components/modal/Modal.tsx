@@ -111,17 +111,21 @@ export function Modals({ modals }: ModalsProps) {
     const appBarRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        console.log('dimensions uppppppppppdate');
         setRecord(modals.record);
         // Initialize dimensions for new modals
-        const newDimensions = { ...dimensions };
-        if (record)
-            Object.keys(record).forEach(id => {
-                if (!newDimensions[id]) {
-                    newDimensions[id] = { width: 500, height: 300 };
-                }
-            });
-        setDimensions(newDimensions);
-    }, [modals, dimensions, record]);
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        setDimensions((dimensions) => {
+            const newDimensions = { ...dimensions };
+            if (modals.record)
+                Object.keys(modals.record).forEach(id => {
+                    if (!newDimensions[id]) {
+                        newDimensions[id] = { width: 500, height: 300 };
+                    }
+                });
+            return newDimensions;
+        });
+    }, [modals, setDimensions, setRecord]);
 
     const onResize = (id: string) => (event: any, { size }: any) => {
         setDimensions(prev => ({
@@ -130,15 +134,11 @@ export function Modals({ modals }: ModalsProps) {
         }));
     };
 
-    const onFabClick = (id: string) => () => {
-        modals.showModal(id);
-    };
-
     return (
         record && Object.entries(record).map(
             ([id, content]) => (
                 <>
-                    <FloatingButton content={content} onFabClick={onFabClick(id)} hidden={!(content.hidden || false)} />
+                    <FloatingButton content={content} onFabClick={() => modals.showModal(id)} hidden={!(content.hidden || false)} />
                     <ModalWrapper dimensions={dimensions} hidden={content.hidden || false} id={id} onResize={onResize}>
                         <AppBar ref={appBarRef} className='modal-header' position='relative'>
                             <Toolbar variant='dense'>

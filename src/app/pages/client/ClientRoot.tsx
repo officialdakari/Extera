@@ -78,11 +78,6 @@ export function ClientRoot({ children }: ClientRootProps) {
     const callWindowState = useState<any>(null);
     const modals = createModals();
 
-    useEffect(() => {
-
-    }, [syncing, loading]);
-
-
     return (
         <SpecVersions baseUrl={baseUrl!}>
             {loading ? (

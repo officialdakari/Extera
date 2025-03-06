@@ -609,33 +609,27 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
     const cordova = useCordova();
     const plugin = cordova?.plugins?.notification?.local;
     // eslint-disable-next-line consistent-return
-    useEffect(() => {
-        if (plugin) {
-            const callback = (notification: any) => {
-                const roomId = notification?.data?.roomId;
-                if (typeof roomId === 'string') {
-                    removeNotifications(roomId);
-                    markAsRead(roomId, undefined, ghostMode);
-                }
-            };
-
-            plugin.on('read', callback);
-            return () => {
-                plugin.un('read', callback);
-            };
+    const callback = useCallback((notification: any) => {
+        const roomId = notification?.data?.roomId;
+        if (typeof roomId === 'string') {
+            removeNotifications(roomId);
+            markAsRead(roomId, undefined, ghostMode);
         }
-    }, [plugin, ghostMode]);
+    }, [ghostMode]);
+
+    if (plugin) {
+        plugin.on('read', callback);
+    }
 
     const openwith = cordova ? cordova.openwith : null;
 
-    useEffect(() => {
-        if (!cordova || !openwith) return;
+    if (cordova && openwith) {
         const intentHandler = (intent: any) => {
             openShareMenu(intent.items);
         };
         openwith.init(console.log, console.error);
         openwith.addHandler(intentHandler);
-    }, [cordova, openwith]);
+    }
 
     return (
         <>
