@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import { Box, config, Header, Modal, Text } from 'folds';
 import React, { ReactNode, useEffect, useState } from 'react';
 import initMatrix from '../../../client/initMatrix';
@@ -87,7 +88,7 @@ export function ClientRoot({ children }: ClientRootProps) {
             {loading ? (
                 <ClientRootLoading />
             ) : isError ? (
-                <Dialog open={true}>
+                <Dialog open>
                     <DialogTitle>
                         Error
                     </DialogTitle>
