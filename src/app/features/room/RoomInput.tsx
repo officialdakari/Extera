@@ -797,7 +797,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                         <Icon
                                             size={1}
                                             // eslint-disable-next-line no-nested-ternary
-                                            path={showStickerButton ? (emojiBoardTab ? mdiStickerOutline : mdiSticker) : (emojiBoardTab ? mdiEmoticonOutline : mdiEmoticon)}
+                                            path={showStickerButton ? (emojiBoardTab ? mdiSticker : mdiStickerOutline) : (emojiBoardTab ? mdiEmoticon : mdiEmoticonOutline)}
                                         />
                                     </IconButton>
                                 </>
