@@ -24,6 +24,11 @@ import {
     toRem,
 } from 'folds';
 
+import Icon from '@mdi/react';
+import { mdiBell, mdiBellOff, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiEye, mdiEyeOff, mdiFile, mdiMicrophone, mdiPlusCircleOutline, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
+import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
+import { AttachFile, Poll } from '@mui/icons-material';
+import { RoomMessageEventContent, StickerEventContent } from 'matrix-js-sdk/lib/types';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import {
     CustomEditor,
@@ -95,19 +100,14 @@ import { CommandAutocomplete } from './CommandAutocomplete';
 import { Command, SHRUG, LENNY, TABLEFLIP, UNFLIP, useCommands } from '../../hooks/useCommands';
 import { mobileOrTablet } from '../../utils/user-agent';
 import { ReplyLayout } from '../../components/message';
-import { markAsRead } from '../../../client/action/notifications';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { getText } from '../../../lang';
 import { openReusableContextMenu } from '../../../client/action/navigation';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
-import Icon from '@mdi/react';
-import { mdiBell, mdiBellOff, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiEye, mdiEyeOff, mdiFile, mdiMicrophone, mdiPlusCircleOutline, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
 import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
 import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
 import { getEventCords } from '../../../util/common';
 import HideReasonSelector from '../../molecules/hide-reason-selector/HideReasonSelector';
-import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
-import { AttachFile, Poll } from '@mui/icons-material';
 import NewPollMenu from './NewPollMenu';
 
 interface RoomInputProps {
@@ -122,7 +122,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
     ({ fileDropContainerRef, roomId, room, textAreaRef, newDesign, threadId }, ref) => {
         const mx = useMatrixClient();
         const [enterForNewline] = useSetting(settingsAtom, 'enterForNewline');
-        const [isMarkdown] = useSetting(settingsAtom, 'isMarkdown');
         const commands = useCommands(mx, room);
         const emojiBtnRef = useRef<HTMLButtonElement>(null);
         const roomToParents = useAtomValue(roomToParentsAtom);
@@ -244,19 +243,19 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         const handleSendUpload = async (uploads: UploadSuccess[]) => {
             const contents = await sendFiles(uploads);
 
-            for (const content of contents) {
+            contents.forEach(async (content) => {
                 if (enableCaptions && msgContent) {
                     await mx.sendMessage(roomId, {
                         ...content,
                         ...msgContent,
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
                         msgtype: content.msgtype
                     });
                 } else {
-                    // @ts-ignore
-                    await mx.sendMessage(roomId, content);
+                    await mx.sendMessage(roomId, content as RoomMessageEventContent);
                 }
-            }
+            });
         };
 
         const handleHide = useCallback((evt?: MouseEvent) => {
@@ -266,7 +265,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     onSelect={(r?: string) => {
                         closeMenu();
                         setHideReason(r);
-                        console.debug(`Hide reason is now`, r);
                     }}
                 />
             ));
@@ -279,25 +277,29 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             }
         }, []);
 
-        const getDisplayName = (mxId: string) => {
-            const timeline = room.getLiveTimeline();
-            const state = timeline.getState(EventTimeline.FORWARDS);
-            if (!state) return mxId;
-            const memberEvent = state.getStateEvents('m.room.member', mxId);
-            if (!memberEvent) return mxId;
-            const content = memberEvent.getContent();
-            return content.displayname || mxId;
-        };
+        const getDisplayName = useCallback(
+            (mxId: string) => {
+                const timeline = room.getLiveTimeline();
+                const state = timeline.getState(EventTimeline.FORWARDS);
+                if (!state) return mxId;
+                const memberEvent = state.getStateEvents('m.room.member', mxId);
+                if (!memberEvent) return mxId;
+                const content = memberEvent.getContent();
+                return content.displayname || mxId;
+            },
+            [room]
+        );
 
         const getContent = useCallback(() => {
             const ta = textAreaRef.current;
-            if (!ta) return;
+            if (!ta) return undefined;
             const commandName = getBeginCommand(textAreaRef);
             let plainText = toPlainText(ta.value, getDisplayName).trim();
             let customHtml = trimCustomHtml(
                 toMatrixCustomHTML(ta.value, getDisplayName)
             );
-            let { user_ids, room } = getMentions(ta.value);
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            const mentions = getMentions(ta.value);
             let msgType = MsgType.Text;
 
             if (commandName && commands[commandName as Command]) {
@@ -336,10 +338,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
             const content: IContent = {
                 msgtype: msgType,
-                'm.mentions': {
-                    user_ids,
-                    room
-                },
+                'm.mentions': mentions,
             };
 
             if (plainText !== '') {
@@ -393,9 +392,8 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             if (hideReason) {
                 content['space.0x1a8510f2.msc3368.tags'] = [hideReason];
             }
-
             return content;
-        }, [mx, room, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, threadId, thread, hideReason]);
+        }, [textAreaRef, replyDraft, sendTypingStatus, commands, thread, hideReason, getDisplayName, roomId, ghostMode, replyFallbacks, replyMention]);
 
         const submit = useCallback(async () => {
             const content = getContent();
@@ -404,7 +402,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             } else {
                 ar.stopRecording();
             }
-        }, [mx, roomId, textAreaRef, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands, ar, thread, threadId, setMsgContent]);
+        }, [ar, getContent]);
 
         const stopRecording = useCallback(() => {
             ar.stopRecording();
@@ -412,16 +410,11 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
         useEffect(() => {
             if (msgContent) {
-                console.debug(enableCaptions, msgContent);
-                console.debug(selectedFiles);
-                if (typeof msgContent.body === 'string' && (selectedFiles.length == 0 || !enableCaptions)) {
-                    // @ts-ignore
-                    mx.sendMessage(roomId, msgContent);
-                    console.debug(selectedFiles.length < 1, !enableCaptions, "Sending a separate message");
+                if (typeof msgContent.body === 'string' && (selectedFiles.length === 0 || !enableCaptions)) {
+                    mx.sendMessage(roomId, msgContent as RoomMessageEventContent);
                 }
 
                 uploadBoardHandlers.current?.handleSend();
-                console.debug(selectedFiles);
 
                 setReplyDraft(undefined);
                 sendTypingStatus(false);
@@ -431,17 +424,17 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 setMsgContent(undefined);
                 setMsgDraft('');
             }
-        }, [msgContent]);
+        }, [mx, roomId, msgContent, enableCaptions, setReplyDraft, sendTypingStatus, textAreaRef, setShowStickerButton, setHideReason, setMsgContent, setMsgDraft, selectedFiles]);
 
         const recordVoice = useCallback(() => {
             ar.startRecording();
-        }, [mx, ar]);
+        }, [ar]);
 
         const sendVoice = useCallback(async () => {
             ar.stopRecording();
-            const blob = ar.blob;
+            const { blob } = ar;
             if (blob) {
-                const { content_uri } = await mx.uploadContent(blob, {
+                const { content_uri: url } = await mx.uploadContent(blob, {
                     type: 'audio/ogg',
                     name: 'Voice message.ogg'
                 });
@@ -457,14 +450,14 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     'org.matrix.msc1767.audio': {
                         duration: ar.duration,
                     },
-                    url: content_uri
+                    url
                 });
             }
-        }, [mx, roomId, replyDraft]);
+        }, [mx, ar]);
 
         useEffect(() => {
             if (!ar.isRecording && ar.blob) sendVoice();
-        }, [ar.blob]);
+        }, [ar, sendVoice]);
 
         const handleChange = useCallback(
             (nt: string) => {
@@ -485,7 +478,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     setReplyDraft(undefined);
                 }
             },
-            [submit, setReplyDraft, enterForNewline]
+            [submit, setReplyDraft, enterForNewline, textAreaRef]
         );
 
         const handleKeyUp: KeyboardEventHandler = useCallback(
@@ -505,7 +498,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 const query = getAutocompleteQuery<AutocompletePrefix>(textAreaRef, AUTOCOMPLETE_PREFIXES);
                 setAutocompleteQuery(query);
             },
-            [textAreaRef, sendTypingStatus]
+            [textAreaRef, sendTypingStatus, ghostMode]
         );
 
         const handleCloseAutocomplete = useCallback(() => {
@@ -543,13 +536,12 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                 content['m.relates_to'].event_id = thread.rootEvent?.getId();
             }
 
-            // @ts-ignore
-            mx.sendEvent(roomId, EventType.Sticker, content);
+            mx.sendEvent(roomId, EventType.Sticker, content as StickerEventContent);
 
             setReplyDraft(undefined);
         };
 
-        const handleEmoticonSelect = (unicode: string, shortcode: string) => {
+        const handleEmoticonSelect = (unicode: string) => {
             const ta = textAreaRef.current;
             if (!ta) return;
             const index = ta.selectionStart;
@@ -575,8 +567,9 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         };
 
         useEffect(() => {
-            if (textAreaRef.current) textAreaRef.current.value = msgDraft;
-        }, [msgDraft]);
+            const ta = textAreaRef.current;
+            if (ta) ta.value = msgDraft;
+        }, [msgDraft, textAreaRef]);
 
         return (
             <div ref={ref}>
@@ -647,7 +640,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     newDesign={newDesign}
                     // editor={editor}
                     textAreaRef={textAreaRef}
-                    disabled={ar.isRecording || (emojiBoardTab ? true : false)}
+                    disabled={ar.isRecording || !!emojiBoardTab}
                     placeholder={ar.isRecording ? getText('placeholder.room_input.voice') : getText(canRedact ? 'placeholder.room_input' : 'placeholder.room_input.be_careful')}
                     onKeyDown={handleKeyDown}
                     onChange={handleChange}
@@ -803,7 +796,8 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                                     >
                                         <Icon
                                             size={1}
-                                            path={showStickerButton ? (!!emojiBoardTab ? mdiSticker : mdiStickerOutline) : (!!emojiBoardTab ? mdiEmoticon : mdiEmoticonOutline)}
+                                            // eslint-disable-next-line no-nested-ternary
+                                            path={showStickerButton ? (emojiBoardTab ? mdiStickerOutline : mdiSticker) : (emojiBoardTab ? mdiEmoticonOutline : mdiEmoticon)}
                                         />
                                     </IconButton>
                                 </>

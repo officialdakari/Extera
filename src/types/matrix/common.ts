@@ -3,6 +3,11 @@ import { MsgType } from 'matrix-js-sdk';
 
 export const MATRIX_BLUR_HASH_PROPERTY_NAME = 'xyz.amorgan.blurhash';
 
+export type ExteraButton = {
+    id: string;
+    name: string;
+};
+
 export type IImageInfo = {
     w?: number;
     h?: number;

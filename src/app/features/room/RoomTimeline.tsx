@@ -2,8 +2,6 @@
 import React, {
     Dispatch,
     MouseEventHandler,
-    MouseEvent,
-    TouchEvent,
     RefObject,
     SetStateAction,
     useCallback,
@@ -29,18 +27,18 @@ import classNames from 'classnames';
 import to from 'await-to-js';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
-    Badge,
     Box,
-    ContainerColor,
-    Line,
     Scroll,
     Text,
     as,
-    color,
     config,
     toRem,
 } from 'folds';
 import { isKeyHotkey } from 'is-hotkey';
+import { mdiCodeBracesBox, mdiImageEdit, mdiPencilBox } from '@mdi/js';
+import { Chip, Divider, Fab } from '@mui/material';
+import { ArrowUpward, DoneAll, KeyboardArrowDown } from '@mui/icons-material';
+import { AnimatePresence, Variants } from 'framer-motion';
 import {
     decryptFile,
     eventWithShortcode,
@@ -57,7 +55,6 @@ import {
     DefaultPlaceholder,
     CompactPlaceholder,
     Reply,
-    MessageBase,
     MessageUnsupportedContent,
     Time,
     MessageNotDecryptedContent,
@@ -99,7 +96,6 @@ import { useDebounce } from '../../hooks/useDebounce';
 import { getResizeObserverEntry, useResizeObserver } from '../../hooks/useResizeObserver';
 import * as css from './RoomTimeline.css';
 import { inSameDay, minuteDifference, timeDayMonthYear, today, yesterday } from '../../utils/time';
-import { isEmptyEditor, roomMentionRegexp } from '../../components/editor';
 import { roomIdToReplyDraftAtomFamily } from '../../state/room/roomInputDrafts';
 import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
 import { GetContentCallback, MessageEvent, StateEvent } from '../../../types/matrix/room';
@@ -112,20 +108,11 @@ import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { useRoomUnread } from '../../state/hooks/unread';
 import { roomToUnreadAtom } from '../../state/room/roomToUnread';
-import { useSwipeLeft } from '../../hooks/useSwipeLeft';
-import { clamp } from '../../utils/common';
-import { parse } from 'url';
 import { getText, translate } from '../../../lang';
-import { mdiCheckAll, mdiChevronDown, mdiCodeBraces, mdiCodeBracesBox, mdiImageEdit, mdiMessageAlert, mdiPencilBox } from '@mdi/js';
-import Icon from '@mdi/react';
 import { ThreadPreview } from './message/ThreadPreview';
 import HiddenContent from '../../components/hidden-content/HiddenContent';
 import { isIgnored } from '../../../client/action/room';
-import { v4 } from 'uuid';
-import { Chip, Divider, Fab } from '@mui/material';
-import { ArrowUpward, DoneAll, KeyboardArrowDown, NavigateNextSharp } from '@mui/icons-material';
 import { MotionBox } from '../../atoms/motion/Animated';
-import { AnimatePresence, Variants } from 'framer-motion';
 
 const TimelineFloatVariants: Variants = {
     Top: {
@@ -155,16 +142,6 @@ const TimelineFloat = as<'div', css.TimelineFloatVariants>(
             {...props}
             ref={ref}
         />
-    )
-);
-
-const TimelineDivider = as<'div', { variant?: ContainerColor | 'Inherit' }>(
-    ({ variant, children, ...props }, ref) => (
-        <Box gap="100" justifyContent="Center" alignItems="Center" {...props} ref={ref}>
-            <Line style={{ flexGrow: 1 }} variant={variant} size="300" />
-            {children}
-            <Line style={{ flexGrow: 1 }} variant={variant} size="300" />
-        </Box>
     )
 );
 
@@ -640,7 +617,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 }
 
                 if (document.hasFocus() && (!unreadInfo || mEvt.getSender() === mx.getUserId())) {
-                    requestAnimationFrame(() => markAsRead(mEvt.getRoomId(), undefined, ghostMode));
+                    requestAnimationFrame(() => markAsRead(mEvt.getRoomId()!, undefined, ghostMode));
                 }
                 setTimeline((ct) => ({
                     ...ct,
@@ -649,10 +626,9 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         end: ct.range.end + 1,
                     },
                 }));
-                return;
             }
         },
-        [mx, room, unreadInfo]
+        [mx, room, unreadInfo, ghostMode, smoothScroll]
     );
 
     useLiveEventArrive(
@@ -715,17 +691,16 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
     );
 
     const tryAutoMarkAsRead = useCallback(() => {
-        if (ghostMode) return;
         if (!unreadInfo) {
-            requestAnimationFrame(() => markAsRead(room.roomId));
+            requestAnimationFrame(() => markAsRead(room.roomId, undefined, ghostMode));
             return;
         }
         const evtTimeline = getEventTimeline(room, unreadInfo.readUptoEventId);
         const latestTimeline = evtTimeline && getFirstLinkedTimeline(evtTimeline, Direction.Forward);
         if (latestTimeline === room.getLiveTimeline()) {
-            requestAnimationFrame(() => markAsRead(room.roomId));
+            requestAnimationFrame(() => markAsRead(room.roomId, undefined, ghostMode));
         }
-    }, [room, unreadInfo]);
+    }, [room, unreadInfo, ghostMode]);
 
     const debounceSetAtBottom = useDebounce(
         useCallback((entry: IntersectionObserverEntry) => {
@@ -787,7 +762,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                     setEditId(editableEvtId);
                 }
             },
-            [mx, room, textAreaRef]
+            [mx, room]
         )
     );
 
@@ -823,7 +798,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 });
             }
         }
-    }, [room, unreadInfo, scrollToItem]);
+    }, [room, unreadInfo, scrollToItem, smoothScroll]);
 
     // scroll to focused message
     useLayoutEffect(() => {
@@ -842,7 +817,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 return currentItem;
             });
         }, 2000);
-    }, [alive, focusItem, scrollToItem]);
+    }, [alive, focusItem, scrollToItem, smoothScroll]);
 
     // scroll to bottom of timeline
     const scrollToBottomCount = scrollToBottomRef.current.count;
@@ -861,16 +836,16 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
         }
     }, [unread]);
 
-    const scrollToEvent = (eventId: string) => {
-        const el = scrollRef.current?.querySelector(`[data-message-id="${eventId}"]`) as HTMLElement;
-        if (el) {
-            scrollToElement(el, {
-                align: 'center',
-                behavior: smoothScroll ? 'smooth' : 'instant',
-                stopInView: true,
-            });
-        }
-    };
+    // const scrollToEvent = (evId: string) => {
+    //     const el = scrollRef.current?.querySelector(`[data-message-id="${evId}"]`) as HTMLElement;
+    //     if (el) {
+    //         scrollToElement(el, {
+    //             align: 'center',
+    //             behavior: smoothScroll ? 'smooth' : 'instant',
+    //             stopInView: true,
+    //         });
+    //     }
+    // };
 
     // scroll out of view msg editor in view.
     useEffect(() => {
@@ -888,7 +863,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 if (editMsgTA) editMsgTA.focus();
             }
         }
-    }, [scrollToElement, editId]);
+    }, [scrollToElement, editId, smoothScroll]);
 
     const handleJumpToLatest = () => {
         setTimeline(getInitialTimeline(room));
@@ -904,7 +879,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
     };
 
     const handleMarkAsRead = () => {
-        markAsRead(room.roomId);
+        markAsRead(room.roomId, undefined, ghostMode);
     };
 
     const handleOpenReply: MouseEventHandler<HTMLButtonElement> = useCallback(
@@ -931,7 +906,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 loadEventTimeline(replyId);
             }
         },
-        [room, timeline, scrollToItem, loadEventTimeline]
+        [room, timeline, scrollToItem, loadEventTimeline, smoothScroll]
     );
 
     const handleUserClick: MouseEventHandler<HTMLButtonElement> = useCallback(
@@ -940,7 +915,6 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
             evt.stopPropagation();
             const userId = evt.currentTarget.getAttribute('data-user-id');
             if (!userId) {
-                console.warn('Button should have "data-user-id" attribute!');
                 return;
             }
             openProfileViewer(userId, room.roomId);
@@ -952,23 +926,20 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
             evt.preventDefault();
             const userId = evt.currentTarget.getAttribute('data-user-id');
             if (!userId) {
-                console.warn('Button should have "data-user-id" attribute!');
                 return;
             }
             const ta = textAreaRef.current;
             if (!ta) {
-                console.warn('textAreaRef does not have object assigned');
                 return;
             }
             ta.value += ` {${userId}}`;
         },
-        [mx, room, textAreaRef]
+        [textAreaRef]
     );
 
     const handleReplyId = useCallback(
         (replyId: string | null) => {
             if (!replyId) {
-                console.warn('Button should have "data-event-id" attribute!');
                 return;
             }
             const replyEvt = room.findEventById(replyId);
@@ -995,7 +966,6 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
     const handleDiscussId = useCallback(
         (discussId?: string | null) => {
             if (!discussId) {
-                console.warn('Button should have "data-event-id" attribute!');
                 return;
             }
             const discussEvt = room.findEventById(discussId);
@@ -1004,7 +974,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 room.createThread(discussId, discussEvt, [], false);
             navigateThread(room.roomId, thread.id);
         },
-        [mx, room]
+        [room, navigateThread]
     );
 
     const handleReactionToggle = useCallback(
@@ -1024,6 +994,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 (reactions.find(eventWithShortcode)?.getContent().shortcode as string | undefined);
             mx.sendEvent(
                 room.roomId,
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 MessageEvent.Reaction,
                 getReactionContent(targetEventId, key, rShortcode)
@@ -1039,10 +1010,8 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
             }
             setEditId(undefined);
         },
-        [textAreaRef]
+        [setEditId]
     );
-
-    //const { isTouchingSide, sideMoved, sideMovedInit, swipingId, onTouchStart, onTouchMove, onTouchEnd, animate } = useSwipeLeft(handleReplyId);
 
     const renderMatrixEvent = useMatrixEventRenderer<
         [string, MatrixEvent, number, EventTimelineSet, boolean]
@@ -1064,8 +1033,8 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                     getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
                 const hideReason = ((getContent() as any)['space.0x1a8510f2.msc3368.tags'] ?? [])[0];
                 const ed = mEvent.event;
-                var hideMessage = false;
-                if (ed.content?.msgtype == 'm.notice' && typeof ed.content?.body === 'string') {
+                let hideMessage = false;
+                if (ed.content?.msgtype === 'm.notice' && typeof ed.content?.body === 'string') {
                     const lines = ed.content?.body.split('\n');
                     const lastLine = lines[lines.length - 1];
                     if (lastLine.startsWith('Sponsored message from ')) {
@@ -1095,10 +1064,6 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         onUsernameClick={handleUsernameClick}
                         onReplyClick={() => handleReplyId(mEventId)}
                         onDiscussClick={() => handleDiscussId(mEventId)}
-                        //onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
-                        //onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
-                        //onTouchEnd={onTouchEnd}
-                        //replySwipeAnimation={swipingId === mEvent.getId() && animate}
                         onReactionToggle={handleReactionToggle}
                         onEditId={handleEdit}
                         thread={
@@ -1130,27 +1095,27 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                             )
                         }
                     >
-                        {mEvent.isRedacted() ? (
-                            <RedactedContent reason={mEvent.getUnsigned().redacted_because?.content.reason} />
-                        ) : (hideTgAds && hideMessage) ? (
-                            <BlockedContent />
-                        ) : (
-                            (
-                                <HiddenContent reason={hideReason}>
-                                    <RenderMessageContent
-                                        displayName={senderDisplayName}
-                                        msgType={mEvent.getContent().msgtype ?? ''}
-                                        ts={mEvent.getTs()}
-                                        edited={!!editedEvent}
-                                        getContent={getContent}
-                                        mediaAutoLoad={mediaAutoLoad}
-                                        urlPreview={showUrlPreview}
-                                        htmlReactParserOptions={htmlReactParserOptions}
-                                        outlineAttachment={messageLayout === 2}
-                                    />
-                                </HiddenContent>
-                            )
-                        )}
+                        {hideTgAds && hideMessage && <BlockedContent />}
+                        {!(hideTgAds && hideMessage) &&
+                            (mEvent.isRedacted() ? (
+                                <RedactedContent reason={mEvent.getUnsigned().redacted_because?.content.reason} />
+                            ) : (
+                                (
+                                    <HiddenContent reason={hideReason}>
+                                        <RenderMessageContent
+                                            displayName={senderDisplayName}
+                                            msgType={mEvent.getContent().msgtype ?? ''}
+                                            ts={mEvent.getTs()}
+                                            edited={!!editedEvent}
+                                            getContent={getContent}
+                                            mediaAutoLoad={mediaAutoLoad}
+                                            urlPreview={showUrlPreview}
+                                            htmlReactParserOptions={htmlReactParserOptions}
+                                            outlineAttachment={messageLayout === 2}
+                                        />
+                                    </HiddenContent>
+                                )
+                            ))}
                     </Message>
                 );
             },
@@ -1185,10 +1150,6 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         onUsernameClick={handleUsernameClick}
                         onReplyClick={() => handleReplyId(mEventId)}
                         onDiscussClick={() => handleDiscussId(mEventId)}
-                        //onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
-                        //onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
-                        //onTouchEnd={onTouchEnd}
-                        //replySwipeAnimation={swipingId === mEvent.getId() && animate}
                         onReactionToggle={handleReactionToggle}
                         onEditId={handleEdit}
                         thread={
@@ -1304,10 +1265,6 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         onUsernameClick={handleUsernameClick}
                         onReplyClick={() => handleReplyId(mEventId)}
                         onDiscussClick={() => handleDiscussId(mEventId)}
-                        //onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
-                        //onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
-                        //onTouchEnd={onTouchEnd}
-                        //replySwipeAnimation={swipingId === mEvent.getId() && animate}
                         onReactionToggle={handleReactionToggle}
                         thread={
                             <ThreadPreview mEvent={mEvent} room={room} onClick={() => handleDiscussId(mEvent.getId())} />
@@ -1365,6 +1322,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 const ends: MatrixEvent[] = (endRelations && endRelations.getRelations()) || [];
                 const pollEnded = ends.find((evt) => evt.sender?.userId === mEvent.sender?.userId);
                 const handleEndPoll = () => {
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     mx.sendEvent(room.roomId, 'org.matrix.msc3381.poll.end', {
                         'org.matrix.msc1767.text': 'Ended poll',
@@ -1372,6 +1330,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                             rel_type: 'm.reference',
                             event_id: mEventId
                         },
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
                         body: 'Ended poll'
                     });
@@ -1398,11 +1357,6 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                         onUsernameClick={handleUsernameClick}
                         onReplyClick={() => handleReplyId(mEventId)}
                         onDiscussClick={() => handleDiscussId(mEventId)}
-                        //onTouchStart={(evt: TouchEvent) => onTouchStart(evt, mEvent.getId())}
-                        //onTouchMove={(evt: TouchEvent) => onTouchMove(evt, mEvent.getId())}
-                        //onTouchEnd={onTouchEnd}
-                        //replySwipeAnimation={swipingId === mEvent.getId() && animate}
-
                         onReactionToggle={handleReactionToggle}
                         reactions={
                             reactionRelations && (
@@ -1693,7 +1647,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, textAreaRef }: RoomT
                 </Divider>
             ) : null;
 
-        var dayDividerText: string = '';
+        let dayDividerText = '';
         if (today(mEvent.getTs())) dayDividerText = getText('timeline.today_divider');
         if (yesterday(mEvent.getTs())) dayDividerText = getText('timeline.yesterday_divider');
         dayDividerText = timeDayMonthYear(mEvent.getTs());

@@ -1,5 +1,4 @@
 import React, { MouseEventHandler, forwardRef, useMemo, useRef, useState } from 'react';
-import { useAtomValue } from 'jotai';
 import Icon from '@mdi/react';
 import { mdiAt } from '@mdi/js';
 import { DoneAll, MenuOpen, MoreVert, PersonAdd, Menu as MenuIcon } from '@mui/icons-material';
@@ -27,7 +26,6 @@ import { getCanonicalAliasOrRoomId, getRoomTags } from '../../../utils/matrix';
 import { useSelectedRoom } from '../../../hooks/router/useSelectedRoom';
 import { VirtualTile } from '../../../components/virtualizer';
 import { RoomNavItem } from '../../../features/room-nav';
-import { muteChangesAtom } from '../../../state/room-list/mutedRoomList';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMapper';
 import { useDirectRooms } from './useDirectRooms';
@@ -41,6 +39,8 @@ import FAB from '../../../components/fab/FAB';
 import { useNavHidden } from '../../../hooks/useHideableNav';
 import SearchBar from '../SearchBar';
 import SyncStateAlert from '../SyncStateAlert';
+import { useSetting } from '../../../state/hooks/settings';
+import { settingsAtom } from '../../../state/settings';
 
 type DirectMenuProps = {
     requestClose: () => void;
@@ -51,10 +51,11 @@ type DirectMenuProps = {
 const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ open, anchorEl, requestClose }, ref) => {
     const orphanRooms = useDirectRooms();
     const unread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
+    const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
     const handleMarkAsRead = () => {
         if (!unread) return;
-        orphanRooms.forEach((rId) => markAsRead(rId));
+        orphanRooms.forEach((rId) => markAsRead(rId, undefined, ghostMode));
         requestClose();
     };
 
@@ -149,8 +150,8 @@ export function Direct() {
     useNavToActivePathMapper('direct');
     const scrollRef = useRef<HTMLDivElement>(null);
     const directs = useDirectRooms();
-    const muteChanges = useAtomValue(muteChangesAtom);
-    const mutedRooms = muteChanges.added;
+    // const muteChanges = useAtomValue(muteChangesAtom);
+    // const mutedRooms = muteChanges.added;
     const screenSize = useScreenSize();
 
     const selectedRoomId = useSelectedRoom();
@@ -223,7 +224,7 @@ export function Direct() {
                                             showAvatar
                                             direct
                                             linkPath={getDirectRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
-                                            muted={mutedRooms.includes(roomId)}
+                                            // muted={mutedRooms.includes(roomId)}
                                             pinned={'m.favourite' in tags}
                                         />
                                     </VirtualTile>

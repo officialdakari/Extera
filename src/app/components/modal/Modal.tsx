@@ -3,13 +3,13 @@ import Draggable from 'react-draggable';
 import { Resizable } from 'react-resizable';
 import 'react-resizable/css/styles.css';
 
-import * as css from './Modal.css';
-import { Modal, ModalsType } from '../../hooks/useModals';
 import Icon from '@mdi/react';
 import { mdiClose, mdiOpenInNew } from '@mdi/js';
 import { AppBar, Fab, IconButton, Paper, Toolbar, Typography } from '@mui/material';
+import { Minimize } from '@mui/icons-material';
+import * as css from './Modal.css';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
-import { BrowseGallery, Minimize } from '@mui/icons-material';
+import { Modal, ModalsType } from '../../hooks/useModals';
 
 type ModalsProps = {
     modals: ModalsType;
@@ -73,24 +73,24 @@ function FloatingButton({ onFabClick, content, hidden }: FloatingButtonProps) {
 
     return !hidden && (
         <Draggable
-            onStart={(event) => {
+            onStart={() => {
                 // Record the starting position of the drag, so we can detect later if
                 // the user actually dragged the popup or just clicked on it
                 dragStartPositionXYRef.current = { x: data.x, y: data.y };
             }}
-            onStop={(event, data) => {
+            onStop={(event, d) => {
                 // Only treat the drag as a real one if the popup moved at least a
                 // threshold number of pixels in any direction
                 const THRESHOLD = 2;
                 const { x, y } = dragStartPositionXYRef.current ?? { x: 0, y: 0 };
-                const wasDragged = Math.abs(data.x - x) > THRESHOLD && Math.abs(data.y - y) > THRESHOLD;
+                const wasDragged = Math.abs(d.x - x) > THRESHOLD && Math.abs(d.y - y) > THRESHOLD;
 
                 if (!wasDragged) {
                     (event?.target as HTMLButtonElement)?.click?.();
                 }
             }}
-            onDrag={(e, data) => {
-                setData(data);
+            onDrag={(e, d) => {
+                setData(d);
             }}
             position={data}
         >
@@ -121,7 +121,7 @@ export function Modals({ modals }: ModalsProps) {
                 }
             });
         setDimensions(newDimensions);
-    }, [modals.record]);
+    }, [modals, dimensions, record]);
 
     const onResize = (id: string) => (event: any, { size }: any) => {
         setDimensions(prev => ({
@@ -130,47 +130,42 @@ export function Modals({ modals }: ModalsProps) {
         }));
     };
 
-    const onFabClick = (id: string) => {
-        return () => {
-            modals.showModal(id)
-            console.log(`Showing modal ${id}`);
-        };
+    const onFabClick = (id: string) => () => {
+        modals.showModal(id);
     };
 
     return (
-        <>
-            {record && Object.entries(record).map(
-                ([id, content]) => (
-                    <>
-                        <FloatingButton content={content} onFabClick={onFabClick(id)} hidden={!(content.hidden || false)} />
-                        <ModalWrapper dimensions={dimensions} hidden={content.hidden || false} id={id} onResize={onResize}>
-                            <AppBar ref={appBarRef} className='modal-header' position='relative'>
-                                <Toolbar variant='dense'>
-                                    <Typography variant='h6' component='div' flexGrow={1}>
-                                        {content.title ?? 'Modal'}
-                                    </Typography>
-                                    {content.externalUrl && (
-                                        <IconButton onClick={() => window.open(content.externalUrl, '_blank')}>
-                                            <Icon size={1} path={mdiOpenInNew} />
-                                        </IconButton>
-                                    )}
-                                    <IconButton onClick={() => modals.hideModal(id)}>
-                                        <Minimize />
+        record && Object.entries(record).map(
+            ([id, content]) => (
+                <>
+                    <FloatingButton content={content} onFabClick={onFabClick(id)} hidden={!(content.hidden || false)} />
+                    <ModalWrapper dimensions={dimensions} hidden={content.hidden || false} id={id} onResize={onResize}>
+                        <AppBar ref={appBarRef} className='modal-header' position='relative'>
+                            <Toolbar variant='dense'>
+                                <Typography variant='h6' component='div' flexGrow={1}>
+                                    {content.title ?? 'Modal'}
+                                </Typography>
+                                {content.externalUrl && (
+                                    <IconButton onClick={() => window.open(content.externalUrl, '_blank')}>
+                                        <Icon size={1} path={mdiOpenInNew} />
                                     </IconButton>
-                                    {content.allowClose && (
-                                        <IconButton onClick={() => modals.removeModal(id)}>
-                                            <Icon size={1} path={mdiClose} />
-                                        </IconButton>
-                                    )}
-                                </Toolbar>
-                            </AppBar>
-                            <div style={dimensions[id] ? { overflow: 'hidden', height: '100%', maxHeight: `${(dimensions[id]?.height || 300) - (appBarRef.current?.clientHeight || 10)}px`, width: '100%' } : { width: '100%', overflow: 'hidden' }}>
-                                {content.node}
-                            </div>
-                        </ModalWrapper>
-                    </>
-                )
-            )}
-        </>
+                                )}
+                                <IconButton onClick={() => modals.hideModal(id)}>
+                                    <Minimize />
+                                </IconButton>
+                                {content.allowClose && (
+                                    <IconButton onClick={() => modals.removeModal(id)}>
+                                        <Icon size={1} path={mdiClose} />
+                                    </IconButton>
+                                )}
+                            </Toolbar>
+                        </AppBar>
+                        <div style={dimensions[id] ? { overflow: 'hidden', height: '100%', maxHeight: `${(dimensions[id]?.height || 300) - (appBarRef.current?.clientHeight || 10)}px`, width: '100%' } : { width: '100%', overflow: 'hidden' }}>
+                            {content.node}
+                        </div>
+                    </ModalWrapper>
+                </>
+            )
+        )
     );
 }

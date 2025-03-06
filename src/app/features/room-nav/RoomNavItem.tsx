@@ -4,15 +4,14 @@ import {
     Avatar,
     Box,
     config,
-    PopOut,
-    toRem,
-    RectCords,
     Text,
 } from 'folds';
-import { useFocusWithin, useHover } from 'react-aria';
-import FocusTrap from 'focus-trap-react';
-import { NavItem, NavItemContent, NavItemOptions, NavLink } from '../../components/nav';
-import { UnreadBadge, UnreadBadgeCenter } from '../../components/unread-badge';
+import { useAtomValue } from 'jotai';
+import { ArrowBack, DoneAll, PersonAdd, Settings, Link as LinkIcon } from '@mui/icons-material';
+import { Badge, Divider, ListItemIcon, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
+import Icon from '@mdi/react';
+import { mdiPin } from '@mdi/js';
+import { NavItem, NavItemContent, NavLink } from '../../components/nav';
 import { RoomAvatar, RoomIcon } from '../../components/room-avatar';
 import { getDirectRoomAvatarUrl, getRoomAvatarUrl } from '../../utils/room';
 import { nameInitials } from '../../utils/common';
@@ -27,20 +26,14 @@ import { openInviteUser, toggleRoomSettings } from '../../../client/action/navig
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { LeaveRoomPrompt } from '../../components/leave-room-prompt';
 import { useClientConfig } from '../../hooks/useClientConfig';
-import { useRoomTypingMember } from '../../hooks/useRoomTypingMembers';
-import { TypingIndicator } from '../../components/typing-indicator';
-import { useAtomValue } from 'jotai';
 import { mDirectAtom } from '../../state/mDirectList';
 import { allRoomsAtom } from '../../state/room-list/roomList';
 import { useDirects } from '../../state/hooks/roomList';
 import { usePresences } from '../../hooks/usePresences';
 import { getText } from '../../../lang';
-import cons from '../../../client/state/cons';
 import { Time } from '../../components/message';
-import { Badge, Divider, IconButton, Link, ListItemIcon, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
-import { ArrowBack, DoneAll, MoreVert, NotificationsOff, PersonAdd, Settings, Link as LinkIcon, PushPin, PushPinOutlined } from '@mui/icons-material';
-import Icon from '@mdi/react';
-import { mdiPin, mdiPinOffOutline, mdiPinOutline } from '@mdi/js';
+import { useSetting } from '../../state/hooks/settings';
+import { settingsAtom } from '../../state/settings';
 
 type RoomNavItemMenuProps = {
     room: Room;
@@ -56,9 +49,10 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
         const powerLevels = usePowerLevels(room);
         const { getPowerLevel, canDoAction } = usePowerLevelsAPI(powerLevels);
         const canInvite = canDoAction('invite', getPowerLevel(mx.getUserId() ?? ''));
+        const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
         const handleMarkAsRead = () => {
-            markAsRead(room.roomId);
+            markAsRead(room.roomId, undefined, ghostMode);
             requestClose();
         };
 
@@ -156,46 +150,35 @@ type RoomNavItemProps = {
     room: Room;
     selected: boolean;
     linkPath: string;
-    muted?: boolean;
     showAvatar?: boolean;
     direct?: boolean;
     pinned?: boolean;
-    lowPriority?: boolean;
 };
 export function RoomNavItem({
     room,
     selected,
     showAvatar,
     direct,
-    muted,
     linkPath,
     pinned
 }: RoomNavItemProps) {
     const mx = useMatrixClient();
-    const [hover, setHover] = useState(false);
-    const { hoverProps } = useHover({ onHoverChange: setHover });
-    const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: setHover });
     const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
     const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
-    const typingMember = useRoomTypingMember(room.roomId);
 
     const handleContextMenu: MouseEventHandler<HTMLElement> = (evt) => {
         evt.preventDefault();
         setMenuAnchor(evt.currentTarget);
     };
 
-    const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
-        setMenuAnchor(evt.currentTarget);
-    };
-
-    const optionsVisible = hover || !!menuAnchor;
-
-    var lastMessage = '';
-    const events = room.getLiveTimeline().getEvents().filter(x => x.getType() == 'm.room.message');
+    let lastMessage = '';
+    const events = room.getLiveTimeline().getEvents().filter(x => x.getType() === 'm.room.message');
     const lastEvent = events[events.length - 1];
 
     if (lastEvent) {
         const content = lastEvent.getContent();
+        // its not arithmetical operation u retard
+        // eslint-disable-next-line no-unsafe-optional-chaining
         lastMessage += lastEvent.sender?.rawDisplayName;
         lastMessage += `: `;
         if (typeof content.body === 'string') {
@@ -223,7 +206,7 @@ export function RoomNavItem({
             if (presence)
                 setAvStyle(presence.presence);
         }
-    }, [mx, directs, room]);
+    }, [directs, room, getPresenceFn]);
 
     useEffect(() => {
         updateAvStyle();
@@ -235,8 +218,6 @@ export function RoomNavItem({
             aria-selected={selected}
             data-hover={!!menuAnchor}
             onContextMenu={handleContextMenu}
-            {...hoverProps}
-            {...focusWithinProps}
         >
             <NavLink to={linkPath}>
                 <NavItemContent>

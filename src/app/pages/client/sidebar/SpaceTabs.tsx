@@ -11,13 +11,9 @@ import React, {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Box,
-    config,
     Text,
-    toRem,
 } from 'folds';
-import { Icon as MDIcon } from '@mdi/react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { Room } from 'matrix-js-sdk';
 import {
     draggable,
@@ -31,7 +27,9 @@ import {
 } from '@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item';
 import { autoScrollForElements } from '@atlaskit/pragmatic-drag-and-drop-auto-scroll/element';
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
-import FocusTrap from 'focus-trap-react';
+import { DoneAll, ExpandLess, ExpandMore, PersonAdd, Settings, Link as LinkIcon } from '@mui/icons-material';
+import { Badge, Collapse, Divider, List, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, SvgIcon } from '@mui/material';
+import { mdiPinOff } from '@mdi/js';
 import {
     useOrphanSpaces,
     useRecursiveChildScopeFactory,
@@ -41,25 +39,16 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { roomToParentsAtom } from '../../../state/room/roomToParents';
 import { allRoomsAtom } from '../../../state/room-list/roomList';
 import {
-    getOriginBaseUrl,
     getSpaceLobbyPath,
     getSpacePath,
     joinPathComponent,
-    withOriginBaseUrl,
 } from '../../pathUtils';
 import {
     SidebarAvatar,
-    SidebarItem,
-    SidebarItemBadge,
-    SidebarItemTooltip,
-    SidebarStack,
-    SidebarStackSeparator,
     SidebarFolder,
-    SidebarFolderDropTarget,
 } from '../../../components/sidebar';
-import { RoomUnreadProvider, RoomsUnreadProvider } from '../../../components/RoomUnreadProvider';
+import { RoomUnreadProvider } from '../../../components/RoomUnreadProvider';
 import { useSelectedSpace } from '../../../hooks/router/useSelectedSpace';
-import { UnreadBadge } from '../../../components/unread-badge';
 import { getCanonicalAliasOrRoomId } from '../../../utils/matrix';
 import { RoomAvatar } from '../../../components/room-avatar';
 import { nameInitials, randomStr } from '../../../utils/common';
@@ -75,8 +64,6 @@ import {
 import { AccountDataEvent } from '../../../../types/matrix/accountData';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { useNavToActivePathAtom } from '../../../state/hooks/navToActivePath';
-import { useOpenedSidebarFolderAtom } from '../../../state/hooks/openedSidebarFolder';
-import { useClientConfig } from '../../../hooks/useClientConfig';
 import { usePowerLevels, usePowerLevelsAPI } from '../../../hooks/usePowerLevels';
 import { useRoomsUnread } from '../../../state/hooks/unread';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
@@ -84,9 +71,8 @@ import { markAsRead } from '../../../../client/action/notifications';
 import { copyToClipboard } from '../../../utils/dom';
 import { openInviteUser, openSpaceSettings } from '../../../../client/action/navigation';
 import { getText } from '../../../../lang';
-import { mdiAccount, mdiAccountPlus, mdiCheckAll, mdiChevronUp, mdiCog, mdiLink, mdiLinkVariant, mdiPin, mdiPinOff, mdiPlus, mdiTune } from '@mdi/js';
-import { Badge, Collapse, Divider, IconButton, Link, List, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, SvgIcon } from '@mui/material';
-import { DoneAll, ExpandLess, ExpandMore, KeyboardArrowUp, PersonAdd, Settings, Link as LinkIcon } from '@mui/icons-material';
+import { useSetting } from '../../../state/hooks/settings';
+import { settingsAtom } from '../../../state/settings';
 
 type SpaceMenuProps = {
     room: Room;
@@ -97,11 +83,11 @@ type SpaceMenuProps = {
 const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(
     ({ room, requestClose, onUnpin, anchorEl }, ref) => {
         const mx = useMatrixClient();
-        const { hashRouter } = useClientConfig();
         const roomToParents = useAtomValue(roomToParentsAtom);
         const powerLevels = usePowerLevels(room);
         const { getPowerLevel, canDoAction } = usePowerLevelsAPI(powerLevels);
         const canInvite = canDoAction('invite', getPowerLevel(mx.getUserId() ?? ''));
+        const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
         const allChild = useSpaceChildren(
             allRoomsAtom,
@@ -111,7 +97,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(
         const unread = useRoomsUnread(allChild, roomToUnreadAtom);
 
         const handleMarkAsRead = () => {
-            allChild.forEach((childRoomId) => markAsRead(childRoomId));
+            allChild.forEach((childRoomId) => markAsRead(childRoomId, undefined, ghostMode));
             requestClose();
         };
 
@@ -518,7 +504,6 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
     const orphanSpaces = useOrphanSpaces(mx, allRoomsAtom, roomToParents);
     const [sidebarItems, localEchoSidebarItem] = useSidebarItems(orphanSpaces);
     const navToActivePath = useAtomValue(useNavToActivePathAtom());
-    const [openedFolder, setOpenedFolder] = useAtom(useOpenedSidebarFolderAtom());
     const [draggingItem, setDraggingItem] = useState<SidebarDraggable>();
 
     useDnDMonitor(
@@ -559,7 +544,6 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
                             const folderContent = item.folder.content.filter((s) => s !== item.spaceId);
                             if (folderContent.length === 0) {
                                 // remove open state from local storage
-                                setOpenedFolder({ type: 'DELETE', id: item.folder.id });
                                 return;
                             }
                             newItems.push({
@@ -650,7 +634,7 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
                 localEchoSidebarItem(parseSidebar(mx, orphanSpaces, newSpacesContent));
                 mx.setAccountData(AccountDataEvent.CinnySpaces, newSpacesContent);
             },
-            [mx, sidebarItems, setOpenedFolder, localEchoSidebarItem, orphanSpaces]
+            [mx, sidebarItems, localEchoSidebarItem, orphanSpaces]
         )
     );
 
@@ -673,17 +657,6 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
         }
 
         navigate(getSpaceLobbyPath(getCanonicalAliasOrRoomId(mx, targetSpaceId)));
-    };
-
-    const handleFolderToggle: MouseEventHandler<HTMLAnchorElement> = (evt) => {
-        const target = evt.currentTarget;
-        const targetFolderId = target.getAttribute('data-id');
-        if (!targetFolderId) return;
-
-        setOpenedFolder({
-            type: openedFolder.has(targetFolderId) ? 'DELETE' : 'PUT',
-            id: targetFolderId,
-        });
     };
 
     const handleUnpin = useCallback(

@@ -2,8 +2,6 @@
 import React, {
     Dispatch,
     MouseEventHandler,
-    MouseEvent,
-    TouchEvent,
     RefObject,
     SetStateAction,
     useCallback,
@@ -24,26 +22,24 @@ import {
     RoomEvent,
     RoomEventHandlerMap,
     Thread,
-    ThreadEvent,
-    ThreadEventHandlerMap,
 } from 'matrix-js-sdk';
 import { HTMLReactParserOptions } from 'html-react-parser';
 import classNames from 'classnames';
 import to from 'await-to-js';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
-    Badge,
     Box,
-    ContainerColor,
-    Line,
     Scroll,
     Text,
     as,
-    color,
     config,
     toRem,
 } from 'folds';
 import { isKeyHotkey } from 'is-hotkey';
+import { AnimatePresence } from 'framer-motion';
+import { ArrowUpward, DoneAll, KeyboardArrowDown } from '@mui/icons-material';
+import { mdiCodeBracesBox, mdiImageEdit, mdiPencilBox } from '@mdi/js';
+import { Chip, Divider, Fab } from '@mui/material';
 import {
     decryptFile,
     eventWithShortcode,
@@ -60,7 +56,6 @@ import {
     DefaultPlaceholder,
     CompactPlaceholder,
     Reply,
-    MessageBase,
     MessageUnsupportedContent,
     Time,
     MessageNotDecryptedContent,
@@ -91,7 +86,6 @@ import { useMatrixEventRenderer } from '../../hooks/useMatrixEventRenderer';
 import { Reactions, Message, Event, EncryptedContent } from '../room/message';
 import { useMemberEventParser } from '../../hooks/useMemberEventParser';
 import * as customHtmlCss from '../../styles/CustomHtml.css';
-import { RoomIntro } from '../../components/room-intro';
 import {
     getIntersectionObserverEntry,
     useIntersectionObserver,
@@ -101,7 +95,6 @@ import { useDebounce } from '../../hooks/useDebounce';
 import { getResizeObserverEntry, useResizeObserver } from '../../hooks/useResizeObserver';
 import * as css from './ThreadTimeline.css';
 import { inSameDay, minuteDifference, timeDayMonthYear, today, yesterday } from '../../utils/time';
-import { isEmptyEditor, roomMentionRegexp } from '../../components/editor';
 import { roomIdToReplyDraftAtomFamily } from '../../state/room/roomInputDrafts';
 import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
 import { GetContentCallback, MessageEvent, StateEvent } from '../../../types/matrix/room';
@@ -114,16 +107,11 @@ import { useRoomNavigate } from '../../hooks/useRoomNavigate';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { useRoomUnread } from '../../state/hooks/unread';
 import { roomToUnreadAtom } from '../../state/room/roomToUnread';
-import { clamp } from '../../utils/common';
 import { getText, translate } from '../../../lang';
-import { mdiCheckAll, mdiChevronDown, mdiCodeBraces, mdiCodeBracesBox, mdiImageEdit, mdiMessageAlert, mdiPencilBox } from '@mdi/js';
 import { ThreadPreview } from '../room/message/ThreadPreview';
 import HiddenContent from '../../components/hidden-content/HiddenContent';
 import { isIgnored } from '../../../client/action/room';
-import { Chip, Divider, Fab } from '@mui/material';
-import { ArrowUpward, DoneAll, KeyboardArrowDown } from '@mui/icons-material';
 import { MotionBox } from '../../atoms/motion/Animated';
-import { AnimatePresence } from 'framer-motion';
 
 const TimelineFloat = as<'div', css.TimelineFloatVariants>(
     ({ position, className, ...props }, ref) => (
@@ -138,16 +126,6 @@ const TimelineFloat = as<'div', css.TimelineFloatVariants>(
             {...props}
             ref={ref}
         />
-    )
-);
-
-const TimelineDivider = as<'div', { variant?: ContainerColor | 'Inherit' }>(
-    ({ variant, children, ...props }, ref) => (
-        <Box gap="100" justifyContent="Center" alignItems="Center" {...props} ref={ref}>
-            <Line style={{ flexGrow: 1 }} variant={variant} size="300" />
-            {children}
-            <Line style={{ flexGrow: 1 }} variant={variant} size="300" />
-        </Box>
     )
 );
 
@@ -256,37 +234,6 @@ const PAGINATION_LIMIT = 80;
 type Timeline = {
     linkedTimelines: EventTimeline[];
     range: ItemRange;
-};
-
-const useEventTimelineLoader = (
-    mx: MatrixClient,
-    room: Room,
-    onLoad: (eventId: string, linkedTimelines: EventTimeline[], evtAbsIndex: number) => void,
-    onError: (err: Error | null) => void
-) => {
-    const loadEventTimeline = useCallback(
-        async (eventId: string) => {
-            const [err, replyEvtTimeline] = await to(
-                mx.getEventTimeline(room.getUnfilteredTimelineSet(), eventId)
-            );
-            if (!replyEvtTimeline) {
-                onError(err ?? null);
-                return;
-            }
-            const linkedTimelines = getLinkedTimelines(replyEvtTimeline);
-            const absIndex = getEventIdAbsoluteIndex(linkedTimelines, replyEvtTimeline, eventId);
-
-            if (absIndex === undefined) {
-                onError(err ?? null);
-                return;
-            }
-
-            onLoad(eventId, linkedTimelines, absIndex);
-        },
-        [mx, room, onLoad, onError]
-    );
-
-    return loadEventTimeline;
 };
 
 const useThreadEventTimelineLoader = (
@@ -432,7 +379,7 @@ const useLiveEventArrive = (room: Room, thread: Thread, onArrive: (mEvent: Matri
             thread.removeListener(RoomEvent.Timeline, handleTimelineEvent);
             room.removeListener(RoomEvent.Redaction, handleRedaction);
         };
-    }, [room, onArrive]);
+    }, [room, thread, onArrive]);
 };
 
 const useLiveTimelineRefresh = (room: Room, onRefresh: () => void) => {
@@ -540,9 +487,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
         }, []);
     }, [mx, room, roomToParents]);
 
-    const thread = room.getThread(threadId);
-
-    if (!thread) return null;
+    const thread = room.getThread(threadId)!; // Thread isnt rendered if thread doesnt exist anyway
 
     const [unreadInfo, setUnreadInfo] = useState(() => getThreadUnreadInfo(thread, true));
     const readUptoEventIdRef = useRef<string>();
@@ -692,7 +637,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                 }
 
                 if (document.hasFocus() && (!unreadInfo || mEvt.getSender() === mx.getUserId())) {
-                    requestAnimationFrame(() => markAsRead(mEvt.getRoomId(), thread?.id, ghostMode));
+                    requestAnimationFrame(() => markAsRead(mEvt.getRoomId()!, thread?.id, ghostMode));
                 }
                 setTimeline((ct) => ({
                     ...ct,
@@ -701,10 +646,9 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                         end: ct.range.end + 1,
                     },
                 }));
-                return;
             }
         },
-        [mx, room, thread, unreadInfo]
+        [mx, room, thread, unreadInfo, smoothScroll, ghostMode]
     );
 
     useLiveEventArrive(
@@ -768,17 +712,16 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
     );
 
     const tryAutoMarkAsRead = useCallback(() => {
-        if (ghostMode) return;
         if (!unreadInfo) {
-            requestAnimationFrame(() => markAsRead(room.roomId, thread?.id));
+            requestAnimationFrame(() => markAsRead(room.roomId, thread?.id, ghostMode));
             return;
         }
         const evtTimeline = getEventTimeline(room, unreadInfo.readUptoEventId);
         const latestTimeline = evtTimeline && getFirstLinkedTimeline(evtTimeline, Direction.Forward);
         if (latestTimeline === room.getLiveTimeline() || latestTimeline === thread?.getUnfilteredTimelineSet().getLiveTimeline()) {
-            requestAnimationFrame(() => markAsRead(room.roomId, thread?.id));
+            requestAnimationFrame(() => markAsRead(room.roomId, thread?.id, ghostMode));
         }
-    }, [room, unreadInfo]);
+    }, [room, thread, unreadInfo, ghostMode]);
 
     const debounceSetAtBottom = useDebounce(
         useCallback((entry: IntersectionObserverEntry) => {
@@ -840,7 +783,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                     setEditId(editableEvtId);
                 }
             },
-            [mx, room, textAreaRef]
+            [mx, room]
         )
     );
 
@@ -876,7 +819,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                 });
             }
         }
-    }, [room, thread, unreadInfo, scrollToItem]);
+    }, [room, thread, unreadInfo, scrollToItem, smoothScroll]);
 
     // scroll to focused message
     useLayoutEffect(() => {
@@ -895,7 +838,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                 return currentItem;
             });
         }, 2000);
-    }, [alive, focusItem, scrollToItem]);
+    }, [alive, focusItem, scrollToItem, smoothScroll]);
 
     // scroll to bottom of timeline
     const scrollToBottomCount = scrollToBottomRef.current.count;
@@ -914,19 +857,6 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
         }
     }, [unread]);
 
-    const scrollToEvent = (eventId: string) => {
-        const el = scrollRef.current?.querySelector(`[data-message-id="${eventId}"]`) as HTMLElement;
-        if (el) {
-            scrollToElement(el, {
-                align: 'center',
-                behavior: smoothScroll ? 'smooth' : 'instant',
-                stopInView: true,
-            });
-        }
-    };
-
-
-
     // scroll out of view msg editor in view.
     useEffect(() => {
         if (editId) {
@@ -943,7 +873,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                 if (editMsgTA) editMsgTA.focus();
             }
         }
-    }, [scrollToElement, editId]);
+    }, [scrollToElement, editId, smoothScroll]);
 
     const handleJumpToLatest = () => {
         setTimeline(getInitialTimeline(room));
@@ -986,7 +916,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                 loadEventTimeline(replyId);
             }
         },
-        [room, timeline, scrollToItem, loadEventTimeline]
+        [room, timeline, scrollToItem, loadEventTimeline, smoothScroll]
     );
 
     const handleUserClick: MouseEventHandler<HTMLButtonElement> = useCallback(
@@ -995,7 +925,6 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
             evt.stopPropagation();
             const userId = evt.currentTarget.getAttribute('data-user-id');
             if (!userId) {
-                console.warn('Button should have "data-user-id" attribute!');
                 return;
             }
             openProfileViewer(userId, room.roomId);
@@ -1007,17 +936,15 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
             evt.preventDefault();
             const userId = evt.currentTarget.getAttribute('data-user-id');
             if (!userId) {
-                console.warn('Button should have "data-user-id" attribute!');
                 return;
             }
             const ta = textAreaRef.current;
             if (!ta) {
-                console.warn('textAreaRef does not have object assigned');
                 return;
             }
             ta.value += ` {${userId}}`;
         },
-        [mx, room, textAreaRef]
+        [textAreaRef]
     );
 
     const handleReplyId = useCallback(
@@ -1050,16 +977,15 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
     const handleDiscussId = useCallback(
         (discussId?: string | null) => {
             if (!discussId) {
-                console.warn('Button should have "data-event-id" attribute!');
                 return;
             }
             const discussEvt = room.findEventById(discussId);
             if (!discussEvt) return;
-            const thread = room.getThread(discussId) ||
+            const newThread = room.getThread(discussId) ||
                 room.createThread(discussId, discussEvt, [], false);
-            navigateThread(room.roomId, thread.id);
+            navigateThread(room.roomId, newThread.id);
         },
-        [mx, room]
+        [room, navigateThread]
     );
 
     const handleReactionToggle = useCallback(
@@ -1079,12 +1005,15 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                 (reactions.find(eventWithShortcode)?.getContent().shortcode as string | undefined);
             mx.sendEvent(
                 room.roomId,
+                // "Do not use "@ts-ignore" because it alters compilation errors"
+                // Blah blah blah I will remove it when matrix-js-sdk devs will properly add types to their functions
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 MessageEvent.Reaction,
                 getReactionContent(targetEventId, key, rShortcode)
             );
         },
-        [mx, room]
+        [mx, room, thread]
     );
     const handleEdit = useCallback(
         (editEvtId?: string) => {
@@ -1094,7 +1023,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
             }
             setEditId(undefined);
         },
-        [textAreaRef]
+        [setEditId]
     );
 
     const renderMatrixEvent = useMatrixEventRenderer<
@@ -1117,8 +1046,8 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                     getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
                 const hideReason = ((getContent() as any)['space.0x1a8510f2.msc3368.tags'] ?? [])[0];
                 const ed = mEvent.event;
-                var hideMessage = false;
-                if (ed.content?.msgtype == 'm.notice' && typeof ed.content?.body === 'string') {
+                let hideMessage = false;
+                if (ed.content?.msgtype === 'm.notice' && typeof ed.content?.body === 'string') {
                     const lines = ed.content?.body.split('\n');
                     const lastLine = lines[lines.length - 1];
                     if (lastLine.startsWith('Sponsored message from ')) {
@@ -1178,27 +1107,27 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                             )
                         }
                     >
-                        {mEvent.isRedacted() ? (
-                            <RedactedContent reason={mEvent.getUnsigned().redacted_because?.content.reason} />
-                        ) : (hideTgAds && hideMessage) ? (
-                            <BlockedContent />
-                        ) : (
-                            (
-                                <HiddenContent reason={hideReason}>
-                                    <RenderMessageContent
-                                        displayName={senderDisplayName}
-                                        msgType={mEvent.getContent().msgtype ?? ''}
-                                        ts={mEvent.getTs()}
-                                        edited={!!editedEvent}
-                                        getContent={getContent}
-                                        mediaAutoLoad={mediaAutoLoad}
-                                        urlPreview={showUrlPreview}
-                                        htmlReactParserOptions={htmlReactParserOptions}
-                                        outlineAttachment={messageLayout === 2}
-                                    />
-                                </HiddenContent>
-                            )
-                        )}
+                        {hideTgAds && hideMessage && <BlockedContent />}
+                        {hideTgAds && hideMessage &&
+                            (mEvent.isRedacted() ? (
+                                <RedactedContent reason={mEvent.getUnsigned().redacted_because?.content.reason} />
+                            ) : (
+                                (
+                                    <HiddenContent reason={hideReason}>
+                                        <RenderMessageContent
+                                            displayName={senderDisplayName}
+                                            msgType={mEvent.getContent().msgtype ?? ''}
+                                            ts={mEvent.getTs()}
+                                            edited={!!editedEvent}
+                                            getContent={getContent}
+                                            mediaAutoLoad={mediaAutoLoad}
+                                            urlPreview={showUrlPreview}
+                                            htmlReactParserOptions={htmlReactParserOptions}
+                                            outlineAttachment={messageLayout === 2}
+                                        />
+                                    </HiddenContent>
+                                )
+                            ))}
                     </Message>
                 );
             },
@@ -1711,7 +1640,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                 </Divider>
             ) : null;
 
-        var dayDividerText: string = '';
+        let dayDividerText = '';
         if (today(mEvent.getTs())) dayDividerText = getText('timeline.today_divider');
         if (yesterday(mEvent.getTs())) dayDividerText = getText('timeline.yesterday_divider');
         dayDividerText = timeDayMonthYear(mEvent.getTs());

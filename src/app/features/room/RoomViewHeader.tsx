@@ -1,5 +1,4 @@
-import React, { MouseEventHandler, ReactNode, forwardRef, useEffect, useState } from 'react';
-import FocusTrap from 'focus-trap-react';
+import React, { MouseEventHandler, ReactNode, forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Box,
     Avatar,
@@ -9,6 +8,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { EventTimeline, Room } from 'matrix-js-sdk';
 import { useAtomValue } from 'jotai';
 
+import { ArrowBack, CallEnd, Close, DoneAll, Link as LinkIcon, MoreVert, People, PersonAdd, Phone, PushPin, Search, Settings, VideoCall, Widgets, WidgetsOutlined } from '@mui/icons-material';
+import { AppBar, Dialog, DialogContent, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Tooltip, Typography, useTheme } from '@mui/material';
 import { useStateEvent } from '../../hooks/useStateEvent';
 import { AnimatedNode } from '../../components/page';
 import { RoomAvatar } from '../../components/room-avatar';
@@ -28,14 +29,13 @@ import {
     withOriginBaseUrl,
     withSearchParam,
 } from '../../pages/pathUtils';
-import { getCanonicalAliasOrRoomId, isRoomId, isUserId, mxcUrlToHttp } from '../../utils/matrix';
+import { getCanonicalAliasOrRoomId, mxcUrlToHttp } from '../../utils/matrix';
 import { _SearchPathSearchParams } from '../../pages/paths';
-import * as css from './RoomViewHeader.css';
 import { useRoomUnread } from '../../state/hooks/unread';
 import { usePowerLevelsAPI, usePowerLevelsContext } from '../../hooks/usePowerLevels';
 import { markAsRead } from '../../../client/action/notifications';
 import { roomToUnreadAtom } from '../../state/room/roomToUnread';
-import { openInviteUser, openJoinAlias, openProfileViewer, toggleRoomSettings } from '../../../client/action/navigation';
+import { openInviteUser, toggleRoomSettings } from '../../../client/action/navigation';
 import { copyToClipboard } from '../../utils/dom';
 import { LeaveRoomPrompt } from '../../components/leave-room-prompt';
 import { useRoomAvatar, useRoomName, useRoomTopic } from '../../hooks/useRoomMeta';
@@ -49,8 +49,6 @@ import { useModals } from '../../hooks/useModals';
 import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
 import { getIntegrationManagerURL } from '../../hooks/useIntegrationManager';
 import { nameInitials } from '../../utils/common';
-import { AppBar, Dialog, DialogContent, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Pagination, Toolbar, Tooltip, Typography, useTheme } from '@mui/material';
-import { ArrowBack, CallEnd, Close, DoneAll, KeyboardArrowUp, Link, MessageOutlined, MoreVert, People, PersonAdd, Phone, PushPin, Search, Settings, VideoCall, Widgets, WidgetsOutlined } from '@mui/icons-material';
 import { BackRouteHandler } from '../../components/BackRouteHandler';
 import PinnedMessages from './PinnedMessages';
 import { BackButtonHandler } from '../../hooks/useBackButton';
@@ -69,7 +67,7 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
         const { hashRouter } = useClientConfig();
         const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
         const powerLevels = usePowerLevelsContext();
-        const { getPowerLevel, canDoAction, canSendEvent } = usePowerLevelsAPI(powerLevels);
+        const { getPowerLevel, canDoAction } = usePowerLevelsAPI(powerLevels);
         const canInvite = canDoAction('invite', getPowerLevel(mx.getUserId() ?? ''));
         const myUserId = mx.getUserId();
         const timeline = room.getLiveTimeline();
@@ -80,6 +78,8 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
         ];
         const videoCallEvent = widgetsEvents.find(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
 
+        const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
+
         const navigate = useNavigate();
 
         const canRedact = myUserId
@@ -87,7 +87,7 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
             : false;
 
         const handleMarkAsRead = () => {
-            markAsRead(room.roomId);
+            markAsRead(room.roomId, undefined, ghostMode);
             requestClose();
         };
 
@@ -108,11 +108,11 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
 
         const endJitsi = () => {
             const evs = widgetsEvents.filter(x => x.getContent().type === 'jitsi' || x.getContent().type === 'm.jitsi');
-            for (const ev of evs) {
+            evs.forEach((ev) => {
                 const eventId = ev.getId();
-                if (!eventId) continue;
+                if (!eventId) return;
                 mx.redactEvent(room.roomId, eventId);
-            }
+            });
         };
 
         const handleSearchClick = () => {
@@ -154,7 +154,7 @@ const RoomMenu = forwardRef<HTMLDivElement, RoomMenuProps>(
                     onClick={handleCopyLink}
                 >
                     <ListItemIcon>
-                        <Link />
+                        <LinkIcon />
                     </ListItemIcon>
                     <ListItemText>
                         {getText('room_header.copy_link')}
@@ -267,10 +267,12 @@ export function RoomViewHeader({
     const myUserId = mx.getUserId();
     const timeline = room.getLiveTimeline();
     const state = timeline.getState(EventTimeline.FORWARDS);
-    const widgetsEvents = [
-        ...(state?.getStateEvents('m.widget') ?? []),
-        ...(state?.getStateEvents('im.vector.modular.widgets') ?? [])
-    ];
+    const widgetsEvents = useMemo(() =>
+        [
+            ...(state?.getStateEvents('m.widget') ?? []),
+            ...(state?.getStateEvents('im.vector.modular.widgets') ?? [])
+        ],
+        [state]);
     const canEditWidgets = myUserId
         ? canSendStateEvent('im.vector.modular.widgets', getPowerLevel(myUserId))
         : false;
@@ -312,86 +314,82 @@ export function RoomViewHeader({
 
     // officialdakari 24.07.2024 - надо зарефакторить это всё, но мне пока лень
 
-    const handleWidgetsClick = async () => {
-        const userId = mx.getUserId();
-        if (typeof userId !== 'string') return;
-        const profile = mx.getUser(userId);
-        const timeline = room.getLiveTimeline();
-        const state = timeline.getState(EventTimeline.FORWARDS);
-        const widgets = [
-            ...(state?.getStateEvents('m.widget') ?? []),
-            ...(state?.getStateEvents('im.vector.modular.widgets') ?? [])
-        ];
-        const widgetList: ReactNode[] = [];
-        console.log(widgets);
-        if (!widgets || widgets.length < 1) {
-            setWidgets(
-                [
-                    <Text>{getText('widgets.none')}</Text>
-                ]
-            );
-        } else {
-            for (const ev of widgets) {
-                const content = ev.getContent();
-                if (typeof content.url !== 'string') continue;
-                const data = {
-                    matrix_user_id: userId,
-                    matrix_room_id: room.roomId,
-                    matrix_display_name: profile?.displayName ?? userId,
-                    matrix_avatar_url: profile?.avatarUrl && mxcUrlToHttp(mx, profile?.avatarUrl),
-                    ...content.data
-                };
-                var url = `${content.url}`; // Should not be a reference
-                for (const key in data) {
-                    if (typeof data[key] === 'string') {
-                        url = url.replaceAll(`$${key}`, data[key]);
-                    }
-                }
-                if (!url.startsWith('https://')) continue;
-                const r = await getIntegrationManagerURL(mx, room);
-                if (url.startsWith('https://scalar.vector.im') && r?.token) url += `&scalar_token=${r.token}`;
-                const openWidget = () => {
-                    setShowWidgets(false);
-                    modals.addModal({
-                        allowClose: true,
-                        title: content.name ?? 'Widget',
-                        node: (
-                            <iframe
-                                style={{ border: 'none', width: '100%', height: '100%' }}
-                                allow="autoplay; camera; clipboard-write; compute-pressure; display-capture; hid; microphone; screen-wake-lock"
-                                allowFullScreen
-                                data-widget-room-id={ev.getRoomId()}
-                                data-widget-event-id={ev.getId()}
-                                data-widget-name={content.name}
-                                data-widget-room-name={room.name}
-                                data-widget={true}
-                                src={url}
-                            />
-                        ),
-                        externalUrl: url
-                    });
-                };
-                const removeWidget = async () => {
-                    setShowWidgets(false);
-                    if (!(await confirmDialog(
-                        getText('confirm.remove_widget.title'),
-                        getText('confirm.remove_widget.question'),
-                        getText('btn.widget.remove'),
-                        'error'
-                    ))) return;
-                    const evId = ev.getId();
-                    if (!evId) return;
-                    mx.redactEvent(room.roomId, evId);
-                };
-                console.debug(`Can redact: ${canRedact}`);
-                widgetList.push(
-                    <WidgetItem onClick={openWidget} onRemove={canRedact ? removeWidget : undefined} name={typeof content.name === 'string' ? content.name : undefined} url={url} type={content.type} />
+    const handleWidgetsClick = useCallback(
+        async () => {
+            const userId = mx.getUserId();
+            if (typeof userId !== 'string') return;
+            const profile = mx.getUser(userId);
+            const widgetList: ReactNode[] = [];
+            if (!widgetsEvents || widgetsEvents.length < 1) {
+                setWidgets(
+                    [
+                        <Text>{getText('widgets.none')}</Text>
+                    ]
                 );
+            } else {
+                widgetsEvents.forEach(async (ev) => {
+                    const content = ev.getContent();
+                    if (typeof content.url !== 'string') return;
+                    const data = {
+                        matrix_user_id: userId,
+                        matrix_room_id: room.roomId,
+                        matrix_display_name: profile?.displayName ?? userId,
+                        matrix_avatar_url: profile?.avatarUrl && mxcUrlToHttp(mx, profile?.avatarUrl),
+                        ...content.data
+                    };
+                    let url = `${content.url}`; // Should not be a reference
+                    data.forEach((key: string) => {
+                        if (typeof data[key] === 'string') {
+                            url = url.replaceAll(`$${key}`, data[key]);
+                        }
+                    });
+                    if (!url.startsWith('https://')) return;
+                    const r = await getIntegrationManagerURL(mx, room);
+                    if (url.startsWith('https://scalar.vector.im') && r?.token) url += `&scalar_token=${r.token}`;
+                    const openWidget = () => {
+                        setShowWidgets(false);
+                        modals.addModal({
+                            allowClose: true,
+                            title: content.name ?? 'Widget',
+                            node: (
+                                <iframe
+                                    style={{ border: 'none', width: '100%', height: '100%' }}
+                                    allow="autoplay; camera; clipboard-write; compute-pressure; display-capture; hid; microphone; screen-wake-lock"
+                                    allowFullScreen
+                                    data-widget-room-id={ev.getRoomId()}
+                                    data-widget-event-id={ev.getId()}
+                                    data-widget-name={content.name}
+                                    data-widget-room-name={room.name}
+                                    data-widget
+                                    src={url}
+                                    title={content.name || 'Widget'}
+                                />
+                            ),
+                            externalUrl: url
+                        });
+                    };
+                    const removeWidget = async () => {
+                        setShowWidgets(false);
+                        if (!(await confirmDialog(
+                            getText('confirm.remove_widget.title'),
+                            getText('confirm.remove_widget.question'),
+                            getText('btn.widget.remove'),
+                            'error'
+                        ))) return;
+                        const evId = ev.getId();
+                        if (!evId) return;
+                        mx.redactEvent(room.roomId, evId);
+                    };
+                    widgetList.push(
+                        <WidgetItem onClick={openWidget} onRemove={canRedact ? removeWidget : undefined} name={typeof content.name === 'string' ? content.name : undefined} url={url} type={content.type} />
+                    );
+                });
             }
-        }
-        setWidgets(widgetList);
-        setShowWidgets(true);
-    };
+            setWidgets(widgetList);
+            setShowWidgets(true);
+        },
+        [mx, room, widgetsEvents, canRedact, modals]
+    );
 
     const handlePinnedClick = () => {
         setShowPinned(true);
@@ -412,8 +410,9 @@ export function RoomViewHeader({
                     style={{ border: 'none', width: '100%', height: '100%' }}
                     allow="autoplay; camera; clipboard-write; compute-pressure; display-capture; hid; microphone; screen-wake-lock"
                     allowFullScreen
-                    data-integration-manager={true}
+                    data-integration-manager
                     src={url}
+                    title='Integrations'
                 />
             ),
             externalUrl: url
@@ -421,7 +420,7 @@ export function RoomViewHeader({
     };
 
     useEffect(() => {
-        const isDm = room.getDMInviter() || room.getJoinedMemberCount() == 2;
+        const isDm = room.getDMInviter() || room.getJoinedMemberCount() === 2;
         if (isDm) {
             const userId = room.guessDMUserId();
             const presence = getPresenceFn(userId);
@@ -430,7 +429,7 @@ export function RoomViewHeader({
                 if (presence.presence === 'online') setTopicColor(theme.palette.success.main);
             }
         }
-    }, [mx, theme]);
+    }, [mx, room, theme, getPresenceFn]);
 
     return (
         <>

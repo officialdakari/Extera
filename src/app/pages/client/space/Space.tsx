@@ -8,22 +8,17 @@ import React, {
 } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import {
-    Avatar,
-    RectCords,
     config,
-    toRem,
 } from 'folds';
-import { Icon as MDIcon } from '@mdi/react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { JoinRule, Room } from 'matrix-js-sdk';
-import FocusTrap from 'focus-trap-react';
+import { Room } from 'matrix-js-sdk';
+import { DoneAll, MenuOpen, MoreVert, PersonAdd, Menu as MenuIcon, Share, ArrowBack, Flag, OutlinedFlag, Search, Settings } from '@mui/icons-material';
+import { AppBar, Box, Button, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { mDirectAtom } from '../../../state/mDirectList';
 import {
     NavCategory,
     NavCategoryHeader,
-    NavItem,
-    NavItemContent,
     NavLink,
 } from '../../../components/nav';
 import {
@@ -43,7 +38,6 @@ import {
 import { useSpace } from '../../../hooks/useSpace';
 import { VirtualTile } from '../../../components/virtualizer';
 import { RoomNavCategoryButton, RoomNavItem } from '../../../features/room-nav';
-import { muteChangesAtom } from '../../../state/room-list/mutedRoomList';
 import { makeNavCategoryId } from '../../../state/closedNavCategories';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import { useCategoryHandler } from '../../../hooks/useCategoryHandler';
@@ -51,8 +45,7 @@ import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMappe
 import { useRoomName } from '../../../hooks/useRoomMeta';
 import { useSpaceJoinedHierarchy } from '../../../hooks/useSpaceHierarchy';
 import { allRoomsAtom } from '../../../state/room-list/roomList';
-import { PageNav, PageNavContent, PageNavHeader } from '../../../components/page';
-import { usePowerLevels, usePowerLevelsAPI } from '../../../hooks/usePowerLevels';
+import { PageNav, PageNavContent } from '../../../components/page';
 import { openInviteUser, openSpaceSettings } from '../../../../client/action/navigation';
 import { useRecursiveChildScopeFactory, useSpaceChildren } from '../../../state/hooks/roomList';
 import { roomToParentsAtom } from '../../../state/room/roomToParents';
@@ -63,18 +56,13 @@ import { LeaveSpacePrompt } from '../../../components/leave-space-prompt';
 import { copyToClipboard } from '../../../utils/dom';
 import { useClientConfig } from '../../../hooks/useClientConfig';
 import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCategories';
-import { useStateEvent } from '../../../hooks/useStateEvent';
-import { StateEvent } from '../../../../types/matrix/room';
 import { getText } from '../../../../lang';
-import { mdiAccountPlus, mdiArrowLeft, mdiCheckAll, mdiCog, mdiDotsVertical, mdiFlag, mdiFlagOutline, mdiLink, mdiLock, mdiMagnify } from '@mdi/js';
 import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
 import FAB from '../../../components/fab/FAB';
-import { RoomJoinRulesEventContent } from 'matrix-js-sdk/lib/types';
-import { AppBar, Box, Button, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
-import { Add, DoneAll, MenuOpen, MoreVert, PersonAdd, Menu as MenuIcon, Share, ArrowBack, Flag, OutlinedFlag, Search, Settings } from '@mui/icons-material';
 import { useNavHidden } from '../../../hooks/useHideableNav';
-import BottomNav from '../BottomNav';
 import SyncStateAlert from '../SyncStateAlert';
+import { useSetting } from '../../../state/hooks/settings';
+import { settingsAtom } from '../../../state/settings';
 
 type SpaceMenuProps = {
     room: Room;
@@ -85,9 +73,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, anchorEl, 
     const mx = useMatrixClient();
     const { hashRouter } = useClientConfig();
     const roomToParents = useAtomValue(roomToParentsAtom);
-    const powerLevels = usePowerLevels(room);
-    const { getPowerLevel, canDoAction } = usePowerLevelsAPI(powerLevels);
-    const canInvite = canDoAction('invite', getPowerLevel(mx.getUserId() ?? ''));
+    const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
     const allChild = useSpaceChildren(
         allRoomsAtom,
@@ -97,7 +83,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, anchorEl, 
     const unread = useRoomsUnread(allChild, roomToUnreadAtom);
 
     const handleMarkAsRead = () => {
-        allChild.forEach((childRoomId) => markAsRead(childRoomId));
+        allChild.forEach((childRoomId) => markAsRead(childRoomId, undefined, ghostMode));
         requestClose();
     };
 
@@ -244,8 +230,8 @@ export function Space() {
     const roomToUnread = useAtomValue(roomToUnreadAtom);
     const allRooms = useAtomValue(allRoomsAtom);
     const allJoinedRooms = useMemo(() => new Set(allRooms), [allRooms]);
-    const muteChanges = useAtomValue(muteChangesAtom);
-    const mutedRooms = muteChanges.added;
+    // const muteChanges = useAtomValue(muteChangesAtom);
+    // const mutedRooms = muteChanges.added;
 
     const selectedRoomId = useSelectedRoom();
     const lobbySelected = useSpaceLobbySelected(spaceIdOrAlias);
@@ -364,10 +350,10 @@ export function Space() {
                                     <RoomNavItem
                                         room={room}
                                         selected={selectedRoomId === roomId}
-                                        showAvatar={true}
+                                        showAvatar
                                         direct={mDirects.has(roomId)}
                                         linkPath={getToLink(roomId)}
-                                        muted={mutedRooms.includes(roomId)}
+                                        // muted={mutedRooms.includes(roomId)}
                                         pinned={'m.favourite' in tags}
                                     />
                                 </VirtualTile>

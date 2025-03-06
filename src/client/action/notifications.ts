@@ -3,8 +3,8 @@ import { removeNotifications } from '../../app/utils/notifications';
 import initMatrix from '../initMatrix';
 
 // eslint-disable-next-line import/prefer-default-export
-export async function markAsRead(roomId, threadId, privateReceipt) {
-    const mx = initMatrix.matrixClient;
+export async function markAsRead(roomId: string, threadId?: string, privateReceipt?: boolean) {
+    const mx = initMatrix.matrixClient!;
     const room = mx.getRoom(roomId);
     if (!room) return;
 
@@ -12,7 +12,7 @@ export async function markAsRead(roomId, threadId, privateReceipt) {
 
     if (!threadId) {
         const timeline = room.getLiveTimeline().getEvents();
-        const readEventId = room.getEventReadUpTo(mx.getUserId());
+        const readEventId = room.getEventReadUpTo(mx.getUserId()!);
 
         const getLatestValidEvent = () => {
             for (let i = timeline.length - 1; i >= 0; i -= 1) {
@@ -29,8 +29,9 @@ export async function markAsRead(roomId, threadId, privateReceipt) {
         await mx.sendReadReceipt(latestEvent, privateReceipt ? ReceiptType.ReadPrivate : ReceiptType.Read);
     } else {
         const thread = room.getThread(threadId);
+        if (!thread) return;
         const timeline = thread.getUnfilteredTimelineSet().getLiveTimeline().getEvents();
-        const readEventId = thread.getEventReadUpTo(mx.getUserId());
+        const readEventId = thread.getEventReadUpTo(mx.getUserId()!);
 
         const getLatestValidEvent = () => {
             for (let i = timeline.length - 1; i >= 0; i -= 1) {
@@ -42,7 +43,7 @@ export async function markAsRead(roomId, threadId, privateReceipt) {
 
         if (timeline.length === 0) return;
         const latestEvent = getLatestValidEvent();
-        if (latestEvent === null) return;
+        if (!latestEvent) return;
 
         await mx.sendReadReceipt(latestEvent, privateReceipt ? ReceiptType.ReadPrivate : ReceiptType.Read);
     }

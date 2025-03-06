@@ -1,9 +1,8 @@
 import React, { MouseEventHandler, forwardRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, config, toRem } from 'folds';
-import { Icon as MDIcon } from '@mdi/react';
-import FocusTrap from 'focus-trap-react';
 import { useAtomValue } from 'jotai';
+import { DoneAll, Person } from '@mui/icons-material';
+import { Badge, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { useDirects } from '../../../state/hooks/roomList';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { mDirectAtom } from '../../../state/mDirectList';
@@ -11,22 +10,14 @@ import { allRoomsAtom } from '../../../state/room-list/roomList';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import { getDirectPath, joinPathComponent } from '../../pathUtils';
 import { useRoomsUnread } from '../../../state/hooks/unread';
-import {
-    SidebarAvatar,
-    SidebarItem,
-    SidebarItemBadge,
-    SidebarItemTooltip,
-} from '../../../components/sidebar';
 import { useDirectSelected } from '../../../hooks/router/useDirectSelected';
-import { UnreadBadge } from '../../../components/unread-badge';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { useNavToActivePathAtom } from '../../../state/hooks/navToActivePath';
 import { useDirectRooms } from '../direct/useDirectRooms';
 import { markAsRead } from '../../../../client/action/notifications';
 import { getText } from '../../../../lang';
-import { mdiAccount, mdiAccountOutline, mdiCheckAll } from '@mdi/js';
-import { Badge, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
-import { DoneAll, Person } from '@mui/icons-material';
+import { useSetting } from '../../../state/hooks/settings';
+import { settingsAtom } from '../../../state/settings';
 
 type DirectMenuProps = {
     requestClose: () => void;
@@ -35,10 +26,11 @@ type DirectMenuProps = {
 const DirectMenu = forwardRef<HTMLDivElement, DirectMenuProps>(({ requestClose, anchorEl }, ref) => {
     const orphanRooms = useDirectRooms();
     const unread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
+    const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
     const handleMarkAsRead = () => {
         if (!unread) return;
-        orphanRooms.forEach((rId) => markAsRead(rId));
+        orphanRooms.forEach((rId) => markAsRead(rId, undefined, ghostMode));
         requestClose();
     };
 

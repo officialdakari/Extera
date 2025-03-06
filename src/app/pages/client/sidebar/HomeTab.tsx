@@ -1,33 +1,24 @@
 import React, { MouseEventHandler, forwardRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, config, toRem } from 'folds';
 import { useAtomValue } from 'jotai';
-import FocusTrap from 'focus-trap-react';
+import { Badge, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
+import { DoneAll, Home } from '@mui/icons-material';
 import { useOrphanRooms } from '../../../state/hooks/roomList';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { mDirectAtom } from '../../../state/mDirectList';
 import { roomToParentsAtom } from '../../../state/room/roomToParents';
 import { allRoomsAtom } from '../../../state/room-list/roomList';
-import Icon, { Icon as MDIcon } from '@mdi/react';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import { getHomePath, joinPathComponent } from '../../pathUtils';
 import { useRoomsUnread } from '../../../state/hooks/unread';
-import {
-    SidebarAvatar,
-    SidebarItem,
-    SidebarItemBadge,
-    SidebarItemTooltip,
-} from '../../../components/sidebar';
 import { useHomeSelected } from '../../../hooks/router/useHomeSelected';
-import { UnreadBadge } from '../../../components/unread-badge';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { useNavToActivePathAtom } from '../../../state/hooks/navToActivePath';
 import { useHomeRooms } from '../home/useHomeRooms';
 import { markAsRead } from '../../../../client/action/notifications';
 import { getText } from '../../../../lang';
-import { mdiCheckAll, mdiHome, mdiHomeOutline } from '@mdi/js';
-import { Badge, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip } from '@mui/material';
-import { DoneAll, Home } from '@mui/icons-material';
+import { useSetting } from '../../../state/hooks/settings';
+import { settingsAtom } from '../../../state/settings';
 
 type HomeMenuProps = {
     requestClose: () => void;
@@ -36,10 +27,11 @@ type HomeMenuProps = {
 const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ requestClose, anchorEl }, ref) => {
     const orphanRooms = useHomeRooms();
     const unread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
+    const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
     const handleMarkAsRead = () => {
         if (!unread) return;
-        orphanRooms.forEach((rId) => markAsRead(rId));
+        orphanRooms.forEach((rId) => markAsRead(rId, undefined, ghostMode));
         requestClose();
     };
 

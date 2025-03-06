@@ -1,63 +1,47 @@
 import React, { MouseEventHandler, forwardRef, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Avatar,
     Box,
     Button,
     IconButton,
     Menu,
     MenuItem,
-    Popover,
     Typography,
-    Divider,
     AppBar,
     Toolbar,
     ListItemIcon,
     ListItemText,
 } from '@mui/material';
-import Icon, { Icon as MDIcon } from '@mdi/react';
+import { Icon as MDIcon } from '@mdi/react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useAtom, useAtomValue } from 'jotai';
-import FocusTrap from 'focus-trap-react';
-import { factoryRoomIdByActivity, factoryRoomIdByAtoZ, factoryRoomIdByUnreadCount } from '../../../utils/sort';
+import { Add, ArrowForward, DoneAll, MoreVert, Menu as MenuIcon, MenuOpen } from '@mui/icons-material';
+import { mdiPound } from '@mdi/js';
+import { factoryRoomIdByActivity } from '../../../utils/sort';
 import {
-    NavButton,
-    NavCategory,
-    NavCategoryHeader,
     NavEmptyCenter,
     NavEmptyLayout,
-    NavItem,
-    NavItemContent,
-    NavLink,
 } from '../../../components/nav';
-import { getExplorePath, getHomeRoomPath, getHomeSearchPath } from '../../pathUtils';
+import { getExplorePath, getHomeRoomPath } from '../../pathUtils';
 import { getCanonicalAliasOrRoomId, getRoomTags } from '../../../utils/matrix';
 import { useSelectedRoom } from '../../../hooks/router/useSelectedRoom';
-import { useHomeSearchSelected } from '../../../hooks/router/useHomeSelected';
 import { useHomeRooms } from './useHomeRooms';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { VirtualTile } from '../../../components/virtualizer';
-import { RoomNavCategoryButton, RoomNavItem } from '../../../features/room-nav';
-import { muteChangesAtom } from '../../../state/room-list/mutedRoomList';
-import { makeNavCategoryId } from '../../../state/closedNavCategories';
+import { RoomNavItem } from '../../../features/room-nav';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
-import { useCategoryHandler } from '../../../hooks/useCategoryHandler';
 import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMapper';
 import { openCreateRoom, openJoinAlias } from '../../../../client/action/navigation';
-import { PageNav, PageNavHeader, PageNavContent } from '../../../components/page';
+import { PageNav, PageNavContent } from '../../../components/page';
 import { useRoomsUnread } from '../../../state/hooks/unread';
 import { markAsRead } from '../../../../client/action/notifications';
-import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCategories';
 import { getText } from '../../../../lang';
-import { isHidden } from '../../../state/hooks/roomList';
-import { mdiPound } from '@mdi/js';
 import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
 import FAB from '../../../components/fab/FAB';
-import { Add, ArrowForward, ArrowRight, DoneAll, KeyboardArrowRight, MoreVert, Menu as MenuIcon, MenuOpen } from '@mui/icons-material';
 import { useNavHidden } from '../../../hooks/useHideableNav';
 import SearchBar from '../SearchBar';
 import SyncStateAlert from '../SyncStateAlert';
-import BottomNav from '../BottomNav';
+import { useSetting } from '../../../state/hooks/settings';
+import { settingsAtom } from '../../../state/settings';
 
 type HomeMenuProps = {
     requestClose: () => void;
@@ -67,10 +51,11 @@ type HomeMenuProps = {
 const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ anchorEl, requestClose }, ref) => {
     const orphanRooms = useHomeRooms();
     const unread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
+    const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
     const handleMarkAsRead = () => {
         if (!unread) return;
-        orphanRooms.forEach((rId) => markAsRead(rId));
+        orphanRooms.forEach((rId) => markAsRead(rId, undefined, ghostMode));
         requestClose();
     };
 
@@ -188,17 +173,14 @@ function HomeEmpty() {
     );
 }
 
-const DEFAULT_CATEGORY_ID = makeNavCategoryId('home', 'room');
-
 export function Home() {
     const mx = useMatrixClient();
     const screenSize = useScreenSize();
     useNavToActivePathMapper('home');
     const scrollRef = useRef<HTMLDivElement>(null);
     const rooms = useHomeRooms();
-    const muteChanges = useAtomValue(muteChangesAtom);
-    const mutedRooms = muteChanges.added;
-    const roomToUnread = useAtomValue(roomToUnreadAtom);
+    // const muteChanges = useAtomValue(muteChangesAtom);
+    // const mutedRooms = muteChanges.added;
 
     const selectedRoomId = useSelectedRoom();
     const noRoomToDisplay = rooms.length === 0;
@@ -208,7 +190,7 @@ export function Home() {
             factoryRoomIdByActivity(mx)
         );
         return items;
-    }, [mx, rooms, roomToUnread, selectedRoomId]);
+    }, [mx, rooms]);
 
     const virtualizer = useVirtualizer({
         count: sortedRooms.length,
@@ -250,7 +232,7 @@ export function Home() {
                                                 selected={selected}
                                                 showAvatar
                                                 linkPath={getHomeRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
-                                                muted={mutedRooms.includes(roomId)}
+                                                // muted={mutedRooms.includes(roomId)}
                                                 pinned={'m.favourite' in tags}
                                             />
                                         </VirtualTile>

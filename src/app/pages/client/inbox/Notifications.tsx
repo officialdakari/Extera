@@ -21,7 +21,10 @@ import {
 } from 'matrix-js-sdk';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { HTMLReactParserOptions } from 'html-react-parser';
-import { Page, PageContent, PageContentCenter, PageHeader } from '../../../components/page';
+import { AppBar, Chip, Fab, IconButton, Toolbar, Typography } from '@mui/material';
+import { mdiAccount } from '@mdi/js';
+import { ArrowBack, Check, KeyboardArrowUp } from '@mui/icons-material';
+import { Page, PageContent, PageContentCenter } from '../../../components/page';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getMxIdLocalPart, isRoomId, isUserId, mxcUrlToHttp } from '../../../utils/matrix';
 import { InboxNotificationsPathSearchParams } from '../../paths';
@@ -68,11 +71,6 @@ import { VirtualTile } from '../../../components/virtualizer';
 import { UserAvatar } from '../../../components/user-avatar';
 import { EncryptedContent } from '../../../features/room/message';
 import { getText, translate } from '../../../../lang';
-import { mdiAccount, mdiCheck, mdiCheckAll, mdiChevronUp, mdiMessage } from '@mdi/js';
-import { AppBar, Button, Chip, Fab, IconButton, Toolbar, Typography } from '@mui/material';
-import { ArrowBack, Check, DoneAll, KeyboardArrowUp } from '@mui/icons-material';
-import BottomNav from '../BottomNav';
-import { ScreenSize, useScreenSize } from '../../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../../components/BackRouteHandler';
 
 type RoomNotificationsGroup = {
@@ -186,6 +184,7 @@ function RoomNotificationsGroupComp({
     const mx = useMatrixClient();
     const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
     const { navigateRoom, navigateSpace } = useRoomNavigate();
+    const [ghostMode] = useSetting(settingsAtom, 'extera_ghostMode');
 
     const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
         () =>
@@ -357,8 +356,9 @@ function RoomNotificationsGroupComp({
         if (!eventId) return;
         onOpen(room.roomId, eventId);
     };
+
     const handleMarkAsRead = () => {
-        markAsRead(room.roomId);
+        markAsRead(room.roomId, undefined, ghostMode);
     };
 
     return (
@@ -489,8 +489,6 @@ export function Notifications() {
     const scrollRef = useRef<HTMLDivElement>(null);
     const scrollTopAnchorRef = useRef<HTMLDivElement>(null);
     const [refreshIntervalTime, setRefreshIntervalTime] = useState(DEFAULT_REFRESH_MS);
-
-    const screenSize = useScreenSize();
 
     const onlyHighlight = notificationsSearchParams.only === 'highlight';
     const setOnlyHighlighted = (highlight: boolean) => {

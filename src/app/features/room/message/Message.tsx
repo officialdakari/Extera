@@ -1,7 +1,11 @@
+/* eslint-disable no-nested-ternary */
+/* eslint-disable camelcase */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable spaced-comment */
+/* eslint-disable react/destructuring-assignment */
 import {
     Avatar,
     Box,
-    Line,
     Text,
     as,
     config,
@@ -18,9 +22,18 @@ import React, {
     useState,
 } from 'react';
 import { useHover, useFocusWithin } from 'react-aria';
-import { EventStatus, EventTimeline, IEvent, MatrixEvent, RelationType, Room, RoomEvent } from 'matrix-js-sdk';
+import { EventStatus, EventTimeline, MatrixEvent, RelationType, Room, RoomEvent } from 'matrix-js-sdk';
 import { Relations } from 'matrix-js-sdk/lib/models/relations';
 import classNames from 'classnames';
+import Icon from '@mdi/react';
+import { mdiAccount, mdiAlertCircleOutline, mdiCheck, mdiCheckAll, mdiClockOutline, mdiClose, mdiDotsVertical, mdiEmoticonPlus, mdiMessage, mdiPencil, mdiPin, mdiPinOff, mdiReply } from '@mdi/js';
+import { Avatar as MUIAvatar, Alert, AppBar, AvatarGroup, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Toolbar, Typography, useTheme } from '@mui/material';
+import { AddReactionOutlined, ArrowBack, CancelOutlined, Close, DataObject, DeleteOutline, DoneAll, Download, Edit, EmojiEmotionsOutlined, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
+import { LoadingButton } from '@mui/lab';
+import { Feature, ServerSupport } from 'matrix-js-sdk/lib/feature';
+import { useAtomValue } from 'jotai';
+import { AnimatePresence, motion } from 'framer-motion';
+import { HTMLReactParserOptions } from 'html-react-parser';
 import {
     AvatarBase,
     BubbleLayout,
@@ -30,7 +43,6 @@ import {
     MSticker,
     MessageBase,
     ModernLayout,
-    Reply,
     Time,
     Username,
 } from '../../../components/message';
@@ -56,32 +68,23 @@ import { UserAvatar } from '../../../components/user-avatar';
 import { copyToClipboard } from '../../../utils/dom';
 import { useSetting } from '../../../state/hooks/settings';
 import { RenderMessageContent } from '../../../components/RenderMessageContent';
-import { GetContentCallback } from '../../../../types/matrix/room';
-import { HTMLReactParserOptions } from 'html-react-parser';
+import { GetContentCallback, StateEvent } from '../../../../types/matrix/room';
 import { openJoinAlias, openProfileViewer } from '../../../../client/action/navigation';
 import { getReactCustomHtmlParser } from '../../../plugins/react-custom-html-parser';
 import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
 import { ImageViewer } from '../../../components/image-viewer';
 import { Image } from '../../../components/media';
 import { getText } from '../../../../lang';
-import Icon from '@mdi/react';
-import { mdiAccount, mdiAlertCircleOutline, mdiArrowRight, mdiCancel, mdiCheck, mdiCheckAll, mdiCheckOutline, mdiClock, mdiClockOutline, mdiClose, mdiCloseCircle, mdiCodeBraces, mdiDelete, mdiDotsVertical, mdiDownload, mdiEmoticon, mdiEmoticonPlus, mdiExclamation, mdiExclamationThick, mdiLinkVariant, mdiMessage, mdiMessageOutline, mdiPencil, mdiPin, mdiPinOff, mdiReload, mdiRepeat, mdiReply, mdiRestore, mdiShare, mdiTranslate } from '@mdi/js';
 import { BackButtonHandler, useBackButton } from '../../../hooks/useBackButton';
 import { translateContent } from '../../../utils/translation';
 import { VerificationBadge } from '../../../components/verification-badge/VerificationBadge';
 import { saveFile } from '../../../utils/saveFile';
 import { getFileSrcUrl } from '../../../components/message/content/util';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
-import { Avatar as MUIAvatar, Alert, AppBar, AvatarGroup, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, Link, ListItemIcon, ListItemText, Menu, MenuItem, TextField, Toolbar, Typography, useTheme } from '@mui/material';
-import { AddReactionOutlined, ArrowBack, CancelOutlined, Close, DataObject, Delete, DeleteOutline, DoneAll, Download, Edit, EmojiEmotions, EmojiEmotionsOutlined, FlagOutlined, LinkOutlined, MessageOutlined, Replay, ReplyOutlined, Restore, Translate } from '@mui/icons-material';
-import { LoadingButton } from '@mui/lab';
 import { useSwipeLeft } from '../../../hooks/useSwipeLeft';
-import { Feature, ServerSupport } from 'matrix-js-sdk/lib/feature';
-import { useAtomValue } from 'jotai';
 import { mDirectAtom } from '../../../state/mDirectList';
 import { useRoomEventReaders } from '../../../hooks/useRoomEventReaders';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useAccountData } from '../../../hooks/useAccountData';
+import { ExteraButton } from '../../../../types/matrix/common';
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -126,7 +129,7 @@ export const MessageAllReactionItem = as<
         relations: Relations;
         onClose?: () => void;
     }
->(({ room, relations, onClose, ...props }, ref) => {
+>(({ room, relations, onClose }) => {
     const [open, setOpen] = useState(false);
 
     const handleClose = () => {
@@ -161,18 +164,18 @@ export const MessageReadReceiptItem = as<
         eventId: string;
         onClose?: () => void;
     }
->(({ room, eventId, onClose, ...props }, ref) => {
+>(({ room, eventId, onClose }) => {
     const mx = useMatrixClient();
     const [open, setOpen] = useState(false);
     const eventReaders = useRoomEventReaders(room, eventId);
-    const eventReadersAvatars = useMemo(() => {
-        return eventReaders.slice(0, 4).map((userId) => {
+    const eventReadersAvatars = useMemo(() => // dawg i hate eslint
+        eventReaders.slice(0, 4).map((userId) => {
             const user = mx.getUser(userId);
             if (user?.avatarUrl) {
                 return mxcUrlToHttp(mx, user.avatarUrl, 24, 24, 'scale');
             }
-        });
-    }, [eventReaders, room, eventId]);
+            return null;
+        }), [mx, eventReaders]);
 
     const handleClose = () => {
         setOpen(false);
@@ -250,7 +253,7 @@ export const MessageSourceCodeItem = as<
         mEvent: MatrixEvent;
         onClose?: () => void;
     }
->(({ room, mEvent, onClose, ...props }, ref) => {
+>(({ room, mEvent, onClose }) => {
     const [open, setOpen] = useState(false);
 
     const getContent = (evt: MatrixEvent) =>
@@ -323,25 +326,31 @@ export const MessageFileDownloadItem = as<
         mEvent: MatrixEvent;
         onClose?: () => void;
     }
->(({ room, mEvent, onClose, ...props }, ref) => {
+>(({ mEvent, onClose }) => {
     const mx = useMatrixClient();
     const content = mEvent.getContent();
     const { url, filename, body } = content;
     const fileName = filename ?? body;
     const mxc = url ?? content.file?.url;
     const fileInfo = content?.info;
-    const handleClick = async () => {
-        const httpUrl = mxcUrlToHttp(mx, mxc);
-        if (!httpUrl) return onClose?.();
-        const Url = await getFileSrcUrl(
-            httpUrl,
-            fileInfo?.mimetype ?? FALLBACK_MIMETYPE,
-            content.file,
-            mx
-        );
-        saveFile(Url, fileName);
-        onClose?.();
-    };
+    const handleClick = useCallback(
+        async () => {
+            const httpUrl = mxcUrlToHttp(mx, mxc);
+            if (!httpUrl) {
+                onClose?.();
+                return;
+            }
+            const Url = await getFileSrcUrl(
+                httpUrl,
+                fileInfo?.mimetype ?? FALLBACK_MIMETYPE,
+                content.file,
+                mx
+            );
+            saveFile(Url, fileName);
+            onClose?.();
+        },
+        [mx, mxc, content, fileInfo, fileName, onClose]
+    );
     return (
         <MenuItem
             disabled={typeof mxc !== 'string' || typeof fileName !== 'string' || !url.startsWith('mxc://')}
@@ -364,43 +373,59 @@ export const MessagePinItem = as<
         mEvent: MatrixEvent;
         onClose?: () => void;
     }
->(({ room, mEvent, onClose, ...props }, ref) => {
+>(({ room, mEvent, onClose }) => {
     const mx = useMatrixClient();
     const timeline = room.getLiveTimeline();
     const state = timeline.getState(EventTimeline.FORWARDS);
     const eventId = mEvent.getId();
     const pinnedEvents = state?.getStateEvents('m.room.pinned_events');
-    var isPinned = false;
-    var pinned: string[] = [];
+    const [isPinned, setIsPinned] = useState(false);
 
-    if (pinnedEvents && pinnedEvents.length > 0 && typeof eventId === 'string') {
-        pinned = pinnedEvents[pinnedEvents.length - 1].getContent().pinned;
-        isPinned = pinned.includes(eventId);
-    }
+    useEffect(() => {
+        if (pinnedEvents && pinnedEvents.length > 0 && typeof eventId === 'string') {
+            setIsPinned((pinnedEvents[pinnedEvents.length - 1].getContent().pinned as string[]).includes(eventId));
+        }
+    }, [pinnedEvents, setIsPinned, eventId]);
 
-    const handlePin = async () => {
-        if (onClose) onClose();
-        if (!eventId) return;
-        pinned.push(eventId);
-        // @ts-ignore
-        await mx.sendStateEvent(room.roomId, 'm.room.pinned_events', {
-            pinned
-        });
-    };
+    const [pinState, pin] = useAsyncCallback(
+        useCallback(
+            async () => {
+                if (onClose) onClose();
+                if (!eventId) return;
+                if (!pinnedEvents) return;
+                //@ts-ignore
+                await mx.sendStateEvent(room.roomId, StateEvent.RoomPinnedEvents, {
+                    pinned: [
+                        ...(pinnedEvents[pinnedEvents.length - 1].getContent().pinned as string[]),
+                        eventId
+                    ]
+                });
+            },
+            [mx, onClose, eventId, pinnedEvents, room]
+        )
+    );
 
-    const handleUnpin = async () => {
-        if (onClose) onClose();
-        if (!eventId) return;
-        pinned = pinned.filter(x => x !== eventId);
-        // @ts-ignore
-        await mx.sendStateEvent(room.roomId, 'm.room.pinned_events', {
-            pinned
-        });
-    };
+    const [unpinState, unpin] = useAsyncCallback(
+        useCallback(
+            async () => {
+                if (onClose) onClose();
+                if (!eventId) return;
+                if (!pinnedEvents) return;
+                let pinned = (pinnedEvents[pinnedEvents.length - 1].getContent().pinned as string[]);
+                pinned = pinned.filter(x => x !== eventId);
+                // @ts-ignore
+                await mx.sendStateEvent(room.roomId, StateEvent.RoomPinnedEvents, {
+                    pinned
+                });
+            },
+            [mx, onClose, pinnedEvents, room, eventId]
+        )
+    );
 
     return (
         <MenuItem
-            onClick={isPinned ? handleUnpin : handlePin}
+            disabled={unpinState.status === AsyncStatus.Loading || pinState.status === AsyncStatus.Loading}
+            onClick={isPinned ? unpin : pin}
         >
             <ListItemIcon>
                 <Icon size={1} path={isPinned ? mdiPinOff : mdiPin} />
@@ -419,10 +444,9 @@ export const MessageRecoverItem = as<
         mEvent: MatrixEvent;
         onClose?: () => void;
     }
->(({ room, mEvent, onClose, ...props }, ref) => {
+>(({ room, mEvent, onClose }) => {
     const mx = useMatrixClient();
     const { navigateRoom, navigateSpace } = useRoomNavigate();
-    const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
     const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
         () =>
             getReactCustomHtmlParser(mx, room, {
@@ -454,101 +478,107 @@ export const MessageRecoverItem = as<
     );
 
     const [open, setOpen] = useState(false);
-    const [message, setMessage]: [any, any] = useState(
+    const [message, setMessage] = useState<ReactNode>(
         <DefaultPlaceholder />
     );
     const [messageLayout] = useSetting(settingsAtom, 'messageLayout');
     const [messageSpacing] = useSetting(settingsAtom, 'messageSpacing');
+    const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
+    const [urlPreview] = useSetting(settingsAtom, 'urlPreview');
 
-    const findReported = async () => {
-        const token = mx.getAccessToken();
-        const base = mx.baseUrl;
-        const response1 = await fetch(`${base}/_synapse/admin/v1/event_reports?dir=b&from=0&limit=10&order_by=received_ts`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-        if (!response1.ok) return null;
-        const re1j = await response1.json();
-        console.log(re1j);
-        const { event_reports }: { event_reports: any[] } = re1j;
-        console.log(event_reports);
-        const report = event_reports.find(x => x.event_id == mEvent.getId());
-        console.log(report);
-        if (!report) return null;
-        const { id } = report;
-        const response2 = await fetch(`${base}/_synapse/admin/v1/event_reports/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-        if (!response2.ok) return null;
-        const { event_json } = await response2.json();
-        return event_json;
-    };
+    const findReported = useCallback(
+        async () => {
+            const token = mx.getAccessToken();
+            const base = mx.baseUrl;
+            const response1 = await fetch(`${base}/_synapse/admin/v1/event_reports?dir=b&from=0&limit=10&order_by=received_ts`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if (!response1.ok) return null;
+            const re1j = await response1.json();
+            const { event_reports }: { event_reports: any[] } = re1j;
+            const report = event_reports.find(x => x.event_id === mEvent.getId()!);
+            if (!report) return null;
+            const { id } = report;
+            const response2 = await fetch(`${base}/_synapse/admin/v1/event_reports/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if (!response2.ok) return null;
+            const { event_json } = await response2.json();
+            return event_json;
+        },
+        [mx, mEvent]
+    );
 
-    const handleClick = async () => {
-        setOpen(true);
-        //if (onClose) onClose();
-        if (!(await mx.isSynapseAdministrator())) {
-            return setMessage(
-                getText('error.recover')
+    const handleClick = useCallback(
+        // eslint-disable-next-line consistent-return
+        async () => {
+            setOpen(true);
+            //if (onClose) onClose();
+            if (!(await mx.isSynapseAdministrator())) {
+                return setMessage(
+                    getText('error.recover')
+                );
+            }
+            const { roomId } = room;
+            const eventId = mEvent.getId();
+            if (!roomId || !eventId) return null;
+            let json = await findReported();
+            if (!json) {
+                await mx.reportEvent(roomId, eventId, -100, 'Extera Redacted Event Recover');
+            }
+            json = await findReported();
+            if (!json) return null;
+            const event = new MatrixEvent(json);
+            setMessage(
+                // eslint-disable-next-line no-use-before-define
+                <Message
+                    key={event.getId()}
+                    data-message-id={eventId}
+                    room={room}
+                    mEvent={event}
+                    edit={false}
+                    canDelete={false}
+                    canSendReaction={false}
+                    collapse={false}
+                    highlight={false}
+                    messageSpacing={messageSpacing}
+                    messageLayout={messageLayout}
+                    onReactionToggle={() => null}
+                    onReplyClick={() => null}
+                    onDiscussClick={() => null}
+                    onUserClick={() => null}
+                    onUsernameClick={() => null}
+                >
+                    {event.getType() === 'm.room.message' && <RenderMessageContent
+                        displayName={event.sender?.rawDisplayName || event.sender?.userId || getText('generic.unknown')}
+                        msgType={event.getContent().msgtype ?? ''}
+                        ts={event.getTs()}
+                        edited={false}
+                        getContent={event.getContent.bind(event) as GetContentCallback}
+                        mediaAutoLoad={mediaAutoLoad}
+                        urlPreview={urlPreview}
+                        htmlReactParserOptions={htmlReactParserOptions}
+                    />}
+                    {event.getType() === 'm.sticker' && <MSticker
+                        content={event.getContent()}
+                        renderImageContent={(props) => (
+                            <ImageContent
+                                {...props}
+                                autoPlay={mediaAutoLoad}
+                                renderImage={(p) => <Image {...p} loading="lazy" />}
+                                renderViewer={(p) => <ImageViewer {...p} />}
+                            />
+                        )}
+                    />}
+                </Message>
             );
-        }
-        const roomId = room.roomId;
-        const eventId = mEvent.getId();
-        if (!roomId) return console.log('room id null');
-        if (!eventId) return console.log('no event id');
-        var json = await findReported();
-        if (!json) {
-            await mx.reportEvent(roomId, eventId, -100, 'Extera Redacted Event Recover');
-        }
-        json = await findReported();
-        if (!json) return;
-        const event = new MatrixEvent(json);
-        setMessage(
-            <Message
-                key={event.getId()}
-                data-message-id={eventId}
-                room={room}
-                mEvent={event}
-                edit={false}
-                canDelete={false}
-                canSendReaction={false}
-                collapse={false}
-                highlight={false}
-                messageSpacing={messageSpacing}
-                messageLayout={messageLayout}
-                onReactionToggle={(evt: any) => null}
-                onReplyClick={() => { }}
-                onDiscussClick={() => { }}
-                onUserClick={(evt: any) => null}
-                onUsernameClick={(evt: any) => null}
-            >
-                {event.getType() == 'm.room.message' && <RenderMessageContent
-                    displayName={event.sender?.rawDisplayName || event.sender?.userId || getText('generic.unknown')}
-                    msgType={event.getContent().msgtype ?? ''}
-                    ts={event.getTs()}
-                    edited={false}
-                    getContent={event.getContent.bind(event) as GetContentCallback}
-                    mediaAutoLoad={true}
-                    urlPreview={false}
-                    htmlReactParserOptions={htmlReactParserOptions}
-                />}
-                {event.getType() == 'm.sticker' && <MSticker
-                    content={event.getContent()}
-                    renderImageContent={(props) => (
-                        <ImageContent
-                            {...props}
-                            autoPlay={mediaAutoLoad}
-                            renderImage={(p) => <Image {...p} loading="lazy" />}
-                            renderViewer={(p) => <ImageViewer {...p} />}
-                        />
-                    )}
-                />}
-            </Message>
-        );
-    };
+        },
+        [mx, room, findReported, mEvent, mediaAutoLoad, urlPreview, messageLayout, messageSpacing, htmlReactParserOptions]
+    );
 
     const handleClose = () => {
         setOpen(false);
@@ -590,10 +620,9 @@ export const MessageTranslateItem = as<
         mEvent: MatrixEvent;
         onClose?: () => void;
     }
->(({ room, mEvent, onClose, ...props }, ref) => {
+>(({ room, mEvent, onClose }) => {
     const mx = useMatrixClient();
     const { navigateRoom, navigateSpace } = useRoomNavigate();
-    const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
     const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
         () =>
             getReactCustomHtmlParser(mx, room, {
@@ -625,11 +654,13 @@ export const MessageTranslateItem = as<
     );
 
     const [open, setOpen] = useState(false);
-    const [message, setMessage]: [any, any] = useState(
+    const [message, setMessage] = useState<ReactNode>(
         <DefaultPlaceholder />
     );
     const [messageLayout] = useSetting(settingsAtom, 'messageLayout');
     const [messageSpacing] = useSetting(settingsAtom, 'messageSpacing');
+    const [mediaAutoLoad] = useSetting(settingsAtom, 'mediaAutoLoad');
+    const [urlPreview] = useSetting(settingsAtom, 'urlPreview');
 
     const handleClick = async () => {
         setOpen(true);
@@ -638,6 +669,7 @@ export const MessageTranslateItem = as<
         const translatedContent = await translateContent(mEvent.getContent());
         const getContent = () => translatedContent;
         setMessage(
+            // eslint-disable-next-line no-use-before-define
             <Message
                 key={mEvent.getId()}
                 data-message-id={eventId}
@@ -650,29 +682,29 @@ export const MessageTranslateItem = as<
                 highlight={false}
                 messageSpacing={messageSpacing}
                 messageLayout={messageLayout}
-                onReactionToggle={(evt: any) => null}
-                onReplyClick={() => { }}
-                onDiscussClick={() => { }}
-                onUserClick={(evt: any) => null}
-                onUsernameClick={(evt: any) => null}
+                onReactionToggle={() => null}
+                onReplyClick={() => null}
+                onDiscussClick={() => null}
+                onUserClick={() => null}
+                onUsernameClick={() => null}
             >
-                {mEvent.getType() == 'm.room.message' && <RenderMessageContent
+                {mEvent.getType() === 'm.room.message' && <RenderMessageContent
                     displayName={mEvent.sender?.rawDisplayName || mEvent.sender?.userId || getText('generic.unknown')}
                     msgType={translatedContent.msgtype ?? ''}
                     ts={mEvent.getTs()}
                     edited={false}
                     getContent={getContent as GetContentCallback}
-                    mediaAutoLoad={true}
-                    urlPreview={false}
+                    mediaAutoLoad={mediaAutoLoad}
+                    urlPreview={urlPreview}
                     htmlReactParserOptions={htmlReactParserOptions}
                 />}
-                {mEvent.getType() == 'm.sticker' && <MSticker
+                {mEvent.getType() === 'm.sticker' && <MSticker
                     content={mEvent.getContent()}
                     renderImageContent={(props) => (
                         <ImageContent
                             {...props}
                             autoPlay={mediaAutoLoad}
-                            renderImage={(p) => <Image loading="lazy" />}
+                            renderImage={() => <Image loading="lazy" />}
                             renderViewer={(p) => <ImageViewer {...p} />}
                         />
                     )}
@@ -724,7 +756,7 @@ export const MessageCopyLinkItem = as<
         mEvent: MatrixEvent;
         onClose?: () => void;
     }
->(({ room, mEvent, onClose, ...props }, ref) => {
+>(({ room, mEvent, onClose }) => {
     const mx = useMatrixClient();
 
     const handleCopy = () => {
@@ -753,7 +785,7 @@ export const MessageCancelItem = as<
         mEvent: MatrixEvent;
         onClose?: () => void;
     }
->(({ room, mEvent, onClose, ...props }, ref) => {
+>(({ mEvent, onClose }) => {
     const mx = useMatrixClient();
 
     const onClick = () => {
@@ -782,7 +814,7 @@ export const MessageRetryItem = as<
         mEvent: MatrixEvent;
         onClose?: () => void;
     }
->(({ room, mEvent, onClose, ...props }, ref) => {
+>(({ room, mEvent, onClose }) => {
     const mx = useMatrixClient();
 
     const onClick = () => {
@@ -811,7 +843,7 @@ export const MessageDeleteItem = as<
         mEvent: MatrixEvent;
         onClose?: () => void;
     }
->(({ room, mEvent, onClose, ...props }, ref) => {
+>(({ room, mEvent, onClose }) => {
     const mx = useMatrixClient();
     const [open, setOpen] = useState(false);
 
@@ -823,19 +855,18 @@ export const MessageDeleteItem = as<
                         reason,
                         with_rel_types: [RelationType.Replace]
                     });
-                } else {
-                    mx.relations(room.roomId, eventId, RelationType.Replace)
-                        .then(({ events }) => {
-                            for (const ev of events) {
-                                const evId = ev.getId();
-                                if (!evId) continue;
-                                mx.redactEvent(room.roomId, evId, undefined, { reason });
-                            }
-                        });
-                    return mx.redactEvent(room.roomId, eventId, undefined, {
-                        reason
-                    });
                 }
+                mx.relations(room.roomId, eventId, RelationType.Replace)
+                    .then(({ events }) => {
+                        events.forEach((ev) => {
+                            const evId = ev.getId();
+                            if (!evId) return;
+                            mx.redactEvent(room.roomId, evId, undefined, { reason });
+                        });
+                    });
+                return mx.redactEvent(room.roomId, eventId, undefined, {
+                    reason
+                });
             },
             [mx, room]
         )
@@ -927,7 +958,7 @@ export const MessageReportItem = as<
         mEvent: MatrixEvent;
         onClose?: () => void;
     }
->(({ room, mEvent, onClose, ...props }, ref) => {
+>(({ room, mEvent, onClose }) => {
     const mx = useMatrixClient();
     const [open, setOpen] = useState(false);
 
@@ -1098,11 +1129,11 @@ export const Message = as<'div', MessageProps>(
 
         const { animate, onTouchEnd, onTouchMove, onTouchStart } = useSwipeLeft(() => onReplyClick());
 
-        var senderDisplayName =
+        let senderDisplayName =
             getMemberDisplayName(room, senderId) ?? user?.displayName ?? localPart ?? senderId;
-        var senderAvatarMxc = getMemberAvatarMxc(room, senderId);
+        let senderAvatarMxc = getMemberAvatarMxc(room, senderId);
 
-        if (tgRename && room.name != 'Telegram bridge bot' && mEvent.getContent().msgtype != 'm.notice') {
+        if (tgRename && room.name !== 'Telegram bridge bot' && mEvent.getContent().msgtype !== 'm.notice') {
             if (['telegram', 'telegrambot'].includes(localPart!)) {
                 senderDisplayName = room.name;
                 senderAvatarMxc = room.getMxcAvatarUrl() ?? senderAvatarMxc;
@@ -1115,7 +1146,6 @@ export const Message = as<'div', MessageProps>(
             const listener = (event: MatrixEvent) => {
                 if (event.getId() === mEvent.getId()) {
                     setStatus(mEvent.status || EventStatus.SENT);
-                    console.log(event.status);
                 }
             };
 
@@ -1125,9 +1155,6 @@ export const Message = as<'div', MessageProps>(
             };
         }, [mx, mEvent]);
 
-        const isBridged = useMemo(() => {
-            return (content['fi.mau.telegram.source']) ? true : false;
-        }, [content, mEvent, mx]);
 
         const hideHeader = useMemo(() => messageLayout === 2 && mDirects.has(room.roomId), [messageLayout, room, mDirects]);
 
@@ -1180,7 +1207,7 @@ export const Message = as<'div', MessageProps>(
             </Box>
         );
 
-        const hasBeenRead = readers.find(x => x !== senderId) ? true : false;
+        const hasBeenRead = !!readers.find(x => x !== senderId);
         const hasBeenSent = status === EventStatus.SENT;
         const sending = [EventStatus.ENCRYPTING, EventStatus.QUEUED, EventStatus.SENDING].includes(status!);
         const failed = status === EventStatus.NOT_SENT;
@@ -1195,6 +1222,8 @@ export const Message = as<'div', MessageProps>(
                         color={theme.palette.text.secondary}
                         path={
                             // Good luck figuring out
+                            // I disabled errors on nested ternary for this file
+                            // Передаю привет учителю по физике
                             sending
                                 ? mdiClockOutline
                                 :
@@ -1254,10 +1283,10 @@ export const Message = as<'div', MessageProps>(
             </AvatarBase>
         );
 
-        const buttons: any[] | undefined = typeof content['xyz.extera.buttons'] == 'object' &&
+        const buttons: ExteraButton[] | undefined = typeof content['xyz.extera.buttons'] === 'object' &&
             content['xyz.extera.buttons'].filter &&
             content['xyz.extera.buttons'].filter(
-                (x: any) => typeof x.id == 'string' && typeof x.name == 'string'
+                (x: ExteraButton) => typeof x.id === 'string' && typeof x.name === 'string'
             );
 
         const msgContentJSX = (
@@ -1454,7 +1483,7 @@ export const Message = as<'div', MessageProps>(
                                             onClose={closeMenu}
                                         />
                                         <Divider />
-                                        {mEvent.getType() == 'org.matrix.msc3381.poll.start' && onPollEnd && mEvent.sender?.userId == (mx.getUserId() ?? '') && (
+                                        {mEvent.getType() === 'org.matrix.msc3381.poll.start' && onPollEnd && mEvent.sender?.userId === (mx.getUserId() ?? '') && (
                                             <MenuItem
                                                 onClick={onPollEnd}
                                             >
@@ -1487,7 +1516,7 @@ export const Message = as<'div', MessageProps>(
                                         )}
                                         <MenuItem
                                             data-event-id={mEvent.getId()}
-                                            onClick={(evt: any) => {
+                                            onClick={() => {
                                                 closeMenu();
                                                 onReplyClick();
                                             }}
@@ -1501,7 +1530,7 @@ export const Message = as<'div', MessageProps>(
                                         </MenuItem>
                                         <MenuItem
                                             data-event-id={mEvent.getId()}
-                                            onClick={(evt: any) => {
+                                            onClick={() => {
                                                 closeMenu();
                                                 onDiscussClick();
                                             }}
@@ -1645,12 +1674,8 @@ export type EventProps = {
 export const Event = as<'div', EventProps>(
     ({ className, room, mEvent, highlight, canDelete, messageSpacing, children, ...props }, ref) => {
         const mx = useMatrixClient();
-        const [hover, setHover] = useState(false);
-        const { hoverProps } = useHover({ onHoverChange: setHover });
-        const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: setHover });
         const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
         const stateEvent = typeof mEvent.getStateKey() === 'string';
-        const isTouchDevice = 'ontouchstart' in window;
 
         const handleContextMenu: MouseEventHandler<HTMLDivElement> = (evt) => {
             if (evt.altKey || !window.getSelection()?.isCollapsed) return;
@@ -1660,10 +1685,6 @@ export const Event = as<'div', EventProps>(
             setMenuAnchor(evt.currentTarget);
         };
 
-        const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
-            const target = evt.currentTarget.parentElement?.parentElement ?? evt.currentTarget;
-            setMenuAnchor(target);
-        };
 
         const closeMenu = () => {
             setMenuAnchor(null);
@@ -1710,8 +1731,6 @@ export const Event = as<'div', EventProps>(
                     highlight={highlight}
                     selected={!!menuAnchor}
                     {...props}
-                    {...hoverProps}
-                    {...focusWithinProps}
                     ref={ref}
                 >
                     <div onContextMenu={handleContextMenu}>{children}</div>
