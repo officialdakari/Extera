@@ -617,19 +617,26 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
         }
     }, [ghostMode]);
 
-    if (plugin) {
-        plugin.on('read', callback);
-    }
+    useEffect(() => {
+        if (plugin) {
+            plugin.on('read', callback);
+        }
+        return () => {
+            if (plugin)
+                plugin.un('read', callback);
+        };
+    }, [plugin, callback]);
 
     const openwith = cordova ? cordova.openwith : null;
 
-    if (cordova && openwith) {
+    useEffect(() => {
+        if (!cordova || !openwith) return;
         const intentHandler = (intent: any) => {
             openShareMenu(intent.items);
         };
         openwith.init(console.log, console.error);
         openwith.addHandler(intentHandler);
-    }
+    }, [cordova, openwith]);
 
     return (
         <>
