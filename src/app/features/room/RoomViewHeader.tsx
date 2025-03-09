@@ -1,3 +1,4 @@
+/* eslint-disable no-continue */
 import React, { MouseEventHandler, ReactNode, forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Box,
@@ -9,7 +10,7 @@ import { EventTimeline, Room } from 'matrix-js-sdk';
 import { useAtomValue } from 'jotai';
 
 import { ArrowBack, CallEnd, Close, DoneAll, Link as LinkIcon, MoreVert, People, PersonAdd, Phone, PushPin, Search, Settings, VideoCall, Widgets, WidgetsOutlined } from '@mui/icons-material';
-import { AppBar, Dialog, DialogContent, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Tooltip, Typography, useTheme } from '@mui/material';
+import { AppBar, CircularProgress, Dialog, DialogContent, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Toolbar, Tooltip, Typography, useTheme } from '@mui/material';
 import { useStateEvent } from '../../hooks/useStateEvent';
 import { AnimatedNode } from '../../components/page';
 import { RoomAvatar } from '../../components/room-avatar';
@@ -53,6 +54,7 @@ import { BackRouteHandler } from '../../components/BackRouteHandler';
 import PinnedMessages from './PinnedMessages';
 import { BackButtonHandler } from '../../hooks/useBackButton';
 import IntegrationManager from '../widget/IntegrationManager';
+import WidgetIFrame from '../widget/WidgetIFrame';
 
 type RoomMenuProps = {
     room: Room;
@@ -328,9 +330,17 @@ export function RoomViewHeader({
                     ]
                 );
             } else {
-                widgetsEvents.forEach(async (ev) => {
+                setShowWidgets(true);
+                setWidgets([
+                    <CircularProgress />
+                ]);
+                const r = await getIntegrationManagerURL(mx, room);
+                console.log(r);
+                // eslint-disable-next-line no-restricted-syntax
+                for (const ev of widgetsEvents) {
                     const content = ev.getContent();
-                    if (typeof content.url !== 'string') return;
+                    console.log(content);
+                    if (typeof content.url !== 'string') continue;
                     const data = {
                         matrix_user_id: userId,
                         matrix_room_id: room.roomId,
@@ -338,14 +348,15 @@ export function RoomViewHeader({
                         matrix_avatar_url: profile?.avatarUrl && mxcUrlToHttp(mx, profile?.avatarUrl),
                         ...content.data
                     };
+                    console.log(data);
                     let url = `${content.url}`; // Should not be a reference
-                    data.forEach((key: string) => {
+                    // eslint-disable-next-line no-restricted-syntax
+                    for (const key in data) {
                         if (typeof data[key] === 'string') {
                             url = url.replaceAll(`$${key}`, data[key]);
                         }
-                    });
-                    if (!url.startsWith('https://')) return;
-                    const r = await getIntegrationManagerURL(mx, room);
+                    }
+                    if (!url.startsWith('https://')) continue;
                     if (url.startsWith('https://scalar.vector.im') && r?.token) url += `&scalar_token=${r.token}`;
                     const openWidget = () => {
                         setShowWidgets(false);
@@ -353,17 +364,12 @@ export function RoomViewHeader({
                             allowClose: true,
                             title: content.name ?? 'Widget',
                             node: (
-                                <iframe
-                                    style={{ border: 'none', width: '100%', height: '100%' }}
-                                    allow="autoplay; camera; clipboard-write; compute-pressure; display-capture; hid; microphone; screen-wake-lock"
-                                    allowFullScreen
-                                    data-widget-room-id={ev.getRoomId()}
-                                    data-widget-event-id={ev.getId()}
-                                    data-widget-name={content.name}
-                                    data-widget-room-name={room.name}
-                                    data-widget
-                                    src={url}
-                                    title={content.name || 'Widget'}
+                                <WidgetIFrame
+                                    eventId={ev.getId()!}
+                                    roomId={room.roomId}
+                                    roomName={room.name}
+                                    url={url}
+                                    widgetName={content.name}
                                 />
                             ),
                             externalUrl: url
@@ -384,10 +390,9 @@ export function RoomViewHeader({
                     widgetList.push(
                         <WidgetItem onClick={openWidget} onRemove={canRedact ? removeWidget : undefined} name={typeof content.name === 'string' ? content.name : undefined} url={url} type={content.type} />
                     );
-                });
+                }
             }
             setWidgets(widgetList);
-            setShowWidgets(true);
         },
         [mx, room, widgetsEvents, canRedact, modals]
     );

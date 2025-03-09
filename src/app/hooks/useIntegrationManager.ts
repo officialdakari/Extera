@@ -1,6 +1,6 @@
+/* eslint-disable consistent-return */
 import { MatrixClient, Room } from "matrix-js-sdk";
 import { confirmDialog } from "../molecules/confirm-dialog/ConfirmDialog";
-import { useMatrixClient } from "./useMatrixClient";
 
 type ScalarURLToken = {
     url: string;
@@ -9,7 +9,7 @@ type ScalarURLToken = {
 
 export async function getIntegrationManagerURL(mx: MatrixClient, room: Room): Promise<ScalarURLToken | undefined> {
     // const terms = 'https://vector.im/integration-manager-privacy-notice-1';
-    var token = (localStorage.scalarTokenUntil ?? 0) > Date.now() ? localStorage.scalarToken : null;
+    let token = (localStorage.scalarTokenUntil ?? 0) > Date.now() ? localStorage.scalarToken : null;
     if (!token) {
         const openIdToken = await mx.getOpenIdToken();
         const response = await fetch(`https://scalar.vector.im/api/register`, {
@@ -23,19 +23,19 @@ export async function getIntegrationManagerURL(mx: MatrixClient, room: Room): Pr
             alert('Failed to get integrations manager token!');
             return;
         }
-        const { scalar_token } = await response.json();
-        token = scalar_token;
-        localStorage.scalarToken = scalar_token;
+        const { scalar_token: scalarToken } = await response.json();
+        token = scalarToken;
+        localStorage.scalarToken = scalarToken;
         localStorage.scalarTokenUntil = Date.now() + (openIdToken.expires_in * 1e3);
     }
     const accRes = await fetch(`https://scalar.vector.im/api/account?scalar_token=${token}&v=1.1`);
     if (!accRes.ok) {
-        const { error, errcode } = await accRes.json();
+        const { errcode } = await accRes.json();
         if (errcode === 'M_TERMS_NOT_SIGNED') {
             const termsResponse = await fetch(`https://scalar.vector.im/_matrix/integrations/v1/terms`);
             const { policies } = await termsResponse.json();
             const policiesList = Object.values(policies);
-            if (await confirmDialog('Integrations', `To continue to integrations manager, you need to accept:\n\n${policiesList.map((x: any) => `${x.en.name} ${x.en.url}`).join('\n')}`, 'Accept', 'positive')) {
+            if (await confirmDialog('Integrations', `To continue to integrations manager, you need to accept:\n\n${policiesList.map((x: any) => `${x.en.name} ${x.en.url}`).join('\n')}`, 'Accept', 'success')) {
                 const acceptedTerms = mx.getAccountData('m.accepted_terms');
                 await mx.setAccountData('m.accepted_terms', {
                     accepted: [
