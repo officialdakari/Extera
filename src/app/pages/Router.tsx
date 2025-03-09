@@ -5,11 +5,8 @@ import {
     createBrowserRouter,
     createHashRouter,
     createRoutesFromElements,
-    redirect,
-    useLocation,
+    redirect
 } from 'react-router-dom';
-
-import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 import { ClientConfig } from '../hooks/useClientConfig';
 import { AuthLayout, Login, Register, ResetPassword } from './auth';
@@ -33,7 +30,6 @@ import {
     _SERVER_PATH,
     SEARCH_PATH,
     _THREAD_PATH,
-    EMAIL_PATH,
 } from './paths';
 import { isAuthenticated } from '../../client/state/auth';
 import {
@@ -61,12 +57,10 @@ import { ScreenSize } from '../hooks/useScreenSize';
 import { MobileFriendlyPageNav, MobileFriendlyClientNav } from './MobileFriendly';
 import { ClientInitStorageAtom } from './client/ClientInitStorageAtom';
 import { ClientNonUIFeatures } from './client/ClientNonUIFeatures';
-import CreateRoom, { CreateRoomContent } from '../organisms/create-room/CreateRoom';
+import { CreateRoomContent } from '../organisms/create-room/CreateRoom';
 import SearchTab from './client/sidebar/SearchTab';
 import { Thread } from '../features/thread/Thread';
 import ErrorScreen from '../organisms/error-screen/ErrorScreen';
-import BottomNav from './client/BottomNav';
-import { Box } from 'folds';
 
 export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize) => {
     const { hashRouter } = clientConfig;

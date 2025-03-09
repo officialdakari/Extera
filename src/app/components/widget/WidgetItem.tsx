@@ -1,10 +1,10 @@
 import React from 'react';
 import { Box, Text } from "folds";
+import { Close, OpenInNew } from '@mui/icons-material';
+import { IconButton, Tooltip } from '@mui/material';
 import { getText } from '../../../lang';
 
 import * as css from './WidgetItem.css';
-import { Button, ButtonGroup, IconButton, Tooltip } from '@mui/material';
-import { Close, OpenInNew } from '@mui/icons-material';
 
 type WidgetItemProps = {
     name?: string;

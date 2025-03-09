@@ -52,6 +52,7 @@ import { nameInitials } from '../../utils/common';
 import { BackRouteHandler } from '../../components/BackRouteHandler';
 import PinnedMessages from './PinnedMessages';
 import { BackButtonHandler } from '../../hooks/useBackButton';
+import IntegrationManager from '../widget/IntegrationManager';
 
 type RoomMenuProps = {
     room: Room;
@@ -406,13 +407,8 @@ export function RoomViewHeader({
             allowClose: true,
             title: 'Integrations',
             node: (
-                <iframe
-                    style={{ border: 'none', width: '100%', height: '100%' }}
-                    allow="autoplay; camera; clipboard-write; compute-pressure; display-capture; hid; microphone; screen-wake-lock"
-                    allowFullScreen
-                    data-integration-manager
-                    src={url}
-                    title='Integrations'
+                <IntegrationManager
+                    url={url}
                 />
             ),
             externalUrl: url
