@@ -25,7 +25,7 @@ import {
 } from 'folds';
 
 import Icon from '@mdi/react';
-import { mdiBell, mdiBellOff, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiEye, mdiEyeOff, mdiFile, mdiMicrophone, mdiPlusCircleOutline, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
+import { mdiBell, mdiBellOff, mdiCancel, mdiClose, mdiEmoticon, mdiEmoticonOutline, mdiEye, mdiEyeOff, mdiFile, mdiMicrophone, mdiPlusCircleOutline, mdiSendOutline, mdiSticker, mdiStickerOutline } from '@mdi/js';
 import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { AttachFile, Poll } from '@mui/icons-material';
 import { RoomMessageEventContent, StickerEventContent } from 'matrix-js-sdk/lib/types';
@@ -109,6 +109,7 @@ import { useVoiceRecorder } from '../../hooks/useVoiceRecorder';
 import { getEventCords } from '../../../util/common';
 import HideReasonSelector from '../../molecules/hide-reason-selector/HideReasonSelector';
 import NewPollMenu from './NewPollMenu';
+import RecordingIndicator from '../../molecules/recording-indicator/RecordingIndicator';
 
 interface RoomInputProps {
     fileDropContainerRef: RefObject<HTMLElement>;
@@ -431,8 +432,8 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         }, [ar]);
 
         const sendVoice = useCallback(async () => {
-            const { blob } = ar;
-            if (blob) {
+            const { blob, cancelled } = ar;
+            if (blob && !cancelled) {
                 const { content_uri: url } = await mx.uploadContent(blob, {
                     type: 'audio/ogg',
                     name: 'Voice message.ogg'
@@ -641,7 +642,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                     // editor={editor}
                     textAreaRef={textAreaRef}
                     disabled={ar.isRecording || !!emojiBoardTab}
-                    placeholder={ar.isRecording ? getText('placeholder.room_input.voice') : getText(canRedact ? 'placeholder.room_input' : 'placeholder.room_input.be_careful')}
+                    placeholder={ar.isRecording ? '' : getText(canRedact ? 'placeholder.room_input' : 'placeholder.room_input.be_careful')}
                     onKeyDown={handleKeyDown}
                     onChange={handleChange}
                     onKeyUp={handleKeyUp}
@@ -744,7 +745,9 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                         </>
                     }
                     before={
-                        !ar.isRecording && (
+                        ar.isRecording ? (
+                            <RecordingIndicator startTime={ar.startTime} />
+                        ) : (
                             <>
                                 <Menu anchorEl={attachmentMenu} open={!!attachmentMenu} onClose={() => setAttachmentMenu(undefined)}>
                                     <MenuItem onClick={() => { pickFile('*'); setAttachmentMenu(undefined); }}>
@@ -809,6 +812,11 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                             ) : (
                                 <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={ar.isRecording ? stopRecording : submit}>
                                     <Icon size={1} path={mdiSendOutline} />
+                                </IconButton>
+                            )}
+                            {ar.isRecording && (
+                                <IconButton size='small' onMouseDown={dontHideKeyboard} onClick={ar.cancelRecording}>
+                                    <Icon size={1} path={mdiCancel} />
                                 </IconButton>
                             )}
                         </>

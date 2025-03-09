@@ -1,8 +1,12 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable jsx-a11y/media-has-caption */
 import React, { ReactNode, useCallback, useRef, useState } from 'react';
-import { Text, toRem } from 'folds';
+import { Text } from 'folds';
 import { EncryptedAttachmentInfo } from 'browser-encrypt-attachment';
-import { Range } from 'react-range';
+import { AccessTime, Pause, PlayArrow } from '@mui/icons-material';
+import { IconButton, Slider } from '@mui/material';
+import { mdiVolumeHigh, mdiVolumeMute } from '@mdi/js';
+import Icon from '@mdi/react';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { getFileSrcUrl } from './util';
@@ -17,10 +21,6 @@ import {
 } from '../../../hooks/media';
 import { useThrottle } from '../../../hooks/useThrottle';
 import { secondsToMinutesAndSeconds } from '../../../utils/common';
-import Icon from '@mdi/react';
-import { mdiPause, mdiPlayOutline, mdiVolumeHigh, mdiVolumeMute } from '@mdi/js';
-import { CircularProgress, IconButton, Slider } from '@mui/material';
-import { AccessTime, Pause, PlayArrow } from '@mui/icons-material';
 import { mxcUrlToHttp } from '../../../utils/matrix';
 
 const PLAY_TIME_THROTTLE_OPS = {
@@ -102,7 +102,7 @@ export function AudioContent({
                     onClick={handlePlay}
                     disabled={srcState.status === AsyncStatus.Loading}
                 >
-                    {srcState.status === AsyncStatus.Loading || loading ? (
+                    {(srcState.status === AsyncStatus.Loading || loading) ? (
                         <AccessTime />
                     ) : (
                         playing ? <Pause /> : <PlayArrow />

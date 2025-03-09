@@ -2,6 +2,9 @@
 import React, { ReactNode, useCallback, useRef, useState } from 'react';
 import { Box, Text } from 'folds';
 import { EncryptedAttachmentInfo } from 'browser-encrypt-attachment';
+import Icon from '@mdi/react';
+import { mdiPause, mdiPlay } from '@mdi/js';
+import { CircularProgress, IconButton, Slider, useTheme } from '@mui/material';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { getFileSrcUrl } from './util';
@@ -12,13 +15,9 @@ import {
     useMediaPlay,
     useMediaPlayTimeCallback,
     useMediaSeek,
-    useMediaVolume,
 } from '../../../hooks/media';
 import { useThrottle } from '../../../hooks/useThrottle';
 import { secondsToMinutesAndSeconds } from '../../../utils/common';
-import Icon from '@mdi/react';
-import { mdiPause, mdiPlay } from '@mdi/js';
-import { CircularProgress, IconButton, Slider, useTheme } from '@mui/material';
 import { mxcUrlToHttp } from '../../../utils/matrix';
 
 const PLAY_TIME_THROTTLE_OPS = {
@@ -67,7 +66,7 @@ export function VoiceContent({
     const { loading } = useMediaLoading(getAudioRef);
     const { playing, setPlaying } = useMediaPlay(getAudioRef);
     const { seek } = useMediaSeek(getAudioRef);
-    const { volume, mute, setMute, setVolume } = useMediaVolume(getAudioRef);
+    // const { volume, mute, setMute, setVolume } = useMediaVolume(getAudioRef);
     const handlePlayTimeCallback: PlayTimeCallback = useCallback((d, ct) => {
         setDuration(d);
         setCurrentTime(ct);
@@ -110,7 +109,7 @@ export function VoiceContent({
                     size='small'
                 />
                 <Text size="T200">{`${secondsToMinutesAndSeconds(
-                    currentTime
+                    srcState.status === AsyncStatus.Idle ? duration : currentTime
                 )}`}</Text>
             </Box >
         ),
