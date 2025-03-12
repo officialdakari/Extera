@@ -311,11 +311,15 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
 
     useEffect(() => {
         const clickHandler = async (ev: any) => {
-            const href = ev.target.getAttribute('data-mention-href') ?? ev.target.getAttribute('href');
-            console.log(href);
+            const anchor = ev.target.closest('a'); // Находим ближайший <a>
+            if (!anchor) return;
+
+            const href = anchor.getAttribute('data-mention-href') ?? anchor.getAttribute('href');
             if (typeof href !== 'string') return;
+
+            // Если ссылка с matrix.to
             const url = parse(href as string);
-            if (ev.target.tagName?.toLowerCase() === 'a' || ev.target.tagName?.toLowerCase() === 'span') {
+            if (anchor.tagName?.toLowerCase() === 'a') {
                 if (url.hostname === 'matrix.to' && typeof url.hash === 'string' && url.hash.length > 3) {
                     ev.preventDefault();
                     const [id, evId] = url.hash.slice(2).split('?')[0].split('/');
@@ -323,7 +327,6 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                     if (type === '@') {
                         openProfileViewer(id, roomId);
                     } else if ((type === '!' || type === '#') && typeof evId === 'string') {
-                        // eslint-disable-next-line @typescript-eslint/no-shadow
                         let roomId;
                         if (type === '!') {
                             roomId = id;
@@ -331,16 +334,17 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                             const a = await mx?.getRoomIdForAlias(id);
                             if (typeof a?.room_id === 'string') roomId = a.room_id;
                         }
-                        if (typeof roomId === 'string')
-                            navigateRoom(id, evId);
+                        if (typeof roomId === 'string') navigateRoom(id, evId);
                     } else if (type === '#') {
                         openJoinAlias(id);
                     }
                     return;
                 }
             }
-            if (ev.target.tagName?.toLowerCase() === 'a') {
-                if (url.host && !cons.trustedDomains.includes(url.host!) && !cons.trustedDomains.includes(url.hostname!)) {
+
+            // Проверка на домены
+            if (anchor.tagName?.toLowerCase() === 'a') {
+                if (url.host && !cons.trustedDomains.includes(url.host)) {
                     ev.preventDefault();
                     if (await confirmDialog(getText('go_link.title'), `${getText('go_link.desc')}\n\n${href}`, getText('go_link.yes'), 'error')) {
                         window.open(href, '_blank');
@@ -348,6 +352,7 @@ export function ClientNonUIFeatures({ children }: ClientNonUIFeaturesProps) {
                 }
             }
         };
+
         addEventListener('click', clickHandler);
         return () => {
             removeEventListener('click', clickHandler);

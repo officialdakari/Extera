@@ -1,16 +1,17 @@
+/* eslint-disable jsx-a11y/media-has-caption */
 import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 
 import { Avatar, Box, IconButton, Text } from "folds";
 import { CallEvent, Room } from "matrix-js-sdk";
 
+import { CallErrorCode, CallState, MatrixCall } from 'matrix-js-sdk/lib/webrtc/call';
+import { CallFeed } from 'matrix-js-sdk/lib/webrtc/callFeed';
+import { Icon as MDIcon } from '@mdi/react';
+import { mdiMicrophone, mdiMicrophoneOff, mdiPhone, mdiPhoneHangup, mdiVideo, mdiVideoOff } from '@mdi/js';
 import * as css from './RoomCall.css';
 import { UserAvatar } from '../../components/user-avatar';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { AvatarBase } from '../../components/message';
-import { CallErrorCode, CallState, MatrixCall } from 'matrix-js-sdk/lib/webrtc/call';
-import { CallFeed } from 'matrix-js-sdk/lib/webrtc/callFeed';
-import Icon, { Icon as MDIcon } from '@mdi/react';
-import { mdiAccount, mdiMicrophone, mdiMicrophoneOff, mdiPhone, mdiPhoneHangup, mdiVideo, mdiVideoOff } from '@mdi/js';
 import { translate } from '../../../lang';
 import { mxcUrlToHttp } from '../../utils/matrix';
 
@@ -41,20 +42,15 @@ type RoomCallProps = {
     room: Room;
     call: MatrixCall;
     onHangup: () => void;
-    invitation?: boolean;
     video?: boolean;
 };
 
-export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallProps) {
+export function RoomCall({ room, call, onHangup, video }: RoomCallProps) {
     const mx = useMatrixClient();
-    const mxId = mx.getUserId();
-    if (typeof mxId !== 'string') return null;
-    const user = mx.getUser(mxId);
-    if (!user) return null;
+    const mxId = mx.getUserId()!;
+    const user = mx.getUser(mxId)!;
 
     const recipient = mx.getUser(room.getDMInviter() ?? room.guessDMUserId());
-
-    if (!recipient) return;
 
     const audioRef = useRef<HTMLAudioElement>(null);
     const [recipientStyle, setRecipientStyle] = useState<CSSProperties>();
@@ -73,11 +69,11 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
     const handleHang = useCallback(() => {
         if (call) {
             call.hangup(CallErrorCode.UserHangup, false);
-            for (const feed of call.getLocalFeeds()) {
-                feed.dispose();
-            }
+            call.getLocalFeeds().forEach((feed) => {
+                feed.dispose()
+            });
         }
-    }, []);
+    }, [call]);
 
     const handleMute = useCallback(async () => {
         if (!call) {
@@ -88,7 +84,7 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
 
         call.setMicrophoneMuted(newState);
         setMuted(newState);
-    }, []);
+    }, [call]);
 
     const handleVideoMute = useCallback(async () => {
         if (!call) {
@@ -99,19 +95,17 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
 
         call.setLocalVideoMuted(newState);
         setVideoMuted(newState);
-    }, []);
+    }, [call]);
 
     const handleReject = useCallback(async () => {
         if (!call) return;
 
         try {
             call.reject();
-        } catch (err) {
-
-        }
+        } catch (err) { /* empty */ }
 
         onHangup();
-    }, []);
+    }, [call, onHangup]);
 
     const handleAccept = useCallback(async () => {
         if (!call) return;
@@ -120,13 +114,13 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
         if (video) {
             call.setLocalVideoMuted(true);
         }
-    }, []);
+    }, [call, video]);
 
     const handleVideoAccept = useCallback(async () => {
         if (!call) return;
 
         await call.answer(true, true);
-    }, []);
+    }, [call]);
 
     call.on(CallEvent.FeedsChanged, (feeds: CallFeed[]) => {
         feeds.forEach(feed => {
@@ -161,9 +155,14 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
         });
     });
 
-    call.on(CallEvent.State, (state, oldState, call) => {
+    const updateStyle = useCallback(() => {
+        if (styles[call.state])
+            setRecipientStyle(styles[call.state]);
+    }, [call]);
+
+    call.on(CallEvent.State, (state) => {
         updateStyle();
-        if (state == CallState.Ended) {
+        if (state === CallState.Ended) {
             handleHang();
         }
     });
@@ -172,14 +171,9 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
         onHangup();
     });
 
-    const updateStyle = useCallback(() => {
-        if (styles[call.state])
-            setRecipientStyle(styles[call.state]);
-    }, [call]);
-
     useEffect(() => {
         updateStyle();
-    });
+    }, [call, updateStyle]);
 
     setTimeout(() => {
         if (ringtoneRef.current) ringtoneRef.current.play();
@@ -187,7 +181,7 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
 
     return (
         <Box className={css.RoomCallBox} shrink='No' direction='Column'>
-            <audio ref={audioRef} autoPlay playsInline style={{ display: 'none' }} />
+            <audio ref={audioRef} autoPlay style={{ display: 'none' }} />
             {call.state !== CallState.Ringing && (
                 <>
                     <Box grow='Yes' direction='Row'>
@@ -214,9 +208,9 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
                                             style={recipientStyle}
                                         >
                                             <UserAvatar
-                                                userId={recipient.userId}
-                                                alt={recipient.displayName ?? recipient.userId}
-                                                src={typeof recipient.avatarUrl === 'string' ? mxcUrlToHttp(mx, recipient.avatarUrl, 96, 96, 'scale') ?? undefined : undefined}
+                                                userId={recipient!.userId}
+                                                alt={recipient!.displayName ?? recipient!.userId}
+                                                src={typeof recipient!.avatarUrl === 'string' ? mxcUrlToHttp(mx, recipient!.avatarUrl, 96, 96, 'scale') ?? undefined : undefined}
                                             />
                                         </Avatar>
                                     </AvatarBase>
@@ -244,7 +238,6 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
                         src='/ring.mp3'
                         autoPlay
                         loop
-                        playsInline
                     />
                 )
             }
@@ -252,15 +245,15 @@ export function RoomCall({ room, call, onHangup, invitation, video }: RoomCallPr
                 <>
                     <audio
                         src='/incoming.mp3'
-                        autoPlay={true}
-                        loop={true}
+                        autoPlay
+                        loop
                         ref={ringtoneRef}
                     />
                     <div className={css.UsersDiv}>
                         <Text priority='400' size='H3'>{translate(
                             video ? 'title.incoming_video_call' : 'title.incoming_call',
                             <b>
-                                {recipient.displayName ?? recipient.userId}
+                                {recipient!.displayName || recipient!.userId}
                             </b>
                         )}</Text>
                     </div>
