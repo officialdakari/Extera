@@ -1108,7 +1108,7 @@ export function ThreadTimeline({ room, eventId, roomInputRef, textAreaRef, threa
                         }
                     >
                         {hideTgAds && hideMessage && <BlockedContent />}
-                        {hideTgAds && hideMessage &&
+                        {!(hideTgAds && hideMessage) &&
                             (mEvent.isRedacted() ? (
                                 <RedactedContent reason={mEvent.getUnsigned().redacted_because?.content.reason} />
                             ) : (
