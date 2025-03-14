@@ -1314,9 +1314,9 @@ export const Message = as<'div', MessageProps>(
                 {thread}
                 {buttons && buttons.length <= 16 && (
                     <div>
-                        {buttons.map((btn: any) =>
+                        {buttons.map((btn) =>
                             <>
-                                <Button onClick={handleBtnClick} variant={btn.variant ?? 'outlined'} color={btn.color ?? 'primary'}>
+                                <Button onClick={handleBtnClick} data-id={btn.id} variant={btn.variant ?? 'outlined'} color={btn.color ?? 'primary'}>
                                     {btn.name}
                                 </Button>
                                 &nbsp;
