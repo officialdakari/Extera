@@ -73,18 +73,27 @@ function AppearanceSection() {
 	const wallpaperInputRef = useRef<HTMLInputElement>(null);
 
 	async function uploadImage(e: React.ChangeEvent<HTMLInputElement>) {
-		const file = e.target.files?.item(0);
-		if (!file) return;
-		try {
-			const url = URL.createObjectURL(file);
-			saveWallpaper(url);
-			setWallpaperURL(url);
-		} catch (err) {
-			console.error(err);
-			alert('Failed to set wallpaper');
-		}
-		if (wallpaperInputRef.current) wallpaperInputRef.current.value = '';
-	}
+    const file = e.target.files?.item(0);
+    if (!file) return;
+
+    try {
+        // Читаем файл как Data URL (base64)
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            if (e.target?.result) {
+                const base64 = e.target.result as string;
+                saveWallpaper(base64);
+                setWallpaperURL(base64);
+            }
+        };
+        reader.readAsDataURL(file);
+    } catch (err) {
+        console.error(err);
+        alert('Ошибка установки обоев');
+    }
+
+    if (wallpaperInputRef.current) wallpaperInputRef.current.value = '';
+}
 
 	const handleSetWallpaper = async () => {
 		wallpaperInputRef.current?.click();
