@@ -1,17 +1,19 @@
 .keyword-notification {
-  &__keyword {
-    & form,
-    & > div:last-child {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--sp-tight);
-    }
+	&__keyword {
 
-    & form {
-      margin: var(--sp-extra-tight) 0 var(--sp-normal);
-      .input-container {
-        flex-grow: 1;
-      }
-    }
-  }
+		& form,
+		&>div:last-child {
+			display: flex;
+			flex-wrap: wrap;
+			gap: var(--sp-tight);
+		}
+
+		& form {
+			margin: var(--sp-extra-tight) 0 var(--sp-normal);
+
+			.input-container {
+				flex-grow: 1;
+			}
+		}
+	}
 }

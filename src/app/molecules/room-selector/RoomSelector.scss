@@ -3,76 +3,76 @@
 @use '../../partials/dir';
 
 .room-selector {
-    @extend .cp-fx__row--s-c;
+	@extend .cp-fx__row--s-c;
 
-    border: 1px solid transparent;
-    border-radius: var(--bo-radius);
-    cursor: pointer;
+	border: 1px solid transparent;
+	border-radius: var(--bo-radius);
+	cursor: pointer;
 
-    &--muted {
-        opacity: 0.6;
-    }
+	&--muted {
+		opacity: 0.6;
+	}
 
-    &--unread {
-        .room-selector__content>.text {
-            color: var(--tc-surface-high);
-        }
-    }
+	&--unread {
+		.room-selector__content>.text {
+			color: var(--mui-palette-text-primary);
+		}
+	}
 
-    &--selected {
-        border-color: var(--bg-surface-border);
+	&--selected {
+		border-color: var(--mui-palette-divider);
 
-        & .room-selector__options {
-            display: flex;
-        }
-    }
+		& .room-selector__options {
+			display: flex;
+		}
+	}
 
-    @media (hover: hover) {
-        &:hover {
-            & .room-selector__options {
-                display: flex;
-            }
-        }
-    }
+	@media (hover: hover) {
+		&:hover {
+			& .room-selector__options {
+				display: flex;
+			}
+		}
+	}
 
-    &:focus-within {
-        & button {
-            outline: none;
-        }
-    }
+	&:focus-within {
+		& button {
+			outline: none;
+		}
+	}
 }
 
 .room-selector__content {
-    @extend .cp-fx__item-one;
-    @extend .cp-fx__row--s-c;
-    padding: 0 var(--sp-extra-tight);
-    min-height: 40px;
-    cursor: inherit;
+	@extend .cp-fx__item-one;
+	@extend .cp-fx__row--s-c;
+	padding: 0 var(--sp-extra-tight);
+	min-height: 40px;
+	cursor: inherit;
 
-    &>.avatar-container .avatar__border--active {
-        box-shadow: none;
-    }
+	&>.avatar-container .avatar__border--active {
+		box-shadow: none;
+	}
 
-    &>.text {
-        @extend .cp-fx__item-one;
-        @extend .cp-txt__ellipsis;
-        margin: 0 var(--sp-extra-tight);
+	&>.text {
+		@extend .cp-fx__item-one;
+		@extend .cp-txt__ellipsis;
+		margin: 0 var(--sp-extra-tight);
 
-        color: var(--tc-surface-normal-low);
-    }
+		color: var(--mui-palette-text-secondary);
+	}
 }
 
 .room-selector__options {
-    @extend .cp-fx__row--s-c;
-    @include dir.side(margin, 0, var(--sp-ultra-tight));
-    display: none;
+	@extend .cp-fx__row--s-c;
+	@include dir.side(margin, 0, var(--sp-ultra-tight));
+	display: none;
 
-    &:empty {
-        margin: 0 !important;
-    }
+	&:empty {
+		margin: 0 !important;
+	}
 
-    & .ic-btn {
-        padding: 6px;
-        border-radius: calc(var(--bo-radius) / 2);
-    }
+	& .ic-btn {
+		padding: 6px;
+		border-radius: calc(var(--bo-radius) / 2);
+	}
 }

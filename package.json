@@ -26,6 +26,7 @@
         "@emotion/react": "11.13.3",
         "@emotion/styled": "11.13.0",
         "@fontsource/inter": "4.5.14",
+        "@material/material-color-utilities": "0.3.0",
         "@matrix-org/olm": "3.2.14",
         "@mdi/js": "7.4.47",
         "@mdi/react": "1.6.1",

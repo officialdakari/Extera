@@ -1,49 +1,49 @@
 @use '../../partials/dir';
 
 .invite-user {
-  margin-top: var(--sp-extra-tight);
-  @include dir.side(margin, var(--sp-normal), var(--sp-extra-tight));
+	margin-top: var(--sp-extra-tight);
+	@include dir.side(margin, var(--sp-normal), var(--sp-extra-tight));
 
-  &__form {
-    display: flex;
-    align-items: flex-end;
+	&__form {
+		display: flex;
+		align-items: flex-end;
 
-    & .input-container {
-      flex: 1;
-      min-width: 0;
-      @include dir.side(margin, 0, var(--sp-normal));
-    }
+		& .input-container {
+			flex: 1;
+			min-width: 0;
+			@include dir.side(margin, 0, var(--sp-normal));
+		}
 
-    & .btn-primary {
-      padding: {
-        top: 11px;
-        bottom: 11px;
-      }
-    }
-  }
+		& .btn-primary {
+			padding: {
+				top: 11px;
+				bottom: 11px;
+			}
+		}
+	}
 
-  &__search-status {
-    margin-top: var(--sp-extra-loose);
-    margin-bottom: var(--sp-tight);
+	&__search-status {
+		margin-top: var(--sp-extra-loose);
+		margin-bottom: var(--sp-tight);
 
-    & .donut-spinner {
-      margin: 0 var(--sp-tight);
-    }
-  }
+		& .donut-spinner {
+			margin: 0 var(--sp-tight);
+		}
+	}
 
-  &__search-error {
-    color: var(--bg-danger);
-  }
+	&__search-error {
+		color: var(--bg-danger);
+	}
 
-  &__content {
-    margin-top: 10px;
-  }
+	&__content {
+		margin-top: 10px;
+	}
 
-  & .room-tile {
-    margin-top: var(--sp-normal);
+	& .room-tile {
+		margin-top: var(--sp-normal);
 
-    &__options {
-      align-self: flex-end;
-    }
-  }
+		&__options {
+			align-self: flex-end;
+		}
+	}
 }

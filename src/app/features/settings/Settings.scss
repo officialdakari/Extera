@@ -3,55 +3,55 @@
 @use '../../partials/screen';
 
 .settings-window {
-    overscroll-behavior-y: none;
+	overscroll-behavior-y: none;
 
-    .header .btn-danger {
-        margin: 0 var(--sp-tight);
-        box-shadow: none;
-    }
+	.header .btn-danger {
+		margin: 0 var(--sp-tight);
+		box-shadow: none;
+	}
 
-    & .tabs__content {
-        padding: 0 var(--sp-normal);
-    }
+	& .tabs__content {
+		padding: 0 var(--sp-normal);
+	}
 
-    &__cards-wrapper {
-        padding: var(--sp-normal);
-        height: min-content;
-        width: 100%;
-    }
+	&__cards-wrapper {
+		padding: var(--sp-normal);
+		height: min-content;
+		width: 100%;
+	}
 
-    &__sidebar {
-        width: 100%;
-        max-width: 23.75rem;
+	&__sidebar {
+		width: 100%;
+		max-width: 23.75rem;
 
-        & .profile-editor {
-            padding: var(--sp-tight);
-        }
-    }
+		& .profile-editor {
+			padding: var(--sp-tight);
+		}
+	}
 
-    &__sidebar-mobile {
-        width: 100%;
+	&__sidebar-mobile {
+		width: 100%;
 
-        & .profile-editor {
-            padding: var(--sp-tight);
-        }
-    }
+		& .profile-editor {
+			padding: var(--sp-tight);
+		}
+	}
 
-    &__content {
-        min-height: 100%;
-        overscroll-behavior-y: none;
-        display: flex;
-    }
+	&__content {
+		min-height: 100%;
+		overscroll-behavior-y: none;
+		display: flex;
+	}
 }
 
 .settings-window__card {
-    margin: var(--sp-normal) 0;
-    overflow: hidden;
-    overscroll-behavior-y: none;
+	margin: var(--sp-normal) 0;
+	overflow: hidden;
+	overscroll-behavior-y: none;
 
-    &>.context-menu__header:first-child {
-        margin-top: 2px;
-    }
+	&>.context-menu__header:first-child {
+		margin-top: 2px;
+	}
 }
 
 .settings-appearance__card,
@@ -65,66 +65,66 @@
 .settings-emoji__card,
 .settings-extera__card,
 .settings-presence__card {
-    @extend .settings-window__card;
+	@extend .settings-window__card;
 }
 
 .settings-presence__status>form {
-    margin: var(--sp-extra-tight) 0 var(--sp-normal);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--sp-tight);
+	margin: var(--sp-extra-tight) 0 var(--sp-normal);
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--sp-tight);
 
-    div:has(input[name="statusInput"]) {
-        flex-grow: 1;
-    }
+	div:has(input[name="statusInput"]) {
+		flex-grow: 1;
+	}
 }
 
 .settings-window__cards-wrapper {
-    & .setting-tile {
-        margin: 0 var(--sp-normal);
-        margin-top: var(--sp-normal);
-        padding-bottom: 16px;
+	& .setting-tile {
+		margin: 0 var(--sp-normal);
+		margin-top: var(--sp-normal);
+		padding-bottom: 16px;
 
-        &:last-child {
-            border-bottom: none;
-        }
-    }
+		&:last-child {
+			border-bottom: none;
+		}
+	}
 
-    max-height: 100%;
-    overflow-y: scroll;
+	max-height: 100%;
+	overflow-y: scroll;
 }
 
 .settings-notifications {
-    &__not-supported {
-        padding: 0 var(--sp-ultra-tight);
-    }
+	&__not-supported {
+		padding: 0 var(--sp-ultra-tight);
+	}
 }
 
 .settings-about {
-    &__branding {
-        padding: var(--sp-normal);
-        display: flex;
+	&__branding {
+		padding: var(--sp-normal);
+		display: flex;
 
-        &>div {
-            margin: 0 var(--sp-loose);
-        }
+		&>div {
+			margin: 0 var(--sp-loose);
+		}
 
-    }
+	}
 
-    &__btns {
-        & button {
-            margin-top: var(--sp-tight);
-            @include dir.side(margin, 0, var(--sp-tight));
-        }
-    }
+	&__btns {
+		& button {
+			margin-top: var(--sp-tight);
+			@include dir.side(margin, 0, var(--sp-tight));
+		}
+	}
 
-    &__credits {
-        padding: 0 var(--sp-normal);
+	&__credits {
+		padding: 0 var(--sp-normal);
 
-        & ul {
-            color: var(--tc-surface-low);
-            padding: var(--sp-normal);
-            margin: var(--sp-extra-tight) 0;
-        }
-    }
+		& ul {
+			color: var(--mui-palette-text-secondary);
+			padding: var(--sp-normal);
+			margin: var(--sp-extra-tight) 0;
+		}
+	}
 }

@@ -2,28 +2,28 @@
 @use '../../partials/dir';
 
 .profile-banner {
-    max-width: 100%;
-    width: 100%;
-    margin-top: -5%;
-    // border-radius: 5px;
+	max-width: 100%;
+	width: 100%;
+	margin-top: -5%;
+	// border-radius: 5px;
 }
 
 .banner-container {
-    height: 150px;
-    width: 100%;
-    overflow-y: hidden;
-    margin-bottom: 10px;
-    // border-radius: 5px;
-    border-width: 2px;
-    border-style: solid;
-    border-color: rgb(182, 182, 182);
+	height: 150px;
+	width: 100%;
+	overflow-y: hidden;
+	margin-bottom: 10px;
+	// border-radius: 5px;
+	border-width: 2px;
+	border-style: solid;
+	border-color: var(--mui-palette-divider);
 }
 
 .banner-container-nb {
-    height: 150px;
-    overflow-y: hidden;
-    margin-top: -2px;
-    margin-left: -2px;
-    margin-right: -2px;
-    margin-bottom: 10px;
+	height: 150px;
+	overflow-y: hidden;
+	margin-top: -2px;
+	margin-left: -2px;
+	margin-right: -2px;
+	margin-bottom: 10px;
 }

@@ -1,5 +1,5 @@
 import { style } from '@vanilla-extract/css';
-import { DefaultReset, FocusOutline, color, config, toRem } from 'folds';
+import { DefaultReset, FocusOutline, config, toRem } from 'folds';
 
 export const FullWidth = style({
 	width: `100%`,
@@ -11,9 +11,9 @@ export const Base = style({
 	maxWidth: toRem(432),
 	width: `calc(100vw - 2 * ${config.space.S400})`,
 	height: toRem(450),
-	border: `${config.borderWidth.B300} solid ${color.Surface.ContainerLine}`,
-	borderRadius: config.radii.R400,
-	boxShadow: config.shadow.E200,
+	border: `${config.borderWidth.B300} solid var(--mui-palette-divider)`,
+	borderRadius: `var(--mui-shape-borderRadius)`,
+	boxShadow: `var(--mui-shadows-2)`,
 	overflow: 'hidden',
 });
 
@@ -55,7 +55,7 @@ export const Footer = style({
 	marginTop: 0,
 	minHeight: toRem(40),
 
-	borderRadius: config.radii.R400,
+	borderRadius: `var(--mui-shape-borderRadius)`,
 });
 
 export const EmojiGroup = style({
@@ -97,7 +97,7 @@ export const EmojiItem = style([
 		height: toRem(48),
 		fontSize: toRem(32),
 		lineHeight: toRem(32),
-		borderRadius: config.radii.R400,
+		borderRadius: `var(--mui-shape-borderRadius)`,
 		cursor: 'pointer',
 	},
 ]);

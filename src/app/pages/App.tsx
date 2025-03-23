@@ -2,10 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Provider as JotaiProvider } from 'jotai';
 import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { argbFromHex, hexFromArgb, themeFromSourceColor } from '@material/material-color-utilities';
 
-import { createTheme, Theme, ThemeProvider } from '@mui/material';
-import MaterialDynamicColors from 'material-dynamic-colors';
-import { IMaterialDynamicColorsThemeColor } from 'material-dynamic-colors/src/cdn/interfaces';
+import { createTheme, ThemeProvider } from '@mui/material';
 import { ClientConfigLoader } from '../components/ClientConfigLoader';
 import { ClientConfigProvider } from '../hooks/useClientConfig';
 import { ConfigConfigError, ConfigConfigLoading } from './ConfigConfig';
@@ -27,85 +26,47 @@ function App() {
 		}
 		return settings.darkModeQueryList.matches ? 'dark' : 'light';
 	}, [themeIndex, useSystemTheme]);
-	const [accentColor] = useState('#e22216');
-	const [colors, setColors] = useState<IMaterialDynamicColorsThemeColor | null>(null);
-	const [theme, setTheme] = useState<Theme | null>(null);
-	// const theme = useMemo(
-	// 	() =>
-	// 		createTheme({
-	// 			palette: {
-	// 				mode,
-	// 			}
-	// 		}),
-	// 	[mode]
-	// );
 
-	useEffect(() => {
-		MaterialDynamicColors(accentColor).then((c) => {
-			if (mode === 'dark') {
-				setColors(c.dark);
-			} else {
-				setColors(c.light);
-			}
-		});
-	}, [accentColor, mode]);
+	const [accentColor] = useState('#d70060');
+	const [colors] = useState(themeFromSourceColor(argbFromHex(accentColor), []));
 
-	useEffect(() => {
-		if (colors) {
-			setTheme(createTheme({
-				palette: {
-					background: {
-						default: colors.surface,
-						paper: colors.surface,
-					},
-					primary: {
-						main: colors.primary,
-						light: colors.primary,
-						dark: colors.primary,
-					},
-					secondary: {
-						main: colors.secondary,
-						light: colors.secondary,
-						dark: colors.secondary,
-					},
-					action: {
-						active: colors.onSurface,
-						hover: colors.onSurface,
-						selected: colors.onSurface,
-						disabled: colors.onSurface,
-						disabledBackground: colors.onSurface,
-					},
-					divider: colors.outline,
-					text: {
-						primary: colors.onSurface,
-						secondary: colors.onSurface,
-						disabled: colors.onSurface,
-					},
-					info: {
-						main: colors.primary,
-						light: colors.primary,
-						dark: colors.primary,
-					},
-					success: {
-						main: colors.primary,
-						light: colors.primary,
-						dark: colors.primary,
-					},
-					warning: {
-						main: colors.primary,
-						light: colors.primary,
-						dark: colors.primary,
-					},
-					error: {
-						main: colors.primary,
-						light: colors.primary,
-						dark: colors.primary,
-					},
-					mode,
-				},
-			}));
-		}
-	}, [colors, mode]);
+	const theme = useMemo(() => createTheme({
+		cssVariables: {
+			cssVarPrefix: 'mui',
+		},
+		palette: {
+			primary: {
+				main: hexFromArgb(colors.schemes[mode].primary),
+				dark: hexFromArgb(colors.schemes.dark.primary),
+				light: hexFromArgb(colors.schemes.light.primary),
+				contrastText: hexFromArgb(colors.schemes[mode].onPrimary),
+			},
+			secondary: {
+				main: hexFromArgb(colors.schemes[mode].secondary),
+				dark: hexFromArgb(colors.schemes.dark.secondary),
+				light: hexFromArgb(colors.schemes.light.secondary),
+				contrastText: hexFromArgb(colors.schemes[mode].onSecondary),
+			},
+			warning: {
+				main: hexFromArgb(colors.schemes[mode].tertiary),
+				dark: hexFromArgb(colors.schemes.dark.tertiary),
+				light: hexFromArgb(colors.schemes.light.tertiary),
+				contrastText: hexFromArgb(colors.schemes[mode].onTertiary),
+			},
+			error: {
+				main: hexFromArgb(colors.schemes[mode].error),
+				dark: hexFromArgb(colors.schemes.dark.error),
+				light: hexFromArgb(colors.schemes.light.error),
+				contrastText: hexFromArgb(colors.schemes[mode].onError),
+			},
+			background: {
+				default: hexFromArgb(colors.schemes[mode].surface),
+				paper: hexFromArgb(colors.schemes[mode].surface),
+			},
+			divider: hexFromArgb(colors.schemes[mode].outlineVariant),
+			mode,
+		},
+	}), [mode, colors]);
 
 	const screenSize = useScreenSize();
 	const [navHidden, setNavHidden] = useState(true);

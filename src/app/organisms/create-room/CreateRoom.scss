@@ -2,100 +2,100 @@
 @use '../../partials/dir';
 
 .create-room {
-    margin: var(--sp-normal);
-    @include dir.side(margin, var(--sp-normal), var(--sp-normal));
+	margin: var(--sp-normal);
+	@include dir.side(margin, var(--sp-normal), var(--sp-normal));
 
-    &__form>* {
-        margin-top: var(--sp-normal);
-        width: 100%;
+	&__form>* {
+		margin-top: var(--sp-normal);
+		width: 100%;
 
-        &:first-child {
-            margin-top: var(--sp-extra-tight);
-        }
-    }
+		&:first-child {
+			margin-top: var(--sp-extra-tight);
+		}
+	}
 
-    & .segment-btn {
-        padding: var(--sp-ultra-tight) 0;
+	& .segment-btn {
+		padding: var(--sp-ultra-tight) 0;
 
-        &__base {
-            padding: 0 var(--sp-tight);
-        }
-    }
+		&__base {
+			padding: 0 var(--sp-tight);
+		}
+	}
 
-    &__address {
-        display: flex;
+	&__address {
+		display: flex;
 
-        &__label {
-            color: var(--tc-surface-low);
-            margin-bottom: var(--sp-ultra-tight);
-        }
+		&__label {
+			color: var(--mui-palette-text-primary);
+			margin-bottom: var(--sp-ultra-tight);
+		}
 
-        &__tip {
-            margin-top: var(--sp-ultra-tight);
-            @include dir.side(margin, 46px, 0);
-        }
+		&__tip {
+			margin-top: var(--sp-ultra-tight);
+			@include dir.side(margin, 46px, 0);
+		}
 
-        & .text {
-            display: flex;
-            align-items: center;
-            padding: 0 var(--sp-normal);
-            border: 1px solid var(--bg-surface-border);
-            border-radius: var(--bo-radius);
-            color: var(--tc-surface-low);
-        }
+		& .text {
+			display: flex;
+			align-items: center;
+			padding: 0 var(--sp-normal);
+			border: 1px solid var(--mui-palette-divider);
+			border-radius: var(--bo-radius);
+			color: var(--mui-palette-text-secondary);
+		}
 
-        & *:nth-child(2) {
-            flex: 1;
-            min-width: 0;
+		& *:nth-child(2) {
+			flex: 1;
+			min-width: 0;
 
-            & .input {
-                border-radius: 0;
-            }
-        }
+			& .input {
+				border-radius: 0;
+			}
+		}
 
-        & .text:first-child {
-            @include dir.prop(border-width, 1px 0 1px 1px, 1px 1px 1px 0);
-            @include dir.prop(border-radius,
-                var(--bo-radius) 0 0 var(--bo-radius),
-                0 var(--bo-radius) var(--bo-radius) 0,
-            );
-        }
+		& .text:first-child {
+			@include dir.prop(border-width, 1px 0 1px 1px, 1px 1px 1px 0);
+			@include dir.prop(border-radius,
+				var(--bo-radius) 0 0 var(--bo-radius),
+				0 var(--bo-radius) var(--bo-radius) 0,
+			);
+		}
 
-        & .text:last-child {
-            @include dir.prop(border-width, 1px 1px 1px 0, 1px 0 1px 1px);
-            @include dir.prop(border-radius,
-                0 var(--bo-radius) var(--bo-radius) 0,
-                var(--bo-radius) 0 0 var(--bo-radius),
-            );
-        }
-    }
+		& .text:last-child {
+			@include dir.prop(border-width, 1px 1px 1px 0, 1px 0 1px 1px);
+			@include dir.prop(border-radius,
+				0 var(--bo-radius) var(--bo-radius) 0,
+				var(--bo-radius) 0 0 var(--bo-radius),
+			);
+		}
+	}
 
-    &__name-wrapper {
-        display: flex;
-        align-items: flex-end;
+	&__name-wrapper {
+		display: flex;
+		align-items: flex-end;
 
-        & .input-container {
-            flex: 1;
-            min-width: 0;
-            @include dir.side(margin, 0, var(--sp-normal));
-        }
+		& .input-container {
+			flex: 1;
+			min-width: 0;
+			@include dir.side(margin, 0, var(--sp-normal));
+		}
 
-        & .btn-primary {
-            padding-top: 11px;
-            padding-bottom: 11px;
-        }
-    }
+		& .btn-primary {
+			padding-top: 11px;
+			padding-bottom: 11px;
+		}
+	}
 
-    &__loading {
-        @extend .cp-fx__row--c-c;
+	&__loading {
+		@extend .cp-fx__row--c-c;
 
-        & .text {
-            @include dir.side(margin, var(--sp-normal), 0);
-        }
-    }
+		& .text {
+			@include dir.side(margin, var(--sp-normal), 0);
+		}
+	}
 
-    &__error {
-        text-align: center;
-        color: var(--bg-danger) !important;
-    }
+	&__error {
+		text-align: center;
+		color: var(--bg-danger) !important;
+	}
 }

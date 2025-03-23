@@ -1,34 +1,34 @@
 .export-e2e-room-keys {
-  margin-top: var(--sp-extra-tight);
+	margin-top: var(--sp-extra-tight);
 
-  &__form {
-    display: flex;
-    flex-grow: 1;
+	&__form {
+		display: flex;
+		flex-grow: 1;
 
-    &>.input-container {
-      flex: 1;
-      min-width: 0;
-    }
+		&>.input-container {
+			flex: 1;
+			min-width: 0;
+		}
 
-    &>*:nth-child(2) {
-      margin: 0 var(--sp-tight);
-    }
-  }
+		&>*:nth-child(2) {
+			margin: 0 var(--sp-tight);
+		}
+	}
 
-  &__process {
-    margin-top: var(--sp-tight);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+	&__process {
+		margin-top: var(--sp-tight);
+		display: flex;
+		justify-content: center;
+		align-items: center;
 
-    & .text {
-      margin: 0 var(--sp-tight);
-    }
-  }
+		& .text {
+			margin: 0 var(--sp-tight);
+		}
+	}
 
-  &__error {
-    margin-top: var(--sp-tight);
-    color: var(--tc-danger-high);
-  }
+	&__error {
+		margin-top: var(--sp-tight);
+		color: var(--mui-palette-error-main);
+	}
 
 }

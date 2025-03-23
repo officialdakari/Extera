@@ -8,8 +8,6 @@ import React, {
 	useEffect,
 } from 'react';
 import { Box, PopOut, Scroll } from 'folds';
-
-import { useTheme } from '@mui/material';
 import * as css from './Editor.css';
 import './Editor.scss';
 import { ScreenSize, useScreenSize } from '../../hooks/useScreenSize';
@@ -52,7 +50,6 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
 		emojiBoard,
 		emojiBoardAnchor
 	}, ref) => {
-		const theme = useTheme();
 		const updateRows = (target: HTMLTextAreaElement) => {
 			target.style.height = `auto`;
 			target.style.height = `${target.scrollHeight}px`;
@@ -93,12 +90,6 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
 			<div
 				ref={ref}
 				className={newDesign ? css.EditorNew : css.Editor}
-				style={{
-					backgroundColor: theme.palette.background.paper,
-					color: theme.palette.text.primary,
-					borderRadius: !newDesign ? theme.shape.borderRadius : undefined,
-					borderColor: !newDesign ? theme.palette.divider : undefined
-				}}
 			>
 				{top}
 				{screenSize !== ScreenSize.Mobile && (
