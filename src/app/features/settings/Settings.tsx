@@ -70,30 +70,34 @@ function AppearanceSection() {
 	const [voiceMessages, setVoiceMessages] = useSetting(settingsAtom, 'voiceMessages');
 	const spacings = ['0', '100', '200', '300', '400', '500'];
 
+	const [accentColor, setAccentColor] = useState(settings.getAccentColor());
+
 	const wallpaperInputRef = useRef<HTMLInputElement>(null);
+	const accentColorInputRef = useRef<HTMLInputElement>(null);
 
 	async function uploadImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.item(0);
-    if (!file) return;
+		const file = e.target.files?.item(0);
+		if (!file) return;
 
-    try {
-        // Читаем файл как Data URL (base64)
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            if (e.target?.result) {
-                const base64 = e.target.result as string;
-                saveWallpaper(base64);
-                setWallpaperURL(base64);
-            }
-        };
-        reader.readAsDataURL(file);
-    } catch (err) {
-        console.error(err);
-        alert('Ошибка установки обоев');
-    }
+		try {
+			// Читаем файл как Data URL (base64)
+			const reader = new FileReader();
+			// eslint-disable-next-line @typescript-eslint/no-shadow
+			reader.onload = (e: any) => {
+				if (e.target?.result) {
+					const base64 = e.target.result as string;
+					saveWallpaper(base64);
+					setWallpaperURL(base64);
+				}
+			};
+			reader.readAsDataURL(file);
+		} catch (err) {
+			console.error(err);
+			alert('Ошибка установки обоев');
+		}
 
-    if (wallpaperInputRef.current) wallpaperInputRef.current.value = '';
-}
+		if (wallpaperInputRef.current) wallpaperInputRef.current.value = '';
+	}
 
 	const handleSetWallpaper = async () => {
 		wallpaperInputRef.current?.click();
@@ -109,14 +113,31 @@ function AppearanceSection() {
 		}
 	};
 
+	const accentColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		settings.setAccentColor(e.target.value);
+		console.log(e.target.value);
+	};
+
+	const updateAccentColor = () => {
+		setAccentColor(settings.getAccentColor());
+	};
+
 	useEffect(() => {
 		const url = getWallpaper();
 		setWallpaperURL(url);
 	}, []);
 
+	useEffect(() => {
+		settings.on(cons.events.settings.ACCENT_COLOR_CHANGED, updateAccentColor);
+		return () => {
+			settings.off(cons.events.settings.ACCENT_COLOR_CHANGED, updateAccentColor);
+		};
+	}, []);
+
 	return (
 		<div className="settings-appearance">
 			<div className="settings-appearance__card">
+				<input ref={accentColorInputRef} type="color" defaultValue={accentColor} onChange={accentColorChange} style={{ display: 'none' }} />
 				<MenuHeader>{getText('settings.theme.header')}</MenuHeader>
 				<SettingTile
 					title={getText('settings.system_theme.title')}
@@ -147,6 +168,18 @@ function AppearanceSection() {
 						/>
 					)}
 					content={<Text variant="b3">{getText('settings.twemoji.desc')}</Text>}
+				/>
+				<SettingTile
+					title={getText('settings.accent_color.title')}
+					options={(
+						<Button
+							variant='contained'
+							onClick={() => accentColorInputRef.current?.click()}
+						>
+							<Icon path={mdiStar} />
+						</Button>
+					)}
+					content={<Text variant="b3">{getText('settings.accent_color.desc')}</Text>}
 				/>
 				<SettingTile
 					title={getText('settings.wallpaper.title')}

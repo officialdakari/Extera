@@ -27,8 +27,8 @@ function App() {
 		return settings.darkModeQueryList.matches ? 'dark' : 'light';
 	}, [themeIndex, useSystemTheme]);
 
-	const [accentColor] = useState('#d70060');
-	const [colors] = useState(themeFromSourceColor(argbFromHex(accentColor), []));
+	const [accentColor, setAccentColor] = useState(settings.getAccentColor());
+	const colors = useMemo(() => themeFromSourceColor(argbFromHex(accentColor), []), [accentColor]);
 
 	const theme = useMemo(() => createTheme({
 		cssVariables: {
@@ -74,14 +74,17 @@ function App() {
 	const updateTheme = () => {
 		setThemeIndex(settings.themeIndex);
 		setUseSystemTheme(settings.useSystemTheme);
+		setAccentColor(settings.accentColor);
 	};
 
 	useEffect(() => {
 		settings.on(cons.events.settings.THEME_CHANGED, updateTheme);
 		settings.on(cons.events.settings.SYSTEM_THEME_TOGGLED, updateTheme);
+		settings.on(cons.events.settings.ACCENT_COLOR_CHANGED, updateTheme);
 		return () => {
 			settings.off(cons.events.settings.THEME_CHANGED, updateTheme);
 			settings.off(cons.events.settings.SYSTEM_THEME_TOGGLED, updateTheme);
+			settings.off(cons.events.settings.ACCENT_COLOR_CHANGED, updateTheme);
 		};
 	});
 
