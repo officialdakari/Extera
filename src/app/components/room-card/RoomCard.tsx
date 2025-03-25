@@ -44,6 +44,7 @@ export const RoomCardBase = React.forwardRef<HTMLDivElement, PaperProps>((props:
 				display: 'flex',
 				padding: theme.spacing(3),
 				borderRadius: theme.shape.borderRadius,
+				backgroundColor: 'var(--mui-palette-background-variant)',
 				...props.sx
 			}}
 			ref={ref || undefined}

@@ -86,21 +86,21 @@ export const NavItem = recipe({
 		theme: {
 			dark: {
 				':hover': {
-					backgroundColor: colors.blueGrey[500]
+					backgroundColor: 'var(--mui-palette-background-paper)'
 				},
 				selectors: {
 					'&[aria-selected=true]': {
-						backgroundColor: colors.blueGrey[800]
+						backgroundColor: 'var(--mui-palette-background-variant)'
 					}
 				}
 			},
 			light: {
 				':hover': {
-					backgroundColor: colors.blue.A100
+					backgroundColor: 'var(--mui-palette-background-variant)'
 				},
 				selectors: {
 					'&[aria-selected=true]': {
-						backgroundColor: colors.blue.A200
+						backgroundColor: 'var(--mui-palette-background-variant)'
 					}
 				}
 			}

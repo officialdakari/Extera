@@ -31,40 +31,92 @@ function App() {
 	const colors = useMemo(() => themeFromSourceColor(argbFromHex(accentColor), []), [accentColor]);
 
 	const theme = useMemo(() => createTheme({
-		cssVariables: {
-			cssVarPrefix: 'mui',
-		},
+		cssVariables: true,
 		palette: {
 			primary: {
-				main: hexFromArgb(colors.schemes[mode].primary),
-				dark: hexFromArgb(colors.schemes.dark.primary),
-				light: hexFromArgb(colors.schemes.light.primary),
+				main: hexFromArgb(colors.schemes[mode].primaryContainer),
+				dark: hexFromArgb(colors.schemes.dark.primaryContainer),
+				light: hexFromArgb(colors.schemes.light.primaryContainer),
 				contrastText: hexFromArgb(colors.schemes[mode].onPrimary),
 			},
 			secondary: {
-				main: hexFromArgb(colors.schemes[mode].secondary),
-				dark: hexFromArgb(colors.schemes.dark.secondary),
-				light: hexFromArgb(colors.schemes.light.secondary),
+				main: hexFromArgb(colors.schemes[mode].secondaryContainer),
+				dark: hexFromArgb(colors.schemes.dark.secondaryContainer),
+				light: hexFromArgb(colors.schemes.light.secondaryContainer),
 				contrastText: hexFromArgb(colors.schemes[mode].onSecondary),
 			},
 			warning: {
-				main: hexFromArgb(colors.schemes[mode].tertiary),
-				dark: hexFromArgb(colors.schemes.dark.tertiary),
-				light: hexFromArgb(colors.schemes.light.tertiary),
+				main: hexFromArgb(colors.schemes[mode].tertiaryContainer),
+				dark: hexFromArgb(colors.schemes.dark.tertiaryContainer),
+				light: hexFromArgb(colors.schemes.light.tertiaryContainer),
 				contrastText: hexFromArgb(colors.schemes[mode].onTertiary),
 			},
 			error: {
-				main: hexFromArgb(colors.schemes[mode].error),
-				dark: hexFromArgb(colors.schemes.dark.error),
-				light: hexFromArgb(colors.schemes.light.error),
+				main: hexFromArgb(colors.schemes[mode].errorContainer),
+				dark: hexFromArgb(colors.schemes.dark.errorContainer),
+				light: hexFromArgb(colors.schemes.light.errorContainer),
 				contrastText: hexFromArgb(colors.schemes[mode].onError),
 			},
 			background: {
-				default: hexFromArgb(colors.schemes[mode].surface),
-				paper: hexFromArgb(colors.schemes[mode].surface),
+				default: hexFromArgb(colors.schemes[mode].surfaceVariant),
+				paper: hexFromArgb(colors.schemes[mode].surfaceVariant),
 			},
 			divider: hexFromArgb(colors.schemes[mode].outlineVariant),
 			mode,
+			contrastThreshold: 4.5,
+		},
+		components: {
+			MuiButton: {
+				styleOverrides: {
+					root: {
+						textTransform: 'none',
+						borderRadius: '28px',
+					},
+				},
+			},
+			MuiAppBar: {
+				styleOverrides: {
+					root: {
+						boxShadow: 'none',
+					},
+				},
+			},
+			MuiSwitch: {
+				styleOverrides: {
+					root: {
+						padding: 8,
+					},
+					track: {
+						borderRadius: 22 / 2,
+						'&::before, &::after': {
+							content: '""',
+							position: 'absolute',
+							top: '50%',
+							transform: 'translateY(-50%)',
+							width: 16,
+							height: 16,
+						},
+						'&::before': {
+							// backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path fill="${encodeURIComponent(
+							// 	theme.palette.getContrastText(theme.palette.primary.main),
+							// )}" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/></svg>')`,
+							left: 12,
+						},
+						'&::after': {
+							// backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 24 24"><path fill="${encodeURIComponent(
+							// 	theme.palette.getContrastText(theme.palette.primary.main),
+							// )}" d="M19,13H5V11H19V13Z" /></svg>')`,
+							right: 12,
+						},
+					},
+					thumb: {
+						boxShadow: 'none',
+						width: 16,
+						height: 16,
+						margin: 2,
+					}
+				},
+			},
 		},
 	}), [mode, colors]);
 
@@ -90,6 +142,12 @@ function App() {
 
 	return theme && (
 		<ThemeProvider theme={theme}>
+			<style>
+				{`:root {
+					--mui-palette-background-variant: ${hexFromArgb(colors.schemes[mode].surface)};
+				}`}
+			</style>
+			{/* ^ This is terrible, but it works */}
 			<NavContextProvider value={[navHidden, setNavHidden]}>
 				<ScreenSizeProvider value={screenSize}>
 					<FeatureCheck>

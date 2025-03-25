@@ -1,36 +1,33 @@
-import React, { ReactNode, useEffect, useState } from 'react';
-import { useSyncState } from '../../hooks/useSyncState';
-import { useMatrixClient } from '../../hooks/useMatrixClient';
+import React, { useEffect, useState } from 'react';
 import { ClientEvent, SyncState } from 'matrix-js-sdk';
 import { Alert } from '@mui/material';
+import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { getText } from '../../../lang';
 
 export default function SyncStateAlert() {
-    const mx = useMatrixClient();
-    const [syncState, setSyncState] = useState<SyncState | null>(mx.getSyncState());
-    const [loading, setLoading] = useState(true);
+	const mx = useMatrixClient();
+	const [syncState, setSyncState] = useState<SyncState | null>(mx.getSyncState());
 
-    const onStateChange = (ss: SyncState) => {
-        if (ss === SyncState.Prepared) setLoading(false);
-        setSyncState(ss);
-    };
+	const onStateChange = (ss: SyncState) => {
+		setSyncState(ss);
+	};
 
-    useEffect(() => {
-        mx.on(ClientEvent.Sync, onStateChange);
-        return () => {
-            mx.off(ClientEvent.Sync, onStateChange);
-        };
-    });
+	useEffect(() => {
+		mx.on(ClientEvent.Sync, onStateChange);
+		return () => {
+			mx.off(ClientEvent.Sync, onStateChange);
+		};
+	});
 
-    return (!syncState || (syncState as string) === 'NULL') ? (
-        <Alert severity={'info'}>
-            {getText(`loading`)}
-        </Alert>
-    ) : (
-        syncState && syncState !== SyncState.Prepared && syncState !== SyncState.Syncing && (
-            <Alert severity={syncState === SyncState.Error ? 'error' : 'info'}>
-                {getText(`sync_state.${syncState}`)}
-            </Alert>
-        )
-    );
+	return (!syncState || (syncState as string) === 'NULL') ? (
+		<Alert severity="info" variant="standard" sx={{ background: 'transparent' }}>
+			{getText(`loading`)}
+		</Alert>
+	) : (
+		syncState && syncState !== SyncState.Prepared && syncState !== SyncState.Syncing && (
+			<Alert severity={syncState === SyncState.Error ? 'error' : 'info'} sx={{ background: 'transparent' }}>
+				{getText(`sync_state.${syncState}`)}
+			</Alert>
+		)
+	);
 }

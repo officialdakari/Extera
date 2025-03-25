@@ -28,7 +28,7 @@ export function JoinBeforeNavigate({ roomIdOrAlias }: JoinBeforeNavigateProps) {
 
 	return (
 		<Page>
-			<AppBar position='static' color='info'>
+			<AppBar position='static'>
 				<Toolbar style={{ paddingLeft: 8, paddingRight: 8 }} variant='regular'>
 					<BackRouteHandler>
 						{(goBack) => (

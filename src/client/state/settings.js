@@ -94,8 +94,8 @@ class Settings extends EventEmitter {
 	}
 
 	setAccentColor(accentColor) {
-		setSettings('accentColor', accentColor);
 		this.accentColor = accentColor;
+		setSettings('accentColor', accentColor);
 		this.emit(cons.events.settings.ACCENT_COLOR_CHANGED, accentColor);
 	}
 

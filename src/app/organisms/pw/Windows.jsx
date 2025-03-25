@@ -9,40 +9,40 @@ import SpaceSettings from '../space-settings/SpaceSettings';
 import RoomSettings from '../room/RoomSettings';
 
 function Windows() {
-  const [inviteUser, changeInviteUser] = useState({
-    isOpen: false,
-    roomId: undefined,
-    term: undefined,
-  });
+	const [inviteUser, changeInviteUser] = useState({
+		isOpen: false,
+		roomId: undefined,
+		term: undefined,
+	});
 
-  function openInviteUser(roomId, searchTerm) {
-    changeInviteUser({
-      isOpen: true,
-      roomId,
-      searchTerm,
-    });
-  }
+	function openInviteUser(roomId, searchTerm) {
+		changeInviteUser({
+			isOpen: true,
+			roomId,
+			searchTerm,
+		});
+	}
 
-  useEffect(() => {
-    navigation.on(cons.events.navigation.INVITE_USER_OPENED, openInviteUser);
-    return () => {
-      navigation.removeListener(cons.events.navigation.INVITE_USER_OPENED, openInviteUser);
-    };
-  }, []);
+	useEffect(() => {
+		navigation.on(cons.events.navigation.INVITE_USER_OPENED, openInviteUser);
+		return () => {
+			navigation.removeListener(cons.events.navigation.INVITE_USER_OPENED, openInviteUser);
+		};
+	}, []);
 
-  return (
-    <>
-      <InviteUser
-        isOpen={inviteUser.isOpen}
-        roomId={inviteUser.roomId}
-        searchTerm={inviteUser.searchTerm}
-        onRequestClose={() => changeInviteUser({ isOpen: false, roomId: undefined })}
-      />
-      <Settings />
-      <SpaceSettings />
-      <RoomSettings />
-    </>
-  );
+	return (
+		<>
+			<InviteUser
+				isOpen={inviteUser.isOpen}
+				roomId={inviteUser.roomId}
+				searchTerm={inviteUser.searchTerm}
+				onRequestClose={() => changeInviteUser({ isOpen: false, roomId: undefined })}
+			/>
+			<Settings />
+			<SpaceSettings />
+			<RoomSettings />
+		</>
+	);
 }
 
 export default Windows;
