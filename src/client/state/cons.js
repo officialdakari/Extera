@@ -27,6 +27,14 @@ const cons = {
 		'm.read',
 		'm.read.private',
 	],
+	hideReasons: [
+		'space.0x1a8510f2.msc3368.spoiler',
+		'space.0x1a8510f2.msc3368.nsfw',
+		'space.0x1a8510f2.msc3368.health_risk',
+		'space.0x1a8510f2.msc3368.health_risk.flashing',
+		'space.0x1a8510f2.msc3368.graphic',
+		'space.0x1a8510f2.msc3368.hidden'
+	],
 	notifs: {
 		DEFAULT: 'default',
 		ALL_MESSAGES: 'all_messages',
