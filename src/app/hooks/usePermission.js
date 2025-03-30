@@ -3,26 +3,26 @@
 import { useEffect, useState } from 'react';
 
 export function usePermission(name, initial) {
-  const [state, setState] = useState(initial);
+	const [state, setState] = useState(initial);
 
-  useEffect(() => {
-    let descriptor;
+	useEffect(() => {
+		let descriptor;
 
-    const update = () => setState(descriptor.state);
+		const update = () => setState(descriptor.state);
 
-    if (navigator.permissions?.query) {
-      navigator.permissions.query({ name }).then((_descriptor) => {
-        descriptor = _descriptor;
+		if (navigator.permissions?.query) {
+			navigator.permissions.query({ name }).then((_descriptor) => {
+				descriptor = _descriptor;
 
-        update();
-        descriptor.addEventListener('change', update);
-      });
-    }
+				update();
+				descriptor.addEventListener('change', update);
+			});
+		}
 
-    return () => {
-      if (descriptor) descriptor.removeEventListener('change', update);
-    };
-  }, []);
+		return () => {
+			if (descriptor) descriptor.removeEventListener('change', update);
+		};
+	}, [name]);
 
-  return [state, setState];
+	return [state, setState];
 }

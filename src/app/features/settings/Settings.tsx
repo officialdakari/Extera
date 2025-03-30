@@ -73,27 +73,27 @@ function AppearanceSection() {
 	const wallpaperInputRef = useRef<HTMLInputElement>(null);
 
 	async function uploadImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.item(0);
-    if (!file) return;
+		const file = e.target.files?.item(0);
+		if (!file) return;
 
-    try {
-        // Читаем файл как Data URL (base64)
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            if (e.target?.result) {
-                const base64 = e.target.result as string;
-                saveWallpaper(base64);
-                setWallpaperURL(base64);
-            }
-        };
-        reader.readAsDataURL(file);
-    } catch (err) {
-        console.error(err);
-        alert('Ошибка установки обоев');
-    }
+		try {
+			// Читаем файл как Data URL (base64)
+			const reader = new FileReader();
+			reader.onload = (evt: any) => {
+				if (evt.target?.result) {
+					const base64 = evt.target.result as string;
+					saveWallpaper(base64);
+					setWallpaperURL(base64);
+				}
+			};
+			reader.readAsDataURL(file);
+		} catch (err) {
+			console.error(err);
+			alert('Ошибка установки обоев');
+		}
 
-    if (wallpaperInputRef.current) wallpaperInputRef.current.value = '';
-}
+		if (wallpaperInputRef.current) wallpaperInputRef.current.value = '';
+	}
 
 	const handleSetWallpaper = async () => {
 		wallpaperInputRef.current?.click();
@@ -502,6 +502,8 @@ function ExteraSection() {
 function NotificationsSection() {
 	const [permission, setPermission] = usePermission('notifications', window.Notification?.permission);
 	const [pushes, setPushes] = useSetting(settingsAtom, 'pushesEnabled');
+	const [webNotifications, setWebNotifications] = useState(settings._showNotifications);
+	const [cordovaNotifications, setCordovaNotifications] = useSetting(settingsAtom, 'cordovaNotifications');
 	const [, updateState] = useState({});
 	const cordova = useCordova();
 
@@ -514,7 +516,7 @@ function NotificationsSection() {
 	const requestCordovaPermissions = () => {
 		if (cordova?.plugins?.notification?.local) {
 			cordova.plugins.notification.local.requestPermission((granted: boolean) => {
-				setPermission(granted);
+				setCordovaNotifications(granted);
 			});
 		}
 	};
@@ -522,10 +524,10 @@ function NotificationsSection() {
 	const renderWebOptions = () => {
 		if (window.Notification === undefined) return null;
 
-		if (permission) {
+		if (permission === 'granted') {
 			return (
 				<Switch
-					checked={settings._showNotifications}
+					checked={webNotifications}
 					onClick={() => {
 						toggleNotifications();
 						setPermission(window.Notification?.permission);
@@ -548,14 +550,12 @@ function NotificationsSection() {
 	const renderCordovaOptions = () => {
 		if (!cordova?.plugins?.notification?.local) return null;
 
-		cordova.plugins.notification.local.hasPermission(setPermission);
-
-		if (permission) {
+		if (cordovaNotifications) {
 			return (
 				<Switch
-					checked={settings._showNotifications}
+					checked={cordovaNotifications}
 					onClick={() => {
-						toggleNotifications();
+						setCordovaNotifications(!cordovaNotifications);
 						updateState({});
 					}}
 				/>
@@ -580,7 +580,7 @@ function NotificationsSection() {
 			return <Text className="settings-notifications__not-supported">{getText('settings.notifications.unsupported')}</Text>;
 		}
 
-		return webOptions || cordovaOptions;
+		return cordovaOptions || webOptions;
 	};
 
 	const togglePushes = () => {
@@ -598,6 +598,14 @@ function NotificationsSection() {
 	const toggleBg = () => {
 		cordova?.plugins?.backgroundMode.setEnabled(!isBg);
 	};
+
+	useEffect(() => {
+		const update = (v: boolean) => setWebNotifications(v);
+		settings.on(cons.events.settings.NOTIFICATIONS_TOGGLED, update);
+		return () => {
+			settings.removeListener(cons.events.settings.NOTIFICATIONS_TOGGLED, update);
+		};
+	}, []);
 
 	return (
 		<>

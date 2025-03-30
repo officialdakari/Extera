@@ -24,6 +24,8 @@ export interface Settings {
 	editorToolbar: boolean;
 	twitterEmoji: boolean;
 
+	cordovaNotifications: boolean;
+
 	isPeopleDrawer: boolean;
 	memberSortFilterIndex: number;
 	enterForNewline: boolean;
@@ -64,6 +66,8 @@ const defaultSettings: Settings = {
 	isMarkdown: true,
 	editorToolbar: false,
 	twitterEmoji: true,
+
+	cordovaNotifications: false,
 
 	isPeopleDrawer: true,
 	memberSortFilterIndex: 0,
