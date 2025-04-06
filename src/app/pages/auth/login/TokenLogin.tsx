@@ -10,13 +10,13 @@ import {
 } from 'folds';
 import React, { useCallback, useEffect } from 'react';
 import { MatrixError } from 'matrix-js-sdk';
+import Icon from '@mdi/react';
+import { mdiAlert } from '@mdi/js';
 import { useAutoDiscoveryInfo } from '../../../hooks/useAutoDiscoveryInfo';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { CustomLoginResponse, LoginError, login, useLoginComplete } from './loginUtil';
 import { getText } from '../../../../lang';
 import cons from '../../../../client/state/cons';
-import Icon from '@mdi/react';
-import { mdiAlert } from '@mdi/js';
 
 function LoginTokenError({ message }: { message: string }) {
     return (

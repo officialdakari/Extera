@@ -1,12 +1,12 @@
 import { style } from '@vanilla-extract/css';
-import { color, config } from 'folds';
+import { config } from 'folds';
 
 export const SplashScreen = style({
-  minHeight: '100%',
-  backgroundColor: color.Background.Container,
-  color: color.Background.OnContainer,
+	minHeight: '100%',
+	backgroundColor: `var(--md-sys-color-background)`,
+	color: `var(--md-sys-color-on-background)`,
 });
 
 export const SplashScreenFooter = style({
-  padding: config.space.S400,
+	padding: config.space.S400,
 });

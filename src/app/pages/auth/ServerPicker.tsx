@@ -1,61 +1,41 @@
 import React, {
-    ChangeEventHandler,
-    KeyboardEventHandler,
-    MouseEventHandler,
-    useEffect,
-    useRef,
-    useState,
+	useEffect,
+	useRef,
 } from 'react';
-import {
-    Box,
-    Header,
-    PopOut,
-    RectCords,
-    Text,
-    config,
-} from 'folds';
-import FocusTrap from 'focus-trap-react';
 
-import { useDebounce } from '../../hooks/useDebounce';
+import { TextField } from 'react-you-ui';
 import { getText } from '../../../lang';
-import Icon from '@mdi/react';
-import { mdiChevronDown } from '@mdi/js';
-import { Autocomplete, Link, TextField } from '@mui/material';
 
-export function ServerPicker({
-    server,
-    serverList,
-    allowCustomServer,
-    onServerChange,
+export default function ServerPicker({
+	server,
+	// serverList,
+	onServerChange,
 }: {
-    server: string;
-    serverList: string[];
-    allowCustomServer?: boolean;
-    onServerChange: (server: string) => void;
+	server: string;
+	// serverList: string[];
+	onServerChange: (server: string) => void;
 }) {
-    const serverInputRef = useRef<HTMLInputElement>(null);
+	const serverInputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        // sync input with it outside server changes
-        if (serverInputRef.current && serverInputRef.current.value !== server) {
-            serverInputRef.current.value = server;
-        }
-    }, [server]);
+	useEffect(() => {
+		// sync input with it outside server changes
+		if (serverInputRef.current && serverInputRef.current.value !== server) {
+			serverInputRef.current.value = server;
+		}
+	}, [server]);
 
-    return (
-        <>
-            <Autocomplete
-                renderInput={(params) => <TextField {...params} ref={serverInputRef} variant='filled' label={getText('form.homeserver')} />}
-                options={serverList}
-                defaultValue={server}
-                onChange={(evt, value) => onServerChange(value!)}
-                freeSolo
-            />
-            <Box grow="Yes" shrink="No" justifyContent="End">
-                <Text as="span" size="T200" priority="400" align="Right">
-                    <Link href="https://servers.joinmatrix.org/">{getText('pick_a_server')}</Link>
-                </Text>
-            </Box>
-        </>
-    );
+	return (
+		<TextField
+			ref={serverInputRef as any}
+			style={{ display: 'flex', flexGrow: 1, width: '100%' }}
+			variant='filled'
+			label={getText('form.homeserver')}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					onServerChange(serverInputRef.current?.value ?? '');
+				}
+			}}
+		/>
+	);
 }
