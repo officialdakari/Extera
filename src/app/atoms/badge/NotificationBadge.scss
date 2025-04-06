@@ -1,21 +1,21 @@
 .notification-badge {
-  min-width: 16px;
-  min-height: 8px;
-  padding: 0 var(--sp-ultra-tight);
-  background-color: var(--bg-badge);
-  border-radius: var(--bo-radius);
+	min-width: 16px;
+	min-height: 8px;
+	padding: 0 var(--sp-ultra-tight);
+	background-color: var(--mui-palette-common-background);
+	border-radius: var(--mui-shape-borderRadius);
 
-  .text {
-    color: var(--tc-badge);
-    text-align: center;
-  }
+	.text {
+		color: var(--mui-palette-common-onBackground);
+		text-align: center;
+	}
 
-  &--alert {
-    background-color: var(--bg-positive);
-  }
+	&--alert {
+		background-color: var(--mui-palette-success-dark);
+	}
 
-  &:empty {
-    min-width: 8px;
-    margin: 0 var(--sp-ultra-tight);
-  }
+	&:empty {
+		min-width: 8px;
+		margin: 0 var(--sp-ultra-tight);
+	}
 }

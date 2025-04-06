@@ -3,82 +3,82 @@
 @use '../../partials/dir';
 
 .context-menu {
-    background-color: var(--bg-surface);
-    box-shadow: var(--bs-popup);
-    border-radius: var(--bo-radius);
-    overflow: hidden;
+	background-color: var(--mui-palette-common-background);
+	box-shadow: var(--bs-popup);
+	border-radius: var(--mui-shape-borderRadius);
+	overflow: hidden;
 
-    &:focus {
-        outline: none;
-    }
+	&:focus {
+		outline: none;
+	}
 
-    & .tippy-content>div>.scrollbar {
-        max-height: 90vh;
-    }
+	& .tippy-content>div>.scrollbar {
+		max-height: 90vh;
+	}
 }
 
 .context-menu__click-wrapper {
-    display: inline-flex;
+	display: inline-flex;
 
-    &:focus {
-        outline: none;
-    }
+	&:focus {
+		outline: none;
+	}
 }
 
 .context-menu__header {
-    height: 34px;
-    padding: 0 var(--sp-normal);
-    margin-bottom: var(--sp-ultra-tight);
-    display: flex;
-    align-items: center;
+	height: 34px;
+	padding: 0 var(--sp-normal);
+	margin-bottom: var(--sp-ultra-tight);
+	display: flex;
+	align-items: center;
 
-    .text {
-        @extend .cp-txt__ellipsis;
-        color: var(--tc-surface-low);
-    }
+	.text {
+		@extend .cp-txt__ellipsis;
+		color: var(--mui-palette-common-background);
+	}
 
-    &:not(:first-child) {
-        margin-top: var(--sp-extra-tight);
-        border-top: 1px solid var(--bg-surface-border);
-    }
+	&:not(:first-child) {
+		margin-top: var(--sp-extra-tight);
+		border-top: 1px solid var(--bg-surface-border);
+	}
 }
 
 .context-menu__item {
-    display: flex;
+	display: flex;
 
-    button[class^="btn"] {
-        @extend .cp-fx__item-one;
-        justify-content: flex-start;
-        border-radius: 0;
-        box-shadow: none;
-        white-space: nowrap;
-        padding: var(--sp-extra-tight) var(--sp-normal);
+	button[class^="btn"] {
+		@extend .cp-fx__item-one;
+		justify-content: flex-start;
+		border-radius: 0;
+		box-shadow: none;
+		white-space: nowrap;
+		padding: var(--sp-extra-tight) var(--sp-normal);
 
-        &>.ic-raw {
-            @include dir.side(margin, 0, var(--sp-tight));
-        }
+		&>.ic-raw {
+			@include dir.side(margin, 0, var(--sp-tight));
+		}
 
-        // if item doesn't have icon
-        .text:first-child {
-            @include dir.side(margin,
-                calc(var(--ic-small) + var(--sp-tight)),
-                0);
-        }
-    }
+		// if item doesn't have icon
+		.text:first-child {
+			@include dir.side(margin,
+				calc(var(--ic-small) + var(--sp-tight)),
+				0);
+		}
+	}
 
-    .btn-surface:focus {
-        background-color: var(--bg-surface-hover);
-    }
+	.btn-surface:focus {
+		background-color: var(--bg-surface-hover);
+	}
 
-    .btn-positive:focus {
-        background-color: var(--bg-positive-hover);
-    }
+	.btn-positive:focus {
+		background-color: var(--bg-positive-hover);
+	}
 
-    .btn-caution:focus {
-        background-color: var(--bg-caution-hover);
-    }
+	.btn-caution:focus {
+		background-color: var(--bg-caution-hover);
+	}
 
-    .btn-danger:focus {
-        background-color: var(--bg-danger-hover);
-    }
+	.btn-danger:focus {
+		background-color: var(--bg-danger-hover);
+	}
 }

@@ -1,12 +1,12 @@
 @use '../../partials/dir';
 
 .join-alias {
-    padding: var(--sp-normal);
+	padding: var(--sp-normal);
 
-    &__error {
-        color: var(--tc-danger-high);
-        margin-top: var(--sp-extra-tight) !important;
-    }
+	&__error {
+		color: var(--mui-palette-error-main);
+		margin-top: var(--sp-extra-tight) !important;
+	}
 
-    flex-direction: row;
+	flex-direction: row;
 }

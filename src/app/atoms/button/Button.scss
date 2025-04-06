@@ -7,74 +7,38 @@
 .btn-positive,
 .btn-caution,
 .btn-danger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
 
-  min-width: 80px;
-  padding: var(--sp-extra-tight) var(--sp-normal);
-  background-color: transparent;
-  border: none;
-  border-radius: var(--bo-radius);
-  cursor: pointer;
-  @include state.disabled;
+	min-width: 80px;
+	padding: var(--sp-extra-tight) var(--sp-normal);
+	background-color: transparent;
+	border: none;
+	border-radius: var(--bo-radius);
+	cursor: pointer;
+	@include state.disabled;
 
-  & .text {
-    @extend .cp-txt__ellipsis;
-  }
-  
-  &--icon {
-    @include dir.side(padding, var(--sp-tight), var(--sp-loose));
+	& .text {
+		@extend .cp-txt__ellipsis;
+	}
 
-  }
-  .ic-raw {
-    @include dir.side(margin, 0, var(--sp-extra-tight));
-    flex-shrink: 0;
-  }
+	&--icon {
+		@include dir.side(padding, var(--sp-tight), var(--sp-loose));
+
+	}
+
+	.ic-raw {
+		@include dir.side(margin, 0, var(--sp-extra-tight));
+		flex-shrink: 0;
+	}
 }
 
 @mixin color($textColor, $iconColor) {
-  .text {
-    color: $textColor;
-  }
-  color: $iconColor;
-}
+	.text {
+		color: $textColor;
+	}
 
-
-.btn-surface {
-  box-shadow: var(--bs-surface-border);
-  @include color(var(--tc-surface-high), var(--ic-surface-normal));
-  @include state.hover(var(--bg-surface-hover));
-  @include state.focus(var(--bs-surface-outline));
-  @include state.active(var(--bg-surface-active));
-}
-
-.btn-primary {
-  background-color: var(--bg-primary);
-  @include color(var(--tc-primary-high), var(--ic-primary-normal));
-  @include state.hover(var(--bg-primary-hover));
-  @include state.focus(var(--bs-primary-outline));
-  @include state.active(var(--bg-primary-active));
-}
-.btn-positive {
-  box-shadow: var(--bs-positive-border);
-  @include color(var(--tc-positive-high), var(--ic-positive-normal));
-  @include state.hover(var(--bg-positive-hover));
-  @include state.focus(var(--bs-positive-outline));
-  @include state.active(var(--bg-positive-active));
-}
-.btn-caution {
-  box-shadow: var(--bs-caution-border);
-  @include color(var(--tc-caution-high), var(--ic-caution-normal));
-  @include state.hover(var(--bg-caution-hover));
-  @include state.focus(var(--bs-caution-outline));
-  @include state.active(var(--bg-caution-active));
-}
-.btn-danger {
-  box-shadow: var(--bs-danger-border);
-  @include color(var(--tc-danger-high), var(--ic-danger-normal));
-  @include state.hover(var(--bg-danger-hover));
-  @include state.focus(var(--bs-danger-outline));
-  @include state.active(var(--bg-danger-active));
+	color: $iconColor;
 }
