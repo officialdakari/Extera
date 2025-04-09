@@ -34,17 +34,17 @@ function errorHandler(error: any) {
 }
 
 export async function saveFile(url: string, name: string) {
-	let src = `${url}`;
+	const src = `${url}`;
 	const mx = initMatrix.matrixClient;
 	const resolveLocalFileSystemURL: any = 'resolveLocalFileSystemURL' in window ? window.resolveLocalFileSystemURL : null;
 	const cordova: any = 'cordova' in window ? window.cordova : null;
 	if (!mx) return;
 	console.log(`Saving file ${src} ${name}`);
 	if (!resolveLocalFileSystemURL || !cordova || cordova.platformId === 'browser') {
-		const token = mx.getAccessToken()!;
-		if (!src.includes(token)) {
-			src += `${src.includes('?') ? '&' : '?'}access_token=${token}`;
-		}
+		// const token = mx.getAccessToken()!;
+		// if (!src.includes(token)) {
+		// 	src += `${src.includes('?') ? '&' : '?'}access_token=${token}`;
+		// }
 		FileSaver.saveAs(src, name);
 		return;
 	}
