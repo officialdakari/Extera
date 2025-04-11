@@ -5,7 +5,6 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { Add, ArrowForward, DoneAll, MoreVert, Menu as MenuIcon, MenuOpen } from '@mui/icons-material';
 import { mdiPound } from '@mdi/js';
 import { AppBar, Box, Button, IconButton, Menu, MenuItem, Typography } from 'react-you-ui';
-import { ListItemIcon, ListItemText } from '@mui/material';
 import { factoryRoomIdByActivity } from '../../../utils/sort';
 import {
 	NavEmptyCenter,
@@ -60,32 +59,28 @@ const HomeMenu = forwardRef<any, HomeMenuProps>(({ anchorEl, requestClose }, ref
 	};
 
 	return (
-		<Menu anchorEl={anchorEl || undefined} onClosing={requestClose} open={!!anchorEl} ref={ref}>
+		<Menu anchorEl={anchorEl || undefined} onClosing={requestClose} onClosed={requestClose} open={!!anchorEl} ref={ref}>
 			<MenuItem
 				onClick={handleMarkAsRead}
 				disabled={!unread}
 			>
-				<ListItemIcon>
-					<DoneAll fontSize='small' />
-				</ListItemIcon>
-				<ListItemText>{getText('chats.mark_as_read')}</ListItemText>
+				<DoneAll />
+				<Typography>
+					{getText('chats.mark_as_read')}
+				</Typography>
 			</MenuItem>
 			<MenuItem
 				onClick={handleNewRoom}
 			>
-				<ListItemIcon>
-					<Add fontSize='small' />
-				</ListItemIcon>
-				<ListItemText>{getText('home.new_room')}</ListItemText>
+				<Add />
+				<Typography>{getText('home.new_room')}</Typography>
 			</MenuItem>
 			<MenuItem
 				onClick={handleJoin}
 				style={{ minHeight: 'auto' }}
 			>
-				<ListItemIcon>
-					<ArrowForward fontSize='small' />
-				</ListItemIcon>
-				<ListItemText>{getText('home.join_via_address')}</ListItemText>
+				<ArrowForward />
+				<Typography>{getText('home.join_via_address')}</Typography>
 			</MenuItem>
 		</Menu>
 	);
@@ -113,7 +108,7 @@ function HomeHeader() {
 				>
 					<MoreVert />
 				</IconButton>
-				<HomeMenu anchorEl={menuAnchor} requestClose={() => setMenuAnchor(null)} />
+				<HomeMenu anchorEl={menuAnchor} requestClose={() => { setMenuAnchor(null); console.log('close') }} />
 			</AppBar>
 		</Box>
 	);
