@@ -32,6 +32,7 @@ import SyncStateAlert from '../SyncStateAlert';
 import { useSetting } from '../../../state/hooks/settings';
 import { settingsAtom } from '../../../state/settings';
 
+
 type HomeMenuProps = {
 	requestClose: () => void;
 	anchorEl: HTMLElement | null;
