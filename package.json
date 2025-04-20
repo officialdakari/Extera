@@ -89,7 +89,7 @@
         "showdown": "2.1.0",
         "tippy.js": "6.3.7",
         "ua-parser-js": "1.0.35",
-        "url": "0.11.3",
+        "url": "0.11.4",
         "uuid": "10.0.0",
         "vite-plugin-pwa": "0.20.5"
     },
