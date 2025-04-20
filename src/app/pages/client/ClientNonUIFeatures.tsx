@@ -193,6 +193,7 @@ function MessageNotifications() {
 								plugin.local.schedule({
 									id,
 									androidLockscreen: false,
+									androidOnlyAlertOnce: true,
 									title: roomName,
 									icon: roomAvatar ? mxcUrlToHttp(mx, roomAvatar, 96, 96, 'scale', true) : undefined,
 									androidMessages,
