@@ -26,6 +26,7 @@ import {
     UnreadInfo,
 } from '../../types/matrix/room';
 import { mdiPound, mdiStarFourPoints } from '@mdi/js';
+import { mxcUrlToHttp } from './matrix';
 
 export const getStateEvent = (
     room: Room,
@@ -262,15 +263,21 @@ export const getRoomAvatarUrl = (
     mx: MatrixClient,
     room: Room,
     size: 32 | 96 = 32
-): string | undefined => room.getAvatarUrl(mx.baseUrl, size, size, 'crop') ?? undefined;
+): string | undefined => {
+    const mxc = room.getMxcAvatarUrl();
+    return mxc ? mxcUrlToHttp(mx, mxc, size, size, 'scale') ?? undefined :
+        undefined;
+}
 
 export const getDirectRoomAvatarUrl = (
     mx: MatrixClient,
     room: Room,
     size: 32 | 96 = 32
-): string | undefined =>
-    room.getAvatarFallbackMember()?.getAvatarUrl(mx.baseUrl, size, size, 'crop', undefined, false) ??
-    undefined;
+): string | undefined => {
+    const mxc = room.getAvatarFallbackMember()?.getMxcAvatarUrl();
+    return mxc ? mxcUrlToHttp(mx, mxc, size, size, 'scale') ?? undefined :
+        undefined;
+}
 
 export const trimReplyFromBody = (body: string): string => {
     const match = body.match(/^> <.+?> .+\n(>.*\n)*?\n/m);
