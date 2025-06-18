@@ -1,6 +1,8 @@
 /* eslint-disable no-nested-ternary */
 import { Box, config, Header, Modal, Text } from 'folds';
 import React, { ReactNode, useEffect, useState } from 'react';
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import Draggable from 'react-draggable';
 import initMatrix from '../../../client/initMatrix';
 import { initHotkeys } from '../../../client/event/hotkeys';
 import { getSecret } from '../../../client/state/auth';
@@ -15,14 +17,12 @@ import Dialogs from '../../organisms/pw/Dialogs';
 import ReusableContextMenu from '../../atoms/context-menu/ReusableContextMenu';
 import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
-import Draggable from 'react-draggable';
 
 import * as css from './ClientRoot.css';
 import { CallProvider } from '../../hooks/useCall';
 import { createModals, ModalsProvider } from '../../hooks/useModals';
 import { Modals } from '../../components/modal/Modal';
 import { getText } from '../../../lang';
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 function SystemEmojiFeature() {
     const [twitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
@@ -54,7 +54,7 @@ type ClientRootProps = {
 };
 export function ClientRoot({ children }: ClientRootProps) {
     const [loading, setLoading] = useState(true);
-    const [syncing, setSyncing] = useState(true);
+    const [, setSyncing] = useState(true);
     const [isError, setError] = useState(false);
     const { baseUrl } = getSecret();
 
@@ -93,7 +93,7 @@ export function ClientRoot({ children }: ClientRootProps) {
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => location.reload()}>Reload</Button>
+                        <Button onClick={() => window.location.reload()}>Reload</Button>
                         <Button onClick={() => initMatrix.clearCacheAndReload()} color='error'>Clear cache</Button>
                     </DialogActions>
                 </Dialog>

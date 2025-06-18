@@ -1,7 +1,8 @@
 /* eslint-disable import/prefer-default-export */
 import { useState, useEffect } from 'react';
 
-import { CryptoEvent, IMyDevice } from 'matrix-js-sdk';
+import { IMyDevice } from 'matrix-js-sdk';
+import { CryptoEvent } from 'matrix-js-sdk/lib/crypto-api';
 import { useMatrixClient } from './useMatrixClient';
 
 export function useDeviceList() {

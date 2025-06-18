@@ -7,6 +7,8 @@ import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfil
 import inject from '@rollup/plugin-inject';
 import topLevelAwait from 'vite-plugin-top-level-await';
 import { VitePWA } from 'vite-plugin-pwa';
+import fs from 'fs';
+import path from 'path';
 import buildConfig from './build.config';
 
 const copyFiles = {
@@ -71,6 +73,33 @@ const copyFiles = {
     ],
 };
 
+function serverMatrixSdkCryptoWasm(wasmFilePath) {
+    return {
+        name: 'vite-plugin-serve-matrix-sdk-crypto-wasm',
+        configureServer(server) {
+            server.middlewares.use((req, res, next) => {
+                if (req.url === wasmFilePath) {
+                    const resolvedPath = path.join(path.resolve(), "/node_modules/@matrix-org/matrix-sdk-crypto-wasm/pkg/matrix_sdk_crypto_wasm_bg.wasm");
+
+                    if (fs.existsSync(resolvedPath)) {
+                        res.setHeader('Content-Type', 'application/wasm');
+                        res.setHeader('Cache-Control', 'no-cache');
+
+                        const fileStream = fs.createReadStream(resolvedPath);
+                        fileStream.pipe(res);
+                    } else {
+                        res.writeHead(404);
+                        res.end('File not found');
+                    }
+                } else {
+                    next();
+                }
+            });
+        },
+    };
+}
+
+
 export default defineConfig({
     appType: 'spa',
     publicDir: false,
@@ -82,14 +111,9 @@ export default defineConfig({
         //     cert: readFileSync('../sslthings/extera.local.crt'),
         //     key: readFileSync('../sslthings/extera.local.key')
         // },
-        proxy: {
-            "^\\/.*?\\/olm\\.wasm$": {
-                target: 'http://localhost:8080',
-                rewrite: () => '/olm.wasm'
-            }
-        }
     },
     plugins: [
+        serverMatrixSdkCryptoWasm('/node_modules/.vite/deps/pkg/matrix_sdk_crypto_wasm_bg.wasm'),
         topLevelAwait({
             // The export name of top-level await promise for each chunk module
             promiseExportName: '__tla',

@@ -1,19 +1,15 @@
 import EventEmitter from 'events';
 import * as sdk from 'matrix-js-sdk';
-import { logger } from 'matrix-js-sdk/lib/logger';
 
-import Olm from '@matrix-org/olm';
 import { getSecret } from './state/auth';
 import { cryptoCallbacks } from './state/secretStorageKeys';
 import indexedDBFactory from './workers/IndexedDBFactory';
 
-globalThis.Olm = Olm;
-
-if (import.meta.env.PROD) {
-    logger.disableAll();
-}
-
 class InitMatrix extends EventEmitter {
+    matrixClient?: sdk.MatrixClient;
+
+    initializing = false;
+
     async init() {
         if (this.matrixClient || this.initializing) {
             console.warn('Client is already initialized!')
@@ -42,6 +38,11 @@ class InitMatrix extends EventEmitter {
         });
         const secret = getSecret();
 
+        if (!secret.accessToken || !secret.baseUrl || !secret.deviceId || !secret.userId) {
+            console.error(`Some of secret options are missing.`);
+            return;
+        }
+
         this.matrixClient = sdk.createClient({
             baseUrl: secret.baseUrl,
             accessToken: secret.accessToken,
@@ -50,27 +51,28 @@ class InitMatrix extends EventEmitter {
             cryptoStore: new sdk.IndexedDBCryptoStore(global.indexedDB, 'crypto-store'),
             deviceId: secret.deviceId,
             timelineSupport: true,
-            cryptoCallbacks,
+            cryptoCallbacks: cryptoCallbacks as any,
             verificationMethods: [
                 'm.sas.v1',
             ],
-            fallbackICEServerAllowed: true
+            fallbackICEServerAllowed: true,
         });
 
-        global.initMatrix = this;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        globalThis.initMatrix = this;
         this.emit('client_ready');
 
         await indexedDBStore.startup();
 
-        await this.matrixClient.initCrypto();
+        await this.matrixClient.initRustCrypto();
 
         await this.matrixClient.startClient({
             lazyLoadMembers: true,
             threadSupport: true,
-            initialSyncLimit: 4
+            initialSyncLimit: 4,
         });
 
-        this.matrixClient.setGlobalErrorOnUnknownDevices(false);
         this.matrixClient.setMaxListeners(50);
     }
 
@@ -82,7 +84,7 @@ class InitMatrix extends EventEmitter {
             SYNCING: () => {
                 console.log('SYNCING state');
             },
-            PREPARED: (prevState) => {
+            PREPARED: (prevState: sdk.SyncState | null) => {
                 console.log('PREPARED state');
                 console.log('Previous state: ', prevState);
                 if (prevState === null) {
@@ -102,36 +104,36 @@ class InitMatrix extends EventEmitter {
                 console.log('STOPPED state');
             },
         };
-        this.matrixClient.on('sync', (state, prevState) => {
+        this.matrixClient!.on(sdk.ClientEvent.Sync, (state, prevState) => {
             sync[state](prevState);
             console.debug(`OLD STATE: ${prevState} TO NEW STATE: ${state}`);
         });
     }
 
     listenEvents() {
-        this.matrixClient.on('Session.logged_out', async () => {
-            this.matrixClient.stopClient();
-            await this.matrixClient.clearStores();
+        this.matrixClient!.on(sdk.HttpApiEvent.SessionLoggedOut, async () => {
+            this.matrixClient!.stopClient();
+            await this.matrixClient!.clearStores();
             window.localStorage.clear();
             window.location.reload();
         });
     }
 
     async logout() {
-        this.matrixClient.stopClient();
+        this.matrixClient!.stopClient();
         try {
-            await this.matrixClient.logout();
+            await this.matrixClient!.logout();
         } catch {
             // ignore if failed to logout
         }
-        await this.matrixClient.clearStores();
+        await this.matrixClient!.clearStores();
         window.localStorage.clear();
         window.location.reload();
     }
 
     clearCacheAndReload() {
-        this.matrixClient.stopClient();
-        this.matrixClient.store.deleteAllData().then(() => {
+        this.matrixClient!.stopClient();
+        this.matrixClient!.store.deleteAllData().then(() => {
             window.location.reload();
         });
     }

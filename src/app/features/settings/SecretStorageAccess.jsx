@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './SecretStorageAccess.scss';
-import { deriveKey } from 'matrix-js-sdk/lib/crypto/key_passphrase';
 
+import { decodeRecoveryKey, deriveRecoveryKeyFromPassphrase } from 'matrix-js-sdk/lib/crypto-api';
+import { LoadingButton } from '@mui/lab';
+import { Alert, Button, DialogActions, DialogContent, TextField } from '@mui/material';
 import initMatrix from '../../../client/initMatrix';
 import { openReusableDialog } from '../../../client/action/navigation';
 import { getDefaultSSKey, getSSKeyInfo } from '../../../util/matrixUtil';
 import { storePrivateKey, hasPrivateKey, getPrivateKey } from '../../../client/state/secretStorageKeys';
 
 import { useStore } from '../../hooks/useStore';
-import { Alert, Button, DialogActions, DialogContent, TextField } from '@mui/material';
 import { getText } from '../../../lang';
-import { LoadingButton } from '@mui/lab';
 
 function SecretStorageAccess({ onComplete }) {
     const mx = initMatrix.matrixClient;
@@ -31,8 +31,8 @@ function SecretStorageAccess({ onComplete }) {
         try {
             const { salt, iterations } = sSKeyInfo.passphrase || {};
             const privateKey = key
-                ? mx.keyBackupKeyFromRecoveryKey(key)
-                : await deriveKey(phrase, salt, iterations);
+                ? decodeRecoveryKey(key)
+                : await deriveRecoveryKeyFromPassphrase(phrase, salt, iterations);
             const isCorrect = await mx.checkSecretStorageKey(privateKey, sSKeyInfo);
 
             if (!mountStore.getItem()) return;

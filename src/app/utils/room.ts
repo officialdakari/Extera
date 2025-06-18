@@ -1,5 +1,3 @@
-import { IconName, IconSrc } from 'folds';
-
 import {
     EventTimeline,
     EventTimelineSet,
@@ -16,6 +14,7 @@ import {
     RoomMember,
 } from 'matrix-js-sdk';
 import { CryptoBackend } from 'matrix-js-sdk/lib/common-crypto/CryptoBackend';
+import { mdiPound, mdiStarFourPoints } from '@mdi/js';
 import { AccountDataEvent } from '../../types/matrix/accountData';
 import {
     MessageEvent,
@@ -25,7 +24,6 @@ import {
     StateEvent,
     UnreadInfo,
 } from '../../types/matrix/room';
-import { mdiPound, mdiStarFourPoints } from '@mdi/js';
 import { mxcUrlToHttp } from './matrix';
 
 export const getStateEvent = (
@@ -40,6 +38,8 @@ export const getStateEvents = (room: Room, eventType: StateEvent): MatrixEvent[]
 export const getAccountData = (
     mx: MatrixClient,
     eventType: AccountDataEvent
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
 ): MatrixEvent | undefined => mx.getAccountData(eventType);
 
 export const getMDirects = (mDirectEvent: MatrixEvent): Set<string> => {
@@ -170,6 +170,8 @@ export const getNotificationType = (mx: MatrixClient, roomId: string): Notificat
     }
 
     if (!roomPushRule) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const overrideRules = mx.getAccountData('m.push_rules')?.getContent<IPushRules>()
             ?.global?.override;
         if (!overrideRules) return NotificationType.Default;
@@ -255,9 +257,7 @@ export const getUnreadInfos = (mx: MatrixClient): UnreadInfo[] => {
 export const joinRuleToIconSrc = (
     joinRule: JoinRule,
     space: boolean
-): string | undefined => {
-    return space ? mdiStarFourPoints : mdiPound;
-};
+): string | undefined => space ? mdiStarFourPoints : mdiPound;
 
 export const getRoomAvatarUrl = (
     mx: MatrixClient,
